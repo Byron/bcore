@@ -1,0 +1,1 @@
+python("import bcore.processing.tractor.alf.generators.maya_entrypoint as maya; maya.run()");

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FrameSequenceBox</class>
+ <widget class="QGroupBox" name="FrameSequenceBox">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>102</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Chunk</string>
+  </property>
+  <property name="title">
+   <string>Frame Range and Chunking</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetDefaultConstraint</enum>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="range">
+     <item>
+      <widget class="QLabel" name="first_label">
+       <property name="text">
+        <string>First </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="first">
+       <property name="toolTip">
+        <string>First frame to operate on</string>
+       </property>
+       <property name="decimals">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <double>9999.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="last_label">
+       <property name="text">
+        <string>Last</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="last">
+       <property name="toolTip">
+        <string>last frame to operate on</string>
+       </property>
+       <property name="decimals">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <double>9999.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="step_label">
+       <property name="text">
+        <string>By </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="step_size">
+       <property name="toolTip">
+        <string>The frame-difference between two rendered frames</string>
+       </property>
+       <property name="decimals">
+        <number>0</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="options">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Chunk Size</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="chunk_size">
+       <property name="toolTip">
+        <string>Amount of frames per task on the farm. Smaller chunks means more tasks to work on. 0 makes one chunk. Negative values create that many chunks</string>
+       </property>
+       <property name="decimals">
+        <number>0</number>
+       </property>
+       <property name="minimum">
+        <double>-999.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>999.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="source_label">
+       <property name="text">
+        <string>Source</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="source">
+       <property name="toolTip">
+        <string>The source for the first and last frame</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="order_label">
+       <property name="toolTip">
+        <string>Determines how chunks are ordered. Useful to make sure you see certain frames first</string>
+       </property>
+       <property name="text">
+        <string>Order</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="order">
+       <property name="toolTip">
+        <string>The order in which chunks will be created. Useful to get certain frames before others</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

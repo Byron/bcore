@@ -1,0 +1,12 @@
+packages:
+  hello:
+    requires:
+      - bcore
+    executable_alias: python
+    arguments:
+      prepend:
+        - -c
+        - import hello; hello.HelloWorldCommand.main()
+    environment:
+      variables:
+        PYTHONPATH: '{process.bootstrap_dir}/../lib'

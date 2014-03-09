@@ -1,0 +1,70 @@
+
+# no written log
+# Even though this doesn't work as the component architecture doesn't pick this
+# one up right now  - the test framework would have to import the logging facilities
+# later after its particular (ingested) configuration was applied
+logging:
+  logdir: 
+  
+packages:
+  #####################
+  test-environment: ##
+  ###################
+  # Makes sure exactly this tx implementation is available in the launched application
+    requires: 
+      - python-site-packages
+      - python-pyside
+      - python-tractor-blade
+      - bcore
+    environment:
+      variables:
+        PYTHONPATH: '{site.root_path.core}'
+        
+  maya:
+    requires: [test-environment]
+    
+  nuke:
+    requires: [test-environment]
+    
+  katana:
+    requires: [test-environment]
+    
+  py-program:
+    # Use python's executable as ours
+    requires: test-environment
+    executable_alias: python
+    plugin_paths: '{site.root_path.core}/bcore/tests/processcontrol'
+    delegate: TestCommunicatorDelegate
+    arguments:
+      # Just for testing ...
+      prepend:
+        - -c
+      append:
+        - from bcore.tests.processcontrol.test_base import TestCommand; TestCommand().execute()
+      
+  py-program-overrides:
+    # A python program to receive overrides of the context before starting the program
+    requires: py-program
+    # tests recursive resolution of executable alias
+    executable_alias: py-program
+    # tests overrides to be handled correclty
+    delegate: TestOverridesDelegate
+    # everything else is inherited by the base, the program itself is not interesting
+    
+  nosetests:
+    # default nosetest starter
+    executable_alias: python 
+    requires:
+      # for all the requirements (for testing, remove the following line and list
+      # module requirements manually
+      - test-environment
+      - bcore
+    arguments:
+      # Just for testing ...
+      prepend:
+        - -c
+        - import nose; import sys; nose.main(argv = ['nosetests'] + sys.argv[1:])
+  hub:
+    python:
+      import:
+        tx.processcontrol.gui

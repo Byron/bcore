@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MayaBatchBox</class>
+ <widget class="QGroupBox" name="MayaBatchBox">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>306</width>
+    <height>120</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Maya Batch</string>
+  </property>
+  <property name="title">
+   <string>Maya Python Command</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTextEdit" name="cmdpython">
+     <property name="toolTip">
+      <string>Python command to execute. It may use the 'store' variable, which is a kvstore with information about the nature of the batch command (it can contain chunking information for example)</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

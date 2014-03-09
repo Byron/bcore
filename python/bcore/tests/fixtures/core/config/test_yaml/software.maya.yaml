@@ -1,0 +1,6 @@
+
+
+maya:                 # maya specific configuration
+  quality_check_gui:
+    may_ignore_check: false # if true, the user has the chance to ignore failed checks in maya
+  

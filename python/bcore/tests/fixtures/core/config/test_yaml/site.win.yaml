@@ -1,0 +1,6 @@
+
+paths:
+  project_root:
+    fs_path: P:\JOBS
+  cache_root:
+    fs_path: Z:\JOBS

@@ -1,0 +1,3 @@
+
+class MyDynamicPlugin(object):
+    pass

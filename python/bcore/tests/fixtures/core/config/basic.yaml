@@ -1,0 +1,11 @@
+section:
+  string: value  # this is a comment - it will be ignored and cannot be deserialzed
+  int: 42
+  float: 4.2
+  list:
+    - item3
+    - item2
+    - item1
+  subsection:
+    string: other value
+    list: [string, 4.2, 42, [string, 3.3, 33]]

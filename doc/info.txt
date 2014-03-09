@@ -1,0 +1,1 @@
+"""Contains the sphinx documenation of the pipe project"""

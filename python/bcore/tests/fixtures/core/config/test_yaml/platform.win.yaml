@@ -1,0 +1,2 @@
+platform:           # platform specific information
+  path_separator: \ # token between path segments

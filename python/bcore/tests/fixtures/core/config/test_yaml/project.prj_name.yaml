@@ -1,0 +1,6 @@
+# A file for project specific overrides - can contain any keys of course
+# This file should be located somewhere in the project directory structure
+
+db:
+  meta:
+    server_url: projectx.metadb.domain.intern

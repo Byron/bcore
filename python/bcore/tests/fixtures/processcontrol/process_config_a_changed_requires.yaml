@@ -1,0 +1,11 @@
+
+packages:
+  foo:
+    version: 1.0.0
+    requires: 
+      - bar
+      - baz
+  bar:
+    version: 1.0.0
+  baz:
+    version: '1.0'

@@ -1,0 +1,12 @@
+# site configuration which will always be loaded
+
+site:                   # Site specific configuration
+  name: tx_munich
+  location: munich
+  
+db:                     # all database specific configuration 
+  meta:                 # meta database with all kinds of info
+    server_url: metadb.domain.intern
+  ldap:                 # ldap service for additional user information
+    server_url: ldp://ldap.domain.intern
+    

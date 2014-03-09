@@ -1,0 +1,39 @@
+
+python_project(
+		NAME
+			bcore
+		VERSION
+			0.9.0-devel
+		AUTHORS
+			"Sebastian Thiel <byronimo@gmail.com>"
+		ROOT_PACKAGE
+			bcore
+		SPHINX_CONFIG_IN
+			DEFAULT
+		PYSIDE_UI_FILES
+			bcore/gui/widgets/ui/selector.ui
+		    bcore/qc/gui/qc_check.ui
+			bcore/qc/gui/qc_group.ui
+			bcore/qc/gui/qc.ui
+			bcore/gui/hub/ui/window.ui
+			bcore/processcontrol/gui/ui/package.ui
+			bcore/processcontrol/gui/controller.ui
+			bcore/processcontrol/gui/ui/viewer.ui
+			bcore/processing/tractor/submission/gui/ui/submit.ui
+			bcore/processing/tractor/submission/gui/ui/mayarender.ui
+			bcore/processing/tractor/submission/gui/ui/executor.ui
+			bcore/processing/tractor/submission/gui/ui/mayabatch.ui
+			bcore/processing/tractor/submission/gui/ui/chunk.ui
+			bcore/processing/tractor/submission/gui/ui/job.ui
+			bcore/processing/tractor/submission/gui/ui/multitask.ui
+			bcore/processing/tractor/submission/gui/ui/message.ui
+			bcore/processing/tractor/submission/gui/window.ui
+			bcore/processing/tractor/submission/gui/ctrl_single.ui
+			bcore/tests/fixtures/gui/test_import.ui
+		SDKS
+			pyside 1.1.2-qt4.6.2-cpython2.6.4
+		DOXYFILE_IN
+			DEFAULT
+		DOXYGEN_SOURCE_FILES_EXCLUDE
+			bcore/lib
+		)

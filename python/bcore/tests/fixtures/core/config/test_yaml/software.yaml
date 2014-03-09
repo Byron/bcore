@@ -1,0 +1,4 @@
+# configuration for misc software pacakges
+
+quality_check_gui:
+    do_it_right: false # some bogus option

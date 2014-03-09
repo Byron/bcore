@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SingleJob</class>
+ <widget class="QWidget" name="SingleJob">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>240</width>
+    <height>201</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>SingleSubmitWidget</string>
+  </property>
+  <layout class="QVBoxLayout" name="vlayout">
+   <property name="spacing">
+    <number>4</number>
+   </property>
+   <property name="margin">
+    <number>9</number>
+   </property>
+   <item>
+    <widget class="TractorSelectorWidget" name="selector" native="true"/>
+   </item>
+   <item>
+    <widget class="TractorGeneratorChainPropertiesWidget" name="properties" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="TractorSubmissionWidget" name="submit" native="true"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TractorSelectorWidget</class>
+   <extends>QWidget</extends>
+   <header>.widgets.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TractorSubmissionWidget</class>
+   <extends>QWidget</extends>
+   <header>.widgets.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TractorGeneratorChainPropertiesWidget</class>
+   <extends>QWidget</extends>
+   <header>.widgets.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

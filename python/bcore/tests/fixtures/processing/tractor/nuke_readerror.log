@@ -1,0 +1,16 @@
+tx.processcontrol.controller> TRACE | Using delegate of type 'NukeTractorDelegate'
+tx.processing.tractor.delegates> TRACE | Slots = 2
+tx.processing.tractor.delegates> TRACE | mem_gb_max = 23.23 = 46.46 / data.slotsMax
+tx.processing.tractor.delegates> TRACE | cores_max = 8 = 16 / data.slotsMax
+tx.processcontrol.controller> TRACE | /mnt/repository/software/nuke/7.0v5/centos-6_x86-64/Nuke7.0 -m 8 -c 24358420k -f -F 1001-1002 -V 1 -x /tmp/nuke/wb2.101.030.comp.animago.1stCycle.wrk.v007_010813111828.nk (child process)
+Nuke 7.0v5, 64 bit, built Mar  1 2013.
+Copyright (c) 2013 The Foundry Visionmongers Ltd.  All Rights Reserved.
+
+[11:18.38] ERROR: Render_Input_Shadow.Read4: /mnt/projects/tank_projects/wb2/seq/101/030/rendering/images/versions/ihleju_v045/primary/primary_shadow_pass.1001.exr: Read error: No such file or directory
+[11:18.38] ERROR: Render_Input_Shadow.Read5: /mnt/projects/tank_projects/wb2/seq/101/030/rendering/images/versions/ihleju_v045/occlusion/occlusion_shadow_pass.1001.exr: Read error: No such file or directory
+[11:18:38 CEST] Read nuke script: /tmp/nuke/wb2.101.030.comp.animago.1stCycle.wrk.v007_010813111828.nk
+
+Render_Input_Shadow.Read4: /mnt/projects/tank_projects/wb2/seq/101/030/rendering/images/versions/ihleju_v045/primary/primary_shadow_pass.1001.exr: Read error: No such file or directory
+Total render time: 0.11 seconds
+
+[2013/08/01 11:18:38 exit with non-zero status code 1:  /mnt/projects/tank_projects/wb2/bin/centos-6_x86-64/tractor-nuke ---trace -f -F 1001-1002 -V 1 -x /tmp/nuke/wb2.101.030.comp.animago.1stCycle.wrk.v007_010813111828.nk]

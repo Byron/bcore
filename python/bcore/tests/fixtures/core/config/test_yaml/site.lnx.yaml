@@ -1,0 +1,6 @@
+
+paths:
+  project_root:
+    fs_path: /mnt/projects
+  cache_root:
+    fs_path: /CACHE/JOBS

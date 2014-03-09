@@ -1,0 +1,19 @@
+empty_type_okay:
+  meta:
+    format: NoType
+some:
+  deep:
+    structure:
+      # its okay to quickly descent into a name, in that case the node's name
+      # will be the name in the final path.
+      important:
+        meta:
+          format: something special
+          type: [Special]
+          # special KV pairs are just ignored, as they could be interesting to 
+          # other handlers
+          something_special:
+            this: that
+      
+        
+        

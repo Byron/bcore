@@ -1,0 +1,7 @@
+# configuration based on the host software, the one the python interpreter runs in
+
+host:             # general information depending on the currently used host package
+                  # It doesn't matter (for the one using the configuration, which 
+                  # software that actually is
+    path_separator: /
+    

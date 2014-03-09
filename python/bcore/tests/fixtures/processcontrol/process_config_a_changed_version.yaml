@@ -1,0 +1,7 @@
+
+packages:
+  foo:
+    version: 1.2.0
+    requires: bar
+  bar:
+    version: 1.0.0
