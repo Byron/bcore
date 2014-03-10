@@ -3,4 +3,4 @@
 
 db:
   meta:
-    server_url: projecbcore.metadb.domain.intern
+    server_url: project.metadb.domain.intern

@@ -17,9 +17,6 @@ from ..component import EnvironmentStackContextClient
 from ..kvstore import KeyValueStoreSchema
 from .interfaces import ILog
 
-from . import handlers
-from . import formatters
-
 from bcore.path import Path
 from bcore.utility import Singleton
 

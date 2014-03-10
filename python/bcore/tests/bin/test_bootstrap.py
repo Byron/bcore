@@ -20,9 +20,9 @@ dirname = os.path.dirname
 loaded_files = PluginLoader(os.path.join(dirname(dirname(dirname(__file__))), 'bin'), recurse=False).load()
 assert len(loaded_files) == 1
 wrapper_file = loaded_files[0]
-import wrapper
+import bootstrap
 
-class TestBootstrapper(wrapper.Bootstrapper):
+class TestBootstrapper(bootstrap.Bootstrapper):
     """Overrides particular functions to 'mock' the implementation"""
     ## dry-run
     

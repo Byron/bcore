@@ -18,7 +18,6 @@ from ..alf import (
                   )
 
 from ..schema import tractor_schema
-from bcore.processing.tractor.rpc import EngineTractorConnection
 from bcore.core.component import EnvironmentStackContextClient
 from bcore.utility import (
                             LazyMixin,
@@ -108,9 +107,10 @@ class TractorSubmitter(EnvironmentStackContextClient, LazyMixin):
             priority_value = -priority_value - 1
         # end handle paused
         
-        engine = EngineTractorConnection()
-        res = engine.spool_job(jobstring_or_path = jobstring, priority = priority_value, job_owner = login_name(),
-                                cwd = os.getcwd())
+        raise NotImplementedError("Re-implement tractor RPC or call the tractor spooler to make submission work")
+        # engine = EngineTractorConnection()
+        # res = engine.spool_job(jobstring_or_path = jobstring, priority = priority_value, job_owner = login_name(),
+        #                         cwd = os.getcwd())
         
         if not hasattr(res, 'jid') or not res.jid:
             raise ValueError(res.msg)
