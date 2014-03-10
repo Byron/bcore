@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.environ
+@package bcore.core.environ
 @brief package implementing the environment
 
 @copyright 2012 Sebastian Thiel

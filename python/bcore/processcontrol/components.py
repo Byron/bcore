@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processcontrol.components
+@package bcore.processcontrol.components
 @brief Provides implementations of certain components that benefit from working together with process control
 
 @copyright 2013 Sebastian Thiel
@@ -39,10 +39,10 @@ from bcore.utility import  (
 from bcore.core.environ import ConfigHierarchyEnvironment
 from bcore.core.logging import module_logger
 
-log = module_logger('tx.processcontrol.components')
+log = module_logger('bcore.processcontrol.components')
 
 
-class ProcessConfigurationIncompatibleError(tx.IContextController.ContextIncompatible):
+class ProcessConfigurationIncompatibleError(bcore.IContextController.ContextIncompatible):
     """Thrown to indicate the current process configuration cannot be used in another context"""
     __slots__ = (
                     'index' ## A DiffIndex record containing the exact changes
@@ -56,7 +56,7 @@ class ProcessConfigurationIncompatibleError(tx.IContextController.ContextIncompa
 # end class ProcessConfigurationIncompatibleError
 
 
-class ProcessControlContextControllerBase(tx.IContextController, EnvironmentStackContextClient,
+class ProcessControlContextControllerBase(bcore.IContextController, EnvironmentStackContextClient,
                                             FlatteningPackageDataIteratorMixin, Plugin):
     """Basic implementation which uses the basic ProcessController implementation to implement 
     simple context tracking for the _before_scene_save() as well as 
@@ -105,9 +105,9 @@ class ProcessControlContextControllerBase(tx.IContextController, EnvironmentStac
         """Push all configuration found at the given directory and parent folders, loading plugins on the way.
         @return the newly pushed environment of type ConfigHierarchyEnvironmentType
         @note subclasses can override it for special handling"""
-        env = tx.environment.push(self.ConfigHierarchyEnvironmentType(dirname))
+        env = bcore.environment.push(self.ConfigHierarchyEnvironmentType(dirname))
         # Make sure we apply commandline overrides last
-        tx.environment.push(CommandlineOverridesEnvironment())
+        bcore.environment.push(CommandlineOverridesEnvironment())
         if self.load_plugins:
             env.load_plugins()
         # end handle plugin loading
@@ -163,7 +163,7 @@ class ProcessControlContextControllerBase(tx.IContextController, EnvironmentStac
         assert self._initial_stack_len is not None, 'call set_static_stack_len at the end of your init()'
         # get rid of previous scene stack
         log.debug("popping scene context")
-        return tx.environment.pop(until_size = self._initial_stack_len)
+        return bcore.environment.pop(until_size = self._initial_stack_len)
     
     ## -- End Overridable Methods -- @}
     
@@ -171,7 +171,7 @@ class ProcessControlContextControllerBase(tx.IContextController, EnvironmentStac
     ## @name Subclass Interface
     # @{
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def _setup_scene_callbacks(self):
         """Set up an application callback to assure this instance is notified before the scene changes
         or after the scene has changed (depending on the capabilities).
@@ -194,7 +194,7 @@ class ProcessControlContextControllerBase(tx.IContextController, EnvironmentStac
         @param length If None, The length set will be the current length of the stack. Otherwise the given
         length will be used
         @note its valid to call it multiple times, to re-adjust the are of the static context accordingly"""
-        self._initial_stack_len = length or len(tx.environment)
+        self._initial_stack_len = length or len(bcore.environment)
     
     ## -- End Interface -- @}
     
@@ -220,14 +220,14 @@ class ProcessControlContextControllerBase(tx.IContextController, EnvironmentStac
         using the process controller.
         
         @note should be called by subclasses from their respective callbacks
-        @param filepath tx.path.Path instance of filename to change the context to in one way or another
+        @param filepath bcore.path.Path instance of filename to change the context to in one way or another
         """
         log.debug("changing scene context to '%s'", filepath)
         
         res = self.pop_scene_context()
         self._push_configuration(filepath.dirname())
         try:
-            self._check_process_compatibility(tx.environment.context())
+            self._check_process_compatibility(bcore.environment.context())
             # if this worked, load plugins
             PythonPackageIterator().import_modules()
         except ProcessConfigurationIncompatibleError:
@@ -235,7 +235,7 @@ class ProcessControlContextControllerBase(tx.IContextController, EnvironmentStac
             # in the context of the given file
             if self.restore_stack_if_new_context_is_incompatible:
                 for env in res:
-                    tx.environment.push(env)
+                    bcore.environment.push(env)
                 # end for each env to put back
             # end should we restore the stack ?
             raise

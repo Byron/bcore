@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core
-@brief Implements tests for tx.core
+@package bcore.tests.core
+@brief Implements tests for bcore.core
 
 @copyright 2012 Sebastian Thiel
 """

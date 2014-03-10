@@ -310,7 +310,7 @@ Providing code examples sometimes says more than a thousand words, so it is enco
 
 However, its not to be forgotten that these examples are something like a muted cache, which can go out of sync with the actual code easily, causing the documentation to be incorrect. The only thing worse than no documentation is bad documentation.
 
-To prevent these cases, your example code should in fact be run as part of the default test suite. This can be achieved easily by placing this kind of code into the `tx.tests.doc` package, including it using the `@snippet` doxygen command. Read more about it in `the official doxygen manual <http://www.stack.nl/~dimitri/doxygen/commands.html#cmdsnippet>`_.
+To prevent these cases, your example code should in fact be run as part of the default test suite. This can be achieved easily by placing this kind of code into the `bcore.tests.doc` package, including it using the `@snippet` doxygen command. Read more about it in `the official doxygen manual <http://www.stack.nl/~dimitri/doxygen/commands.html#cmdsnippet>`_.
 
 ************
 Decorators

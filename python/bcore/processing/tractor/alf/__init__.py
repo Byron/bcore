@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf
+@package bcore.processing.tractor.alf
 @brief Package containing all alf related classes
 
 @page tractor_alf Tractor ALF
@@ -50,7 +50,7 @@ You can specify very complex setup in one go.
 
 In Alf it is possible to refer to express relations of AlfOperators between each other. As those are specified
 as string, it is easily possible to get invalid references. To assure those work, you 
-can call \ref tx.processing.tractor.alf.base.AlfTreeOperator.resolve_references "resolve_references"
+can call \ref bcore.processing.tractor.alf.base.AlfTreeOperator.resolve_references "resolve_references"
 on a Task or Job, which will raise if an error was detected.
 
 ## Serialization

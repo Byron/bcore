@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.gui.hub.controller
+@package bcore.gui.hub.controller
 @brief Main hub controller widget
 
 @copyright 2013 Sebastian Thiel
@@ -33,7 +33,7 @@ class HubController(QtGui.QMainWindow):
         # DEBUG: For now get a a wiget and try to put it as central widget
         # This is not the way it should be ! We just ease debugging
         
-        for cls in tx.environment.classes(IHubPanel):
+        for cls in bcore.environment.classes(IHubPanel):
             self.setCentralWidget(cls(self).init())
             break
         # end set central widget

@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.components
-@brief Implements interfaces in tx.processing.tractor.interfaces
+@package bcore.processing.tractor.components
+@brief Implements interfaces in bcore.processing.tractor.interfaces
 
 @copyright 2013 Sebastian Thiel
 """

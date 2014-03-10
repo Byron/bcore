@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processing.tractor.submission
-@brief tests for tx.processing.tractor.submission
+@package bcore.tests.processing.tractor.submission
+@brief tests for bcore.processing.tractor.submission
 
 @note we use this module to test all of the submission implementations roughly
 @copyright 2013 Sebastian Thiel

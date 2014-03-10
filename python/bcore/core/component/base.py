@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.component.base
+@package bcore.core.component.base
 @brief A from scratch implementation of a component architecture, influenced by
 experiences with the pyutilib CA
 
@@ -115,14 +115,14 @@ class Predicate(object):
 # pylint: enable=W0142
 
 class CreatePredicate(Predicate):
-    """ creation predicate used in tx.environment.services """
+    """ creation predicate used in bcore.environment.services """
     _args = ['icls', 'services', 'classes']
     def __init__(self, icls, services, classes):
         raise NotImplementedError
 
 
 class ServicePredicate(Predicate):
-    """ services predicate used in tx.environment.services """    
+    """ services predicate used in bcore.environment.services """    
     _args = ['service', 'interface']
     
     def __init__(self, service, interface):
@@ -196,7 +196,7 @@ def services(interface, predicate = ServiceAll):
     @param interface a class/type that the services you seek need to implement
     @param predicate function(service, interface) returning True for each service instance of type interface 
     that may be returned"""
-    return tx.environment.services(interface, predicate = predicate)
+    return bcore.environment.services(interface, predicate = predicate)
     
 def new_service(interface, *args, **kwargs):
     """@return a newly created instance of a service supporting the given interface.
@@ -206,7 +206,7 @@ def new_service(interface, *args, **kwargs):
     @param args arguments to be passed to service constructor
     @param kwargs keyword arguments to be passed to service constructor
     @throw ServiceNotFound if there is no such service"""
-    svcs = tx.environment.new_services(interface, take_ownership = False, predicate = CreateFirst, args = args, kwargs = kwargs)
+    svcs = bcore.environment.new_services(interface, take_ownership = False, predicate = CreateFirst, args = args, kwargs = kwargs)
     if not svcs:
         raise ServiceNotFound(interface)
     # handle no service found
@@ -222,7 +222,7 @@ def new_services(interface, *args, **kwargs):
     @param args arguments to be passed to service constructor
     @param kwargs keyword arguments to be passed to service constructor 
     """
-    return tx.environment.new_services(interface, take_ownership = False, predicate = CreateAlways, args = args, kwargs = kwargs)
+    return bcore.environment.new_services(interface, take_ownership = False, predicate = CreateAlways, args = args, kwargs = kwargs)
     
 ## -- End Convenience Utilities -- @}
 
@@ -245,7 +245,7 @@ BASE_IDENTIFIER = "$base$"
 # ------------------------------------------------------------------------------
 ## @{
 
-class EnvironmentStackContextClient(tx.InterfaceBase):
+class EnvironmentStackContextClient(bcore.InterfaceBase):
     """Base implementation to allow anyone to safely use the context of the global environment stack.
     Everyone using the global context should derive from it to facilitate context usage and to allow the 
     EnvironmentStack to verify its data.
@@ -276,7 +276,7 @@ class EnvironmentStackContextClient(tx.InterfaceBase):
         @param resolve if True, string values will be resolved
         @note use this method when you need access to the datastructure matching your schema"""
         schema = cls.schema()
-        return (context or tx.environment.context()).value(schema.key(), schema, resolve=resolve)
+        return (context or bcore.environment.context()).value(schema.key(), schema, resolve=resolve)
         
 # end class EnvironmentStackContextClient
 
@@ -441,7 +441,7 @@ class EnvironmentStack(LazyMixin):
         Once instantiated, a plugin cannot be deleted (it is owned by the environment) until the environment
         itself is removed
     """
-    __metaclass__ = tx.MetaBase
+    __metaclass__ = bcore.MetaBase
     __slots__ = (   
                     '_stack', 
                     '_kvstore',
@@ -661,7 +661,7 @@ class EnvironmentStack(LazyMixin):
         @return top of stack environment after popping it of does not allow the base Environment to be 
         removed returns the environment removed.
         If until_size is larger -1, return value will be a correctly sorted list of environments, which can 
-        be used to put the popped environments on again using a loop like for env in res: tx.environment.push(env)
+        be used to put the popped environments on again using a loop like for env in res: bcore.environment.push(env)
         @param until_size if positive, environments will be popped until the stack has the given size (i.e.
         length). In this case, the last popped environment will be returned. Must be smaller than the current
         stack size if larger than -1. Its valid to not pop anything if until_size == len(stack), mainly for
@@ -812,7 +812,7 @@ class EnvironmentStack(LazyMixin):
 
 
 # inherits from InterfaceMeta to support inheritance in the implements() function
-class PluginMeta(tx.MetaBase):
+class PluginMeta(bcore.MetaBase):
     """ metaclass for Plugin, registers the Plugin subclass in the current
         environment. Can be used with any type, doesn't need to derive from Plugin.
         However, the Plugin implementation will register instances, which the implementor would have to 
@@ -823,9 +823,9 @@ class PluginMeta(tx.MetaBase):
 
     def __new__(mcls, name, bases, clsdict):
         """Registers the plugin's type to allow it to be instantiated""" 
-        new_type = tx.MetaBase.__new__(mcls, name, bases, clsdict)
+        new_type = bcore.MetaBase.__new__(mcls, name, bases, clsdict)
         if name != 'Plugin' and new_type._auto_register_class:
-            (mcls._stack or tx.environment).register(new_type)
+            (mcls._stack or bcore.environment).register(new_type)
         # end exclude our own plugin marker (when type is instantated)
         return new_type
         
@@ -861,7 +861,7 @@ class Plugin(object):
             environment for all our instances """
         self = super(Plugin, cls).__new__(cls)
         if cls._auto_register_instance:
-            (cls._stack or tx.environment).register(self)
+            (cls._stack or bcore.environment).register(self)
         # end handle registration
         return self
         

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.base
+@package bcore.base
 @brief Most fundamental base types
 
 @copyright 2012 Sebastian Thiel
@@ -37,14 +37,14 @@ class Error(Exception):
 ## \{
 
 class MetaBase(abc.ABCMeta):
-    """A base class for all other meta-classes used in the @ref tx package.
+    """A base class for all other meta-classes used in the @ref bcore package.
     
     It provides facilities to automatically wrap methods into decorators which 
     perform certain tasks, like additional logging for improved debugging.
     
-    * All subclasses of InterfaceBase are put into tx as well, allowing their access
-      through tx.InterfaceName.
-    * Puts new types into tx if the type itself (not its subtype) has the 'place_into_root_package' set to True
+    * All subclasses of InterfaceBase are put into bcore as well, allowing their access
+      through bcore.InterfaceName.
+    * Puts new types into bcore if the type itself (not its subtype) has the 'place_into_root_package' set to True
     """
     
     place_into_root_package_attribute_name = 'place_into_root_package'
@@ -57,11 +57,11 @@ class MetaBase(abc.ABCMeta):
                 clsdict[mcls.place_into_root_package_attribute_name] = True
                 break
             # end name mateches
-        # end put into tx
+        # end put into bcore
         new_cls = super(MetaBase, mcls).__new__(mcls, name, bases, clsdict)
         if clsdict.get(mcls.place_into_root_package_attribute_name, False):
             import bcore
-            setattr(tx, name, new_cls)
+            setattr(bcore, name, new_cls)
         # end should put it into root package
         return new_cls
 

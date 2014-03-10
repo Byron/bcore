@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.schema
+@package bcore.processing.tractor.alf.schema
 @brief Contains schemas for tractor related types
 
 @copyright 2013 Sebastian Thiel

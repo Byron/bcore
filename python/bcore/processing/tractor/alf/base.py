@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.base
+@package bcore.processing.tractor.alf.base
 @brief Base classes for use with tractor
 
 @copyright 2013 Sebastian Thiel
@@ -16,7 +16,7 @@ from bcore.utility import GraphIteratorBase
 ## @{
 
 
-class AlfOperatorMeta(tx.MetaBase):
+class AlfOperatorMeta(bcore.MetaBase):
     """Metaclass setting up descriptors for accessing stored values based on the schema."""
     __slots__ = ()
     
@@ -105,7 +105,7 @@ class AlfOperatorMeta(tx.MetaBase):
             # end for each attr
         #end have schema
         
-        return tx.MetaBase.__new__(metacls, name, bases, clsdict)
+        return bcore.MetaBase.__new__(metacls, name, bases, clsdict)
 
 # end class AlfOperatorMeta
 

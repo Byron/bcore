@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.generators.maya_entrypoint
+@package bcore.processing.tractor.alf.generators.maya_entrypoint
 @brief Startup whatever tractor provded to us
 
 @copyright 2013 Sebastian Thiel
@@ -8,7 +8,7 @@
 __all__ = []
 
 import bcore
-log = service(tx.ILog).new('tx.processing.tractor.alf.generators.maya_entrypoint')
+log = service(bcore.ILog).new('bcore.processing.tractor.alf.generators.maya_entrypoint')
 
 from .maya import MayaBatchTaskGenerator
 
@@ -20,7 +20,7 @@ from .maya import MayaBatchTaskGenerator
 
 def run():
     """run the tractor-provided script"""
-    provider = new_service(tx.ITractorProcessDataProvider)
+    provider = new_service(bcore.ITractorProcessDataProvider)
     store = provider.as_kvstore()
     assert store is not None, "Must be executed via tractor and receive contextual data - don't now what to run"
     

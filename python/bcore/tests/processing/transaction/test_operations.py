@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processing.test_transaction
-@brief tests for tx.processing.transaction
+@package bcore.tests.processing.test_transaction
+@brief tests for bcore.processing.transaction
 
 @copyright 2013 Sebastian Thiel
 """
@@ -19,7 +19,7 @@ from bcore.processing.transaction import (Transaction,
 from bcore.processing.transaction.operations.rsync import *
 from bcore.processing.transaction.operations.fsops import *
 
-log = service(tx.ILog).new('tx.tests.processing.transaction.test_operations')
+log = service(bcore.ILog).new('bcore.tests.processing.transaction.test_operations')
 
 
 class TestOperations(TestCaseBase):

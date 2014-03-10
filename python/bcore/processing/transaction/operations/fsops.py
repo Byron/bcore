@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.transaction.operations.fsops
+@package bcore.transaction.operations.fsops
 @brief A package for trivial filesystem operations that can be combined within a transaction
 
 @copyright 2013 Sebastian Thiel

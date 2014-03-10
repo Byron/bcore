@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processcontrol
+@package bcore.processcontrol
 @brief An engine to contol the startup environment of processes that are to be started
 
 @page processcontrol Process Control
@@ -8,7 +8,7 @@
 Requirements
 ============
 
-Implementation in tx.core
+Implementation in bcore.core
 -------------------------
 The current implementation lies outside of TX, which has a few disadvantages. Keep the wrapper inside of it, 
 and use symlinks where required.

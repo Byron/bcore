@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.types
+@package bcore.processing.tractor.alf.types
 @brief Utilities to build alf data structures in python
 
 @note all classes in this module refer to Alf objects. The prefix was removed to keep things more readable

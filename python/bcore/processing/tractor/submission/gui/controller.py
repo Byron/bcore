@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.gui.controller
+@package bcore.processing.tractor.submission.gui.controller
 @brief Controllers to combine widgets into more complex user interfaces
 
 @copyright 2013 Sebastian Thiel
@@ -23,7 +23,7 @@ from .ctrl_single_ui import Ui_SingleJob
 
 from .widgets import TractorMessageDialog
 
-log = service(tx.ILog).new('tx.processing.tractor.submission.gui.controller')
+log = service(bcore.ILog).new('bcore.processing.tractor.submission.gui.controller')
 
 
 class TractorSubmissionController(QtGui.QWidget):
@@ -47,7 +47,7 @@ class TractorSubmissionController(QtGui.QWidget):
         self.setWindowTitle('%s (%s)' % (self.name, self.version))
         chains = list()
         JobGeneratorType = self._multifile_mode() and MultiJobGenerator or JobGenerator
-        for chain in new_service(tx.ITractorNodeGeneratorChainProvider).chains():
+        for chain in new_service(bcore.ITractorNodeGeneratorChainProvider).chains():
             chains.append(chain.prepend_head(JobGeneratorType()))
             if self._multifile_mode():
                 # by default, we are in single-job mode - one job per button press

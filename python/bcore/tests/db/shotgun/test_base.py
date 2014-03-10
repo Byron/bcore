@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.db.shotgun.test_base
-@brief tests for tx.db.shotgun.base
+@package bcore.tests.db.shotgun.test_base
+@brief tests for bcore.db.shotgun.base
 
 @copyright 2013 Sebastian Thiel
 """

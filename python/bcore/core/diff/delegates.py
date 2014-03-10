@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.diff.delegates
+@package bcore.core.diff.delegates
 @brief a module with different generic delegate implementations
 
 @copyright 2012 Sebastian Thiel

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.gui.widgets.ui
+@package bcore.gui.widgets.ui
 @brief A place for precompiled .ui files including their designer source file
 
 @copyright 2013 Sebastian Thiel

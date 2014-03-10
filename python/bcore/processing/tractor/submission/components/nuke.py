@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.components.nuke
+@package bcore.processing.tractor.submission.components.nuke
 @brief Job Submission plugins
 
 @copyright 2013 Sebastian Thiel

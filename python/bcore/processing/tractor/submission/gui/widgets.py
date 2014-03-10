@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.gui.widgets
+@package bcore.processing.tractor.submission.gui.widgets
 @brief A selection of widgets to deal with submitting jobs
 
 @copyright 2013 Sebastian Thiel
@@ -28,7 +28,7 @@ from bcore.processing.tractor.submission import (
 from . import ui
 from .properties import GeneratorPropertiesWidgetBase
 
-log = service(tx.ILog).new('tx.processing.tractor.submission.gui')
+log = service(bcore.ILog).new('bcore.processing.tractor.submission.gui')
 
 
 class TractorSubmissionWidget(QtGui.QWidget):
@@ -167,7 +167,7 @@ class TractorGeneratorChainPropertiesWidget(QtGui.QWidget):
         @param context KeyValueStore retrieved from the given chain, or None to clear this instance.
         @return the chain's context we are representing, as retrieved by chain.default_context()"""
         self._clear_widgets()
-        widget_types = tx.environment.classes(GeneratorPropertiesWidgetBase)
+        widget_types = bcore.environment.classes(GeneratorPropertiesWidgetBase)
         self._context = context
         
         if chain is None or context is None:

@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.kvstore.test_persistence
-@brief tests for tx.core.kvstore.persistence
+@package bcore.tests.core.kvstore.test_persistence
+@brief tests for bcore.core.kvstore.persistence
 
 @copyright 2012 Sebastian Thiel
 """

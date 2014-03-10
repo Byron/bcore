@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processcontrol.test_base
-@brief tests for tx.processcontrol
+@package bcore.tests.processcontrol.test_base
+@brief tests for bcore.processcontrol
 
 @copyright 2012 Sebastian Thiel
 """
@@ -113,7 +113,7 @@ class TestProcessControl(TestCaseBase):
         
     def test_post_launch_info(self):
         """Just some basic tests"""
-        info = new_service(tx.IPostLaunchProcessInformation)
+        info = new_service(bcore.IPostLaunchProcessInformation)
         if not info.has_data():
             assert info.data() is None and info.process_data() is None
         else:
@@ -121,7 +121,7 @@ class TestProcessControl(TestCaseBase):
             assert pinfo.executable.isfile()
             assert pinfo.bootstrap_dir.isdir()
             assert pinfo.id
-            assert tx.environment.context().value_by_schema(process_schema).executable == pinfo.executable
+            assert bcore.environment.context().value_by_schema(process_schema).executable == pinfo.executable
         # end handle data
         
         

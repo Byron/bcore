@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processing.tractor.alf.test_generators
-@brief tests for tx.processing.tractor.alf.generators
+@package bcore.tests.processing.tractor.alf.test_generators
+@brief tests for bcore.processing.tractor.alf.generators
 
 @copyright 2013 Sebastian Thiel
 """

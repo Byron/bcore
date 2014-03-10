@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processcontrol.test_actions
-@brief tests for tx.processcontrol.actions
+@package bcore.tests.processcontrol.test_actions
+@brief tests for bcore.processcontrol.actions
 
 @copyright 2013 Sebastian Thiel
 """

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.generators.nuke
+@package bcore.processing.tractor.alf.generators.nuke
 @brief Submission of nuke scripts
 
 @note This module needs to be usable anywhere, and may not rely on being run from the nuke host application

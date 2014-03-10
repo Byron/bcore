@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.delegates
+@package bcore.processing.tractor.delegates
 @brief Contains delegates suitable for use with tractor and particular applications
 
 @copyright 2013 Sebastian Thiel
@@ -29,7 +29,7 @@ from bcore.processcontrol import (
 from .alf.generators import TractorCmdGeneratorBase
 
 
-log = new_service(tx.ILog).new('tx.processing.tractor.delegates')
+log = new_service(bcore.ILog).new('bcore.processing.tractor.delegates')
 
 
 class TractorDelegateMixin(object):

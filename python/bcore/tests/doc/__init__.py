@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.doc
+@package bcore.tests.doc
 A special package which contains tests that are used to be extracted as doxygen
 snippets.
 

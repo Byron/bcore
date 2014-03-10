@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.gui.hub.cmd
+@package bcore.gui.hub.cmd
 @brief Misc utilities related to the hub
 
 @copyright 2013 Sebastian Thiel

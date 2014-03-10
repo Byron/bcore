@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.db.shotgun.orm
+@package bcore.db.shotgun.orm
 @brief A pythonic type system for shotgun
 
 @copyright 2013 Sebastian Thiel

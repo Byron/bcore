@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.transaction.base
+@package bcore.processing.transaction.base
 @brief Module to keep all the basic implementations to handle transactions.
 
 A transaction consists of zero or more Operations, each of which can be rolled back
@@ -80,12 +80,12 @@ class IOperation(InterfaceBase):
 	
 	#{ Interface
 	
-	@tx.abstractmethod
+	@bcore.abstractmethod
 	def apply(self):
 		"""Perform the operation. Keep state to be able to undo the operation at any time
 		@return this instance"""
 		
-	@tx.abstractmethod
+	@bcore.abstractmethod
 	def rollback(self):
 		"""Undo the operation you previously performed. Use your state to do that,
 		and roll it back as well to allow an apply() call to be potentially successful afterwards.
@@ -132,7 +132,7 @@ class Transaction(IOperation):
 	#END configuration
 	
 	def __init__(self, log = None, progress = None, dry_run = False):
-		self.log = log or service(tx.ILog).new(self.name)
+		self.log = log or service(bcore.ILog).new(self.name)
 		self._progress_prototype = progress and progress or StoringProgressIndicator()
 		self._exception = None
 		self._dry_run = dry_run
@@ -399,7 +399,7 @@ class Operation(IOperation):
 		"""Initialize this instance as part of the given transaction
 		If log is not set, we will initialize our logger from the parents logger"""
 		self._transaction = weakref.ref(transaction)
-		self.log = log or service(tx.ILog).new(self._transaction().log.name + '.' + self.name)
+		self.log = log or service(bcore.ILog).new(self._transaction().log.name + '.' + self.name)
 		transaction._add_operation(self)
 		
 	#{ Subclass Interface

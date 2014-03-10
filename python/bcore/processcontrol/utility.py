@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processcontrol.utility
+@package bcore.processcontrol.utility
 @brief Misc utilities for use with the package system of process control
 
 @copyright 2013 Sebastian Thiel
@@ -18,7 +18,7 @@ from bcore.core.kvstore import KeyValueStoreModifier
 from bcore.utility import OrderedDict
 import bcore.core.logging
 
-log = tx.core.logging.module_logger('tx.processcontrol.utility')
+log = bcore.core.logging.module_logger('bcore.processcontrol.utility')
 
 
 class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
@@ -82,13 +82,13 @@ class PackageMetaDataChangeTracker( PersistentSettingsEnvironmentStackContextCli
     
     def _initial_settings_value(self):
         """@return a flattened list of just the packages we are concerned with"""
-        return self._flattened_package_tree(self._package_name, tx.environment.context())
+        return self._flattened_package_tree(self._package_name, bcore.environment.context())
     
     def settings_id(self):
         """@return our settings id
         @note this type is already 'asset' aware, which might not be the right spot for it. Should be 
         in derivd type"""
-        return self.settings_prefix + '%s.%s' % (service(tx.IProjectService).id(), self._package_name)
+        return self.settings_prefix + '%s.%s' % (service(bcore.IProjectService).id(), self._package_name)
     
     # -------------------------
     ## @name Interface

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.components
+@package bcore.processing.tractor.submission.components
 @brief Contains plugins for job submission that do not require the actual application
 
 @note no auto-import here as we need to load them granularly

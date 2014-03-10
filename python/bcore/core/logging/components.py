@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.logging.components
+@package bcore.core.logging.components
 @brief A module to help initializing the logging system
 
 @note must be imported once the core framework is already up, marrying logging with components
@@ -80,7 +80,7 @@ class LogProvider(ILog, EnvironmentStackContextClient, Singleton, Plugin):
         # See #6239
         # NOTE: at least the environment variable can probably be removed once the actual culprit is found
         # Why does our configuration kill pythons logging entirely in case of katana at least ?
-        if value.disable or 'TX_LOGGING_INITIALIZATION_DISABLE' in os.environ:
+        if value.disable or 'BCORE_LOGGING_INITIALIZATION_DISABLE' in os.environ:
             return
         # end no init if disabled
     

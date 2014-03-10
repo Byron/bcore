@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.kvstore.serialize
+@package bcore.core.kvstore.serialize
 @brief Contains file type agnostic implementations of value providers and modifiers to allow serialization
 
 @note Read more about
@@ -31,7 +31,7 @@ from .base import (
 # ------------------------------------------------------------------------------
 ## @{
 
-class IStreamSerializer(tx.InterfaceBase):
+class IStreamSerializer(bcore.InterfaceBase):
     """An interface to allow serialization of objects to a stream
     @todo these classes are so general, they should move somewhere more general too !"""
     __slots__ = ()
@@ -47,14 +47,14 @@ class IStreamSerializer(tx.InterfaceBase):
     
     ## -- End Configuration -- @}
 
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def deserialize(self, stream):
         """Produce the originally serialized data structure from the given stream
         @param stream an object providing the read() method
         @return deserialized data structure"""
         return yaml.load(stream, Loader=OrderedDictYAMLLoader) or dict()
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def serialize(self, data, stream):
         """Serialize the given data structure into the given stream
         @param data the structure to serialize
@@ -89,7 +89,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
     ## -- End Subclass Configuration -- @}
 
     ## our logging instance
-    log = logging.getLogger("tx.core.kvstore.serializer")
+    log = logging.getLogger("bcore.core.kvstore.serializer")
 
     def __init__(self, input_paths, take_ownership = True):
         """Initialize this instance with a set of paths from which to read values and to which to write the

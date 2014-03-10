@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processcontrol.actions.base
+@package bcore.processcontrol.actions.base
 @brief Base implementation of action handler
 
 @copyright 2013 Sebastian Thiel
@@ -94,7 +94,7 @@ class PackageActionBase(Operation):
         @param cls
         @param key key at which the kvstore should be sampled, usually created by data_key()
         @param kvstore store to use. Default store will be used if None"""
-        kvstore = kvstore or tx.environment.context()
+        kvstore = kvstore or bcore.environment.context()
         assert cls.action_schema is not None, "'action_schema' to be set in subclass"
         if not kvstore.has_value(key):
             raise ValueError("Action at key '%s' doesn't exist" % key)
@@ -134,7 +134,7 @@ class ActionDelegateMixin(object):
         """@return a transaction instance
         @!note it will always be the same one after the first call"""
         if self._transaction is None:
-            self._transaction = self.TransactionType(service(tx.ILog).new(self.name))
+            self._transaction = self.TransactionType(service(bcore.ILog).new(self.name))
         # end initialize transaction
         return self._transaction
 
@@ -149,7 +149,7 @@ class ActionDelegateMixin(object):
         tokens = key.split('.')
         assert len(tokens) > 2, "expected action key of format %s.type_name.name[.name...]" % action_schema.key()
         type_name = tokens[1]
-        for cls in tx.environment.classes(PackageActionBase):
+        for cls in bcore.environment.classes(PackageActionBase):
             if cls.type_name == type_name:
                 return cls
         # end for each class

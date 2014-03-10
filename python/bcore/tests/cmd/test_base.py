@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.cmd.test_base
-@brief tests for tx.cmd.base
+@package bcore.tests.cmd.test_base
+@brief tests for bcore.cmd.base
 
 @copyright 2013 Sebastian Thiel
 """

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.environ.schema
+@package bcore.core.environ.schema
 @brief All environment schemas used in the pipeline core
 
 @copyright 2013 Sebastian Thiel

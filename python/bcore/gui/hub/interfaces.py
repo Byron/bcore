@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.gui.hub.interfaces
+@package bcore.gui.hub.interfaces
 @brief A collection of interfaces to help using and customizing the hub
 
 @copyright 2013 Sebastian Thiel
@@ -24,7 +24,7 @@ class IHubPanel(object):
     ## @name Interface
     # @{
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def init(self):
         """Will be called after the widget was instantiated, and will cause it to initialize itself
         @return this instance"""

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processcontrol.utility
+@package bcore.processcontrol.utility
 @brief A collection of utilities to ease the work of controller and delegate
 
 @copyright 2013 Sebastian Thiel
@@ -26,7 +26,7 @@ from bcore.utility import (
 
 from bcore.path import Path
 
-log = module_logger('tx.processcontrol.schema')
+log = module_logger('bcore.processcontrol.schema')
 
 # ==============================================================================
 ## @name Utilities
@@ -53,7 +53,7 @@ class NamedServiceProcessControllerDelegate(LazyMixin):
                 return
             # end handle value unset
             
-            delegates = tx.environment.new_services(IProcessControllerDelegate, 
+            delegates = bcore.environment.new_services(IProcessControllerDelegate, 
                                             predicate = lambda *args: self._type_matches_name(self._delegate_name, *args))
             if not delegates:
                 raise AssertionError("Delegate named '%s' could not be found in service registry" % self._delegate_name)

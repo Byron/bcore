@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.properties.types
+@package bcore.core.properties.types
 @brief Implements various types for using the Properties framework
 
 @copyright 2013 Sebastian Thiel

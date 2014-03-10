@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core
+@package bcore.core
 @brief Acts as a category for all core functionality that should always be available
 
 Generally, all submodules should be imported. Sub-Packages should be imported just by the client.

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.generators.executor
+@package bcore.processing.tractor.alf.generators.executor
 @brief A generator for jobs executing anything on the farm with stdin piping support
 
 @copyright 2013 Sebastian Thiel

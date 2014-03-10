@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processing.tractor.base
+@package bcore.tests.processing.tractor.base
 @brief Base classes and utilities for tractor tests
 
 @copyright 2013 Sebastian Thiel

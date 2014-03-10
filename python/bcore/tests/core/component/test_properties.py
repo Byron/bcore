@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.kvstore.test_properties
-@brief tests for tx.core.kvstore.properties
+@package bcore.tests.core.kvstore.test_properties
+@brief tests for bcore.core.kvstore.properties
 
 @copyright 2012 Sebastian Thiel
 """

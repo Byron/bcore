@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.environ.settings
+@package bcore.core.environ.settings
 @brief A module with a user-settings implementation
 
 @copyright 2013 Sebastian Thiel
@@ -151,7 +151,7 @@ class PersistentSettingsEnvironmentStackContextClient(EnvironmentStackContextCli
         #end for each attribute
         return self
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def settings_id(self):
         """@return string id to identify our settings
         A unique id to be used when dealing with settings of all instances of your type

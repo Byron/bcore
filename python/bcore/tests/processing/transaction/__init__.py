@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processing.transaction
-@brief Tests for tx.processing.transaction
+@package bcore.tests.processing.transaction
+@brief Tests for bcore.processing.transaction
 
 @copyright 2013 Sebastian Thiel
 """

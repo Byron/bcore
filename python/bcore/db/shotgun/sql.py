@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.db.shotgun.sql
+@package bcore.db.shotgun.sql
 @brief An SQL backend for shotgun, to allow increasing performance of shotgun interaction of local tools
 
 @note needs sqlalchemy

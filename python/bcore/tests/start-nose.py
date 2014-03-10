@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.hostapps.nuke.start-nose.py
+@package bcore.tests.hostapps.nuke.start-nose.py
 @brief Docs
 
 @copyright 2013 Sebastian Thiel

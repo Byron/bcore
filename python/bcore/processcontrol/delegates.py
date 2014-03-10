@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processcontrol
+@package bcore.processcontrol
 @brief implementations of the interfaces related to process control
 
 @copyright 2012 Sebastian Thiel
@@ -62,7 +62,7 @@ from .schema import (
 
 from bcore.path import Path
 
-log = tx.core.logging.module_logger('tx.processcontrol.delegate')
+log = bcore.core.logging.module_logger('bcore.processcontrol.delegate')
 
 
 # ==============================================================================
@@ -174,16 +174,16 @@ class DelegateEnvironmentOverride(Environment):
         @param kwargs kwargs to be passed to set_context_override()
         @return self
         @note we will put ourselves onto the environment stack for convenience"""
-        new_value = tx.environment.context().value(schema.key(), schema)
+        new_value = bcore.environment.context().value(schema.key(), schema)
         delegate.set_context_override(schema, new_value, *args, **kwargs)
         
         # find only the changed values and write them as kvstore
-        prev_value = tx.environment.context().value(schema.key(), schema)
+        prev_value = bcore.environment.context().value(schema.key(), schema)
         delegate = self.DifferenceDelegate()
         TwoWayDiff().diff(delegate, prev_value, new_value)
         
         self._kvstore.set_value(schema.key(), delegate.result())
-        return tx.environment.push(self)
+        return bcore.environment.push(self)
         
 # end class ProcessControllerEnvironment
 
@@ -298,7 +298,7 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
         """Store the data within the environment for later retrieval
         @param env the environment dict to be used for the soon-to-be-started process
         @return self"""
-        source = self._encode(tx.environment.context().data())
+        source = self._encode(bcore.environment.context().data())
 
         if source:
             # Linux max-chunk size is actually not set, but now we chunk everything
@@ -310,12 +310,12 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
         # end handle source too big to be stored
         
         # store process data as well
-        self._store_yaml_data(self.process_information_environment_variable, env, tx.environment.context().value_by_schema(process_schema))
+        self._store_yaml_data(self.process_information_environment_variable, env, bcore.environment.context().value_by_schema(process_schema))
 
         # Store ConfigHierarchy hashmap for restoring it later
         # merge and store
         hash_map = dict()
-        for einstance in tx.environment.stack():
+        for einstance in bcore.environment.stack():
             if isinstance(einstance, ConfigHierarchyEnvironment):
                 hash_map.update(einstance.hash_map())
             # end update hash_map
@@ -422,7 +422,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     ---help
         Prints this help and exits.
         
-    Set the TX_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
+    Set the BCORE_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
     framework.
     """
     # -------------------------
@@ -451,7 +451,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
-                    tx.environment.push(ConfigHierarchyEnvironment(path.dirname()))
+                    bcore.environment.push(ConfigHierarchyEnvironment(path.dirname()))
                 # end handle valid directory
                 continue
             # end ignore non-wrapper args
@@ -460,7 +460,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         
         # set overrides
         if kvstore_overrides.keys():
-            environment = tx.environment.push(DelegateCommandlineOverridesEnvironment('wrapper commandline overrides', 
+            environment = bcore.environment.push(DelegateCommandlineOverridesEnvironment('wrapper commandline overrides', 
                                                                                       kvstore_overrides))
             PostLaunchProcessInformation().store_commandline_overrides(env, kvstore_overrides.data())
         #end handle overrides
@@ -593,12 +593,12 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         if arg == 'help':
             raise DisplayHelpException(self._wrapper_arg_help)
         elif arg in self._wrapper_logging_levels:
-            tx.core.logging.set_log_level(logging.root, getattr(logging, arg.upper()))
+            bcore.core.logging.set_log_level(logging.root, getattr(logging, arg.upper()))
             
             if arg == 'debug':
                 # print out all files participating in environment stack
                 log.debug("CONFIGURATION FILES IN LOADING ORDER")
-                for env in tx.environment.stack():
+                for env in bcore.environment.stack():
                     if not isinstance(env, ConfigHierarchyEnvironment):
                         continue
                     #end ignore non configuration items
@@ -632,7 +632,7 @@ class MayaProcessControllerDelegate(ProcessControllerDelegate):
     
     context_from_path_arguments = True
 
-    _unappendable_variables = ProcessControllerDelegate._unappendable_variables + ('TX_PIPELINE_BASE_PATH', )
+    _unappendable_variables = ProcessControllerDelegate._unappendable_variables + ('BCORE_PIPELINE_BASE_PATH', )
     
     def verify_path(self, environment_variable, path):
         """Deals properly with icon-paths, those are only relevant on linux"""

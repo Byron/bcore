@@ -10,7 +10,7 @@ packages:
   #####################
   test-environment: ##
   ###################
-  # Makes sure exactly this tx implementation is available in the launched application
+  # Makes sure exactly this bcore implementation is available in the launched application
     requires: 
       - python-site-packages
       - python-pyside
@@ -67,4 +67,4 @@ packages:
   hub:
     python:
       import:
-        tx.processcontrol.gui
+        bcore.processcontrol.gui

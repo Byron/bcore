@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.db.shotgun.orm.base
+@package bcore.db.shotgun.orm.base
 @brief Contains factories and base types to deal with shotgun specific issues
 
 @copyright 2013 Sebastian Thiel
@@ -34,7 +34,7 @@ import cPickle as pickle
 import zlib
 
 
-log = service(ILog).new('tx.db.shotgun.orm')
+log = service(ILog).new('bcore.db.shotgun.orm')
 
 
 # -------------------------

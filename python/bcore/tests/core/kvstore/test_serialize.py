@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.kvstore.test_yaml
-@brief Tests for tx.core.kvstore.yaml
+@package bcore.tests.core.kvstore.test_yaml
+@brief Tests for bcore.core.kvstore.yaml
 
 @copyright 2012 Sebastian Thiel
 """

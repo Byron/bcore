@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.gui.utiliy
+@package bcore.processing.tractor.submission.gui.utiliy
 @brief Some utility types
 
 @copyright 2013 Sebastian Thiel

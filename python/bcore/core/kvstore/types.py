@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.kvstore.types
+@package bcore.core.kvstore.types
 @brief Implements a few types based on our base classes
 
 @copyright 2013 Sebastian Thiel
@@ -23,7 +23,7 @@ from bcore.utility import OrderedDict
 
 
 
-class YAMLStreamSerializer(tx.IStreamSerializer):
+class YAMLStreamSerializer(bcore.IStreamSerializer):
     """Serialize from and to yaml"""
     __slots__ = ()
 
@@ -52,7 +52,7 @@ class YAMLKeyValueStoreModifier(SerializingKeyValueStoreModifierBase):
 
 
 
-class JSONStreamSerializer(tx.IStreamSerializer):
+class JSONStreamSerializer(bcore.IStreamSerializer):
     """Serialize to and from json """
     __slots__ = ()
     

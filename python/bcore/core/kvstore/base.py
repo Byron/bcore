@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.kvstore.base
+@package bcore.core.kvstore.base
 @brief Base classes and most fundamental utilities for key value store handling
 
 @copyright 2012 Sebastian Thiel
@@ -37,7 +37,7 @@ from bcore.utility import  (
 # Basic exceptions thrown by the configuration system
 ## \{
 
-class Error(tx.Error):
+class Error(bcore.Error):
     """Base Type for all exceptions of the configuration system"""
     __slots__ = ()
 
@@ -94,10 +94,10 @@ class KeyValueStoreProvider(object):
     such as `section.option`
     """
     __slots__ = ('_value_dict')
-    __metaclass__ = tx.MetaBase
+    __metaclass__ = bcore.MetaBase
 
     ## Our class-wide logging facility
-    log = module_logger("tx.core.kvstore.base")
+    log = module_logger("bcore.core.kvstore.base")
 
     ## our default key separator
     key_separator = KeyValueStoreProviderDiffDelegate.key_separator

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.template.generators
+@package bcore.template.generators
 @brief Module with generators for names of many kinds
 
 Generators are commonly provided as small base implementations which can be used as mixins.
@@ -70,7 +70,7 @@ class StringFormatNode(ValidatedElementNodeBase):
     re_compound_fields = re.compile(r'\{(\w+(?:\.\w+)*).*?\}')
     
     ## We use a log just to be sure we don't loose inforation
-    log = tx.core.logging.module_logger('tx.template.generators')
+    log = bcore.core.logging.module_logger('bcore.template.generators')
     
     def __init__(self, *args, **kwargs):
         super(StringFormatNode, self).__init__(*args, **kwargs)

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.procssing.tractor.submission.gui.ui
+@package bcore.procssing.tractor.submission.gui.ui
 @brief Contains PySide ui files only
 
 @copyright 2013 Sebastian Thiel

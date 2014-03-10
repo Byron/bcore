@@ -1,11 +1,11 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests
+@package bcore.tests
 Main test package for all bcore code.
 
 Provides core functionality which will be used by all test cases in one way or another.
 
-Imports tx.tests.core
+Imports bcore.tests.core
 
 @copyright 2012 Sebastian Thiel
 """

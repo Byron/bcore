@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processcontrol.gui.controller
+@package bcore.processcontrol.gui.controller
 @brief Contains package controllers, implementing some logic
 
 @copyright 2013 Sebastian Thiel
@@ -14,7 +14,7 @@ from ..utility import PackageMetaDataChangeTracker
 
 from .controller_ui import Ui_PackageViewerWindow
 
-log = service(tx.ILog).new('tx.processcontrol.gui.controller')
+log = service(bcore.ILog).new('bcore.processcontrol.gui.controller')
 
 
 class PackageViewerWindow(QtGui.QWidget, IHubPanel):
@@ -39,7 +39,7 @@ class PackageViewerWindow(QtGui.QWidget, IHubPanel):
         @param changes_only if False, all package data will be shown
         @return this instance"""
         if package_name_or_tracker is None:
-            svc = new_service(tx.IPostLaunchProcessInformation)
+            svc = new_service(bcore.IPostLaunchProcessInformation)
             if not svc.has_data():
                 self.viewer().message.setText("Process is not wrapped, no package information available")
                 return self
@@ -72,5 +72,5 @@ class PackageViewerWindow(QtGui.QWidget, IHubPanel):
 
 # end class PackageWidget
 
-tx.environment.register(PackageViewerWindow)
+bcore.environment.register(PackageViewerWindow)
 

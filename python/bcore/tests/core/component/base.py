@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.component.core
+@package bcore.tests.core.component.core
 @brief Utilities used for testing the component system
 
 @copyright 2012 Sebastian Thiel

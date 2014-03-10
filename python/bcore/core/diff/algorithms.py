@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.diff.algorithms
+@package bcore.core.diff.algorithms
 @brief A module with diffing algorithms
 
 @copyright 2012 Sebastian Thiel
@@ -31,7 +31,7 @@ class TwoWayDiff(object):
     in a particular order determined by the code, and not by the underlying data. This means that after a merge,
     your order of keys might be different"""
     __slots__ = ( )
-    __metaclass__ = tx.MetaBase
+    __metaclass__ = bcore.MetaBase
     
     # -------------------------
     ## @name Interface

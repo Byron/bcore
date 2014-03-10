@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.generators.cmdbase
+@package bcore.processing.tractor.alf.generators.cmdbase
 @brief A modul for holding the tractor generator handling command execution based on processcontrol
 
 @copyright 2013 Sebastian Thiel
@@ -30,7 +30,7 @@ from bcore.processcontrol import (
                                     ProcessControllerDelegate
                                )
 
-log = new_service(tx.ILog).new('tx.processing.tractor.submission.base')
+log = new_service(bcore.ILog).new('bcore.processing.tractor.submission.base')
 
 
 class TractorCmdGeneratorBase(NodeGeneratorBase, EnvironmentStackContextClient, PackageDataIteratorMixin):
@@ -51,7 +51,7 @@ class TractorCmdGeneratorBase(NodeGeneratorBase, EnvironmentStackContextClient, 
     read_from_stdin_argument = 'read-from-stdin'
     
     ## The environment variable which will keep the serialized data for later consumption in-process
-    data_storage_env_var = 'TX_TRACTOR_CUSTOM_DATA'
+    data_storage_env_var = 'BCORE_TRACTOR_CUSTOM_DATA'
     
     ## -- End Constants -- @}
     
@@ -164,9 +164,9 @@ class TractorCmdGeneratorBase(NodeGeneratorBase, EnvironmentStackContextClient, 
             # here
             executable = None
             bases = list()
-            for svc in services(tx.IDirectoryService):
+            for svc in services(bcore.IDirectoryService):
                 try:
-                    base = svc.path(tx.IProjectService.PATH_EXECUTABLES)
+                    base = svc.path(bcore.IProjectService.PATH_EXECUTABLES)
                     bases.append(base)
                     executable = base / self.cmd_id
                 except ValueError:

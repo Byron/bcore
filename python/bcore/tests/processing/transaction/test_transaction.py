@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processing.transaction.test_transaction
-@brief tests for tx.processing.transaction
+@package bcore.tests.processing.transaction.test_transaction
+@brief tests for bcore.processing.transaction
 
 @copyright 2013 Sebastian Thiel
 """
@@ -13,7 +13,7 @@ import bcore
 from bcore.tests import TestCaseBase
 from bcore.utility import ConcurrentRun
 
-log = service(tx.ILog).new('tx.tests.processing.transaction.test_transaction')
+log = service(bcore.ILog).new('bcore.tests.processing.transaction.test_transaction')
 
 from bcore.processing.transaction import *
 

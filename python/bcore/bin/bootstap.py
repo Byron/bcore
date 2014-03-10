@@ -1,8 +1,8 @@
 #!/usr/bin/env python2.6
 #-*-coding:utf-8-*-
 """
-@package tx.bin.wrapper
-@brief bootstrapper to allow importing tx with the actual implementation
+@package bcore.bin.wrapper
+@brief bootstrapper to allow importing bcore with the actual implementation
 
 @note this is an executable which is not meant to be imported. All dependencies are included in the file
 
@@ -20,8 +20,8 @@ basename = os.path.basename
 dirname = os.path.dirname
 
 
-# Make sure tx doesn't initialize the environment as the wrapper logic takes care of that
-os.environ['TX_INIT_ENVIRONMENT_DISABLE'] = '1'
+# Make sure bcore doesn't initialize the environment as the wrapper logic takes care of that
+os.environ['BCORE_INIT_ENVIRONMENT_DISABLE'] = '1'
 
 # BASIC LOGGING SETUP
 #####################
@@ -41,7 +41,7 @@ class Bootstrapper(object):
     
     * Find the wrapper's original, non-symlinked location and see if it is within its source tree. The following 
       locations are tried in order
-    ** read TX_PIPE_PACKAGE_PATH variable to the location from which root_package_name can be imported
+    ** read BCORE_PIPE_PACKAGE_PATH variable to the location from which root_package_name can be imported
     ** follow symlink of this file
     ** On windows, a side-by-side file will be read for the path to follow.
     * finally, adjust the path to initialize the root package and pass control to its implementation
@@ -55,10 +55,10 @@ class Bootstrapper(object):
     # @{
     
     ## A variable we can use to override the pipeline root package location, useful for testing
-    pipe_package_env_var = 'TX_PIPE_PACKAGE_PATH'
+    pipe_package_env_var = 'BCORE_PIPE_PACKAGE_PATH'
     
     ## Name of the root package that contains all of the core code
-    root_package_name = 'tx'
+    root_package_name = 'bcore'
     
     ## module path to wrapper engine interface
     engine_interface_module_name = 'processcontrol'
@@ -139,7 +139,7 @@ class Bootstrapper(object):
         # end handle envrionment error
        
     def _root_package_path(self, executable):
-        """@return a string to the folder containing the tx.package or None if it wasn't found.
+        """@return a string to the folder containing the bcore.package or None if it wasn't found.
         We try to guesstimage it just by name
         @param executable possibly the original executable"""
         root_path = dirname(dirname(executable))

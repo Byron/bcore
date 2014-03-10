@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.environ.test_settings
-@brief tests for tx.core.environ.settings
+@package bcore.tests.core.environ.test_settings
+@brief tests for bcore.core.environ.settings
 
 @copyright 2013 Sebastian Thiel
 """

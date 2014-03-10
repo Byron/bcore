@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx
+@package bcore
 
 @mainpage Overview
 
@@ -44,14 +44,14 @@
 ## What's new in 0.7.0
 
 - **Properties Core Framework**
- + Added a framework to unify descriptor based property handling, see \ref tx.core.properties
+ + Added a framework to unify descriptor based property handling, see \ref bcore.core.properties
 - **Addition to \ref components "Component Framework"**
  + Properties are provided to simplify access to context values using Properties.
- + See \ref tx.core.component.properties for more information
+ + See \ref bcore.core.component.properties for more information
 - **Logging**
  + The logging initialization will now work as expected when initialized from a file. Previously 
    it would make all existing logger instances unusable.
- + TX_LOGGING_INITIALIZATION_DISABLE can be set to prevent any logging initialization. It is the 
+ + BCORE_LOGGING_INITIALIZATION_DISABLE can be set to prevent any logging initialization. It is the 
    same as if the kvstore contained the logging.disable=1 flag, but is more granular as the 
    environment can more easily be manipulated per process.
 - **ProcessControl**
@@ -108,9 +108,9 @@
 
 ## What's new in 0.4.0
 
-- Added \ref tx.processing.tractor "Tractor API"
- + This includes a module to build \ref tx.processing.tractor.alf "alf structures" and serialize them
-- Added TX_STARTUP_LOG_LEVEL environment variable, which allows to set the log level very early on. Valid
+- Added \ref bcore.processing.tractor "Tractor API"
+ + This includes a module to build \ref bcore.processing.tractor.alf "alf structures" and serialize them
+- Added BCORE_STARTUP_LOG_LEVEL environment variable, which allows to set the log level very early on. Valid
   values are DEBUG or INFO for instance, namely log level constants available in the logging package.
 
 ## What's new in 0.3.0
@@ -133,7 +133,7 @@
 - GUI Package reorganized
  + Previously it contained Quality Checking related interfaces. Now its reserved for general purpose widgets
    that can be used to build larger user interfaces.
- + Quality Checking GUI was moved into tx.qc.gui.
+ + Quality Checking GUI was moved into bcore.qc.gui.
 - Standalone Quality Checking
  + in mainline/bin you will find a standalone version of the quality checker gui. If opened in the appropriate
    context, checks will show up, for instance to check file paths and naming.
@@ -143,15 +143,15 @@
 
 ## What's new in 0.2.0
 
-- \ref tx.db.shotgun.interfaces.IShotgunConnection "IShotgunConnection"
-- \ref tx.db.shotgun.base.ProxyShotgunConnection "ProxyShotgunConnection"
-- \ref tx.core.logging.interfaces.ILog "ILog"
-- \ref tx.processcontrol "Process Control Improvements"
+- \ref bcore.db.shotgun.interfaces.IShotgunConnection "IShotgunConnection"
+- \ref bcore.db.shotgun.base.ProxyShotgunConnection "ProxyShotgunConnection"
+- \ref bcore.core.logging.interfaces.ILog "ILog"
+- \ref bcore.processcontrol "Process Control Improvements"
   + Added process.executable key to kvstore
   + Package Schema Additions
     * Added arguments.append and arguments.prepend keys to allow appending and prepending arguments
     * Added executable_alias to allow using the executable of another package.
-- Moved all core interfaces into their respective package's interfaces module, therefore tx.core.interfaces
+- Moved all core interfaces into their respective package's interfaces module, therefore bcore.core.interfaces
   is no more.
 - Added new \ref commands "Command Framework"
   
@@ -164,7 +164,7 @@
 
 Interfaces are the preferred way to obtain functionality from the \ref components "components framework".
 
-As they are so important, all interfaces defined here are automatically available in the tx package. 
+As they are so important, all interfaces defined here are automatically available in the bcore package. 
 See the following example for reference.
 
 @snippet bcore/tests/doc/test_examples.py interface_builtin
@@ -189,7 +189,7 @@ from bcore.base import *
 ## \name Globals
 # ------------------------------------------------------------------------------
 # All variables listed here are singleton instance which are useful to everyone
-# within the tx package.
+# within the bcore package.
 ## \{
 
 ## allows access to the current context.
@@ -197,10 +197,10 @@ environment = None
 
 ## Used to set the logging up very early to see everything. Useful for debugging usually, log-levels will 
 ## be set at later points as well
-log_env_var = 'TX_STARTUP_LOG_LEVEL'
+log_env_var = 'BCORE_STARTUP_LOG_LEVEL'
 
 ## If set, we will perform only the most minimal (and the fastest possible) startup
-minimal_init_evar = 'TX_INIT_ENVIRONMENT_DISABLE'
+minimal_init_evar = 'BCORE_INIT_ENVIRONMENT_DISABLE'
 
 ## -- End Globals -- @}
 
@@ -238,7 +238,7 @@ def init_environment_stack():
     """setup our global environment"""
     import bcore.core.component
     global environment
-    environment = tx.core.component.EnvironmentStack()
+    environment = bcore.core.component.EnvironmentStack()
 
     from bcore.core.environ import (OSEnvironment, PipelineBaseEnvironment)
 
@@ -248,7 +248,7 @@ def init_environment_stack():
 def _init_logging():
     """Make sure most basic logging is available"""
     import bcore.core.logging
-    tx.core.logging.initialize()
+    bcore.core.logging.initialize()
 
     # Make sure one instance of the provider is there, but don't initialize it (which loads configuration)
     # A lot of code expects it to be there
@@ -258,11 +258,11 @@ def _init_logging():
     
 def  init_environment():
     """Intializes processcontrol related environments, and our logging configuration
-    @note techinically, processcontroll would now have to move into tx.core as we are using it during startup.
+    @note techinically, processcontroll would now have to move into bcore.core as we are using it during startup.
     Alternatively, we just provide a function and engines initialize it as they see fit ! Therefore we don't
     touch process control here, but provide functionality others can call if they need it. For now, we just
     do it for the callers convenience.
-    @todo consider moving processcontrol into bcore, as the rule would require it. Imports in tx have to be
+    @todo consider moving processcontrol into bcore, as the rule would require it. Imports in bcore have to be
     from core, otherwise it must be loaded on demand"""
     from bcore.processcontrol import (
                                         ControlledProcessEnvironment,
@@ -288,7 +288,7 @@ def  init_environment():
 
 
 def _initialize():
-    """Initialize the tx package."""
+    """Initialize the bcore package."""
     _verify_prerequisites()
     _init_core()
     init_environment_stack()

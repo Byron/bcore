@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.template.base
+@package bcore.template.base
 @brief Contains base classes specifying and implementing the substitution system.
 
 @copyright 2012 Sebastian Thiel

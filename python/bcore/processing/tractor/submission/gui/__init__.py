@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.gui
+@package bcore.processing.tractor.submission.gui
 @brief Package with all gui-widgets used for tractor submission - it imports all submodules
 
 @copyright 2013 Sebastian Thiel

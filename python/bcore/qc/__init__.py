@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.qc
+@package bcore.qc
 @brief A framework to implement quality assurance on a very basic level.
 
 @page qc Quality Assurance Framework

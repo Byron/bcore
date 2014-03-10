@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.serialize
+@package bcore.processing.tractor.alf.serialize
 @brief A module with serialization types - they are decoupled entirely from the tree structure
 
 @copyright 2013 Sebastian Thiel
@@ -157,7 +157,7 @@ class AlfSerializerBase(object):
     ## @name Subclass Interface
     # @{
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def _recurse(self, node, attr, depth, enter):
         """Called when the children of the given node are recursed into.
         @param node AlfTreeOperator node whose children we will examine breadth first
@@ -166,12 +166,12 @@ class AlfSerializerBase(object):
         @param enter if True, we are entering the recursion, otherwise we are exiting it.
         Per node there will be exactly two calls to recurse, if there are children"""
         
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def _node(self, node, depth, enter):
         """Called when we start serializing a node, or when we are done
         @note see _recurse() for an explanation of arguments"""
         
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def _node_attr(self, node, attr, depth, mandatory):
         """Write the given node's attribute data into the stream basd
         @param node an instance of type AlfTreeOperator

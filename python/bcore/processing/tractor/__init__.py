@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor
+@package bcore.processing.tractor
 @brief A package for API's for use with pixar tractor.
 
 @note You have to import the respective sub-packages for actual features

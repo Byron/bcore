@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.gui
+@package bcore.gui
 @brief Root package for general use gui components.
 
 Use these components to build modular user interfaces

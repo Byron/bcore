@@ -1,7 +1,7 @@
 # site configuration which will always be loaded
 
 site:                   # Site specific configuration
-  name: tx_munich
+  name: klenze7_munich
   location: munich
   
 db:                     # all database specific configuration 

@@ -1,14 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package: tx.core.logging
-
-@page logging Logging Facility
-Responsible for printing errors and messages consistently and correctly.
-
-Provides special tx flavor loggers, handlers and formatters, that generate user
-friendly output but also retain enough detail in a verbose yet concise log file
-format. Debugging becomes easer but users are not assaulted by this surplus of
-information. A configuration file can be used (with traditional config syntax).
+@package: bcore.core.logging
 
 @copyright 2012 Sebastian Thiel
 """

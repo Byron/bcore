@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.shotgun.interfaces
+@package bcore.core.shotgun.interfaces
 @brief Provides an interface to access a shotgun database, pre-initialized and ready to go
 
 @copyright 2013 Sebastian Thiel

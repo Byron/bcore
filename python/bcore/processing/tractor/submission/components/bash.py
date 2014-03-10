@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.components.bash
+@package bcore.processing.tractor.submission.components.bash
 @brief Implements a chain for bash-batching, but it can possibly be used for anything
 
 @copyright 2013 Sebastian Thiel

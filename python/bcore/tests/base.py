@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.base
+@package bcore.tests.base
 @brief most fundamental types
 
 @copyright 2012 Sebastian Thiel
@@ -34,7 +34,7 @@ from bcore.utility import wraps
 
 import nose
 
-log = module_logger('tx.tests')
+log = module_logger('bcore.tests')
 
 # ==============================================================================
 ## @name Utilities
@@ -43,8 +43,8 @@ log = module_logger('tx.tests')
 
 def swap_globals(new_stack):
     """switches the environment stack to a new stack"""
-    old_stack = tx.environment
-    tx.environment = new_stack
+    old_stack = bcore.environment
+    bcore.environment = new_stack
     return old_stack
 
 ## -- End Utilities -- @}
@@ -143,7 +143,7 @@ def skip_not_implemented(func):
 # ------------------------------------------------------------------------------
 ## @{
 
-class GlobalsItemDeletorMetaCls(tx.MetaBase):
+class GlobalsItemDeletorMetaCls(bcore.MetaBase):
     """Utiltiy to prevent base implementations of tests to be picked up by nose as the metacls
     will delete the given name from the globals.
     
@@ -236,7 +236,7 @@ class TestCaseBase(unittest.TestCase):
         @param cls
         @param filename relative path to or plain filename describing the file you
         would like to get an absolute path for, i.e. 'myfile.ext', 'directory/myfile.ext'e
-        @return absolute tx.path into the fixture repository
+        @return absolute bcore.path into the fixture repository
         """
         return make_path(cls.fixture_root / 'fixtures' / cls.fixture_subdir / filename)
     ## -- End Utilities -- @}
@@ -253,12 +253,12 @@ class TestCaseBase(unittest.TestCase):
     def setUp(self):
         """Runs before each individual test to set it up"""
         # be sure each test has his own environment to be independent of others
-        self._previous_stack_len = len(tx.environment)
-        tx.environment.push(str(self))
+        self._previous_stack_len = len(bcore.environment)
+        bcore.environment.push(str(self))
     
     def tearDown(self):
         """Runs after each test case to clean up afterwards"""
-        assert isinstance(tx.environment.pop(until_size = self._previous_stack_len), list)
+        assert isinstance(bcore.environment.pop(until_size = self._previous_stack_len), list)
 
     @classmethod
     def setUpClass(cls):
@@ -294,7 +294,7 @@ class TestInterfaceBase(TestCaseBase):
             return [cls.__name__]
         return list()
     
-    ## Contains the previous tx.environment stack for the duration of a test
+    ## Contains the previous bcore.environment stack for the duration of a test
     _prev_stack = None
     ## previous size of the stack before running the test
     _prev_size = None
@@ -324,7 +324,7 @@ class TestInterfaceBase(TestCaseBase):
         if self.keep_environment_stack:
             super(TestInterfaceBase, self).setUp()
         else:
-            self._prev_stack = swap_globals(type(tx.environment)())
+            self._prev_stack = swap_globals(type(bcore.environment)())
         # end handle stack
         
         self._instance = self.subclass_type()
@@ -392,7 +392,7 @@ class NoseStartScriptDelegate(NosetestDelegate):
         """@return path to python script that can serve as entrypoint"""
         return Path(__file__).dirname() / 'start-nose.py'
         
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def modify_args(self, args, script_path):
         """@return modified argument list containing entry_script_path() in a way that causes the hostapplication
         to execute it

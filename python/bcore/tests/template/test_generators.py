@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.template.test_generators
-@brief tests for tx.template.generators
+@package bcore.tests.template.test_generators
+@brief tests for bcore.template.generators
 
 @copyright 2012 Sebastian Thiel
 """

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.cmd.base
+@package bcore.cmd.base
 @brief Base implementations of the command interfaces
 
 @copyright 2013 Sebastian Thiel
@@ -115,7 +115,7 @@ class CommandBase(ICommand, LazyMixin):
             if self._is_subcommand():
                 lid = '%s %s' % (self.main_command_name, self.name)
             # end handle subcommands
-            self._log = new_service(tx.ILog).new(lid)
+            self._log = new_service(bcore.ILog).new(lid)
         elif name == '_info':
             assert self.name and self.version and self.description
             log_id = self.log_id or self.name

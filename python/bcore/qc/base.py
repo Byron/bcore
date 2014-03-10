@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.qc
+@package bcore.qc
 @brief a module containing base classes for the quality check framework
 
 @copyright 2012 Sebastian Thiel
@@ -38,7 +38,7 @@ class QualityCheckRunnerDelegate(IQualityCheckRunnerDelegate):
 
     __slots__ = tuple()
     
-    log = tx.core.logging.module_logger('tx.qc.base.QualityCheckRunnerDelegate')
+    log = bcore.core.logging.module_logger('bcore.qc.base.QualityCheckRunnerDelegate')
     
     # -------------------------
     ## @name Interface
@@ -216,7 +216,7 @@ class QualityCheckRunner(IQualityCheckRunner, Plugin):
     stop_run = 'stop_run'
     
     ## default logger we will use
-    log = tx.core.logging.module_logger('tx.qc.base.QualityCheckRunnerDelegate')
+    log = bcore.core.logging.module_logger('bcore.qc.base.QualityCheckRunnerDelegate')
     
     ## -- End Configuration -- @}
     

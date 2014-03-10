@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.generators.types
+@package bcore.processing.tractor.alf.generators.types
 @brief Implements actual types using the base classes
 
 @copyright 2013 Sebastian Thiel
@@ -165,7 +165,7 @@ class MultiStringGeneratorBase(ValueSequenceGeneratorBase):
     # Useful to override certain class behavior
     # @{
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def _set_strings_to_context(self, context, strings):
         """Called during _tree_iterator() evaluation to set the given list of strings into the 
         context according to the subclasses particular schema.
@@ -192,7 +192,7 @@ class MultiStringGeneratorBase(ValueSequenceGeneratorBase):
                 yield tree
         # end for each job file
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def chunks(self, context):
         """@return A list of chunks of lists of strings to handle. Each chunk returned here will be worth 
         one tree iterator iteration. Its also valid to return a list of individual items.

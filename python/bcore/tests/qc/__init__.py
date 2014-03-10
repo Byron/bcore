@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.qc
-@brief tests for tx.qc
+@package bcore.tests.qc
+@brief tests for bcore.qc
 
 @copyright 2012 Sebastian Thiel
 """

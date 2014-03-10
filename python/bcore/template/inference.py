@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.template.inference
+@package bcore.template.inference
 @brief Module with implementations for ElementNodeList inference.
 
 These algrithms allow to infer the NodeList and its data used to create a previously generated name, based on
@@ -27,7 +27,7 @@ class InferenceStringFormatNodeTreeDelegate(object):
                     '_parsed_data',     # a dictionary of DictObjects with the parsed (nested) data
                 )
     
-    log = tx.core.logging.module_logger('tx.template.inference')
+    log = bcore.core.logging.module_logger('bcore.template.inference')
     
     
     def __init__(self, data_sets=list()):

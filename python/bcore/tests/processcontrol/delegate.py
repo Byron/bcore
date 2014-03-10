@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processcontrol.delegate
+@package bcore.tests.processcontrol.delegate
 @brief A delegate for testing process communication
 
 @copyright 2013 Sebastian Thiel

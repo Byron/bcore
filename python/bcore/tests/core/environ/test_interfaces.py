@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.interfaces.test_base
+@package bcore.tests.core.interfaces.test_base
 @brief tests for base core interfaces
 
 @copyright 2013 Sebastian Thiel
@@ -93,7 +93,7 @@ class TestIContextController(TestInterfaceBase):
     
     def test_base(self):
         assert self.file_in_context_a.isfile() and self.file_in_context_b.isfile(), 'test files must be set'
-        host = new_service(tx.IHostApplication)
+        host = new_service(bcore.IHostApplication)
         
         assert host.loaded_file() != self.file_in_context_a
         host.load(self.file_in_context_a)

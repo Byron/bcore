@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.template.test_inference
-@brief tests for tx.template.inference
+@package bcore.tests.template.test_inference
+@brief tests for bcore.template.inference
 
 @copyright 2012 Sebastian Thiel
 """

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package tx.core.environ.interfaces
+@package bcore.core.environ.interfaces
 @brief Most basic interfaces for general usage, useful in all host applications !
 
 @copyright 2012 Sebastian Thiel
@@ -13,13 +13,13 @@ import bcore
 from bcore import abstractmethod
 
 
-class IHostApplication(tx.InterfaceBase):
+class IHostApplication(bcore.InterfaceBase):
     """ Host Application Interface with the standard functions
         we expect host applications to support """
         
     @abstractmethod
     def version(self):
-        """@return a \ref tx.utility.Version "Version" instance, representing the host application version"""
+        """@return a \ref bcore.utility.Version "Version" instance, representing the host application version"""
         
     @abstractmethod
     def name(self):
@@ -47,7 +47,7 @@ class IHostApplication(tx.InterfaceBase):
         
         
         
-class IContextController(tx.InterfaceBase):
+class IContextController(bcore.InterfaceBase):
     """A controller to deal with the context changes of a typical application.
     
     It deals with two kinds of context:
@@ -62,14 +62,14 @@ class IContextController(tx.InterfaceBase):
         of plugins, before we change to the new scene. If its okay, we may proceed, otherwise the scene change
         should be aborted.
         
-    @note If we talk about context, we mean the kvstore of the tx.environment instance.
+    @note If we talk about context, we mean the kvstore of the bcore.environment instance.
     @note This type is meant to be used as Singleton, and must be initialized once during your application's 
     boot sequence.
     """
     __slots__ = ()
     
     
-    class ContextIncompatible(tx.Error):
+    class ContextIncompatible(bcore.Error):
         """Indicate the new scene context is not compatible with the current one.
         If converted to string, a descriptive error message should be generated"""
         __slots__ = ()
@@ -82,12 +82,12 @@ class IContextController(tx.InterfaceBase):
     ## @name Interface
     # @{
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def init(self):
         """Should be used to initialize the executable context as well as callbacks to follow the scene context.
         @note must be called exactly once on a new instance, which should exist only once per application"""
         
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def pop_scene_context(self):
         """Remove all environments pushed onto the stack if they belong to the scene context.
         
@@ -102,7 +102,7 @@ class IContextController(tx.InterfaceBase):
     ## @name Callbacks
     # @{
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def change_scene_context(self, filepath):
         """Change our context from the previous one the to one indicated by the given file.
         
@@ -110,7 +110,7 @@ class IContextController(tx.InterfaceBase):
         changed to), and execption of type 
         
         @note should be called by subclasses from their respective callbacks
-        @param filepath tx.path.Path instance of filename to change the context to in one way or another
+        @param filepath bcore.path.Path instance of filename to change the context to in one way or another
         @throws IContextController.ContextIncompatible
         """
         
@@ -121,7 +121,7 @@ class IContextController(tx.InterfaceBase):
         
     
 
-class IPlatformService(tx.InterfaceBase):
+class IPlatformService(bcore.InterfaceBase):
     """Interface for platform services specific to operating systems"""
     
     # -------------------------
@@ -168,7 +168,7 @@ class IPlatformService(tx.InterfaceBase):
     ## -- End Interface -- @}
     
     
-class IDirectoryService(tx.InterfaceBase):
+class IDirectoryService(bcore.InterfaceBase):
     """Provides information about the directory structure, and generally where to find things"""
     __slots__ = ()
 

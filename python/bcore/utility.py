@@ -1,8 +1,8 @@
 #-*-coding:utf-8-*-
 """
-@package tx.utility
+@package bcore.utility
 
-Practical and useful functions which are not dependent on other parts of the tx
+Practical and useful functions which are not dependent on other parts of the bcore
 library
 
 @copyright 2012 Sebastian Thiel
@@ -167,7 +167,7 @@ def tagged_file_paths(directory, taglist, pattern=None):
     Suppose you have two paths, one is a global one in a read-only location,
     another is a local one in the user's home.
 
-    The list of file-paths (tx.path instances) returned would be all matching files from the global path and
+    The list of file-paths (bcore.path instances) returned would be all matching files from the global path and
     all matching files from the local one, sorted such that the file with the smallest amount
     of tags come first, files with more tags (more specialized ones) will come after that. 
 
@@ -179,7 +179,7 @@ def tagged_file_paths(directory, taglist, pattern=None):
     @return list of matches file paths (as mrv Path)
     """
     from bcore.core.logging import module_logger
-    log = module_logger('tx.utility')
+    log = module_logger('bcore.utility')
     log.debug('obtaining tagged files from %s, tags = %s', directory, ', '.join(taglist))
     
     container_types = (list , set, tuple)
@@ -380,7 +380,7 @@ class GraphIteratorBase(object):
     @todo add a test for this type - its not even indirectly used yet. Alternatively, remove it if its not used
     by anybody"""
     __slots__ = ()
-    __metaclass__ = tx.base.MetaBase
+    __metaclass__ = bcore.base.MetaBase
     
     # W0613 ignore the unused arguments we have here, its part of an abstract method
     # pylint: disable-msg=W0613
@@ -427,11 +427,11 @@ class GraphIteratorBase(object):
     # These methods are to be implemented or customized by subclasses
     # @{
     
-    @tx.base.abstractmethod
+    @bcore.base.abstractmethod
     def _successors(self, node):
         """@return an iterable of successor nodes (i.e. output nodes) of the given node"""
         
-    @tx.base.abstractmethod
+    @bcore.base.abstractmethod
     def _predecessors(self, node):
         """@return an iterable of predecessor nodes (i.e. input nodes) of the given node"""
         

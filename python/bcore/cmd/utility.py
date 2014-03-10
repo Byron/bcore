@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.cmd.utility
+@package bcore.cmd.utility
 @brief Some utilities for general command use
 
 @copyright 2013 Sebastian Thiel

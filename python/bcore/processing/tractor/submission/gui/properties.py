@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.gui.properties
+@package bcore.processing.tractor.submission.gui.properties
 @brief Widgets dealing with properties for ChainGenerators
 
 @copyright 2013 Sebastian Thiel
@@ -269,7 +269,7 @@ for widget in ( FrameSequenceGeneratorPropertiesWidget,
                 MayaRenderPropertiesWidget,
                 MultiTaskPropertiesWidget,  # must come after frameSequence widget
                 ExecutorPropertiesWidget,):
-    tx.environment.register(widget)
+    bcore.environment.register(widget)
 # end for each widget
 
 ## -- End ChainWidgets -- @}

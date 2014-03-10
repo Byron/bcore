@@ -88,7 +88,7 @@ An example yaml configuration file could look as follows - note the structure ha
     # site.yaml
     # site configuration which will always be loaded
     site:                   # Site specific configuration
-      name: tx_munich
+      name: klenze7
       location: munich
       
     db:                     # all database specific configuration 

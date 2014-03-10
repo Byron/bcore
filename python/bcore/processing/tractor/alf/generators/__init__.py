@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.alf.generators
+@package bcore.processing.tractor.alf.generators
 @brief A package with alf generators of many different kinds
 
 @copyright 2013 Sebastian Thiel

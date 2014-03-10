@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.properties.base
+@package bcore.core.properties.base
 @brief Base implementations for Properties using descriptors
 
 @copyright 2013 Sebastian Thiel
@@ -18,7 +18,7 @@ from bcore import (
 from ..logging import module_logger
 import weakref
 
-log = module_logger('tx.core.properties')
+log = module_logger('bcore.core.properties')
 
 # ==============================================================================
 ## @name Exceptions

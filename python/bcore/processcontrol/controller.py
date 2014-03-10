@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processcontrol.controller
+@package bcore.processcontrol.controller
 @brief Contains the controller implementation
 
 @copyright 2013 Sebastian Thiel
@@ -56,7 +56,7 @@ from .schema import (
                     )
 
 
-log = tx.core.logging.module_logger('tx.processcontrol.controller')
+log = bcore.core.logging.module_logger('bcore.processcontrol.controller')
 
 
 # ==============================================================================
@@ -156,7 +156,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
         return self._name
     
     def root_path(self):
-        """@return tx.path instance pointing at the *existing* root of the package
+        """@return bcore.path instance pointing at the *existing* root of the package
         or None if there is no such path or if the configured path doesn't exist"""
         return self._root_path
         
@@ -167,8 +167,8 @@ class ProcessControllerPackageSpecification(LazyMixin):
     def to_abs_path(self, path):
         """Convert the given possibly relative path to an absolute path, if necessary
         @note it is not checked for existence
-        @param path string or tx.path
-        @return absolute version of the path, as tx.path
+        @param path string or bcore.path
+        @return absolute version of the path, as bcore.path
         @throws ValueError if the path is relative and there is no valid root path"""
         path = Path(path)
         if path.isabs():
@@ -179,7 +179,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
         return self.root_path() / path
         
     def executable(self):
-        """@return tx.path to executable - its not verified to be existing
+        """@return bcore.path to executable - its not verified to be existing
         @note for now this is uncached, but its okay for our use
         """
         executable_path = self.to_abs_path(self.data().executable)
@@ -568,12 +568,12 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
             except DisplayHelpException, err:
                 self._help_string = err.help_string
             except DisplayContextException:
-                sys.stderr.write(str(tx.environment._contents_str()))
+                sys.stderr.write(str(bcore.environment._contents_str()))
                 # just cause us to exit elegantly
                 self._help_string = "Context displayed\n"
             except Exception, err:
                 if self._is_debug_mode():
-                    sys.stderr.write(str(tx.environment._contents_str()))
+                    sys.stderr.write(str(bcore.environment._contents_str()))
                 # end handle debug mode
                 raise
             #end assure context is written
@@ -596,10 +596,10 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
     def _package_data(cls, name):
         """@return verified package data for a package of the given name"""
         key = '%s.%s' % (cls._schema.key(), name)
-        if not tx.environment.context().has_value(key):
+        if not bcore.environment.context().has_value(key):
             raise EnvironmentError("A package named '%s' did not exist in the database" % name)
         # end graceful key handling
-        return tx.environment.context().value(key, cls._package_data_schema, resolve=True)
+        return bcore.environment.context().value(key, cls._package_data_schema, resolve=True)
         
     @classmethod
     def _package(cls, name):
@@ -650,7 +650,7 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
         """@return iterator yielding ProcessControllerPackageSpecification instances for all packages that the given one requires
         , including the ProcessControllerPackageSpecification corresponding to package_name itself, in unspecified order.
         @param package_name name of the package from which to start the iteration.
-        @note database used is the currently active kvstore, as provided by tx.environment.context()
+        @note database used is the currently active kvstore, as provided by bcore.environment.context()
         """
         package = self._package(package_name)
         yield package
@@ -695,7 +695,7 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
         """Load all plugins from all our packages into the environment of the given name.
         It will be pushed on the stack automatically.
         @return self"""
-        tx.environment.push(env_name)
+        bcore.environment.push(env_name)
         
         # First iteration sets the python path
         package_cache = list()
@@ -759,7 +759,7 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
         # end for each package name
         type(self)._package_data_schema = prev_schema
 
-        env = tx.environment.push("Fill VSpec")
+        env = bcore.environment.push("Fill VSpec")
         assert hasattr(env, '_kvstore'), "Expected Environment instance to have kvstore"
         env._kvstore = kvstore
         
@@ -776,7 +776,7 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
         
         @return self
         """
-        self._stack_len = len(tx.environment)
+        self._stack_len = len(bcore.environment)
         
         def root_package_and_executable_provider():
             root_package = executable_provider_package = self._package(program)
@@ -807,11 +807,11 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
             log.warn("Adjusted bootstrap_dir %s to %s as previous one didn't exist", bootstrap_dir, new_bootstrap_dir)
             bootstrap_dir = new_bootstrap_dir
          # end assure we have at least a good initial configuration
-        tx.environment.push(_ProcessControllerEnvironment(program, self._boot_executable, bootstrap_dir))
+        bcore.environment.push(_ProcessControllerEnvironment(program, self._boot_executable, bootstrap_dir))
         
-        tx.environment.push(PipelineBaseEnvironment('Wrapper Pipeline Base'))
+        bcore.environment.push(PipelineBaseEnvironment('Wrapper Pipeline Base'))
         for path in (bootstrap_dir, self._cwd):
-            tx.environment.push(ConfigHierarchyEnvironment(path))
+            bcore.environment.push(ConfigHierarchyEnvironment(path))
         # end for each path (hierarchy) to check for configurations
         
         # Evaluate Program Database
@@ -850,7 +850,7 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
             # end use delegate overrides
             
             self._executable_path = executable_provider_package.executable()
-            prev_len = len(tx.environment)
+            prev_len = len(bcore.environment)
             self.delegate().prepare_environment(self._executable_path, self._env, self._args, self._cwd)
             
             # RESOLVE VSPEC
@@ -862,7 +862,7 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
             
             # If there were changes to the environment, pick them up by clearing our data. This would the delegate 
             # name to be updated as well.
-            if len(tx.environment) - num_new_environments != prev_len:
+            if len(bcore.environment) - num_new_environments != prev_len:
                 root_package, executable_provider_package = root_package_and_executable_provider()
                 self._executable_path = executable_provider_package.executable()
                 
@@ -882,8 +882,8 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
                 self._env = os.environ
 
                 # But be sure we don't inherit this evar - it can be set later through config though
-                if tx.minimal_init_evar in os.environ:
-                    del(os.environ[tx.minimal_init_evar])
+                if bcore.minimal_init_evar in os.environ:
+                    del(os.environ[bcore.minimal_init_evar])
                 # end cleanup environment
             # end reuse full parent environment
             
@@ -1064,7 +1064,7 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
         
         # before doing anything with the process, bring the environment stack back to where it was
         # This 'cleanup' is required for in-process launches
-        tx.environment.pop(until_size = self._stack_len)
+        bcore.environment.pop(until_size = self._stack_len)
         
         if not self.dry_run:
             
@@ -1104,7 +1104,7 @@ class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin
     @classmethod
     def is_active(cls):
         """@return True if we are currently wrapping a process, which is eventually going to be started
-        @note at wrap time , we are in a boot up mode which has nothing more but tx core. Modules which 
+        @note at wrap time , we are in a boot up mode which has nothing more but bcore core. Modules which 
         have other dependencies can use this information to handle this time gracefully, and skip their 
         initialization"""
         return cls._is_active

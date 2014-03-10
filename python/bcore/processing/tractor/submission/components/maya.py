@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.components.maya
+@package bcore.processing.tractor.submission.components.maya
 @brief Submission of maya scenes for rendering or for performing batch operations
 
 @note This module needs to be usable anywhere, and may not rely on being run from the nuke host application

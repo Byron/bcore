@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.schema
+@package bcore.processing.tractor.schema
 @brief tractor-related schemas for general use
 
 @copyright 2013 Sebastian Thiel

@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.doc.test_examples
-@brief See tx.tests.doc for more information
+@package bcore.tests.doc.test_examples
+@brief See bcore.tests.doc for more information
 
 @copyright 2012 Sebastian Thiel
 """
@@ -67,7 +67,7 @@ class LazyMixinExample(LazyMixin):
 
 
 ## [ExampleCommand]
-class ExampleCommand(tx.cmd.CommandBase):
+class ExampleCommand(bcore.cmd.CommandBase):
     """A command with verbosity argument"""
     __slots__ = ()
     
@@ -100,7 +100,7 @@ class ExampleCommand(tx.cmd.CommandBase):
 ## [ExampleCommand] 
         
 ## [ExampleCommandWithSubcommands]
-class MasterCommand(tx.cmd.CommandBase):
+class MasterCommand(bcore.cmd.CommandBase):
     """Allows for subcommands"""
     
     name = 'master'
@@ -114,11 +114,11 @@ class MasterCommand(tx.cmd.CommandBase):
 
 # end class MasterCommand
 
-class ExampleSubCommand(ExampleCommand, tx.cmd.SubCommandBase, Plugin):
+class ExampleSubCommand(ExampleCommand, bcore.cmd.SubCommandBase, Plugin):
     """Shows how to use an existing command as mode of a master command.
     @note we make ourselves a plugin to allow the CommandBase implementation to find our command.
     This can also be overridden if no plugin system is required, using the 
-    tx.cmd.CommandBase._find_compatible_subcommands() method"""
+    bcore.cmd.CommandBase._find_compatible_subcommands() method"""
     
     # this associates us with the main command
     main_command_name = MasterCommand.name
@@ -156,7 +156,7 @@ class ExamplesTest(TestCaseBase):
     def test_interface_builtin(self):
         """Show interface builtin"""
         ## [interface_builtin]
-        svc = service(tx.IPlatformService)
+        svc = service(bcore.IPlatformService)
         # now the service instance can be used as usual
         assert isinstance(svc.id(svc.ID_FULL), str)
         ## [interface_builtin]

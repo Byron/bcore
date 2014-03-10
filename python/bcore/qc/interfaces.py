@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.qc.interfaces
+@package bcore.qc.interfaces
 @brief Interfaces used in the quality checking framework
 
 @copyright 2013 Sebastian Thiel
@@ -46,7 +46,7 @@ class QualityCheckCategory(object):
 ## -- End Utility -- @}
 
 
-class IQualityCheckProvider(tx.InterfaceBase):
+class IQualityCheckProvider(bcore.InterfaceBase):
     """A simple interface implementing an algorithm to select checks for the current context"""
     __slots__ = ()
     
@@ -57,7 +57,7 @@ class IQualityCheckProvider(tx.InterfaceBase):
 # end class IQualityCheckProvider
 
 
-class IQualityCheck(tx.InterfaceBase):
+class IQualityCheck(bcore.InterfaceBase):
     """A base class providing the foundation for all actual QualityCheck implementations."""
     __slots__ = ()      
    
@@ -144,7 +144,7 @@ class IQualityCheck(tx.InterfaceBase):
 # end class IQualityCheck    
 
 
-class IQualityCheckRunner(list, tx.InterfaceBase):
+class IQualityCheckRunner(list, bcore.InterfaceBase):
     """Is a list of `QualityCheckBase` compatible instances which can be run safely, providing just-in-time information
     about the results of this run.
     
@@ -198,7 +198,7 @@ class IQualityCheckRunner(list, tx.InterfaceBase):
 # end class IQualityCheckRunner
 
 
-class IQualityCheckRunnerDelegate(tx.InterfaceBase):
+class IQualityCheckRunnerDelegate(bcore.InterfaceBase):
     """Defines a callback interface to be used by `QualityCheckRunner` instances
     
     The delegate may control the runner by returning codes for the runner to interpret.

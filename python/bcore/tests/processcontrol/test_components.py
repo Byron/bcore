@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.processcontrol.test_components
+@package bcore.tests.processcontrol.test_components
 @brief Tests our component implementations
 
 @copyright 2013 Sebastian Thiel

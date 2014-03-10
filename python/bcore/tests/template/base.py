@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.template.base
+@package bcore.tests.template.base
 @brief Contains some base types used by many test cases
 
 @copyright 2012 Sebastian Thiel

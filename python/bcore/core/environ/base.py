@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.environ.base
-@brief contains readonly convenience access to the tx.envrironment stack
+@package bcore.core.environ.base
+@brief contains readonly convenience access to the bcore.envrironment stack
 
 @copyright 2012 Sebastian Thiel
 """
@@ -48,10 +48,10 @@ from bcore.path import (
                     )
 import socket
 
-log = module_logger('tx.core.environ.' + __name__)
+log = module_logger('bcore.core.environ.' + __name__)
 
 
-class OSEnvironment(tx.core.component.Environment):
+class OSEnvironment(bcore.core.component.Environment):
     """Environment containing services and information about the operating system we're running on.
     Provides IPlatformService implementations"""
     _category = 'platform'
@@ -95,7 +95,7 @@ class OSEnvironment(tx.core.component.Environment):
 # end class OSEnvironment
         
         
-class HostApplicationEnvironment(tx.core.component.Environment):
+class HostApplicationEnvironment(bcore.core.component.Environment):
     """A base class for all host applications."""
     __slots__ = ()
     _category = "host_application"
@@ -104,7 +104,7 @@ class HostApplicationEnvironment(tx.core.component.Environment):
 # end class HostApplicationEnvironment
         
         
-class ConfigHierarchyEnvironment(tx.core.component.Environment, LazyMixin):
+class ConfigHierarchyEnvironment(bcore.core.component.Environment, LazyMixin):
     """An environment which is finding configuration paths in the directory hierarchy based on some root, 
     and which loads yaml files into its own context.
     
@@ -150,7 +150,7 @@ class ConfigHierarchyEnvironment(tx.core.component.Environment, LazyMixin):
         
     def _iter_config_environments(self):
         """@return iterator yielding environments of our type on the stack, which are not us"""
-        for env in tx.environment._env_stack_readonly():
+        for env in bcore.environment._env_stack_readonly():
             # we should be last, but lets not assume that
             if env is self or not isinstance(env, ConfigHierarchyEnvironment):
                 continue

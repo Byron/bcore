@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.environ.test_components
-@brief tests for tx.core.environ.components
+@package bcore.tests.core.environ.test_components
+@brief tests for bcore.core.environ.components
 
 @copyright 2013 Sebastian Thiel
 """

@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.template.exceptions
-@brief Contains all exceptions used by the tx.template package
+@package bcore.template.exceptions
+@brief Contains all exceptions used by the bcore.template package
 
 @copyright 2012 Sebastian Thiel
 """
@@ -9,8 +9,8 @@ __all__ = ['Error', 'InvalidValueError', 'MissingFormatResultError']
 
 import bcore
 
-class Error(tx.Error):
-    """Base exception for all exceptions thrown by tx.template"""
+class Error(bcore.Error):
+    """Base exception for all exceptions thrown by bcore.template"""
     __slots__ = ()
 
 class InvalidValueError(Error):

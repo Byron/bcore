@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.kvstore.test_schema
-@brief tests for tx.core.kvstore.schema
+@package bcore.tests.core.kvstore.test_schema
+@brief tests for bcore.core.kvstore.schema
 
 @copyright 2012 Sebastian Thiel
 """
@@ -77,7 +77,7 @@ class TestSchema(TestConfigurationBase):
         ValidatedKeyValueStoreSchema('platform', dict(path_separator='/'))
         ValidatedKeyValueStoreSchema('quality_check_gui', dict(do_it_right=True))
         ValidatedKeyValueStoreSchema('site', dict(  location='munich_schwabing',
-                                    name='tx_munich'))
+                                    name='klenze7_munich'))
         return collector
         
         

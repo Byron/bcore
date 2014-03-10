@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing
+@package bcore.processing
 @brief A package with frameworks for general purpose processing and distribution of processing tasks.
 
 This can include workflow and depenedency systems, as well as systems for distributing work among a network.

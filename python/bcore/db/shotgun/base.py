@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.db.shotgun.base
+@package bcore.db.shotgun.base
 @brief Implementations for use with the shotgun database
 
 @copyright 2013 Sebastian Thiel
@@ -26,7 +26,7 @@ shotgun_schema = KeyValueStoreSchema('shotgun', {'host' : str,
                                                  'http_proxy' : str})
 
 
-log = service(tx.ILog).new('tx.db.shotgun.base')
+log = service(bcore.ILog).new('bcore.db.shotgun.base')
 
 
 class ProxyMeta(IShotgunConnection.__metaclass__):
@@ -129,7 +129,7 @@ class ProxyShotgunConnection(IShotgunConnection, LazyMixin, EnvironmentStackCont
         if name == '_proxy':
             connection_info = self.context_value()
             
-            # delay import not to slow downloading of tx !
+            # delay import not to slow downloading of bcore !
             import shotgun_api3
             log.info("Connecting to Shotgun ...")
             self._proxy = shotgun_api3.Shotgun( connection_info.host, 

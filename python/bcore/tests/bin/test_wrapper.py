@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.bin.test_wrapper
-@brief tests for tx.bin.wrapper
+@package bcore.tests.bin.test_wrapper
+@brief tests for bcore.bin.wrapper
 
 @copyright 2012 Sebastian Thiel
 """
@@ -35,7 +35,7 @@ class TestBootstrap(TestCaseBase):
         """test fundamentals
         @note doesn't run all code paths, but its just a few lines"""
         # Have to register the controller explicitly to make it available
-        tx.environment.register(TestProcessController)
+        bcore.environment.register(TestProcessController)
         
         # Should be dealing with its executable being python as well as its file
         self.failUnlessRaises(AssertionError, TestBootstrapper().main, wrapper_file)

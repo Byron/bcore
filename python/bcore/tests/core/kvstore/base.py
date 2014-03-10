@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.kvstore.base
+@package bcore.tests.core.kvstore.base
 @brief base types which are shared among test modules in this package
 
 @copyright 2012 Sebastian Thiel

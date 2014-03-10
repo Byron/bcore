@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.db
-@brief tests for tx.db
+@package bcore.tests.db
+@brief tests for bcore.db
 
 @copyright 2013 Sebastian Thiel
 """

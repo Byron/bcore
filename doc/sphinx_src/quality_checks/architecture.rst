@@ -1,4 +1,4 @@
-.. _tx_qc:
+.. _bcore_qc:
 .. tags: quality checks
 
 Quality Check Framework
@@ -18,7 +18,7 @@ Quality Check GUI
 *****************
 Each level of grouping of the quality check core module has its own class and ui resource which wraps it in GUI functionality. 
 
-The main GUI instantiantes a quality check runner (using the Component Architecture :ref:`_tx_ca_main`) and acts as its delegate. The quality check runner in turn uses the CA to load and instantiate all the services relevant to the current context. It then tells the UI to process these quality checks and create their UI elements.
+The main GUI instantiantes a quality check runner (using the Component Architecture :ref:`_bcore_ca_main`) and acts as its delegate. The quality check runner in turn uses the CA to load and instantiate all the services relevant to the current context. It then tells the UI to process these quality checks and create their UI elements.
 
 For each category encountered during the processing a quality check group UI element is created, which groups together all the UI elements created for the quality checks themselves.
 

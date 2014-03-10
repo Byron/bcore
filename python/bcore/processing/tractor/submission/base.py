@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.processing.tractor.submission.base
+@package bcore.processing.tractor.submission.base
 @brief A module with base implelementations and general utilities
 
 @copyright 2013 Sebastian Thiel

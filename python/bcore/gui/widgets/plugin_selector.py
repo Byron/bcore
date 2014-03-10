@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.gui.widgets.plugin_selector
+@package bcore.gui.widgets.plugin_selector
 @brief Contains a widget to help selecting plugins providing a certain interface
 
 @copyright 2013 Sebastian Thiel

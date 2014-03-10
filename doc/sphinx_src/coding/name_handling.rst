@@ -32,5 +32,5 @@ The example shows that once you have the pure meaning, you can essentially trans
 
 Such a *rule-set* in terms of more natural language would be comparable to *grammar* which defines in which order *words* from a *vocabulary* may be put.
 
-**Please see the documentation of the tx.core.template packge for more details**.
+**Please see the documentation of the bcore.core.template packge for more details**.
 

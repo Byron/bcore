@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.db.shotgun.base
+@package bcore.tests.db.shotgun.base
 @brief Some basic testing utilities
 
 @copyright 2013 Sebastian Thiel

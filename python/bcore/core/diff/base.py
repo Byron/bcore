@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.diff.base
+@package bcore.core.diff.base
 @brief Contains most fundamental types and interfaces
 
 @copyright 2012 Sebastian Thiel
@@ -48,7 +48,7 @@ class RootKey(NonInstantiatable):
 # ------------------------------------------------------------------------------
 ## \{
 
-class TwoWayDiffDelegateInterface(tx.InterfaceBase):
+class TwoWayDiffDelegateInterface(bcore.InterfaceBase):
     """Defines the interface of a delegate to be used by the TwoWayDiff.
     
     Its used to inform the client about events when diffing two trees, allowing
@@ -61,7 +61,7 @@ class TwoWayDiffDelegateInterface(tx.InterfaceBase):
     to start the next diff with a clean delegate without knowledge about previous diff runs.
     """
     __slots__ = ()
-    __metaclass__ = tx.MetaBase
+    __metaclass__ = bcore.MetaBase
     
     # -------------------------
     ## @name Change Types

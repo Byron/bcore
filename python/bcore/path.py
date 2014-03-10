@@ -38,7 +38,7 @@ import glob
 import shutil
 import codecs
 import re
-log = logging.getLogger("tx.path")
+log = logging.getLogger("bcore.path")
 
 __version__ = '3.0'
 __all__ = ['Path', 'BasePath', 'make_path']

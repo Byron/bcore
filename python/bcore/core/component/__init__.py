@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package tx.core.component
+@package bcore.core.component
 @brief A framework to further modularize the code in the bcore framework.
 
 @note when importing this module, we will put all exported items into the

@@ -1,11 +1,11 @@
 from bcore.core.component import *
 import bcore
 
-class I1(tx.InterfaceBase):
+class I1(bcore.InterfaceBase):
     def foo(self):
         print "foo"
 
-class I2(tx.InterfaceBase):
+class I2(bcore.InterfaceBase):
     def phoo(self):
         print "blah!"
 

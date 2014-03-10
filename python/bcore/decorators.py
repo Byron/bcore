@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package tx.decorators
+@package bcore.decorators
 @brief useful standard decorators
 
 @copyright 2012 Sebastian Thiel

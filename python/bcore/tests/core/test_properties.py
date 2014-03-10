@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.test_properties
-@brief tests for tx.core.properties
+@package bcore.tests.core.test_properties
+@brief tests for bcore.core.properties
 
 @copyright 2013 Sebastian Thiel
 """

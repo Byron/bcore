@@ -1,12 +1,12 @@
 #-*-coding:utf-8-*-
 """
-@package tx.cmd
+@package bcore.cmd
 @brief A package to provide an extensible framework for handling commandline tools
 
 @page commands Command Framework
 
 The command framework allows you to build commandline tools easily and in a unified way. It greatly facilitates
-using the \ref tx.cmd.interfaces.ICommand "ICommand" and \ref tx.cmd.interfaces.ISubCommand "ISubCommand" interfaces.
+using the \ref bcore.cmd.interfaces.ICommand "ICommand" and \ref bcore.cmd.interfaces.ISubCommand "ISubCommand" interfaces.
 
 @section command A simple command
 

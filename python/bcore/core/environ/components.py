@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package tx.core.environ.components
+@package bcore.core.environ.components
 @brief core components providing basic pipeline foundation support
 
 @copyright 2012 Sebastian Thiel
@@ -171,7 +171,7 @@ class DirectoryServicesMixin(object):
     # Methods for implementation or overrides by subclass
     # @{
     
-    @tx.abstractmethod
+    @bcore.abstractmethod
     def _directory_data(self):
         """@return a dictionary whose values are behind keys with names matching PATH_(.*)
         @note Used by the default path() implementation"""

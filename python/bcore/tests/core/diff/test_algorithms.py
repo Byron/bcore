@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package tx.tests.core.diff.test_algorithms
-@brief Implements tests for tx.core.diff.algorithms
+@package bcore.tests.core.diff.test_algorithms
+@brief Implements tests for bcore.core.diff.algorithms
 
 @copyright 2012 Sebastian Thiel
 """
