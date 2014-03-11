@@ -8,7 +8,7 @@
 __all__ = ['ICommand', 'ISubCommand']
 
 import bcore
-from bcore.utility import Version
+from bcore import Version
 from bcore.core.kvstore import (   
                                 KeyValueStoreSchema,
                                 RootKey

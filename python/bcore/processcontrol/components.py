@@ -31,10 +31,8 @@ from bcore.core.diff import (
                                 DiffIndexDelegate
                          )
 
-from bcore.utility import  (
-                            Version,
-                            OrderedDict,
-                        )
+from bcore import Version
+from bcore.utility import OrderedDict
 
 from bcore.core.environ import ConfigHierarchyEnvironment
 from bcore.core.logging import module_logger

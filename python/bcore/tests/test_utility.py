@@ -12,6 +12,7 @@ from bcore.tests import TestCaseBase
 # W0614: Unused imports are okay, we are testing this
 # R0201: test method could be a function - actually not
 # pylint: disable-msg=W0614,R0201
+from bcore import Version
 from bcore.utility import *
 
 

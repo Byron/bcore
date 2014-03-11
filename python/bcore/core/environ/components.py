@@ -14,7 +14,7 @@ import sys
 import platform
 
 import bcore
-from bcore.utility import Version
+from bcore import Version
 
 from ..component import EnvironmentStackContextClient
 from .interfaces import (

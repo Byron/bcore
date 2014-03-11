@@ -14,7 +14,7 @@ from bcore.tests import (
                         TestInterfaceBase,
                         TempRWDirProvider
                     )
-from bcore.utility import Version
+from bcore import Version
 from bcore.path import Path
 
 

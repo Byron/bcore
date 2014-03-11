@@ -19,7 +19,7 @@ class IHostApplication(bcore.InterfaceBase):
         
     @abstractmethod
     def version(self):
-        """@return a \ref bcore.utility.Version "Version" instance, representing the host application version"""
+        """@return a \ref bcore.Version "Version" instance, representing the host application version"""
         
     @abstractmethod
     def name(self):

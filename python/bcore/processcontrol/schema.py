@@ -19,11 +19,8 @@ from bcore.core.kvstore import (
                                 PathList
                             )
 from .interfaces import IProcessControllerDelegate
-from bcore.utility import (
-                            Version,
-                            LazyMixin
-                       )
-
+from bcore import Version
+from bcore.utility import LazyMixin
 from bcore.path import Path
 
 log = module_logger('bcore.processcontrol.schema')

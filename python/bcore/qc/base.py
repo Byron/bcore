@@ -21,7 +21,7 @@ from .interfaces import (
                          QualityCheckCategory
                         )
 
-
+from bcore.utility import wraps
 import bcore.core.logging
 
 # ==============================================================================

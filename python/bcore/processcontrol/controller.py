@@ -15,6 +15,7 @@ import subprocess
 import logging
 from pprint import pprint
 
+from bcore import Version
 from bcore.path import Path
 
 import bcore.core.logging
@@ -36,8 +37,7 @@ from bcore.utility import (
                             LazyMixin,
                             update_env_path,
                             GraphIteratorBase,
-                            DictObject,
-                            Version
+                            DictObject
                        )
 
 from .delegates import (
