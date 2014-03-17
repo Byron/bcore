@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PackageViewerWidget</class>
+ <widget class="QWidget" name="PackageViewerWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>339</width>
+    <height>204</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Viewer</string>
+  </property>
+  <layout class="QVBoxLayout" name="vlayout">
+   <item>
+    <widget class="QLabel" name="message">
+     <property name="text">
+      <string>nothing to display</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="pnew">
+     <property name="toolTip">
+      <string>Newly added packages</string>
+     </property>
+     <property name="title">
+      <string>New Packages</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="premoved">
+     <property name="toolTip">
+      <string>Removed packages</string>
+     </property>
+     <property name="title">
+      <string>Deleted Packages</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="pchanged">
+     <property name="toolTip">
+      <string>Packages whose version or meta-data changed</string>
+     </property>
+     <property name="title">
+      <string>Changed Packages</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="pall">
+     <property name="toolTip">
+      <string>A list of all packages used by an application</string>
+     </property>
+     <property name="title">
+      <string>Packages</string>
+     </property>
+     <layout class="QVBoxLayout" name="vlayout_2"/>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
