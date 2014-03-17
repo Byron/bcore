@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.diff
-@brief Tests for bcore.core.diff
+@package bcore.tests.diff
+@brief Tests for bcore.diff
 
 @copyright 2012 Sebastian Thiel
 """

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.logging.components
+@package bcore.log.components
 @brief A module to help initializing the logging system
 
 @note must be imported once the core framework is already up, marrying logging with components

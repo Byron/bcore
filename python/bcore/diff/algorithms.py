@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.diff.algorithms
+@package bcore.diff.algorithms
 @brief A module with diffing algorithms
 
 @copyright 2012 Sebastian Thiel
@@ -9,7 +9,7 @@ __all__ = ['TwoWayDiff']
 
 import bcore
 
-from bcore.core.diff.base import (
+from bcore.diff.base import (
                                     RootKey,
                                     NoValue,
                                     TreeItem

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*i-
 """
-@package bcore.core.kvstore.schema
+@package bcore.kvstore.schema
 @brief A module with implementations to help to show and verify the current storage schema
 
 @copyright 2012 Sebastian Thiel
@@ -11,8 +11,8 @@ __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStor
 
 from bcore.path import Path
 
-from bcore.core.logging import module_logger
-from bcore.core.diff import (
+from bcore.log import module_logger
+from bcore.diff import (
                             DiffRecord,
                             DiffIndexDelegate,
                             AdditiveMergeDelegate,
@@ -23,14 +23,14 @@ from bcore.core.diff import (
 
 from .diff import transform_value
 
-from bcore.core.kvstore.base import (
+from bcore.kvstore.base import (
                                     Error,
                                     KeyValueStoreProvider
                                 )
 
 from bcore.utility import DictObject
 
-log = module_logger('bcore.core.kvstore.schema')
+log = module_logger('bcore.kvstore.schema')
 
 # ==============================================================================
 ## \name Exceptions
@@ -298,7 +298,7 @@ class KeyValueStoreSchemaValidator(list):
           one in the schema.
 
         @param kvs_provider a `KeyValueStoreProvider` instance.
-        @return @ref bcore.core.diff.delegates.DiffIndex "DiffIndex" with SchemaDiffRecord instances. If its empty,
+        @return @ref bcore.diff.delegates.DiffIndex "DiffIndex" with SchemaDiffRecord instances. If its empty,
         there are no errors.
         @throws InvalidSchema when this schema is not valid by itself. When validating the provider,
         the schema will be validated automatically, and cause this error if its not valid

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processing.transaction.base
+@package btransaction.base
 @brief Module to keep all the basic implementations to handle transactions.
 
 A transaction consists of zero or more Operations, each of which can be rolled back

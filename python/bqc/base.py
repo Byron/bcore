@@ -22,7 +22,7 @@ from .interfaces import (
                         )
 
 from bcore.utility import wraps
-import bcore.core.logging
+import bcore.log
 
 # ==============================================================================
 ## @name Decorators
@@ -74,7 +74,7 @@ class QualityCheckRunnerDelegate(IQualityCheckRunnerDelegate):
 
     __slots__ = tuple()
     
-    log = bcore.core.logging.module_logger('bcore.qc.base.QualityCheckRunnerDelegate')
+    log = bcore.log.module_logger('bcore.qc.base.QualityCheckRunnerDelegate')
     
     # -------------------------
     ## @name Interface
@@ -252,7 +252,7 @@ class QualityCheckRunner(IQualityCheckRunner, Plugin):
     stop_run = 'stop_run'
     
     ## default logger we will use
-    log = bcore.core.logging.module_logger('bcore.qc.base.QualityCheckRunnerDelegate')
+    log = bcore.log.module_logger('bcore.qc.base.QualityCheckRunnerDelegate')
     
     ## -- End Configuration -- @}
     

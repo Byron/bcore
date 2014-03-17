@@ -7,7 +7,7 @@
 """
 __all__ = ['action_schema']
 
-from bcore.core.kvstore import (
+from bcore.kvstore import (
                                 KeyValueStoreSchema,
                                 AnyKey,
                             )

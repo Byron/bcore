@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.kvstore
+@package bcore.kvstore
 @brief A package with configuration access for reading and writing
 
 @page kvstore KeyValue-Store Framework

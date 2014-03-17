@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.kvstore.serialize
+@package bcore.kvstore.serialize
 @brief Contains file type agnostic implementations of value providers and modifiers to allow serialization
 
 @note Read more about
@@ -15,7 +15,7 @@ import logging
 import bcore
 from bcore.path import make_path
 
-from bcore.core.diff import (
+from bcore.diff import (
                             NoValue,
                             AutoResolveAdditiveMergeDelegate,
                          )
@@ -89,7 +89,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
     ## -- End Subclass Configuration -- @}
 
     ## our logging instance
-    log = logging.getLogger("bcore.core.kvstore.serializer")
+    log = logging.getLogger("bcore.kvstore.serializer")
 
     def __init__(self, input_paths, take_ownership = True):
         """Initialize this instance with a set of paths from which to read values and to which to write the

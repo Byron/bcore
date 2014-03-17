@@ -14,9 +14,9 @@ from bcore.tests import (
                         with_rw_directory
                       )
 
-from bcore.processing.transaction import Transaction
+from btransaction import Transaction
 from bcore.processcontrol.actions import CopyAction
-from bcore.core.kvstore import KeyValueStoreModifier
+from bcore.kvstore import KeyValueStoreModifier
 
 
 class CopyInformationEnvironment(object):

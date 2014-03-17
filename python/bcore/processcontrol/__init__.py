@@ -8,7 +8,7 @@
 Requirements
 ============
 
-Implementation in bcore.core
+Implementation in bcore
 -------------------------
 The current implementation lies outside of TX, which has a few disadvantages. Keep the wrapper inside of it, 
 and use symlinks where required.

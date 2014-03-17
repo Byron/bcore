@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.interfaces.test_base
+@package bcore.tests.interfaces.test_base
 @brief tests for base core interfaces
 
 @copyright 2013 Sebastian Thiel

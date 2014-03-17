@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processing.transaction.operations.rsync
+@package btransaction.operations.rsync
 @brief An operation that uses rsync to copy or move data
 
 @copyright 2013 Sebastian Thiel

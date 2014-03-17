@@ -25,20 +25,20 @@ from cPickle import (
 
 import logging
 
-import bcore.core.logging
-from bcore.core.environ import ConfigHierarchyEnvironment
-from bcore.core.kvstore import (
+import bcore.log
+from bcore.environ import ConfigHierarchyEnvironment
+from bcore.kvstore import (
                                 RootKey,
                                 KeyValueStoreProvider,
                                 KeyValueStoreModifier
                             )
-from bcore.core.diff import (
+from bcore.diff import (
                         NoValue,
                         TwoWayDiff,
                         ApplyDifferenceMergeDelegate
                     )
 
-from bcore.core.component import Environment
+from bcore.component import Environment
 from .interfaces import (
                             IProcessControllerDelegate,
                             IPostLaunchProcessInformation
@@ -62,7 +62,7 @@ from .schema import (
 
 from bcore.path import Path
 
-log = bcore.core.logging.module_logger('bcore.processcontrol.delegate')
+log = bcore.log.module_logger('bcore.processcontrol.delegate')
 
 
 # ==============================================================================
@@ -593,7 +593,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         if arg == 'help':
             raise DisplayHelpException(self._wrapper_arg_help)
         elif arg in self._wrapper_logging_levels:
-            bcore.core.logging.set_log_level(logging.root, getattr(logging, arg.upper()))
+            bcore.log.set_log_level(logging.root, getattr(logging, arg.upper()))
             
             if arg == 'debug':
                 # print out all files participating in environment stack

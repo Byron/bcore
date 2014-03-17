@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.kvstore.persistence
+@package bcore.kvstore.persistence
 @brief Contains tools related to persisting objects - currently yaml only
 
 @note I'd like to have named this module 'yaml', but this will prevent any imports

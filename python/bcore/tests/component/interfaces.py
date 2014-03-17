@@ -1,4 +1,4 @@
-from bcore.core.component import *
+from bcore.component import *
 import bcore
 
 class I1(bcore.InterfaceBase):

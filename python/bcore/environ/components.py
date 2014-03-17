@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package bcore.core.environ.components
+@package bcore.environ.components
 @brief core components providing basic pipeline foundation support
 
 @copyright 2012 Sebastian Thiel

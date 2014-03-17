@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.component.properties
+@package bcore.component.properties
 @brief Implementation of property descriptors and properties for Environment Context Clients
 
 @copyright 2013 Sebastian Thiel

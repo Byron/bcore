@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.component.test_base
-@brief Test for bcore.core.component.base
+@package bcore.tests.component.test_base
+@brief Test for bcore.component.base
 
 @copyright 2012 Sebastian Thiel
 @todo get rid of the standard error redirect or maybe solve it differently
@@ -12,10 +12,10 @@ import abc
 
 import bcore
 from bcore.tests import swap_globals
-from bcore.tests.core.component.base import TestComponentCoreBase
+from bcore.tests.component.base import TestComponentCoreBase
 # test wildcard import
 # pylint: disable=W0614
-from bcore.core.component import *
+from bcore.component import *
 # pylint: enable=W0614
 
 

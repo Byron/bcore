@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.diff.utility
+@package bcore.diff.utility
 @brief Utiltiies for use when diffing and merging is required
 
 @copyright 2013 Sebastian Thiel

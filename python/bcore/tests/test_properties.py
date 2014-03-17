@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.test_properties
-@brief tests for bcore.core.properties
+@package bcore.tests.test_properties
+@brief tests for bcore.properties
 
 @copyright 2013 Sebastian Thiel
 """
@@ -9,7 +9,7 @@
 from bcore.tests import TestCaseBase
 
 # test * import
-from bcore.core.properties import *
+from bcore.properties import *
 
 
 # ==============================================================================

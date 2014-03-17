@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.environ
+@package bcore.environ
 @brief package implementing the environment
 
 @copyright 2012 Sebastian Thiel

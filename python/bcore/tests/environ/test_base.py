@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.environ.test_base
-@brief tests for bcore.core.environ.base, depends on bcore.core.component working correctly
+@package bcore.tests.environ.test_base
+@brief tests for bcore.environ.base, depends on bcore.component working correctly
 
 @copyright 2012 Sebastian Thiel
 """
@@ -11,7 +11,7 @@ import bcore
 from bcore.tests import TestCaseBase
 
 # try * import
-from bcore.core.environ import *
+from bcore.environ import *
 
 
 class TestEnvironment(TestCaseBase):

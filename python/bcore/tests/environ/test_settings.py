@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.environ.test_settings
-@brief tests for bcore.core.environ.settings
+@package bcore.tests.environ.test_settings
+@brief tests for bcore.environ.settings
 
 @copyright 2013 Sebastian Thiel
 """
@@ -14,9 +14,9 @@ from bcore.tests import (
                       )
 
 # try * import
-from bcore.core.environ.settings import *
+from bcore.environ.settings import *
 from bcore.utility import OrderedDict
-from bcore.core.kvstore import (
+from bcore.kvstore import (
                                 KeyValueStoreSchema,
                                 RootKey
                             )

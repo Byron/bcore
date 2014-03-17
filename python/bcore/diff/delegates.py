@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.diff.delegates
+@package bcore.diff.delegates
 @brief a module with different generic delegate implementations
 
 @copyright 2012 Sebastian Thiel
@@ -8,7 +8,7 @@
 __all__ = [ 'DiffRecord', 'DiffIndex', 'DiffIndexDelegate', 'QualifiedKeyDiffDelegateBase', 'MergeDelegate',
             'AdditiveMergeDelegate', 'ApplyDifferenceMergeDelegate', 'AutoResolveAdditiveMergeDelegate']
 
-from bcore.core.diff.base import (
+from bcore.diff.base import (
                                 TwoWayDiffDelegateInterface,
                                 RootKey,
                                 NoValue

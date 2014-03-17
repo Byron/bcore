@@ -21,7 +21,7 @@ from bcore.path import (
                         Path
                     )
 
-from bcore.core.kvstore import (
+from bcore.kvstore import (
                                 KeyValueStoreSchema,
                                 KeyValueStoreProvider
                             )
@@ -29,7 +29,7 @@ from bcore.processcontrol import (
                                         ProcessControllerDelegate,
                                         IPostLaunchProcessInformation
                                     )
-from bcore.core.logging import module_logger
+from bcore.log import module_logger
 from bcore.utility import wraps
 
 import nose

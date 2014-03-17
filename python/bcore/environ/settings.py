@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.environ.settings
+@package bcore.environ.settings
 @brief A module with a user-settings implementation
 
 @copyright 2013 Sebastian Thiel
@@ -9,12 +9,12 @@ __all__ = ['PersistentSettings', 'PersistentSettingsEnvironmentStackContextClien
 
 import bcore
 from copy import deepcopy
-from bcore.core.kvstore import (
+from bcore.kvstore import (
                                 ChangeTrackingJSONKeyValueStoreModifier,
                                 KeyValueStoreProvider
                             )
-from bcore.core.component import EnvironmentStackContextClient
-from bcore.core.diff import (
+from bcore.component import EnvironmentStackContextClient
+from bcore.diff import (
                             merge_data,
                             AutoResolveAdditiveMergeDelegate
                          )

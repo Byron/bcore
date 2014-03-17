@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.diff.base
+@package bcore.diff.base
 @brief Contains most fundamental types and interfaces
 
 @copyright 2012 Sebastian Thiel

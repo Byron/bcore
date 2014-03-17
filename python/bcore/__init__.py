@@ -86,7 +86,6 @@ def _init_component_framework():
 
 def _init_core():
     """Just import the core and let it do the rest"""
-    from . import core
     log_level = os.environ.get(log_env_var)
     if log_level is not None:
         logging.basicConfig()
@@ -97,35 +96,33 @@ def _init_core():
             raise AssertionError(msg)
         #end handle early log-level setup
     # end have env var
-    core.initialize()
+    _init_component_framework()
     
 def init_environment_stack():
     """setup our global environment"""
-    _init_component_framework()
-    
-    import bcore.core.component
+    import bcore.component
     global environment
-    environment = bcore.core.component.EnvironmentStack()
+    environment = bcore.component.EnvironmentStack()
 
-    from bcore.core.environ import (OSEnvironment, PipelineBaseEnvironment)
+    from bcore.environ import (OSEnvironment, PipelineBaseEnvironment)
 
     # Basic interfaces that we always need - everything relies on those values
     environment.push(OSEnvironment('os'))
 
 def _init_logging():
     """Make sure most basic logging is available"""
-    import bcore.core.logging
-    bcore.core.logging.initialize()
+    from . import log
+    log.initialize()
 
     # Make sure one instance of the provider is there, but don't initialize it (which loads configuration)
     # A lot of code expects it to be there
-    from bcore.core.logging.components import LogProvider
+    from .log.components import LogProvider
     LogProvider()
 
     
 def  init_environment():
     """Intializes processcontrol related environments, and our logging configuration
-    @note techinically, processcontroll would now have to move into bcore.core as we are using it during startup.
+    @note techinically, processcontroll would now have to move into bcore as we are using it during startup.
     Alternatively, we just provide a function and engines initialize it as they see fit ! Therefore we don't
     touch process control here, but provide functionality others can call if they need it. For now, we just
     do it for the callers convenience.
@@ -141,7 +138,7 @@ def  init_environment():
         environment.push(proc_env)
 
         # Initialize basic logging, and load configuration
-        from bcore.core.logging.components import LogProvider
+        from .log.components import LogProvider
         LogProvider.initialize()
 
         # Now import modules and add basic interface

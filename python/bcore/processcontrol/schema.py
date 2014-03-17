@@ -10,9 +10,9 @@ __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_pack
 
 
 import bcore
-from bcore.core.logging import module_logger
-from bcore.core.component import CreateFirst
-from bcore.core.kvstore import (
+from bcore.log import module_logger
+from bcore.component import CreateFirst
+from bcore.kvstore import (
                                 KeyValueStoreSchema,
                                 AnyKey,
                                 StringList,

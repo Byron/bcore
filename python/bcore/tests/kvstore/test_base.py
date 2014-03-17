@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.kvstore.test_base
-@brief tests for bcore.core.kvstore.base
+@package bcore.tests.kvstore.test_base
+@brief tests for bcore.kvstore.base
 
 @copyright 2012 Sebastian Thiel
 """
@@ -9,7 +9,7 @@ __all__ = []
 
 from copy import deepcopy
 
-from bcore.tests.core.kvstore import TestConfigurationBase
+from bcore.tests.kvstore import TestConfigurationBase
 from bcore.utility import OrderedDict
 
 from bcore.path import Path
@@ -17,16 +17,16 @@ from bcore.path import Path
 # W0614 unused imports okay, as we are testing the import itself
 # pylint: disable-msg=W0614
 # test * imports (could have defective '__all__')
-from bcore.core.kvstore import *
+from bcore.kvstore import *
 
-from bcore.core.diff import (
+from bcore.diff import (
                             TwoWayDiff,
                             AdditiveMergeDelegate,
                             RootKey,
                             NoValue
                         )
-from bcore.core.logging import module_logger
-from bcore.core.kvstore.diff import (
+from bcore.log import module_logger
+from bcore.kvstore.diff import (
                                     KeyValueStoreModifierDiffDelegate,
                                     RelaxedKeyValueStoreProviderDiffDelegate
                                 )

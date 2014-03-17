@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.environ.test_components
-@brief tests for bcore.core.environ.components
+@package bcore.tests.environ.test_components
+@brief tests for bcore.environ.components
 
 @copyright 2013 Sebastian Thiel
 """
@@ -14,8 +14,8 @@ from .test_interfaces import (
                                     TestIProjectService
                                 )
 # * import test
-from bcore.core.environ.components import *
-from bcore.core.environ import (
+from bcore.environ.components import *
+from bcore.environ import (
                                 IPlatformService,
                                 IProjectService,
                                 ISiteService

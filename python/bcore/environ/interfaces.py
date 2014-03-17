@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package bcore.core.environ.interfaces
+@package bcore.environ.interfaces
 @brief Most basic interfaces for general usage, useful in all host applications !
 
 @copyright 2012 Sebastian Thiel

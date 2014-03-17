@@ -1,15 +1,15 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.kvstore.test_properties
-@brief tests for bcore.core.kvstore.properties
+@package bcore.tests.kvstore.test_properties
+@brief tests for bcore.kvstore.properties
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = []
 
-from bcore.tests.core.component.base import TestComponentCoreBase
-from bcore.core.component import *
-from bcore.core.kvstore import RootKey
+from bcore.tests.component.base import TestComponentCoreBase
+from bcore.component import *
+from bcore.kvstore import RootKey
 from bcore.path import Path
 
 

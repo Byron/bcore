@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.component.base
+@package bcore.component.base
 @brief A from scratch implementation of a component architecture, influenced by
 experiences with the pyutilib CA
 
@@ -54,24 +54,24 @@ import inspect
 import itertools
 
 import bcore
-from bcore.core.logging import module_logger
+from bcore.log import module_logger
 from bcore.utility import (
                         OrderedDict,
                         LazyMixin
                        )
 
-from bcore.core.diff import (
+from bcore.diff import (
                             NoValue,
                             TwoWayDiff,
                             AutoResolveAdditiveMergeDelegate
                          )
-from bcore.core.kvstore import (
+from bcore.kvstore import (
                                 KeyValueStoreSchemaValidator,
                                 KeyValueStoreModifier,
                                 KeyValueStoreSchema,
                                 RootKey
                             )
-from bcore.core.component.exceptions import *
+from bcore.component.exceptions import *
 from bcore.path import Path
 
 log = module_logger(__name__)

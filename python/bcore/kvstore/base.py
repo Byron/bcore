@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.kvstore.base
+@package bcore.kvstore.base
 @brief Base classes and most fundamental utilities for key value store handling
 
 @copyright 2012 Sebastian Thiel
@@ -13,8 +13,8 @@ import copy
 
 import bcore
 
-from bcore.core.logging import module_logger
-from bcore.core.diff import (
+from bcore.log import module_logger
+from bcore.diff import (
                             ApplyDifferenceMergeDelegate,
                             TwoWayDiff,
                             RootKey,
@@ -97,7 +97,7 @@ class KeyValueStoreProvider(object):
     __metaclass__ = bcore.MetaBase
 
     ## Our class-wide logging facility
-    log = module_logger("bcore.core.kvstore.base")
+    log = module_logger("bcore.kvstore.base")
 
     ## our default key separator
     key_separator = KeyValueStoreProviderDiffDelegate.key_separator

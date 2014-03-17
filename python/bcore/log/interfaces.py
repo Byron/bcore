@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.logging.interfaces
+@package bcore.log.interfaces
 @brief Contains interfaces related to logging
 
 @copyright 2013 Sebastian Thiel
@@ -20,7 +20,7 @@ class ILog(bcore.InterfaceBase):
     @bcore.abstractmethod
     def new(self, name):
         """@return a logger initialized and suitable for use by the given module or class
-        @param name a dot-separated module name, like 'bcore.core.yourmodule', or bcore.MyClass
+        @param name a dot-separated module name, like 'bcore.yourmodule', or bcore.MyClass
         @note loggers form a tree which can be configured hierarchically"""
     
     ## -- End Interface -- @}

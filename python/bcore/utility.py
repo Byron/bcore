@@ -177,7 +177,7 @@ def tagged_file_paths(directory, taglist, pattern=None):
         different patterns at once)
     @return list of matches file paths (as mrv Path)
     """
-    from bcore.core.logging import module_logger
+    from bcore.log import module_logger
     log = module_logger('bcore.utility')
     log.debug('obtaining tagged files from %s, tags = %s', directory, ', '.join(taglist))
     

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.component.core
+@package bcore.tests.component.core
 @brief Utilities used for testing the component system
 
 @copyright 2012 Sebastian Thiel
@@ -23,7 +23,7 @@ from bcore.tests import (
                         with_rw_directory
                      )
 
-from bcore.core.component import *
+from bcore.component import *
 
 
 # ==============================================================================

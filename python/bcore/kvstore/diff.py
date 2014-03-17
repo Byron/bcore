@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.kvstore.diff
+@package bcore.kvstore.diff
 @brief Contains our diff implementation
 
 @copyright 2012 Sebastian Thiel
@@ -10,9 +10,9 @@ __all__ = [ 'KeyValueStoreProviderDiffDelegate', 'KeyValueStoreModifierDiffDeleg
 
 import copy
 
-import bcore.core.diff.delegates
-from bcore.core.diff.delegates import MergeDelegate
-from bcore.core.diff import (
+import bcore.diff.delegates
+from bcore.diff.delegates import MergeDelegate
+from bcore.diff import (
                             NoValue,
                             TreeItem
                           )
@@ -73,7 +73,7 @@ def transform_value(value, transformator):
 # ------------------------------------------------------------------------------
 ## \{
 
-class _KeyValueStoreDiffDelegateBase(bcore.core.diff.delegates.MergeDelegate):
+class _KeyValueStoreDiffDelegateBase(bcore.diff.delegates.MergeDelegate):
     """Common base class for all of our merge-delegate implementations which require a log
     
     If it received a data object/dictionary (expected to have getattr access for keys), it will be used
@@ -398,7 +398,7 @@ class KeyValueStoreModifierDiffDelegate(_KeyValueStoreDiffDelegateBase):
 # end class KeyValueStoreModifierDiffDelegate
 
 
-class KeyValueStoreModifierBaseSwapDelegate(bcore.core.diff.delegates.ApplyDifferenceMergeDelegate):
+class KeyValueStoreModifierBaseSwapDelegate(bcore.diff.delegates.ApplyDifferenceMergeDelegate):
     """A diff implementation which gathers differences between two states and applies the changes to a third.
 
     We perform all changes on the fly, and thus have no unnecessary memory overhead.

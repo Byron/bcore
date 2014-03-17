@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.environ
-@brief tests for bcore.core.environ
+@package bcore.tests.environ
+@brief tests for bcore.environ
 
 @copyright 2012 Sebastian Thiel
 """

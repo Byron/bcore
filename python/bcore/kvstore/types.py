@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.kvstore.types
+@package bcore.kvstore.types
 @brief Implements a few types based on our base classes
 
 @copyright 2013 Sebastian Thiel
@@ -13,7 +13,7 @@ import json
 
 import bcore
 from .persistence import OrderedDictYAMLLoader
-from bcore.core.diff import AutoResolveAdditiveMergeDelegate
+from bcore.diff import AutoResolveAdditiveMergeDelegate
 from .serialize import (
                             SerializingKeyValueStoreModifierBase,
                             ChangeTrackingSerializingKeyValueStoreModifierBase

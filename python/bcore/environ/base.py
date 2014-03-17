@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.environ.base
+@package bcore.environ.base
 @brief contains readonly convenience access to the bcore.envrironment stack
 
 @copyright 2012 Sebastian Thiel
@@ -14,7 +14,7 @@ import platform
 import hashlib
 
 import bcore
-import bcore.core.component
+import bcore.component
 
 from . import components
 from .schema import (
@@ -22,7 +22,7 @@ from .schema import (
                         platform_schema
                     )
 
-from ..logging import module_logger
+from ..log import module_logger
 
 from .interfaces import (
                             IHostApplication,
@@ -48,10 +48,10 @@ from bcore.path import (
                     )
 import socket
 
-log = module_logger('bcore.core.environ.' + __name__)
+log = module_logger('bcore.environ.' + __name__)
 
 
-class OSEnvironment(bcore.core.component.Environment):
+class OSEnvironment(bcore.component.Environment):
     """Environment containing services and information about the operating system we're running on.
     Provides IPlatformService implementations"""
     _category = 'platform'
@@ -95,7 +95,7 @@ class OSEnvironment(bcore.core.component.Environment):
 # end class OSEnvironment
         
         
-class HostApplicationEnvironment(bcore.core.component.Environment):
+class HostApplicationEnvironment(bcore.component.Environment):
     """A base class for all host applications."""
     __slots__ = ()
     _category = "host_application"
@@ -104,7 +104,7 @@ class HostApplicationEnvironment(bcore.core.component.Environment):
 # end class HostApplicationEnvironment
         
         
-class ConfigHierarchyEnvironment(bcore.core.component.Environment, LazyMixin):
+class ConfigHierarchyEnvironment(bcore.component.Environment, LazyMixin):
     """An environment which is finding configuration paths in the directory hierarchy based on some root, 
     and which loads yaml files into its own context.
     

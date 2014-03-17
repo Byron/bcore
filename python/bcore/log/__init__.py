@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package: bcore.core.logging
+@package: bcore.log
 
 @copyright 2012 Sebastian Thiel
 """

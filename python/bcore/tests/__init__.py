@@ -5,14 +5,14 @@ Main test package for all bcore code.
 
 Provides core functionality which will be used by all test cases in one way or another.
 
-Imports bcore.tests.core
+Imports bcore.tests
 
 @copyright 2012 Sebastian Thiel
 """
 
 # Import all core features into the main package
 import sys
-from bcore.tests.core import *
+from .base import *
 import logging
 from bcore.utility import init_ipython_terminal
 

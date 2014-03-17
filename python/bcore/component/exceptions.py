@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package bcore.core.component.exceptions
+@package bcore.component.exceptions
 @brief exceptions raised by the component architecture
 
 @copyright 2012 Sebastian Thiel

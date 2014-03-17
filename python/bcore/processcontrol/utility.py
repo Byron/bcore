@@ -13,12 +13,12 @@ from .schema import (
                         package_meta_data_schema,
                         controller_schema,
                     )
-from bcore.core.environ import PersistentSettingsEnvironmentStackContextClient
-from bcore.core.kvstore import KeyValueStoreModifier
+from bcore.environ import PersistentSettingsEnvironmentStackContextClient
+from bcore.kvstore import KeyValueStoreModifier
 from bcore.utility import OrderedDict
-import bcore.core.logging
+import bcore.log
 
-log = bcore.core.logging.module_logger('bcore.processcontrol.utility')
+log = bcore.log.module_logger('bcore.processcontrol.utility')
 
 
 class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):

@@ -1,22 +1,22 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.kvstore.test_schema
-@brief tests for bcore.core.kvstore.schema
+@package bcore.tests.kvstore.test_schema
+@brief tests for bcore.kvstore.schema
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = []
 
-from bcore.tests.core.kvstore.base import TestConfigurationBase
-import bcore.tests.core.kvstore.test_serialize as test_serialize
+from bcore.tests.kvstore.base import TestConfigurationBase
+import bcore.tests.kvstore.test_serialize as test_serialize
 
 
 # Unused wildcard imports are okay, we are testing it 
 # pylint: disable-msg=W0614
 # Try * imports
-from bcore.core.kvstore.schema import *
-from bcore.core.diff import RootKey
-from bcore.core.kvstore import YAMLKeyValueStoreModifier
+from bcore.kvstore.schema import *
+from bcore.diff import RootKey
+from bcore.kvstore import YAMLKeyValueStoreModifier
 
 from bcore.utility import wraps
 

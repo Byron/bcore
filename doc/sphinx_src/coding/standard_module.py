@@ -91,7 +91,7 @@ from re import match
 #! second import block gets our own libraries, which follow optional 
 #! third-party libraries
 import bcore
-import bcore.core.logging
+import bcore.log
 
 #! from x import * statements have a separate block
 from bcore import one

@@ -22,7 +22,7 @@ from bcore.qc import (
                             QualityCheckBase
                         )
 
-import bcore.core.logging
+import bcore.log
 import bcore.cmd
 
 from bcore.processing.tractor.alf import (

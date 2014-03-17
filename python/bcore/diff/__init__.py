@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.diff
+@package bcore.diff
 @brief Package with facilities to diff any data structure
 
 @page diff Diff Framework

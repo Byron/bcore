@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bcore.tests.processing.test_transaction
-@brief tests for bcore.processing.transaction
+@brief tests for btransaction
 
 @copyright 2013 Sebastian Thiel
 """
@@ -14,10 +14,10 @@ from bcore.tests import (TestCaseBase,
                       with_rw_directory)
 from bcore.utility import ConcurrentRun
 
-from bcore.processing.transaction import (Transaction,
+from btransaction import (Transaction,
                                        StoringProgressIndicator)
-from bcore.processing.transaction.operations.rsync import *
-from bcore.processing.transaction.operations.fsops import *
+from btransaction.operations.rsync import *
+from btransaction.operations.fsops import *
 
 log = service(bcore.ILog).new('bcore.tests.processing.transaction.test_operations')
 

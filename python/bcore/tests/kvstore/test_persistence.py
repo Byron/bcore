@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.kvstore.test_persistence
-@brief tests for bcore.core.kvstore.persistence
+@package bcore.tests.kvstore.test_persistence
+@brief tests for bcore.kvstore.persistence
 
 @copyright 2012 Sebastian Thiel
 """
@@ -9,10 +9,10 @@ __all__ = []
 
 import yaml
 
-from bcore.tests.core.kvstore import TestConfigurationBase
+from bcore.tests.kvstore import TestConfigurationBase
 
 # test * imports (could have defective '__all__')
-from bcore.core.kvstore.persistence import OrderedDictYAMLLoader
+from bcore.kvstore.persistence import OrderedDictYAMLLoader
 from bcore.utility import OrderedDict
 
 class TestConfigurationCore(TestConfigurationBase):

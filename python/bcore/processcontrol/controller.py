@@ -18,18 +18,18 @@ from pprint import pprint
 from bcore import Version
 from bcore.path import Path
 
-import bcore.core.logging
+import bcore.log
 from logging import TRACE
 
-from bcore.core.kvstore import KeyValueStoreModifier
-from bcore.core.component import Environment
+from bcore.kvstore import KeyValueStoreModifier
+from bcore.component import Environment
 from .interfaces import IProcessControllerDelegate
-from bcore.core.environ import (
+from bcore.environ import (
                                 IPlatformService,
                                 ConfigHierarchyEnvironment,
                                 PipelineBaseEnvironment
                             )
-from bcore.core.kvstore import (
+from bcore.kvstore import (
                                 KeyValueStoreSchema,
                                 RootKey
                             )
@@ -56,7 +56,7 @@ from .schema import (
                     )
 
 
-log = bcore.core.logging.module_logger('bcore.processcontrol.controller')
+log = bcore.log.module_logger('bcore.processcontrol.controller')
 
 
 # ==============================================================================

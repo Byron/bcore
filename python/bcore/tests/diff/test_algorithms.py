@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.diff.test_algorithms
-@brief Implements tests for bcore.core.diff.algorithms
+@package bcore.tests.diff.test_algorithms
+@brief Implements tests for bcore.diff.algorithms
 
 @copyright 2012 Sebastian Thiel
 """
@@ -13,7 +13,7 @@ from bcore.tests import TestCaseBase
 # which reduces redundancy as well.
 # pylint: disable-msg=W0614
 # test * import
-from bcore.core.diff import *
+from bcore.diff import *
 
 
 class TestDiffAlgorithms(TestCaseBase):

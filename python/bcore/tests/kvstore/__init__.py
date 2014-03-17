@@ -1,9 +1,9 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.kvstore
-@brief tests for bcore.core.kvstore
+@package bcore.tests.kvstore
+@brief tests for bcore.kvstore
 
 @copyright 2012 Sebastian Thiel
 """
 
-from bcore.tests.core.kvstore.base import *
+from bcore.tests.kvstore.base import *

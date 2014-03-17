@@ -10,7 +10,7 @@ from bcore.tests import (
                         with_rw_directory
                     )
 from bcore.processcontrol.utility import *
-from bcore.core.kvstore import KeyValueStoreModifier
+from bcore.kvstore import KeyValueStoreModifier
 
 
 class TestUtilities(TestCaseBase):

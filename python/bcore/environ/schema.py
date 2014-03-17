@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.environ.schema
+@package bcore.environ.schema
 @brief All environment schemas used in the pipeline core
 
 @copyright 2013 Sebastian Thiel
@@ -8,7 +8,7 @@
 __all__ = []
 
 from bcore.path import Path
-from bcore.core.kvstore import (
+from bcore.kvstore import (
                                 RootKey, 
                                 KeyValueStoreSchema
                              )

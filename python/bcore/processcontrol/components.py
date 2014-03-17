@@ -21,12 +21,12 @@ from .schema import (
                     )
 
 from .utility import FlatteningPackageDataIteratorMixin
-from bcore.core.component import EnvironmentStackContextClient
-from bcore.core.kvstore import (
+from bcore.component import EnvironmentStackContextClient
+from bcore.kvstore import (
                                 KeyValueStoreSchema,
                                 AnyKey
                             )
-from bcore.core.diff import (
+from bcore.diff import (
                                 TwoWayDiff,
                                 DiffIndexDelegate
                          )
@@ -34,8 +34,8 @@ from bcore.core.diff import (
 from bcore import Version
 from bcore.utility import OrderedDict
 
-from bcore.core.environ import ConfigHierarchyEnvironment
-from bcore.core.logging import module_logger
+from bcore.environ import ConfigHierarchyEnvironment
+from bcore.log import module_logger
 
 log = module_logger('bcore.processcontrol.components')
 

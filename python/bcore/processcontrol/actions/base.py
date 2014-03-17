@@ -8,7 +8,7 @@
 __all__ = ['ActionDelegateMixin', 'PackageActionBase']
 
 import bcore
-from bcore.processing.transaction import (
+from btransaction import (
                                         Transaction,
                                         Operation
                                       )

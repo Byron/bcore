@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.core.properties.base
+@package bcore.properties.base
 @brief Base implementations for Properties using descriptors
 
 @copyright 2013 Sebastian Thiel
@@ -15,10 +15,10 @@ from bcore import (
                 Error,
                 MetaBase,
                )
-from ..logging import module_logger
+from ..log import module_logger
 import weakref
 
-log = module_logger('bcore.core.properties')
+log = module_logger('bcore.properties')
 
 # ==============================================================================
 ## @name Exceptions

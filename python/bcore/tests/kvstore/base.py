@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.core.kvstore.base
+@package bcore.tests.kvstore.base
 @brief base types which are shared among test modules in this package
 
 @copyright 2012 Sebastian Thiel
@@ -11,7 +11,7 @@ import yaml
 
 
 from bcore.tests import TestCaseBase
-from bcore.core.kvstore import OrderedDictYAMLLoader
+from bcore.kvstore import OrderedDictYAMLLoader
 
 class TestConfigurationBase(TestCaseBase):
     __slots__ = ()

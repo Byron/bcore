@@ -7,7 +7,7 @@
 """
 __all__ = ['CopyAction']
 
-from bcore.core.kvstore import PathList
+from bcore.kvstore import PathList
 from bcore.path import Path
 
 from .base import PackageActionBase
