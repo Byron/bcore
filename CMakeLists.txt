@@ -8,6 +8,8 @@ python_project(
 			"Sebastian Thiel <byronimo@gmail.com>"
 		ROOT_PACKAGE
 			bcore
+			bqc
+			btransaction
 		SPHINX_CONFIG_IN
 			DEFAULT
 		PYSIDE_UI_FILES

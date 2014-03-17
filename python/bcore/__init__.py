@@ -79,6 +79,11 @@ def _verify_prerequisites():
         raise AssertionError("Require python version of at least %i.%i" % min_version)
     #end if sys.version_info[:2] < min_version
 
+def _init_component_framework():
+    """Assure the component framework is available"""
+    from . import component
+    component.initialize()
+
 def _init_core():
     """Just import the core and let it do the rest"""
     from . import core
@@ -96,6 +101,8 @@ def _init_core():
     
 def init_environment_stack():
     """setup our global environment"""
+    _init_component_framework()
+    
     import bcore.core.component
     global environment
     environment = bcore.core.component.EnvironmentStack()

@@ -8,10 +8,6 @@ Generally, all submodules should be imported. Sub-Packages should be imported ju
 @copyright 2012 Sebastian Thiel
 """
 
-def _init_component_framework():
-    """Assure the component framework is available"""
-    from . import component
-    component.initialize()
     
 def initialize():
     """Initialize the core and all its functionality"""
