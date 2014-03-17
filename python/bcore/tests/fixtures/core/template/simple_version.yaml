@@ -1,8 +1,0 @@
-root:
-  meta:
-    format: "some_root"
-    type: Root
-  project:
-    meta:
-      format: "file.{version}.ext"
-      type: [Version]
