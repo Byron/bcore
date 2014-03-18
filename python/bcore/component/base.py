@@ -60,7 +60,7 @@ from bcore.utility import (
                         LazyMixin
                        )
 
-from bcore.diff import (
+from bdiff import (
                             NoValue,
                             TwoWayDiff,
                             AutoResolveAdditiveMergeDelegate

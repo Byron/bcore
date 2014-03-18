@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.diff.delegates
+@package bdiff.delegates
 @brief a module with different generic delegate implementations
 
 @copyright 2012 Sebastian Thiel
@@ -8,15 +8,11 @@
 __all__ = [ 'DiffRecord', 'DiffIndex', 'DiffIndexDelegate', 'QualifiedKeyDiffDelegateBase', 'MergeDelegate',
             'AdditiveMergeDelegate', 'ApplyDifferenceMergeDelegate', 'AutoResolveAdditiveMergeDelegate']
 
-from bcore.diff.base import (
-                                TwoWayDiffDelegateInterface,
-                                RootKey,
-                                NoValue
-                              )
-from bcore.utility import ( 
-                            OrderedDict,
-                            smart_deepcopy
-                       )
+from .base import (TwoWayDiffDelegateInterface,
+                   RootKey,
+                   NoValue)
+from .utility import (OrderedDict,
+                      smart_deepcopy)
 
 # ==============================================================================
 ## \name Structures

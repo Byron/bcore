@@ -19,7 +19,7 @@ from bcore.path import Path
 # test * imports (could have defective '__all__')
 from bcore.kvstore import *
 
-from bcore.diff import (
+from bdiff import (
                             TwoWayDiff,
                             AdditiveMergeDelegate,
                             RootKey,

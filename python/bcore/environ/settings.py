@@ -14,7 +14,7 @@ from bcore.kvstore import (
                                 KeyValueStoreProvider
                             )
 from bcore.component import EnvironmentStackContextClient
-from bcore.diff import (
+from bdiff import (
                             merge_data,
                             AutoResolveAdditiveMergeDelegate
                          )

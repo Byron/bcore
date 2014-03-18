@@ -1,19 +1,16 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.diff.base
+@package bdiff.base
 @brief Contains most fundamental types and interfaces
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = ['NoValue', 'TreeItem', 'RootKey', 'TwoWayDiffDelegateInterface']
 
-import bcore
-
-from bcore import abstractmethod
-from bcore.utility import  (
-                            NonInstantiatable,
-                            DictObject
-                        )
+from abc import (abstractmethod,
+                 ABCMeta)
+from .utility import  (NonInstantiatable,
+                       DictObject)
 
 # ==============================================================================
 ## \name Value Constants
@@ -48,7 +45,7 @@ class RootKey(NonInstantiatable):
 # ------------------------------------------------------------------------------
 ## \{
 
-class TwoWayDiffDelegateInterface(bcore.InterfaceBase):
+class TwoWayDiffDelegateInterface(object):
     """Defines the interface of a delegate to be used by the TwoWayDiff.
     
     Its used to inform the client about events when diffing two trees, allowing
@@ -61,7 +58,7 @@ class TwoWayDiffDelegateInterface(bcore.InterfaceBase):
     to start the next diff with a clean delegate without knowledge about previous diff runs.
     """
     __slots__ = ()
-    __metaclass__ = bcore.MetaBase
+    __metaclass__ = ABCMeta
     
     # -------------------------
     ## @name Change Types

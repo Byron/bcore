@@ -12,7 +12,7 @@ __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStor
 from bcore.path import Path
 
 from bcore.log import module_logger
-from bcore.diff import (
+from bdiff import (
                             DiffRecord,
                             DiffIndexDelegate,
                             AdditiveMergeDelegate,
@@ -298,7 +298,7 @@ class KeyValueStoreSchemaValidator(list):
           one in the schema.
 
         @param kvs_provider a `KeyValueStoreProvider` instance.
-        @return @ref bcore.diff.delegates.DiffIndex "DiffIndex" with SchemaDiffRecord instances. If its empty,
+        @return @ref bdiff.delegates.DiffIndex "DiffIndex" with SchemaDiffRecord instances. If its empty,
         there are no errors.
         @throws InvalidSchema when this schema is not valid by itself. When validating the provider,
         the schema will be validated automatically, and cause this error if its not valid

@@ -15,7 +15,7 @@ import bcore.tests.kvstore.test_serialize as test_serialize
 # pylint: disable-msg=W0614
 # Try * imports
 from bcore.kvstore.schema import *
-from bcore.diff import RootKey
+from bdiff import RootKey
 from bcore.kvstore import YAMLKeyValueStoreModifier
 
 from bcore.utility import wraps

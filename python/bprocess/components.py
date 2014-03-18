@@ -26,7 +26,7 @@ from bcore.kvstore import (
                                 KeyValueStoreSchema,
                                 AnyKey
                             )
-from bcore.diff import (
+from bdiff import (
                                 TwoWayDiff,
                                 DiffIndexDelegate
                          )

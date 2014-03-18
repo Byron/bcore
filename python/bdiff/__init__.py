@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.diff
+@package bdiff
 @brief Package with facilities to diff any data structure
 
 @page diff Diff Framework
@@ -17,6 +17,9 @@ Then we perform a two-way diff on them using the pre-defined DiffIndexDelegate
 
 @copyright 2012 Sebastian Thiel
 """
+# Allow better imports !
+from __future__ import absolute_import
+
 from .base import *
 from .delegates import *
 from .algorithms import *

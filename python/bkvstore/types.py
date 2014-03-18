@@ -13,7 +13,7 @@ import json
 
 import bcore
 from .persistence import OrderedDictYAMLLoader
-from bcore.diff import AutoResolveAdditiveMergeDelegate
+from bdiff import AutoResolveAdditiveMergeDelegate
 from .serialize import (
                             SerializingKeyValueStoreModifierBase,
                             ChangeTrackingSerializingKeyValueStoreModifierBase

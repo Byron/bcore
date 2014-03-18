@@ -1,22 +1,19 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.diff.test_algorithms
-@brief Implements tests for bcore.diff.algorithms
+@package bdiff.tests.test_algorithms
+@brief Implements tests for bdiff.algorithms
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = []
 
-from bcore.tests import TestCaseBase
+from unittest import TestCase
 
-# W0614 unused imports from wildcard import - its okay here as we are testing this
-# which reduces redundancy as well.
-# pylint: disable-msg=W0614
 # test * import
-from bcore.diff import *
+from bdiff import *
 
 
-class TestDiffAlgorithms(TestCaseBase):
+class TestDiffAlgorithms(TestCase):
     __slots__ = ('delegate',    # a DiffIndex delegate for the diff 
                  'twoway')      # a twoway diff algorithm implementation instance
     

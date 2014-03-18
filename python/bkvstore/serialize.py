@@ -15,7 +15,7 @@ import logging
 import bcore
 from bcore.path import make_path
 
-from bcore.diff import (
+from bdiff import (
                             NoValue,
                             AutoResolveAdditiveMergeDelegate,
                          )

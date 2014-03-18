@@ -1,19 +1,15 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.diff.algorithms
+@package bdiff.algorithms
 @brief A module with diffing algorithms
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = ['TwoWayDiff']
 
-import bcore
-
-from bcore.diff.base import (
-                                    RootKey,
-                                    NoValue,
-                                    TreeItem
-                              )
+from .base import (RootKey,
+                   NoValue,
+                   TreeItem)
 
 # too many arguments is okay as well, I have nearly no state and don't want to pack it into
 # a struct just for that. However, I agree the _register_recursive_change() method call is difficult with 
@@ -31,7 +27,6 @@ class TwoWayDiff(object):
     in a particular order determined by the code, and not by the underlying data. This means that after a merge,
     your order of keys might be different"""
     __slots__ = ( )
-    __metaclass__ = bcore.MetaBase
     
     # -------------------------
     ## @name Interface

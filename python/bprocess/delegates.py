@@ -32,7 +32,7 @@ from bcore.kvstore import (
                                 KeyValueStoreProvider,
                                 KeyValueStoreModifier
                             )
-from bcore.diff import (
+from bdiff import (
                         NoValue,
                         TwoWayDiff,
                         ApplyDifferenceMergeDelegate

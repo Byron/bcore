@@ -48,24 +48,6 @@ class MetaBase(abc.ABCMeta):
     * Puts new types into bcore if the type itself (not its subtype) has the 'place_into_root_package' set to True
     """
     
-    place_into_root_package_attribute_name = 'place_into_root_package'
-    
-    @staticmethod
-    def __new__(mcls, name, bases, clsdict):
-        """Create a new type and return it"""
-        for base in bases:
-            if base.__name__ == 'InterfaceBase':
-                clsdict[mcls.place_into_root_package_attribute_name] = True
-                break
-            # end name mateches
-        # end put into bcore
-        new_cls = super(MetaBase, mcls).__new__(mcls, name, bases, clsdict)
-        if clsdict.get(mcls.place_into_root_package_attribute_name, False):
-            import bcore
-            setattr(bcore, name, new_cls)
-        # end should put it into root package
-        return new_cls
-
     # -------------------------
     ## @name Subclass Interface
     # Methods for use by subclasses

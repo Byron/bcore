@@ -14,7 +14,7 @@ import copy
 import bcore
 
 from bcore.log import module_logger
-from bcore.diff import (
+from bdiff import (
                             ApplyDifferenceMergeDelegate,
                             TwoWayDiff,
                             RootKey,
