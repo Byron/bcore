@@ -13,7 +13,7 @@ from bcore.processcontrol import (
                                     ProcessControlContextControllerBase,
                                     ProcessConfigurationIncompatibleError
                                 )
-from bcore.kvstore import YAMLKeyValueStoreModifier
+from bkvstore import YAMLKeyValueStoreModifier
 
 
 class TestProcessController(ProcessControlContextControllerBase):

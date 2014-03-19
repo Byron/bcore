@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.kvstore.serialize
+@package bkvstore.serialize
 @brief Contains file type agnostic implementations of value providers and modifiers to allow serialization
 
 @note Read more about
@@ -12,17 +12,15 @@ __all__ = ['ChangeTrackingSerializingKeyValueStoreModifierBase', 'SerializingKey
 import logging
 
 
-import bcore
-from bcore.path import make_path
+from butility import (make_path,
+                      InterfaceBase,
+                      abstractmethod)
 
-from bdiff import (
-                            NoValue,
-                            AutoResolveAdditiveMergeDelegate,
-                         )
-from .base import (
-                    KeyValueStoreModifier,
-                    ChangeTrackingKeyValueStoreModifier
-                  )
+from bdiff import (NoValue,
+                   AutoResolveAdditiveMergeDelegate)
+
+from .base import (KeyValueStoreModifier,
+                   ChangeTrackingKeyValueStoreModifier)
 
 
 
@@ -31,7 +29,7 @@ from .base import (
 # ------------------------------------------------------------------------------
 ## @{
 
-class IStreamSerializer(bcore.InterfaceBase):
+class IStreamSerializer(InterfaceBase):
     """An interface to allow serialization of objects to a stream
     @todo these classes are so general, they should move somewhere more general too !"""
     __slots__ = ()
@@ -47,14 +45,14 @@ class IStreamSerializer(bcore.InterfaceBase):
     
     ## -- End Configuration -- @}
 
-    @bcore.abstractmethod
+    @abstractmethod
     def deserialize(self, stream):
         """Produce the originally serialized data structure from the given stream
         @param stream an object providing the read() method
         @return deserialized data structure"""
         return yaml.load(stream, Loader=OrderedDictYAMLLoader) or dict()
     
-    @bcore.abstractmethod
+    @abstractmethod
     def serialize(self, data, stream):
         """Serialize the given data structure into the given stream
         @param data the structure to serialize
@@ -70,7 +68,7 @@ class IStreamSerializer(bcore.InterfaceBase):
 # NOTE: unfortunately, we cannot make an absolute import here due to cyclic dependencies
 class _SerializingKeyValueStoreModifierMixin(object):
     """A base to share common functionality between the base that tracks changes, and the one that doesn't"""
-    # Slots don't work anymore
+    # Slots don't work anymore, as this type is used in multi-inheritance scenarios
     #__slots__ = (
     #                '_input_paths', # a tuple of input paths
     #            )
@@ -89,7 +87,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
     ## -- End Subclass Configuration -- @}
 
     ## our logging instance
-    log = logging.getLogger("bcore.kvstore.serializer")
+    log = logging.getLogger("bkvstore.serializer")
 
     def __init__(self, input_paths, take_ownership = True):
         """Initialize this instance with a set of paths from which to read values and to which to write the

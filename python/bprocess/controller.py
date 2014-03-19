@@ -21,7 +21,7 @@ from bcore.path import Path
 import bcore.log
 from logging import TRACE
 
-from bcore.kvstore import KeyValueStoreModifier
+from bkvstore import KeyValueStoreModifier
 from bcore.component import Environment
 from .interfaces import IProcessControllerDelegate
 from bcore.environ import (
@@ -29,7 +29,7 @@ from bcore.environ import (
                                 ConfigHierarchyEnvironment,
                                 PipelineBaseEnvironment
                             )
-from bcore.kvstore import (
+from bkvstore import (
                                 KeyValueStoreSchema,
                                 RootKey
                             )

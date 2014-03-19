@@ -9,7 +9,7 @@ __all__ = ['PersistentSettings', 'PersistentSettingsEnvironmentStackContextClien
 
 import bcore
 from copy import deepcopy
-from bcore.kvstore import (
+from bkvstore import (
                                 ChangeTrackingJSONKeyValueStoreModifier,
                                 KeyValueStoreProvider
                             )

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.kvstore.types
+@package bkvstore.types
 @brief Implements a few types based on our base classes
 
 @copyright 2013 Sebastian Thiel
@@ -11,19 +11,17 @@ __all__ = ['YAMLKeyValueStoreModifier', 'ChangeTrackingJSONKeyValueStoreModifier
 import yaml
 import json
 
-import bcore
-from .persistence import OrderedDictYAMLLoader
 from bdiff import AutoResolveAdditiveMergeDelegate
-from .serialize import (
-                            SerializingKeyValueStoreModifierBase,
-                            ChangeTrackingSerializingKeyValueStoreModifierBase
-                       )
-from bcore.utility import OrderedDict
+from butility import OrderedDict
+
+from .persistence import OrderedDictYAMLLoader
+
+from .serialize import ( SerializingKeyValueStoreModifierBase,
+                         ChangeTrackingSerializingKeyValueStoreModifierBase,
+                         IStreamSerializer )
 
 
-
-
-class YAMLStreamSerializer(bcore.IStreamSerializer):
+class YAMLStreamSerializer(IStreamSerializer):
     """Serialize from and to yaml"""
     __slots__ = ()
 
@@ -52,7 +50,7 @@ class YAMLKeyValueStoreModifier(SerializingKeyValueStoreModifierBase):
 
 
 
-class JSONStreamSerializer(bcore.IStreamSerializer):
+class JSONStreamSerializer(IStreamSerializer):
     """Serialize to and from json """
     __slots__ = ()
     

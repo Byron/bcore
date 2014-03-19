@@ -11,7 +11,7 @@ import yaml
 
 
 from bcore.tests import TestCaseBase
-from bcore.kvstore import OrderedDictYAMLLoader
+from bkvstore import OrderedDictYAMLLoader
 
 class TestConfigurationBase(TestCaseBase):
     __slots__ = ()

@@ -8,18 +8,14 @@
 __all__ = []
 
 import bcore
-from bcore.tests import (
-                        TestCaseBase,
-                        with_rw_directory
-                      )
+from bcore.tests import (TestCaseBase,
+                         with_rw_directory)
 
 # try * import
 from bcore.environ.settings import *
 from bcore.utility import OrderedDict
-from bcore.kvstore import (
-                                KeyValueStoreSchema,
-                                RootKey
-                            )
+from bkvstore import (KeyValueStoreSchema,
+                      RootKey)
 
 
 class TestSettingsClient(PersistentSettingsEnvironmentStackContextClient):

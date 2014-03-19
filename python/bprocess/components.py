@@ -22,7 +22,7 @@ from .schema import (
 
 from .utility import FlatteningPackageDataIteratorMixin
 from bcore.component import EnvironmentStackContextClient
-from bcore.kvstore import (
+from bkvstore import (
                                 KeyValueStoreSchema,
                                 AnyKey
                             )

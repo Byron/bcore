@@ -11,7 +11,7 @@ __all__ = [ 'DiffRecord', 'DiffIndex', 'DiffIndexDelegate', 'QualifiedKeyDiffDel
 from .base import (TwoWayDiffDelegateInterface,
                    RootKey,
                    NoValue)
-from .utility import (OrderedDict,
+from butility import (OrderedDict,
                       smart_deepcopy)
 
 # ==============================================================================

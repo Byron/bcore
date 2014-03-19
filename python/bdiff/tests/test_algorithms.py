@@ -48,7 +48,7 @@ class TestDiffAlgorithms(TestCase):
         self.delegate = DiffIndexDelegate()
         self.twoway = TwoWayDiff()
     
-    def _test_twoway_simple(self):
+    def test_twoway_simple(self):
         """basic tests using the twoway algorithm and the diff index"""
         ## [two way diff]
         dlg = DiffIndexDelegate()
@@ -63,7 +63,7 @@ class TestDiffAlgorithms(TestCase):
         assert len(dlg.result()) > 0, "comparing non-equal items yields a difference"
         ## [two way diff]
         
-    def _test_diff_and_reversed_diff(self):
+    def test_diff_and_reversed_diff(self):
         """diff and reversed diff by exchanging parties"""
         # predicates
         added_items = DiffIndex.by_change_type(self.delegate.added)
@@ -88,7 +88,7 @@ class TestDiffAlgorithms(TestCase):
             assert len(list(didx.iterate(modified_items))) == 2, "Invalid number of modified items"
         #end for each diff reversal mode
         
-    def _test_check_two_items(self):
+    def test_check_two_items(self):
         """Compare two non-tree items with each other"""
         # check two items
         self.twoway.diff(self.delegate, self.item_a, self.item_b)
@@ -96,7 +96,7 @@ class TestDiffAlgorithms(TestCase):
         assert len(didx) == 1, "Expected the only item to be different"
         assert didx.values()[0].change_type() == self.delegate.modified
         
-    def _test_check_similar_items(self):
+    def test_check_similar_items(self):
         """Assure similar trees or non-trees don't have differences"""
         # check similar items
         for equal_items_are_trees in range(2):
@@ -106,7 +106,7 @@ class TestDiffAlgorithms(TestCase):
             # delegate reset not required as its still empty
         #end for each equal item
         
-    def _test_check_all_combinations(self):
+    def test_check_all_combinations(self):
         """compare all combinations of items/values on both sides"""
         # check all combinations of root items which should be dissimilar
         for left_is_tree in range(2):
@@ -120,7 +120,7 @@ class TestDiffAlgorithms(TestCase):
             #end for each right item
         #end for each left item
     
-    def _test_check_hierarchy_states(self):
+    def test_check_hierarchy_states(self):
         """Verify that we figure out modifications even in nested hierarchies"""
         self.twoway.diff(self.delegate, self.tree_a, self.tree_b)
         didx = self.delegate.result()

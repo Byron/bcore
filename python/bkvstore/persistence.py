@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.kvstore.persistence
+@package bkvstore.persistence
 @brief Contains tools related to persisting objects - currently yaml only
 
 @note I'd like to have named this module 'yaml', but this will prevent any imports
@@ -18,23 +18,14 @@ except ImportError:
     from yaml import Loader
 # end get fastest loader
 
-from bcore.utility import (   
-                            OrderedDict,
-                            DictObject
-                        )
+from bdiff.utility import ( OrderedDict,
+                            DictObject )
 
 # ==============================================================================
 ## \name Yaml Tools
 # ------------------------------------------------------------------------------
 # Yaml specific tools and overrides
 ## \{
-
-# Disabling "instance of ordered dict has no 'next' member, but not all types
-# could be inferred' message" as an ordered dict won't enter that portion
-# of code
-# pylint: disable-msg=E1103
-# Too many branches - its not our code, so we don't want to fix it
-# pylint: disable-msg=R0912
 
 
 def initialize_yaml_overrides():
@@ -144,9 +135,8 @@ class OrderedDictYAMLLoader(Loader):
         #end for each key_node, value_node in node.value
         return mapping
         
-    # Pipe-legacy compatability
+    # Support for older yaml versions - this is required to make it work
     # For some reason, it pulls another version of yaml in which is missing this method
-    # TODO: remove this
     if not hasattr(Loader, 'dispose'):
         def dispose(self):
             """noop

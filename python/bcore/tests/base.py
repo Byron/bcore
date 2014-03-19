@@ -21,7 +21,7 @@ from bcore.path import (
                         Path
                     )
 
-from bcore.kvstore import (
+from bkvstore import (
                                 KeyValueStoreSchema,
                                 KeyValueStoreProvider
                             )

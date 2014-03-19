@@ -65,7 +65,7 @@ from bdiff import (
                             TwoWayDiff,
                             AutoResolveAdditiveMergeDelegate
                          )
-from bcore.kvstore import (
+from bkvstore import (
                                 KeyValueStoreSchemaValidator,
                                 KeyValueStoreModifier,
                                 KeyValueStoreSchema,

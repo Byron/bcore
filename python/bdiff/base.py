@@ -7,9 +7,9 @@
 """
 __all__ = ['NoValue', 'TreeItem', 'RootKey', 'TwoWayDiffDelegateInterface']
 
-from abc import (abstractmethod,
-                 ABCMeta)
-from .utility import  (NonInstantiatable,
+from butility import  (NonInstantiatable,
+                       abstractmethod,
+                       MetaBase,
                        DictObject)
 
 # ==============================================================================
@@ -58,7 +58,7 @@ class TwoWayDiffDelegateInterface(object):
     to start the next diff with a clean delegate without knowledge about previous diff runs.
     """
     __slots__ = ()
-    __metaclass__ = ABCMeta
+    __metaclass__ = MetaBase
     
     # -------------------------
     ## @name Change Types

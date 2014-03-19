@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bcore.tests.kvstore.test_yaml
-@brief Tests for bcore.kvstore.yaml
+@brief Tests for bkvstore.yaml
 
 @copyright 2012 Sebastian Thiel
 """
@@ -11,14 +11,14 @@ from bcore.tests.kvstore.base import TestConfigurationBase
 from bcore.tests import with_rw_directory
 
 # Test * import
-from bcore.kvstore import (
+from bkvstore import (
                                 KeyValueStoreProviderDiffDelegate, 
                                 RelaxedKeyValueStoreProviderDiffDelegate,
                                 ChangeTrackingSerializingKeyValueStoreModifierBase,
                                 YAMLStreamSerializer
                             )
-from bcore.kvstore.serialize import *
-from bcore.kvstore.persistence import OrderedDictYAMLLoader
+from bkvstore.serialize import *
+from bkvstore.persistence import OrderedDictYAMLLoader
 from bcore.utility import tagged_file_paths
 
 import yaml

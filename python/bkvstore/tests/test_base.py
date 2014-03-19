@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bcore.tests.kvstore.test_base
-@brief tests for bcore.kvstore.base
+@brief tests for bkvstore.base
 
 @copyright 2012 Sebastian Thiel
 """
@@ -17,7 +17,7 @@ from bcore.path import Path
 # W0614 unused imports okay, as we are testing the import itself
 # pylint: disable-msg=W0614
 # test * imports (could have defective '__all__')
-from bcore.kvstore import *
+from bkvstore import *
 
 from bdiff import (
                             TwoWayDiff,
@@ -26,7 +26,7 @@ from bdiff import (
                             NoValue
                         )
 from bcore.log import module_logger
-from bcore.kvstore.diff import (
+from bkvstore.diff import (
                                     KeyValueStoreModifierDiffDelegate,
                                     RelaxedKeyValueStoreProviderDiffDelegate
                                 )
@@ -282,8 +282,8 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                                                                 'unresolvable' : '',
                                                                 'software' : str,
                                                                 'listed' : StringList,
-                                                                'needs_list' : PathList,
-                                                                'paths' : PathList
+                                                                'needs_list' : StringList,
+                                                                'paths' : StringList
                                                                },
                                                'floats' : FloatList,
                                                'ints' : IntList

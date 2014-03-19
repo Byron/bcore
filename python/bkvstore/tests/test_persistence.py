@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bcore.tests.kvstore.test_persistence
-@brief tests for bcore.kvstore.persistence
+@brief tests for bkvstore.persistence
 
 @copyright 2012 Sebastian Thiel
 """
@@ -12,7 +12,7 @@ import yaml
 from bcore.tests.kvstore import TestConfigurationBase
 
 # test * imports (could have defective '__all__')
-from bcore.kvstore.persistence import OrderedDictYAMLLoader
+from bkvstore.persistence import OrderedDictYAMLLoader
 from bcore.utility import OrderedDict
 
 class TestConfigurationCore(TestConfigurationBase):

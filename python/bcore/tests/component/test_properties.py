@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bcore.tests.kvstore.test_properties
-@brief tests for bcore.kvstore.properties
+@brief tests for bkvstore.properties
 
 @copyright 2012 Sebastian Thiel
 """
@@ -9,7 +9,7 @@ __all__ = []
 
 from bcore.tests.component.base import TestComponentCoreBase
 from bcore.component import *
-from bcore.kvstore import RootKey
+from bkvstore import RootKey
 from bcore.path import Path
 
 

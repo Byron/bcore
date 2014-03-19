@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.kvstore.diff
+@package bkvstore.diff
 @brief Contains our diff implementation
 
 @copyright 2012 Sebastian Thiel
@@ -10,17 +10,12 @@ __all__ = [ 'KeyValueStoreProviderDiffDelegate', 'KeyValueStoreModifierDiffDeleg
 
 import copy
 
-import bdiff.delegates
 from bdiff.delegates import MergeDelegate
-from bdiff import (
-                            NoValue,
-                            TreeItem
-                          )
+from bdiff import ( NoValue,
+                    TreeItem )
 
-from bcore.utility import (
-                            smart_deepcopy,
-                            OrderedDict
-                       )
+from bdiff.utility import ( smart_deepcopy,
+                            OrderedDict )
 
 
 # ==============================================================================
@@ -89,7 +84,7 @@ class _KeyValueStoreDiffDelegateBase(bdiff.delegates.MergeDelegate):
     key_separator = '.'
 
     # We really need an ordered dict
-    assert issubclass(MergeDelegate.DictType, OrderedDict), "We are expecting an OrderedDict as Dictionary"
+    assert issubclass(bdiff.delegates.MergeDelegate.DictType, OrderedDict), "We are expecting an OrderedDict as Dictionary"
 
     def __init__(self, base_key, log, data=None):
         """Initialize the instance

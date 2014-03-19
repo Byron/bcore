@@ -8,7 +8,7 @@
 __all__ = []
 
 from bcore.path import Path
-from bcore.kvstore import (
+from bkvstore import (
                                 RootKey, 
                                 KeyValueStoreSchema
                              )

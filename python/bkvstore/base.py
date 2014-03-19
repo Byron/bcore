@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.kvstore.base
+@package bkvstore.base
 @brief Base classes and most fundamental utilities for key value store handling
 
 @copyright 2012 Sebastian Thiel
@@ -9,27 +9,21 @@ __all__ = ['KeyValueStoreProvider', 'KeyValueStoreModifier', 'Error', 'NoValueFo
            'UnorderedKeyValueStoreModifier', 'ChangeTrackingKeyValueStoreModifier']
 
 import copy
+import logging
 
+from bdiff import ( ApplyDifferenceMergeDelegate,
+                    TwoWayDiff,
+                    RootKey,
+                    NoValue,
+                    merge_data)
 
-import bcore
+from bdiff.utility import  (OrderedDict,
+                            smart_deepcopy)
 
-from bcore.log import module_logger
-from bdiff import (
-                            ApplyDifferenceMergeDelegate,
-                            TwoWayDiff,
-                            RootKey,
-                            NoValue,
-                            merge_data
-                         )
-from .diff import (
-                    KeyValueStoreProviderDiffDelegate,
+from .diff import ( KeyValueStoreProviderDiffDelegate,
                     KeyValueStoreModifierDiffDelegate,
-                    KeyValueStoreModifierBaseSwapDelegate
-                  )
-from bcore.utility import  (
-                            OrderedDict,
-                            smart_deepcopy
-                        )
+                    KeyValueStoreModifierBaseSwapDelegate )
+
 
 # ==============================================================================
 ## \name Exceptions
@@ -37,7 +31,7 @@ from bcore.utility import  (
 # Basic exceptions thrown by the configuration system
 ## \{
 
-class Error(bcore.Error):
+class Error(Exception):
     """Base Type for all exceptions of the configuration system"""
     __slots__ = ()
 
@@ -48,7 +42,7 @@ class NoValueForKeyError(Error, KeyError):
     """Thrown if a value is missing for a given key"""
 
     def __init__(self, key):
-        """Initialze this instance with a key for which there was no value"""
+        """initialize this instance with a key for which there was no value"""
         Error.__init__(self, key)
         KeyError.__init__(self)
         self.args = (key, )
@@ -94,10 +88,9 @@ class KeyValueStoreProvider(object):
     such as `section.option`
     """
     __slots__ = ('_value_dict')
-    __metaclass__ = bcore.MetaBase
 
     ## Our class-wide logging facility
-    log = module_logger("bcore.kvstore.base")
+    log = logging.getLogger("bkvstore.base")
 
     ## our default key separator
     key_separator = KeyValueStoreProviderDiffDelegate.key_separator
@@ -513,7 +506,6 @@ class UnorderedKeyValueStoreModifier(KeyValueStoreModifier):
 # end class UnorderedKeyValueStoreModifier
     
 
-
-## -- End Yaml Implementation -- \}
+## -- End Base Implementation -- \}
 
 

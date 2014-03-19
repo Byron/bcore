@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bcore.tests.kvstore.test_schema
-@brief tests for bcore.kvstore.schema
+@brief tests for bkvstore.schema
 
 @copyright 2012 Sebastian Thiel
 """
@@ -14,9 +14,9 @@ import bcore.tests.kvstore.test_serialize as test_serialize
 # Unused wildcard imports are okay, we are testing it 
 # pylint: disable-msg=W0614
 # Try * imports
-from bcore.kvstore.schema import *
+from bkvstore.schema import *
 from bdiff import RootKey
-from bcore.kvstore import YAMLKeyValueStoreModifier
+from bkvstore import YAMLKeyValueStoreModifier
 
 from bcore.utility import wraps
 

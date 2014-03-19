@@ -1,33 +1,31 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.kvstore
+@package bkvstore
 @brief A package with configuration access for reading and writing
 
 @page kvstore KeyValue-Store Framework
 
 @copyright 2012 Sebastian Thiel
 """
+# Allow better imports !
+from __future__ import absolute_import
+
 import sys
 import os
-
-# W0403 Allow relative import in this case, absolute imports don't work here
-# pylint: disable-msg=W0403
 
 def _init_yaml_persistence():
     """Assure the yaml module is setup so that it can handle ordered dicts when serializing data"""
     # for now we have a yaml dependency (json would be nicer as its supported out of the box
     # We try to use the system libraries, as those might have CYaml support. Otherwise we use
-    # our own pure-python implementatino
+    # our own pure-python implementation
     try:
         import yaml
     except ImportError:
         # use our version
-        lib_path = os.path.join(os.path.dirname(__file__), 'lib')
-        sys.path.append(lib_path)
         try:
-            import yaml
+            from . import yaml
         except ImportError:
-            raise ImportError("Failed to import yaml, even using our own library at %s")
+            raise ImportError("Failed to import yaml, even using our own library at bkvstore.yaml")
         #end handle yaml
     # end handle exception
     
@@ -36,9 +34,10 @@ def _init_yaml_persistence():
     
     
     # Setup persistence
-    import persistence
+    from . import persistence
     persistence.initialize_yaml_overrides()
-    
+
+# end  initializer
 
 _init_yaml_persistence()
 

@@ -1,36 +1,35 @@
 #-*-coding:utf-8-*i-
 """
-@package bcore.kvstore.schema
+@package bkvstore.schema
 @brief A module with implementations to help to show and verify the current storage schema
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
-            'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'PathList', 'TypedList', 
+            'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 
             'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema']
 
-from bcore.path import Path
+import logging
 
-from bcore.log import module_logger
-from bdiff import (
-                            DiffRecord,
-                            DiffIndexDelegate,
-                            AdditiveMergeDelegate,
-                            TwoWayDiff,
-                            NoValue,
-                            RootKey
-                         )
+from bdiff import ( DiffRecord,
+                    DiffIndexDelegate,
+                    AdditiveMergeDelegate,
+                    TwoWayDiff,
+                    NoValue,
+                    RootKey )
+
+from butility import Path
+
+from bdiff.utility import DictObject
 
 from .diff import transform_value
 
-from bcore.kvstore.base import (
-                                    Error,
-                                    KeyValueStoreProvider
-                                )
+from .base import ( Error,
+                    KeyValueStoreProvider )
 
-from bcore.utility import DictObject
 
-log = module_logger('bcore.kvstore.schema')
+
+log = logging.getLogger('bkvstore.schema')
 
 # ==============================================================================
 ## \name Exceptions
@@ -155,14 +154,14 @@ class FloatList(TypedList):
     
     MemberType = float
     
-    
+# end class IntList
+
+
 class PathList(TypedList):
     """A list just for Paths - for use in KeyValueStoreSchema instances only"""
     __slots__ = ()
     
     MemberType = Path
-    
-# end class IntList
 
 ## -- End Utility Structures -- @}
 

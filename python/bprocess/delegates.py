@@ -27,7 +27,7 @@ import logging
 
 import bcore.log
 from bcore.environ import ConfigHierarchyEnvironment
-from bcore.kvstore import (
+from bkvstore import (
                                 RootKey,
                                 KeyValueStoreProvider,
                                 KeyValueStoreModifier

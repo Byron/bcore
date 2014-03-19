@@ -9,12 +9,11 @@ __all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin']
 
 import bcore
 from .controller import PackageDataIteratorMixin
-from .schema import (
-                        package_meta_data_schema,
-                        controller_schema,
-                    )
+from .schema import (package_meta_data_schema,
+                     controller_schema)
 from bcore.environ import PersistentSettingsEnvironmentStackContextClient
-from bcore.kvstore import KeyValueStoreModifier
+from bkvstore import (KeyValueStoreModifier,
+                      PathList)
 from bcore.utility import OrderedDict
 import bcore.log
 

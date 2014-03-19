@@ -16,7 +16,7 @@ from bcore.tests import (
 
 from btransaction import Transaction
 from bcore.processcontrol.actions import CopyAction
-from bcore.kvstore import KeyValueStoreModifier
+from bkvstore import KeyValueStoreModifier
 
 
 class CopyInformationEnvironment(object):
