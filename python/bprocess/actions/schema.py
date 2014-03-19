@@ -12,7 +12,7 @@ from bkvstore import (
                                 AnyKey,
                             )
 
-from bcore.path import Path
+from butility import Path
 
 
 action_schema = KeyValueStoreSchema('package-actions', {AnyKey : dict()})

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.kvstore.test_persistence
+@package bkvstore.tests.test_persistence
 @brief tests for bkvstore.persistence
 
 @copyright 2012 Sebastian Thiel
@@ -9,11 +9,11 @@ __all__ = []
 
 import yaml
 
-from bcore.tests.kvstore import TestConfigurationBase
+from .base import TestConfigurationBase
 
 # test * imports (could have defective '__all__')
 from bkvstore.persistence import OrderedDictYAMLLoader
-from bcore.utility import OrderedDict
+from butility import OrderedDict
 
 class TestConfigurationCore(TestConfigurationBase):
     __slots__ = ()

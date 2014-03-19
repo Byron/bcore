@@ -15,7 +15,7 @@ from bcore.tests import (
                         TempRWDirProvider
                     )
 from bcore import Version
-from bcore.path import Path
+from butility import Path
 
 
 

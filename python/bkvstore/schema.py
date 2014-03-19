@@ -6,7 +6,7 @@
 @copyright 2012 Sebastian Thiel
 """
 __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
-            'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 
+            'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',
             'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema']
 
 import logging
@@ -18,9 +18,8 @@ from bdiff import ( DiffRecord,
                     NoValue,
                     RootKey )
 
-from butility import Path
-
-from bdiff.utility import DictObject
+from butility import (Path,
+                      DictObject)
 
 from .diff import transform_value
 

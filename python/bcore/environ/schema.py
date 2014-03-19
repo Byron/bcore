@@ -7,7 +7,7 @@
 """
 __all__ = []
 
-from bcore.path import Path
+from butility import Path
 from bkvstore import (
                                 RootKey, 
                                 KeyValueStoreSchema

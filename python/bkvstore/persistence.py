@@ -18,8 +18,8 @@ except ImportError:
     from yaml import Loader
 # end get fastest loader
 
-from bdiff.utility import ( OrderedDict,
-                            DictObject )
+from butility import ( OrderedDict,
+                       DictObject )
 
 # ==============================================================================
 ## \name Yaml Tools

@@ -10,12 +10,13 @@ __all__ = [ 'KeyValueStoreProviderDiffDelegate', 'KeyValueStoreModifierDiffDeleg
 
 import copy
 
-from bdiff.delegates import MergeDelegate
 from bdiff import ( NoValue,
-                    TreeItem )
+                    TreeItem,
+                    MergeDelegate,
+                    ApplyDifferenceMergeDelegate )
 
-from bdiff.utility import ( smart_deepcopy,
-                            OrderedDict )
+from butility import ( smart_deepcopy,
+                       OrderedDict )
 
 
 # ==============================================================================
@@ -68,7 +69,7 @@ def transform_value(value, transformator):
 # ------------------------------------------------------------------------------
 ## \{
 
-class _KeyValueStoreDiffDelegateBase(bdiff.delegates.MergeDelegate):
+class _KeyValueStoreDiffDelegateBase(MergeDelegate):
     """Common base class for all of our merge-delegate implementations which require a log
     
     If it received a data object/dictionary (expected to have getattr access for keys), it will be used
@@ -84,7 +85,7 @@ class _KeyValueStoreDiffDelegateBase(bdiff.delegates.MergeDelegate):
     key_separator = '.'
 
     # We really need an ordered dict
-    assert issubclass(bdiff.delegates.MergeDelegate.DictType, OrderedDict), "We are expecting an OrderedDict as Dictionary"
+    assert issubclass(MergeDelegate.DictType, OrderedDict), "We are expecting an OrderedDict as Dictionary"
 
     def __init__(self, base_key, log, data=None):
         """Initialize the instance
@@ -393,7 +394,7 @@ class KeyValueStoreModifierDiffDelegate(_KeyValueStoreDiffDelegateBase):
 # end class KeyValueStoreModifierDiffDelegate
 
 
-class KeyValueStoreModifierBaseSwapDelegate(bdiff.delegates.ApplyDifferenceMergeDelegate):
+class KeyValueStoreModifierBaseSwapDelegate(ApplyDifferenceMergeDelegate):
     """A diff implementation which gathers differences between two states and applies the changes to a third.
 
     We perform all changes on the fly, and thus have no unnecessary memory overhead.

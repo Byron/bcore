@@ -16,7 +16,7 @@ import logging
 from pprint import pprint
 
 from bcore import Version
-from bcore.path import Path
+from butility import Path
 
 import bcore.log
 from logging import TRACE

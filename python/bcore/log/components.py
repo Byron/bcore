@@ -17,7 +17,7 @@ from ..component import EnvironmentStackContextClient
 from ..kvstore import KeyValueStoreSchema
 from .interfaces import ILog
 
-from bcore.path import Path
+from butility import Path
 from bcore.utility import Singleton
 
 import logging

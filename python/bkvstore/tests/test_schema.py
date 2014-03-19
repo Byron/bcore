@@ -1,24 +1,22 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.kvstore.test_schema
+@package bkvstore.tests.test_schema
 @brief tests for bkvstore.schema
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = []
 
-from bcore.tests.kvstore.base import TestConfigurationBase
-import bcore.tests.kvstore.test_serialize as test_serialize
+from .base import TestConfigurationBase
+from . import test_serialize
 
 
-# Unused wildcard imports are okay, we are testing it 
-# pylint: disable-msg=W0614
 # Try * imports
 from bkvstore.schema import *
 from bdiff import RootKey
 from bkvstore import YAMLKeyValueStoreModifier
+from butility import wraps
 
-from bcore.utility import wraps
 
 def validator_backup(func):
     """Decorates func to temporarily store the global collector, and restore it aftwards"""

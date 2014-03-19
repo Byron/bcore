@@ -17,8 +17,8 @@ from bdiff import ( ApplyDifferenceMergeDelegate,
                     NoValue,
                     merge_data)
 
-from bdiff.utility import  (OrderedDict,
-                            smart_deepcopy)
+from butility import  (OrderedDict,
+                       smart_deepcopy)
 
 from .diff import ( KeyValueStoreProviderDiffDelegate,
                     KeyValueStoreModifierDiffDelegate,

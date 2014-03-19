@@ -12,7 +12,7 @@ order.
 __all__ = ['Transaction', 'Operation', 'StoringProgressIndicator']
 
 import bcore
-from bcore.path import make_path
+from butility import make_path
 from bcore import InterfaceBase
 from bcore.utility import ProgressIndicator
 

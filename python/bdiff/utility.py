@@ -22,7 +22,7 @@ def merge_data(source, destination, delegate_type = None, diff_type = None):
     if delegate_type is None:
         from .delegates import AutoResolveAdditiveMergeDelegate as delegate_type
     if diff_type is None:
-        from .algoithms import TwoWayDiff as diff_type
+        from .algorithms import TwoWayDiff as diff_type
     delegate = delegate_type()
     diff_type().diff(delegate, destination, source)
     return delegate.result()

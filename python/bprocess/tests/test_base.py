@@ -16,7 +16,7 @@ import bcore
 from bcore.tests import TestCaseBase
 from bcore.processcontrol import *
 
-from bcore.path import Path
+from butility import Path
 
 import subprocess
 

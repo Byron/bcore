@@ -16,7 +16,7 @@ import fcntl
 import re
 from select import select
 
-from bcore.path import Path
+from butility import Path
 
 class RsyncOperation(Operation):
     """An operation which allows to safely copy a source file or directory to a

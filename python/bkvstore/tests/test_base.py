@@ -1,35 +1,27 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.kvstore.test_base
+@package bkvstore.tests.test_base
 @brief tests for bkvstore.base
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = []
 
+import logging
 from copy import deepcopy
 
-from bcore.tests.kvstore import TestConfigurationBase
-from bcore.utility import OrderedDict
+from .base import TestConfigurationBase
+from butility import (OrderedDict,
+                      Path)
 
-from bcore.path import Path
-
-# W0614 unused imports okay, as we are testing the import itself
-# pylint: disable-msg=W0614
-# test * imports (could have defective '__all__')
 from bkvstore import *
 
-from bdiff import (
-                            TwoWayDiff,
-                            AdditiveMergeDelegate,
-                            RootKey,
-                            NoValue
-                        )
-from bcore.log import module_logger
-from bkvstore.diff import (
-                                    KeyValueStoreModifierDiffDelegate,
-                                    RelaxedKeyValueStoreProviderDiffDelegate
-                                )
+from bdiff import (TwoWayDiff,
+                   AdditiveMergeDelegate,
+                   RootKey,
+                   NoValue )
+from bkvstore.diff import (KeyValueStoreModifierDiffDelegate,
+                           RelaxedKeyValueStoreProviderDiffDelegate )
 
 
 # ==============================================================================
@@ -226,7 +218,7 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         self._assert_cm_interface_nested(LooseKeyValueStoreModifier)
         
     def test_diff(self):
-        log = module_logger("bcore.test.kvstore")
+        log = logging.getLogger("bkvstore")
         existing_value = None
         new_value      = OrderedDict([('project_root', OrderedDict([('fs_path', '/mnt/projects')])),
                                       ('python_libs', '/foo/bar')])
@@ -282,8 +274,8 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                                                                 'unresolvable' : '',
                                                                 'software' : str,
                                                                 'listed' : StringList,
-                                                                'needs_list' : StringList,
-                                                                'paths' : StringList
+                                                                'needs_list' : PathList,
+                                                                'paths' : PathList
                                                                },
                                                'floats' : FloatList,
                                                'ints' : IntList

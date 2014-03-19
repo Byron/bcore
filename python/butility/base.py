@@ -21,6 +21,8 @@ from copy import deepcopy
 from itertools import chain
 from collections import deque
 
+from .path import Path
+
 log = logging.getLogger('butility.base')
 
 

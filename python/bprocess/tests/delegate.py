@@ -10,7 +10,7 @@ __all__ = []
 import subprocess
 
 from bcore.processcontrol import ProcessControllerDelegate
-from bcore.path import Path 
+from butility import Path 
 
 class TestCommunicatorDelegate(ProcessControllerDelegate):
     """Communicate with a process and see how that works"""

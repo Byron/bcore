@@ -8,7 +8,7 @@
 __all__ = ['CopyAction']
 
 from bkvstore import PathList
-from bcore.path import Path
+from butility import Path
 
 from .base import PackageActionBase
 

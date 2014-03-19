@@ -60,7 +60,7 @@ from .schema import (
                         NamedServiceProcessControllerDelegate
                     )
 
-from bcore.path import Path
+from butility import Path
 
 log = bcore.log.module_logger('bcore.processcontrol.delegate')
 

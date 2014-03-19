@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.kvstore.base
+@package bkvstore.tests.base
 @brief base types which are shared among test modules in this package
 
 @copyright 2012 Sebastian Thiel
@@ -10,17 +10,15 @@ __all__ = ['TestConfigurationBase']
 import yaml
 
 
-from bcore.tests import TestCaseBase
+from butility.tests import TestCaseBase
+from butility import make_path
 from bkvstore import OrderedDictYAMLLoader
 
 class TestConfigurationBase(TestCaseBase):
     __slots__ = ()
 
-    @classmethod
-    def fixture_path(cls, name):
-        """@return mrv path to the configuration fixture file"""
-        return super(TestConfigurationBase, cls).fixture_path('core/config/' + name)
-        
+    fixture_root = make_path(__file__).dirname()
+
     @classmethod
     def config_data(cls, name):
         """@return deserialized yaml dictionary with data from the given file

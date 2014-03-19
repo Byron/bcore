@@ -42,7 +42,7 @@ from ..kvstore import (
                         KeyValueStoreSchema
                       )
 
-from bcore.path import (
+from butility import (
                         Path,
                         make_path
                     )

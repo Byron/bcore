@@ -72,7 +72,7 @@ from bkvstore import (
                                 RootKey
                             )
 from bcore.component.exceptions import *
-from bcore.path import Path
+from butility import Path
 
 log = module_logger(__name__)
 

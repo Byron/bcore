@@ -21,7 +21,7 @@ from bkvstore import (
 from .interfaces import IProcessControllerDelegate
 from bcore import Version
 from bcore.utility import LazyMixin
-from bcore.path import Path
+from butility import Path
 
 log = module_logger('bcore.processcontrol.schema')
 

@@ -1,27 +1,25 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.kvstore.test_yaml
+@package bkvstore.tests.test_yaml
 @brief Tests for bkvstore.yaml
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = []
 
-from bcore.tests.kvstore.base import TestConfigurationBase
-from bcore.tests import with_rw_directory
+import yaml
 
-# Test * import
-from bkvstore import (
-                                KeyValueStoreProviderDiffDelegate, 
-                                RelaxedKeyValueStoreProviderDiffDelegate,
-                                ChangeTrackingSerializingKeyValueStoreModifierBase,
-                                YAMLStreamSerializer
-                            )
+from .base import TestConfigurationBase
+from butility.tests import with_rw_directory
+
+from bkvstore import ( KeyValueStoreProviderDiffDelegate,
+                       RelaxedKeyValueStoreProviderDiffDelegate,
+                       ChangeTrackingSerializingKeyValueStoreModifierBase,
+                       YAMLStreamSerializer )
 from bkvstore.serialize import *
 from bkvstore.persistence import OrderedDictYAMLLoader
-from bcore.utility import tagged_file_paths
+from butility import tagged_file_paths
 
-import yaml
 
 
 # ==============================================================================

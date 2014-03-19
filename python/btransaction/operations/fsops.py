@@ -8,7 +8,7 @@
 __all__ = ['DeleteOperation']
 
 from ..base import Operation
-from bcore.path import Path
+from butility import Path
 
 
 class DeleteOperation(Operation):
