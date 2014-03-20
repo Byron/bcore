@@ -18,7 +18,7 @@ from .ui import (
                     Ui_PackageViewerWidget,
                 )
 from bcore.gui import remove_widget_children
-from bcore.utility import capitalize
+from butility import capitalize
 
 log = service(bcore.ILog).new('bcore.processcontrol.gui.viewer')
 

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.processing.test_transaction
+@package btransaction.tests.test_transaction
 @brief tests for btransaction
 
 @copyright 2013 Sebastian Thiel
@@ -8,18 +8,22 @@
 __all__ = []
 
 import time
+import os
+import logging
 
-import bcore
-from bcore.tests import (TestCaseBase,
-                      with_rw_directory)
-from bcore.utility import ConcurrentRun
+from butility.tests import (TestCaseBase,
+                            with_rw_directory)
+
+from butility import (ConcurrentRun,
+                      Path)
 
 from btransaction import (Transaction,
-                                       StoringProgressIndicator)
+                          StoringProgressIndicator)
+
 from btransaction.operations.rsync import *
 from btransaction.operations.fsops import *
 
-log = service(bcore.ILog).new('bcore.tests.processing.transaction.test_operations')
+log = logging.getLogger('btransaction.tests.test_operations')
 
 
 class TestOperations(TestCaseBase):
@@ -37,7 +41,9 @@ class TestOperations(TestCaseBase):
     
     @with_rw_directory
     def test_rsync(self, dest_dir):
-        source = self.fixture_path("db/shotgun")
+        # Need to copy a bigger amount of files ... however it's dependent on time anyway, so this one
+        # might fail in a few years
+        source = Path(__file__).dirname().dirname()
         for subdir in (None, "rsync_destination"): 
             destination = dest_dir
             if subdir is not None:
@@ -93,3 +99,72 @@ class TestOperations(TestCaseBase):
                 assert item.exists() == dry_run
             # end for each item to delete
         #END for each dryrun mode
+
+    @with_rw_directory
+    def test_move_fs_op(self, base_dir):
+        for dry_run in range(2):
+            source_item = base_dir / "directory_to_move"
+            dest_item = base_dir / "move_destination"
+            
+            for creator in (source_item.mkdir, source_item.touch):
+                for dest_is_dir in range(2):
+                    if source_item.isdir():
+                        source_item.rmdir()
+                    elif source_item.isfile():
+                        source_item.remove()
+                    #END handle removal of existing one
+                    # prep sandbox
+                    if dest_item.isdir():
+                        dest_item.rmdir()
+                    if dest_is_dir:
+                        dest_item.mkdir()
+                    creator()
+                    
+                    t = Transaction(log, dry_run = dry_run)
+                    mo = MoveFSItemOperation(t, source_item, str(dest_item))
+                    
+                    assert t.apply().succeeded()
+                    assert source_item.exists() == dry_run
+                    assert mo.actual_destination().exists() != dry_run
+                    assert not t.rollback().succeeded()
+                    assert source_item.exists()
+                    assert not mo.actual_destination().exists()
+                #END for directory and non-existing destination
+            #END try with file and directory
+        #END for each runmode
+
+    @with_rw_directory
+    def test_create_op(self, base_dir):
+        destination = base_dir / "my_new_item"
+        for dry_run in range(2):
+            for content in (None, "hello world"):
+                for mode in (0755,  None):
+                    for gid in (None, os.getgid()):
+                        for uid in (None, os.getuid()):
+                            for dest_exists in range(2):
+                                assert not destination.exists()
+                                
+                                t = Transaction(log, dry_run = dry_run)
+                                co = CreateFSItemOperation(t, str(destination), content, mode=mode, uid=uid, gid=gid)
+                                
+                                if dest_exists:
+                                    # Will ignore existing items, but cares about the type
+                                    destination.mkdir()
+                                    assert t.apply().succeeded() == (content is None)
+                                    destination.rmdir()
+                                else:
+                                    t.apply()
+                                    if not (gid or uid and os.getuid() != 0 and type(t.exception()) is OSError):
+                                        assert t.succeeded()
+                                        assert destination.exists() != dry_run
+                                    # end ignore non-root permissions issues
+                                    assert not t.rollback().succeeded()
+                                    assert not destination.exists()
+                                #END handle destination exists
+                            #END dest exists
+                        #END for each uid
+                    #EDN for each gid
+                #END for each mode
+            #END for each content mode
+        #END for each dryrun mode
+

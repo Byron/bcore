@@ -44,7 +44,7 @@ from .interfaces import (
                             IPostLaunchProcessInformation
                        )
 
-from bcore.utility import (
+from butility import (
                             update_env_path,
                             DictObject,
                             Singleton,

@@ -8,15 +8,17 @@
 __all__ = ['RsyncOperation']
 
 import os
-from ..base import (Operation,
-                    Transaction)
 import subprocess
 import time
 import fcntl
 import re
 from select import select
 
+from ..base import (Operation,
+                    Transaction)
+
 from butility import Path
+
 
 class RsyncOperation(Operation):
     """An operation which allows to safely copy a source file or directory to a

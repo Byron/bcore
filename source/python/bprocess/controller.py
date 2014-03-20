@@ -33,7 +33,7 @@ from bkvstore import (
                                 KeyValueStoreSchema,
                                 RootKey
                             )
-from bcore.utility import (
+from butility import (
                             LazyMixin,
                             update_env_path,
                             GraphIteratorBase,

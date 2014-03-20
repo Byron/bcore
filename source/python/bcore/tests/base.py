@@ -27,7 +27,7 @@ from bkvstore import KeyValueStoreSchema
 from bcore.processcontrol import (ProcessControllerDelegate,
                                   IPostLaunchProcessInformation)
 from bcore.log import module_logger
-from bcore.utility import wraps
+from butility import wraps
 
 import nose
 

@@ -32,7 +32,7 @@ from bdiff import (
                          )
 
 from bcore import Version
-from bcore.utility import OrderedDict
+from butility import OrderedDict
 
 from bcore.environ import ConfigHierarchyEnvironment
 from bcore.log import module_logger

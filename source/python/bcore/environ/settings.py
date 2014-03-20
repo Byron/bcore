@@ -18,7 +18,7 @@ from bdiff import (
                             merge_data,
                             AutoResolveAdditiveMergeDelegate
                          )
-from bcore.utility import LazyMixin
+from butility import LazyMixin
 from .base import PipelineBaseEnvironment
 
 

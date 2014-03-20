@@ -13,7 +13,7 @@ from bcore.tests import (TestCaseBase,
 
 # try * import
 from bcore.environ.settings import *
-from bcore.utility import OrderedDict
+from butility import OrderedDict
 from bkvstore import (KeyValueStoreSchema,
                       RootKey)
 

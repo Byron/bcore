@@ -14,7 +14,7 @@ from .schema import (package_meta_data_schema,
 from bcore.environ import PersistentSettingsEnvironmentStackContextClient
 from bkvstore import (KeyValueStoreModifier,
                       PathList)
-from bcore.utility import OrderedDict
+from butility import OrderedDict
 import bcore.log
 
 log = bcore.log.module_logger('bcore.processcontrol.utility')

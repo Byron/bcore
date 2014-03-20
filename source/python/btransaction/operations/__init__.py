@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processing.operations
+@package btransaction.operations
 @brief Package for implementations of various operations for use with the Transaction framework
 
 @copyright 2013 Sebastian Thiel

@@ -29,7 +29,7 @@ from .interfaces import (
                             IPlatformService,
                        )
 
-from bcore.utility import (
+from butility import (
                         int_bits,
                         tagged_file_paths,
                         update_env_path,

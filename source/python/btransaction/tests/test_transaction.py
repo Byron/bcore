@@ -8,14 +8,14 @@
 __all__ = []
 
 import time
+import logging
 
-import bcore
-from bcore.tests import TestCaseBase
-from bcore.utility import ConcurrentRun
-
-log = service(bcore.ILog).new('bcore.tests.processing.transaction.test_transaction')
+from butility.tests import TestCaseBase
+from butility import ConcurrentRun
 
 from btransaction import *
+
+log = logging.getLogger('btransaction.tests.test_transaction')
 
 #{ Utiltiies
 

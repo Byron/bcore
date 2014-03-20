@@ -14,7 +14,7 @@ Imports bcore.tests
 import sys
 from .base import *
 import logging
-from bcore.utility import init_ipython_terminal
+from butility import init_ipython_terminal
 
 
 def _initialize():

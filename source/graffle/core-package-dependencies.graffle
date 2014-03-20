@@ -57,6 +57,42 @@
 			<key>Head</key>
 			<dict>
 				<key>ID</key>
+				<integer>44</integer>
+			</dict>
+			<key>ID</key>
+			<integer>69</integer>
+			<key>Points</key>
+			<array>
+				<string>{335.5781795098606, 433.49999430598945}</string>
+				<string>{336.37256643580582, 599.70589571758148}</string>
+				<string>{268.49999464550331, 599.39103975625585}</string>
+			</array>
+			<key>Style</key>
+			<dict>
+				<key>stroke</key>
+				<dict>
+					<key>HeadArrow</key>
+					<string>StickArrow</string>
+					<key>Legacy</key>
+					<true/>
+					<key>Pattern</key>
+					<integer>1</integer>
+					<key>TailArrow</key>
+					<string>0</string>
+				</dict>
+			</dict>
+			<key>Tail</key>
+			<dict>
+				<key>ID</key>
+				<integer>54</integer>
+			</dict>
+		</dict>
+		<dict>
+			<key>Class</key>
+			<string>LineGraphic</string>
+			<key>Head</key>
+			<dict>
+				<key>ID</key>
 				<integer>57</integer>
 			</dict>
 			<key>ID</key>
@@ -98,8 +134,8 @@
 			<integer>65</integer>
 			<key>Points</key>
 			<array>
-				<string>{286.12169540328716, 360.37724713403759}</string>
-				<string>{321.37830459671289, 400.90846715167663}</string>
+				<string>{285.70861462563153, 360.38206708482255}</string>
+				<string>{319.9336356078245, 400.9249896321403}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -843,7 +879,7 @@
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2014-03-20 05:59:25 +0000</string>
+	<string>2014-03-20 21:21:32 +0000</string>
 	<key>Modifier</key>
 	<string>Sebastian Thiel</string>
 	<key>NotesVisible</key>
@@ -923,8 +959,6 @@
 				<string>Canvas 1</string>
 			</dict>
 		</array>
-		<key>Frame</key>
-		<string>{{526, 101}, {679, 718}}</string>
 		<key>ListView</key>
 		<true/>
 		<key>OutlineWidth</key>
@@ -937,16 +971,14 @@
 		<true/>
 		<key>SidebarWidth</key>
 		<integer>120</integer>
-		<key>VisibleRegion</key>
-		<string>{{29, 148}, {530, 564}}</string>
 		<key>Zoom</key>
-		<real>1</real>
+		<real>1.0199999809265137</real>
 		<key>ZoomValues</key>
 		<array>
 			<array>
 				<string>Canvas 1</string>
-				<real>1</real>
-				<real>1</real>
+				<real>1.0199999809265137</real>
+				<real>1.7100000381469727</real>
 			</array>
 		</array>
 	</dict>

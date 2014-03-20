@@ -15,7 +15,7 @@ from bcore.tests import (
                         with_rw_directory
                      )
 
-from bcore.utility import LazyMixin
+from butility import LazyMixin
 
 from bcore.qc import (
                             QualityCheckRunner,

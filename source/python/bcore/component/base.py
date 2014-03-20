@@ -55,7 +55,7 @@ import itertools
 
 import bcore
 from bcore.log import module_logger
-from bcore.utility import (
+from butility import (
                         OrderedDict,
                         LazyMixin
                        )

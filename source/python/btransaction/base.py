@@ -11,17 +11,16 @@ order.
 """
 __all__ = ['Transaction', 'Operation', 'StoringProgressIndicator']
 
-import bcore
-from butility import make_path
-from bcore import InterfaceBase
-from bcore.utility import ProgressIndicator
-
 import weakref
 import logging
 import threading
 import time
 
-TRACE = logging.TRACE
+from butility import (make_path,
+					  InterfaceBase,
+					  ProgressIndicator,
+					  abstractmethod,
+					  Error)
 
 
 #{ Exceptions
@@ -30,7 +29,7 @@ class AbortedExplicitly(Exception):
 	"""Exception to indictate that an operation should be aborted"""
 	
 
-class LockError(Exception):
+class LockError(Error):
 	"""Indicate that a lock could not be obtained"""
 	
 #} END exceptions
@@ -80,12 +79,12 @@ class IOperation(InterfaceBase):
 	
 	#{ Interface
 	
-	@bcore.abstractmethod
+	@abstractmethod
 	def apply(self):
 		"""Perform the operation. Keep state to be able to undo the operation at any time
 		@return this instance"""
 		
-	@bcore.abstractmethod
+	@abstractmethod
 	def rollback(self):
 		"""Undo the operation you previously performed. Use your state to do that,
 		and roll it back as well to allow an apply() call to be potentially successful afterwards.
@@ -132,7 +131,7 @@ class Transaction(IOperation):
 	#END configuration
 	
 	def __init__(self, log = None, progress = None, dry_run = False):
-		self.log = log or service(bcore.ILog).new(self.name)
+		self.log = log or logging.getLogger(self.name)
 		self._progress_prototype = progress and progress or StoringProgressIndicator()
 		self._exception = None
 		self._dry_run = dry_run
@@ -154,23 +153,23 @@ class Transaction(IOperation):
 		if not self._dry_run:
 			self._abort_transaction = False	# make sure noone tries to abort during rollback
 			try:
-				self.log.log(TRACE, "%s: Commencing rollback" % self.name)
+				self.log.debug("%s: Commencing rollback", self.name)
 				self._progress = self._progress_prototype
 				self._progress.begin()
 				self._is_rolling_back = True
 				try:
 					for op_index in range(last_op_index, -1, -1):
 						op = self._operations[op_index]
-						self.log.log(TRACE, "%s->%s: %s commencing rollback ... " % (self.name, op.name, op.description))
+						self.log.debug("%s->%s: %s commencing rollback ... ", self.name, op.name, op.description)
 						op.rollback()
-						self.log.log(TRACE, "%s->%s: %s rollback done" % (self.name, op.name, op.description))
+						self.log.debug("%s->%s: %s rollback done", self.name, op.name, op.description)
 					#END for each op
 				finally:
 					self._is_rolling_back = False
 					self._progress.end()
 					self._progress = None
 				#END handle state
-				self.log.log(TRACE, "%s: rollback done" % self.name)
+				self.log.debug("%s: rollback done" % self.name)
 			except Exception:
 				self.log.critical("%s->%s: Unhandled exception during rollback", self.name, op.name, exc_info=True)
 				raise
@@ -309,12 +308,12 @@ class Transaction(IOperation):
 				self._progress = self._progress_prototype
 				self._progress.begin()
 				try:
-					self.log.log(TRACE, "'%s' transaction starting ..." % self.name)
+					self.log.debug("'%s' transaction starting ..." % self.name)
 					for op_index, op in enumerate(self._operations):
 						self._abort_point()
-						self.log.log(TRACE, "%s->%s: %s starting ... " % (self.name, op.name, op.description))
+						self.log.debug("%s->%s: %s starting ... " % (self.name, op.name, op.description))
 						op.apply()
-						self.log.log(TRACE, "%s->%s: done" % (self.name, op.name))
+						self.log.debug("%s->%s: done" % (self.name, op.name))
 						self._abort_point()
 					#END for each op
 				finally:
@@ -323,7 +322,7 @@ class Transaction(IOperation):
 				# only clear progress once we are successful 
 				# we don't want 'holes' as we will roll back in a short moment
 				self._progress = None
-				self.log.log(TRACE, "'%s' transaction done" % self.name)
+				self.log.debug("'%s' transaction done" % self.name)
 			except Exception, e:
 				if isinstance(e, AbortedExplicitly):
 					# show where it was aborted, just for further info
@@ -399,7 +398,7 @@ class Operation(IOperation):
 		"""Initialize this instance as part of the given transaction
 		If log is not set, we will initialize our logger from the parents logger"""
 		self._transaction = weakref.ref(transaction)
-		self.log = log or service(bcore.ILog).new(self._transaction().log.name + '.' + self.name)
+		self.log = log or logging.getLogger(self._transaction().log.name + '.' + self.name)
 		transaction._add_operation(self)
 		
 	#{ Subclass Interface

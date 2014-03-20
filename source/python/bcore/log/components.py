@@ -12,13 +12,13 @@ __all__ = []
 import os
 import sys
 import warnings
-import bcore.utility
+import butility
 from ..component import EnvironmentStackContextClient
 from ..kvstore import KeyValueStoreSchema
 from .interfaces import ILog
 
 from butility import Path
-from bcore.utility import Singleton
+from butility import Singleton
 
 import logging
 import logging.config
