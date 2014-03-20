@@ -1,1 +1,2 @@
-"""Contains the sphinx documenation of the pipe project"""
+Will contain built and ready-for-use documentation of the project.
+Documentation sources can be found in sources/rst

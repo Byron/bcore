@@ -21,7 +21,7 @@
         <y:ProxyAutoBoundsNode>
           <y:Realizers active="0">
             <y:GroupNode>
-              <y:Geometry height="462.26601562500014" width="243.0" x="357.0" y="-96.066015625"/>
+              <y:Geometry height="462.26601562500014" width="243.0" x="183.0" y="-53.066015625000006"/>
               <y:Fill color="#F5F5F5" transparent="false"/>
               <y:BorderStyle color="#000000" type="dashed" width="1.0"/>
               <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.666015625" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="243.0" x="0.0" y="0.0">core</y:NodeLabel>
@@ -48,7 +48,7 @@
           <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
-              <y:Geometry height="30.0" width="99.0" x="372.0" y="321.2000000000001"/>
+              <y:Geometry height="30.0" width="99.0" x="198.0" y="364.2000000000001"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="44.65234375" x="27.173828125" y="5.93359375">butility<y:LabelModel>
@@ -66,7 +66,7 @@
           <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
-              <y:Geometry height="30.0" width="99.0" x="372.0" y="247.80000000000004"/>
+              <y:Geometry height="30.0" width="99.0" x="198.0" y="290.80000000000007"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="31.3984375" x="33.80078125" y="5.93359375">bdiff<y:LabelModel>
@@ -84,7 +84,7 @@
           <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
-              <y:Geometry height="30.0" width="99.0" x="372.0" y="174.4"/>
+              <y:Geometry height="30.0" width="99.0" x="198.0" y="217.4"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="54.349609375" x="22.3251953125" y="5.93359375">bkvstore<y:LabelModel>
@@ -102,7 +102,7 @@
           <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
-              <y:Geometry height="30.0" width="99.0" x="429.0" y="27.599999999999994"/>
+              <y:Geometry height="30.0" width="99.0" x="255.0" y="70.6"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="56.453125" x="21.2734375" y="5.93359375">bprocess<y:LabelModel>
@@ -120,7 +120,7 @@
           <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
-              <y:Geometry height="30.0" width="99.0" x="372.0" y="101.0"/>
+              <y:Geometry height="30.0" width="99.0" x="198.0" y="144.0"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="55.884765625" x="21.5576171875" y="5.93359375">bregistry<y:LabelModel>
@@ -138,7 +138,7 @@
           <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
-              <y:Geometry height="30.0" width="99.0" x="429.0" y="-45.80000000000001"/>
+              <y:Geometry height="30.0" width="99.0" x="255.0" y="-2.8000000000000114"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="36.666015625" x="31.1669921875" y="5.93359375">bcore<y:LabelModel>
@@ -156,7 +156,7 @@
           <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
-              <y:Geometry height="30.0" width="99.0" x="486.0" y="101.0"/>
+              <y:Geometry height="30.0" width="99.0" x="312.0" y="144.0"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="76.69140625" x="11.154296875" y="5.93359375">btransaction<y:LabelModel>
@@ -214,8 +214,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
-            <y:Point x="478.5" y="79.3"/>
-            <y:Point x="421.5" y="79.3"/>
+            <y:Point x="304.5" y="122.3"/>
+            <y:Point x="247.5" y="122.3"/>
           </y:Path>
           <y:LineStyle color="#000000" type="dashed" width="1.0"/>
           <y:Arrows source="none" target="white_delta"/>
@@ -241,8 +241,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
-            <y:Point x="478.5" y="79.3"/>
-            <y:Point x="535.5" y="79.3"/>
+            <y:Point x="304.5" y="122.3"/>
+            <y:Point x="361.5" y="122.3"/>
           </y:Path>
           <y:LineStyle color="#000000" type="dashed" width="1.0"/>
           <y:Arrows source="none" target="white_delta"/>
