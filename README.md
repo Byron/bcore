@@ -11,3 +11,6 @@ Those include
 - a simple framework to write transaction based operations of any kind
 
 As such, core provides everything a basic program needs to run, as it helps to take care about handling of program dependencies, program configuration 
+
+
+![alt tag](https://raw.githubusercontent.com/Byron/bcore/master/source/images/under_construction.png)
