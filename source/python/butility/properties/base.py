@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.properties.base
+@package butility.properties.base
 @brief Base implementations for Properties using descriptors
 
 @copyright 2013 Sebastian Thiel
@@ -10,15 +10,13 @@ __all__ = ['PropertyError', 'NotWritableError', 'NoSuchPropertyError', 'NotDelet
            'PropertyDescriptor', 'CompoundPropertyDescriptor',
            'PropertyMeta', 'PropertySchemaMeta']
 
-from bcore import (
-                abstractmethod,
-                Error,
-                MetaBase,
-               )
-from ..log import module_logger
+from butility import (abstractmethod,
+                     Error,
+                     MetaBase)
+import logging
 import weakref
 
-log = module_logger('bcore.properties')
+log = logging.getLogger('butility.properties')
 
 # ==============================================================================
 ## @name Exceptions
@@ -28,7 +26,6 @@ log = module_logger('bcore.properties')
 class PropertyError(Error):
     """The base error for all property framework related errors"""
     __slots__ = ()
-
 
 # end class PropertyError
 
@@ -46,8 +43,6 @@ class NotDeletableError(PropertyError):
 class NoSuchPropertyError(PropertyError):
     """Thrown if a CompoundProperty's child was requested that didn't exist"""
     __slots__ = ()
-
-    
 
 # end class NoSuchPropertyError
 

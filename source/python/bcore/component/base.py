@@ -41,11 +41,6 @@ __all__ = ['Plugin', 'PluginMeta',
            'StackAutoResolveAdditiveMergeDelegate',
             'service', 'new_service', 'services', 'new_services']
 
-
-## These items will go into the builtin namespace, and thus be available everywhere
-__for_builtin__ = [ 'Plugin', 'EnvironmentStackContextClient', 'PluginLoader', 'service', 'services', 
-                    'new_service', 'new_services', 'ServiceNotFound']
-
 import os
 import sys
 import re
@@ -54,27 +49,21 @@ import inspect
 import itertools
 
 import bcore
-from bcore.log import module_logger
-from butility import (
-                        OrderedDict,
-                        LazyMixin
-                       )
+import logging
+from butility import ( OrderedDict,
+                        LazyMixin )
 
-from bdiff import (
-                            NoValue,
-                            TwoWayDiff,
-                            AutoResolveAdditiveMergeDelegate
-                         )
-from bkvstore import (
-                                KeyValueStoreSchemaValidator,
-                                KeyValueStoreModifier,
-                                KeyValueStoreSchema,
-                                RootKey
-                            )
+from bdiff import ( NoValue,
+                    TwoWayDiff,
+                    AutoResolveAdditiveMergeDelegate )
+from bkvstore import ( KeyValueStoreSchemaValidator,
+                       KeyValueStoreModifier,
+                       KeyValueStoreSchema,
+                       RootKey )
 from bcore.component.exceptions import *
 from butility import Path
 
-log = module_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 # ==============================================================================

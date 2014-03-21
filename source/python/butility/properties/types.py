@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.properties.types
+@package butility.properties.types
 @brief Implements various types for using the Properties framework
 
 @copyright 2013 Sebastian Thiel
@@ -8,6 +8,7 @@
 __all__ = ['PrefixProperty']
 
 from .base import PropertyBase
+
 
 class PrefixProperty(PropertyBase):
     """A Property which sets and gets values in its instance using a simple prefix

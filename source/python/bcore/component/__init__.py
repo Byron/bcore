@@ -35,12 +35,3 @@ from .base import *
 from .exceptions import *
 from .properties import *
 
-# also import the interfaces that are useful pipeline wide
-
-def initialize():
-    """Place all modules into the builtin module"""
-    import __builtin__
-    for name in  base.__for_builtin__:
-        setattr(__builtin__, name, globals()[name])
-    # end for each item to put into builtin
-        
