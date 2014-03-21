@@ -11,7 +11,7 @@ import bcore
 from .controller import PackageDataIteratorMixin
 from .schema import (package_meta_data_schema,
                      controller_schema)
-from bcore.environ import PersistentSettingsEnvironmentStackContextClient
+from bcore.environ import PersistentSettingsContextStackContextClient
 from bkvstore import (KeyValueStoreModifier,
                       PathList)
 from butility import OrderedDict
@@ -41,7 +41,7 @@ class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
 # end class FlattenedPackgeTreeMixin
 
 
-class PackageMetaDataChangeTracker( PersistentSettingsEnvironmentStackContextClient, 
+class PackageMetaDataChangeTracker( PersistentSettingsContextStackContextClient, 
                                     FlatteningPackageDataIteratorMixin):
     """A utility to track and query changes done to meta-data of individual packages, and to iterate 
     package information.

@@ -11,11 +11,6 @@ from .base import (RootKey,
                    NoValue,
                    TreeItem)
 
-# too many arguments is okay as well, I have nearly no state and don't want to pack it into
-# a struct just for that. However, I agree the _register_recursive_change() method call is difficult with 
-# that many args !
-# pylint: disable-msg=R0913
-
 class TwoWayDiff(object):
     """A type implementing an two-way diff algorithm.
     

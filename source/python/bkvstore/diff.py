@@ -60,10 +60,6 @@ def transform_value(value, transformator):
 ## -- End Utilities -- @}
 
 
-
-# W0703 I don't know what kind of exceptions can be raised there, so I have to except Exception
-# pylint: disable-msg=W0703
-
 # ==============================================================================
 ## \name Base Types
 # ------------------------------------------------------------------------------

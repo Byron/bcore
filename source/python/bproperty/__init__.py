@@ -61,6 +61,7 @@ the direct property access, as opposed to using property access methods.
 
 @copyright 2013 Sebastian Thiel
 """
+from __future__ import absolute_import
 
 from .base import *
 from .types import *

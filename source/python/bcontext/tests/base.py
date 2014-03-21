@@ -1,29 +1,14 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.component.core
+@package bcontext.tests.core
 @brief Utilities used for testing the component system
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = ['TestComponentCoreBase', 'with_rw_directory']
+__all__ = ['TestContextBase']
 
-# REVIEW: This seems to be partially a remnant of the pyutilib. Make sure to reassess what should remain here,
-# and what needs to be removed.
-
-import os
-import sys
-import re
-import zipfile
-
-from os.path import abspath, dirname
-
-import bcore
-from bcore.tests import (
-                        TestCaseBase,
-                        with_rw_directory
-                     )
-
-from bcore.component import *
+from butility import Path
+from butility.tests import TestCaseBase
 
 
 # ==============================================================================
@@ -31,23 +16,12 @@ from bcore.component import *
 # ------------------------------------------------------------------------------
 ## @{
 
-class TestComponentCoreBase(TestCaseBase):
+class TestContextBase(TestCaseBase):
     __slots__ = ()
 
-    # This regex is for recognizing float values, might be good to expand and put in utils.
-    float_p = r"[+-]? *(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?"
+    fixture_root = Path(__file__).dirname()
 
-    _old_stdout = list()
-    _old_stderr = list()
-    _local_file = True
-
-    def fixture_path(self, name):
-        """@return a fixture path for component tests"""
-        return super(TestComponentCoreBase, self).fixture_path('') / 'core' / 'component' / name
-
-
-# end class TestComponentCoreBase
-
+# end class TestContextBase
 
 ## -- End Classes -- @}
 

@@ -5,7 +5,7 @@
 
 @copyright 2013 Sebastian Thiel
 """
-__all__ = ['PersistentSettings', 'PersistentSettingsEnvironmentStackContextClient']
+__all__ = ['PersistentSettings', 'PersistentSettingsContextStackContextClient']
 
 import bcore
 from copy import deepcopy
@@ -13,7 +13,7 @@ from bkvstore import (
                                 ChangeTrackingJSONKeyValueStoreModifier,
                                 KeyValueStoreProvider
                             )
-from bcore.component import EnvironmentStackContextClient
+from bcontext import ContextStackClient
 from bdiff import (
                             merge_data,
                             AutoResolveAdditiveMergeDelegate
@@ -84,7 +84,7 @@ class PersistentSettings(ChangeTrackingJSONKeyValueStoreModifier):
 # end class PersistentSettings
 
 
-class PersistentSettingsEnvironmentStackContextClient(EnvironmentStackContextClient, LazyMixin):
+class PersistentSettingsContextStackContextClient(ContextStackClient, LazyMixin):
     """A type that facilitates the use of settings data for reading and writing.
     
     It will read your information form the global context according to your schema, and provide simple
@@ -112,7 +112,7 @@ class PersistentSettingsEnvironmentStackContextClient(EnvironmentStackContextCli
     # @{
     
     ## Your schema which is used to read data from the kvstore initially. It must be set, and is repeated
-    ## here just for documentation. See EnvironmentStackContextClient for more information
+    ## here just for documentation. See ContextStackClient for more information
     _schema = None
     
     ## -- End Subclass Configuration -- @}
@@ -131,7 +131,7 @@ class PersistentSettingsEnvironmentStackContextClient(EnvironmentStackContextCli
         elif name == '_settings_kvstore':
             self._settings_kvstore = self.SettingsType(self._initial_settings_value(), self._settings_path())  
         else:
-            return super(PersistentSettingsEnvironmentStackContextClient, self)._set_cache_(name)
+            return super(PersistentSettingsContextStackContextClient, self)._set_cache_(name)
         #end handle name
     
     # -------------------------
@@ -187,5 +187,5 @@ class PersistentSettingsEnvironmentStackContextClient(EnvironmentStackContextCli
         
     ## -- End Interface -- @}
 
-# end class PersistentSettingsEnvironmentStackContextClient
+# end class PersistentSettingsContextStackContextClient
 

@@ -198,11 +198,6 @@ A few tools are a fundamental part of the workflow, they are used every day.
 
  * A tool to find and run test cases, see `the official documentation <http://nose.readthedocs.org/en/latest/>`_
  
-* **pylint**
-
- * A tool to *statically* analyze code. It notices plenty of errors and code-smell, and is very mature.
- * Have a look at the `official page <http://www.logilab.org/project/pylint>`_.
- 
 ***************
 Using Nosetests
 ***************
@@ -235,19 +230,6 @@ The actual command-line invocation to run it is hidden in a makefile, which can 
 
 .. note::
     Using make is intermediate, and will be superseded by cmake eventually
-
------------------------------------
-Locally disabling Warnings/Errors
------------------------------------
-
-Its can happen that an error or a warning simply isn't appropriate in your specific case. If that is so, you can add a special comment which disables the particular comment. Please be sure to note why exactly the warning is inappropriate in your case::
-    
-    # Disabling the 'too many public methods' style warning as my base class
-    # adds too many on its own, making this class' public interface overshoot
-    # the limit right away.
-    # pylint: disable-msg=R0904
-    
-In grace cases, its also possible to disable errors or warnings using the **pylint.rc** file, however, its nothing that should be done light-heartedly.
 
 =========================
   Organization of Code

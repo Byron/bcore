@@ -18,7 +18,7 @@ from bkvstore import (KeyValueStoreSchema,
                       RootKey)
 
 
-class TestSettingsClient(PersistentSettingsEnvironmentStackContextClient):
+class TestSettingsClient(PersistentSettingsContextStackContextClient):
     """A client with a simple schema to test out its settings"""
     __slots__ = ('_settings_dir')
     

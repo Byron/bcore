@@ -14,7 +14,7 @@ import platform
 import hashlib
 
 import bcore
-import bcore.component
+import bcontext
 
 from . import components
 from .schema import (
@@ -51,7 +51,7 @@ import socket
 log = module_logger('bcore.environ.' + __name__)
 
 
-class OSEnvironment(bcore.component.Environment):
+class OSEnvironment(bcontext.Environment):
     """Environment containing services and information about the operating system we're running on.
     Provides IPlatformService implementations"""
     _category = 'platform'
@@ -95,7 +95,7 @@ class OSEnvironment(bcore.component.Environment):
 # end class OSEnvironment
         
         
-class HostApplicationEnvironment(bcore.component.Environment):
+class HostApplicationEnvironment(bcontext.Environment):
     """A base class for all host applications."""
     __slots__ = ()
     _category = "host_application"
@@ -104,7 +104,7 @@ class HostApplicationEnvironment(bcore.component.Environment):
 # end class HostApplicationEnvironment
         
         
-class ConfigHierarchyEnvironment(bcore.component.Environment, LazyMixin):
+class ConfigHierarchyEnvironment(bcontext.Environment, LazyMixin):
     """An environment which is finding configuration paths in the directory hierarchy based on some root, 
     and which loads yaml files into its own context.
     

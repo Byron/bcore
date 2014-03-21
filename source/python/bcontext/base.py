@@ -1,220 +1,57 @@
-#-*-coding:utf-8-*-
+#=-*-coding:utf-8-*-
 """
-@package bcore.component.base
-@brief A from scratch implementation of a component architecture, influenced by
-experiences with the pyutilib CA
-
-services
--------------
-standard predicates used in EnvironmentStack.services
-
-default is ServiceAll and CreateNever, meaning return all services
-found and don't create anything. factory mode would be using ServiceNone
- and Createalways
- 
-### create predicates ###
-
-must return a boolean controlling whether a cls found matching an
-interface should be instantiated and included in the return set
-they have these parameters:
-  
-* icls        : the class that is being considered for instantiation
-* interface   : the interface that is being searched for
-* services    : services found so far
-* classes      : classes found so far
-  
-### service predicate ###
-decide whether an existing service that was found matching an interface
-should be considered a match and thus be included in the return set
-they have these parameters:
-  
-* service     : the service considered for inclusion in the return value
-* interface   : the interface that is being searched for
+@package bcontext.base
+@brief implements an adjustable context, coming with implementation and configuration
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = ['Plugin', 'PluginMeta',
-           'Environment', 'EnvironmentStack', 'PluginLoader',
-           'CreatePredicate', 'ServicePredicate',
-           'CreateAlways', 'CreateMissing', 'CreateFirst',
-           'ServiceAll', 'ServiceNone', 'EnvironmentStackContextClient',
-           'StackAutoResolveAdditiveMergeDelegate',
-            'service', 'new_service', 'services', 'new_services']
+           'Context', 'ContextStack', 'PluginLoader',
+           'ContextStackClient',
+           'StackAutoResolveAdditiveMergeDelegate']
 
 import os
 import sys
 import re
 import imp
-import inspect
-import itertools
-
-import bcore
 import logging
+
 from butility import ( OrderedDict,
-                        LazyMixin )
+                       LazyMixin,
+                       InterfaceBase,
+                       MetaBase,
+                       Error,
+                       Path )
 
 from bdiff import ( NoValue,
                     TwoWayDiff,
                     AutoResolveAdditiveMergeDelegate )
+
 from bkvstore import ( KeyValueStoreSchemaValidator,
                        KeyValueStoreModifier,
                        KeyValueStoreSchema,
                        RootKey )
-from bcore.component.exceptions import *
+
 from butility import Path
 
 log = logging.getLogger(__name__)
 
 
 # ==============================================================================
-## @name Predicates
+## @name Exception
 # ------------------------------------------------------------------------------
 ## @{
 
-# disable no __init__ warning (which would never be called anyway)
-# disable eval's arguments being different in different cases
-# pylint: disable=W0232,W0221
+class ServiceNotFound(Error):
+    """ Raised when a service is searched for, but none are found """
+    def __init__(self, interface):
+        self._interface = interface
 
-# yes, we are using * magic here
-# pylint: disable=W0142
-class Predicate(object):
-    """ a class that returns the result of its eval() method on creation,
-        with dynamic argument list passed to eval based on that method's
-        signature
-    """
-    # signature of *opts passed to the constructor
-    # eval can accept between none or all of these arguments
-    _args = []
-    
-    def __new__(cls, *opts):
-        """@return the result of calling eval with the arguments specified in 
-            eval()'s signature """
-        # make a dictionary of the *opts, so we can access the values by name
-        map_args = dict(zip(cls._args, opts))
-        keys = inspect.getargspec(cls.eval)[0]
-        eval_opts = [map_args[k] for k in keys if k in cls._args]
-        return cls.eval(*eval_opts)
-
-    @staticmethod
-    def eval():
-        """ can have any subset of the standard arguments of the parent class 
-        """
-        pass
-# end class Predicate
-# pylint: enable=W0142
-
-class CreatePredicate(Predicate):
-    """ creation predicate used in bcore.environment.services """
-    _args = ['icls', 'services', 'classes']
-    def __init__(self, icls, services, classes):
-        raise NotImplementedError
+    def __str__(self):
+        return "No service found for interface %s" % (self._interface)
 
 
-class ServicePredicate(Predicate):
-    """ services predicate used in bcore.environment.services """    
-    _args = ['service', 'interface']
-    
-    def __init__(self, service, interface):
-        raise NotImplementedError
-
-
-class CreateAlways(CreatePredicate):
-    """ always create everything """
-    @staticmethod
-    def eval():
-        return True
-
-
-class CreateMissing(CreatePredicate):
-    """ instantiate all missing services that haven't been created yet """
-    @staticmethod
-    def eval(icls, services):
-        """ check if any of the services available so far already implement icls """
-        return not bool(filter(lambda service: str(type(service)) == str(icls),  services))
-
-
-class CreateFirst(CreatePredicate):
-    """ only instantiate one service if it hasn't been found yet """
-    @staticmethod
-    def eval(services):
-        return len(services) == 0
-
-
-class ServiceAll(ServicePredicate):
-    """@return all services already instantiated """
-    @staticmethod
-    def eval():
-        return True
-
-
-class ServiceNone(ServicePredicate):
-    """ do not return any services already instatiated"""
-    @staticmethod
-    def eval():
-        return False
-
-# pylint: enable=W0232,W0221
-
-## -- End Predicates -- @}
-
-# ==============================================================================
-## @name Convenience Utilities
-# ------------------------------------------------------------------------------
-## Functions provided here use the globals to perform a very specific action. They should
-## help to make the component system very usable
-## @{
-
-def service(interface, predicate = ServiceAll):
-    """@return the first found provider implementing the given interface. The service is persistent and owned 
-    by the environment
-    @param interface a class/type, that the service you seek needs to implement
-    @param predicate function(service, interface) returning True for each service instance of type 
-    interface that may be returned 
-    @throw ServiceNotFound if there is no such service
-    @note use this function assuming that you will receive a service, no checking necessary. The code setting 
-    up the environment will assure there is at least one implementation. Otherwise its a bug somewhere else."""
-    svcs = services(interface, predicate = predicate)
-    if not svcs:
-        raise ServiceNotFound(interface)
-    # end handle no service
-    return svcs[0]
-    
-def services(interface, predicate = ServiceAll):
-    """@return a list of services which provide the given interface, or an empty list if there was 
-    no such service. The services will always be persistent ones.
-    @param interface a class/type that the services you seek need to implement
-    @param predicate function(service, interface) returning True for each service instance of type interface 
-    that may be returned"""
-    return bcore.environment.services(interface, predicate = predicate)
-    
-def new_service(interface, *args, **kwargs):
-    """@return a newly created instance of a service supporting the given interface.
-    It is temporary as such the caller receives ownership. Therefore it will not be returned when it
-    someone queries a simpilar interface
-    @param interface service to be found needs to implement the given interface
-    @param args arguments to be passed to service constructor
-    @param kwargs keyword arguments to be passed to service constructor
-    @throw ServiceNotFound if there is no such service"""
-    svcs = bcore.environment.new_services(interface, take_ownership = False, predicate = CreateFirst, args = args, kwargs = kwargs)
-    if not svcs:
-        raise ServiceNotFound(interface)
-    # handle no service found
-    # Newest services will be returned first
-    return svcs[0]
-    
-def new_services(interface, *args, **kwargs):
-    """@return a list of newly created services which implement the given interface, or an empty list.
-    Service instances will be created for *all* service types that support the given interface. 
-    @note the created service instance will be owned only by you, and will therefore never be returned when asking 
-    for \ref services .
-    @param interface that services must implement
-    @param args arguments to be passed to service constructor
-    @param kwargs keyword arguments to be passed to service constructor 
-    """
-    return bcore.environment.new_services(interface, take_ownership = False, predicate = CreateAlways, args = args, kwargs = kwargs)
-    
-## -- End Convenience Utilities -- @}
-
+## -- End Exception -- @}
 
 
 # ==============================================================================
@@ -222,7 +59,7 @@ def new_services(interface, *args, **kwargs):
 # ------------------------------------------------------------------------------
 ## @{
 
-## identifier for the base environment on the stack and
+## identifier for the base Context on the stack and
 ## the category name for environments that do not set their own
 BASE_IDENTIFIER = "$base$"
 
@@ -234,16 +71,16 @@ BASE_IDENTIFIER = "$base$"
 # ------------------------------------------------------------------------------
 ## @{
 
-class EnvironmentStackContextClient(bcore.InterfaceBase):
-    """Base implementation to allow anyone to safely use the context of the global environment stack.
+class ContextStackClient(InterfaceBase):
+    """Base implementation to allow anyone to safely use the context of the global Context stack.
     Everyone using the global context should derive from it to facilitate context usage and to allow the 
-    EnvironmentStack to verify its data.
+    ContextStack to verify its data.
     
     This type basically brings together a schema with another type, to make data access to any context easy
     """
     __slots__ = ()
 
-    ## Schema specifying how we would like to access the global environment context 
+    ## Schema specifying how we would like to access the global Context context 
     ## It must be set by subclasses if they access the context
     ## The base implementation of schema() will just return this class-level instance, per instance 
     ## schemas are generally possible though
@@ -258,17 +95,16 @@ class EnvironmentStackContextClient(bcore.InterfaceBase):
         
     @classmethod
     def context_value(cls, context=None, resolve=True):
-        """@return a nested dict with getattr access as obtained from the current EnvironmentStack's context, 
+        """@return a nested dict with getattr access as obtained from the current ContextStack's context, 
         validated against our schema.
         @param cls
         @param context if not None, use the given context (KeyValueStoreProvider) instead of the global one
         @param resolve if True, string values will be resolved
         @note use this method when you need access to the datastructure matching your schema"""
         schema = cls.schema()
-        return (context or bcore.environment.context()).value(schema.key(), schema, resolve=resolve)
+        return (context or bcore.Context.context()).value(schema.key(), schema, resolve=resolve)
         
-# end class EnvironmentStackContextClient
-
+# end class ContextStackClient
 
 
 class StackAutoResolveAdditiveMergeDelegate(AutoResolveAdditiveMergeDelegate):
@@ -287,15 +123,15 @@ class StackAutoResolveAdditiveMergeDelegate(AutoResolveAdditiveMergeDelegate):
 # end class StackAutoResolveAdditiveMergeDelegate 
 
 
-class Environment(EnvironmentStackContextClient):
+class Context(ContextStackClient):
     """ Maintains a dictionary of interface => services and interface => classes
         allows searching for services and classes by interface
         keeps a context in a kvstore which acts like a simple hierarchical database
-        @note This class is extended into a composite environment which is what
+        @note This class is extended into a composite Context which is what
               is actually on the env stack
     """
     __slots__ = (
-                    '_name',     # name of the environment
+                    '_name',     # name of the Context
                     '_registry', # a list of instances and types 
                     '_kvstore'   # the environments context as kvstore
                 )
@@ -317,16 +153,17 @@ class Environment(EnvironmentStackContextClient):
     ## -- End Configuration -- @}
     
     def __init__(self, name):
-        """ @param name searchable name of this environment"""
+        """ @param name searchable name of this Context"""
         self._name  = name
         self.reset()
         
     def __repr__(self):
-        return "Environment %s" % (self._name)
+        return "Context %s" % (self._name)
         
     def _contents_str(self):
-        """Display the contents of the environment primarily for debugging purposes
-        @return string indicating the human-readable contents"""
+        """Display the contents of the Context primarily for debugging purposes
+        @return string indicating the human-readable contents
+        @todo: revise printing"""
         otp = str(self)
         otp += "\t* registered services|types:\n"
         for item in self._registry:
@@ -338,7 +175,7 @@ class Environment(EnvironmentStackContextClient):
         
     # -------------------------
     ## @name Attributes
-    # Simple attributes to categorize the environment
+    # Simple attributes to categorize the Context
     # @{
     
     def name(self):
@@ -390,7 +227,7 @@ class Environment(EnvironmentStackContextClient):
             
     def _context(self):
         """@returns a our context
-        @note changes to it will be reflected in the environment"""
+        @note changes to it will be reflected in the Context"""
         return self._kvstore
         
     def _register(self, plugin):
@@ -409,7 +246,6 @@ class Environment(EnvironmentStackContextClient):
         self._kvstore.set_value(self.schema().key(), value)
         return self
         
-    
     def reset(self):
         """ we forget all our classes and services, as well as our context"""
         self._kvstore = self.KeyValueStoreModifierType(OrderedDict())
@@ -419,18 +255,18 @@ class Environment(EnvironmentStackContextClient):
         
     ## -- End Edit Interface -- @}
 
-# end class Environment
+# end class Context
 
 
-class EnvironmentStack(LazyMixin):
+class ContextStack(LazyMixin):
     """ maintains a stack of envrionments.
         returns services by searching through this stack
-        registers services in the current environment.
-        Will always have (and keep) a base environment that serves as 'catch all' environment.
-        Once instantiated, a plugin cannot be deleted (it is owned by the environment) until the environment
+        registers services in the current Context.
+        Will always have (and keep) a base Context that serves as 'catch all' Context.
+        Once instantiated, a plugin cannot be deleted (it is owned by the Context) until the Context
         itself is removed
     """
-    __metaclass__ = bcore.MetaBase
+    __metaclass__ = MetaBase
     __slots__ = (   
                     '_stack', 
                     '_kvstore',
@@ -449,7 +285,7 @@ class EnvironmentStack(LazyMixin):
     ## @name Configuration
     # @{
     
-    _EnvironmentType = Environment
+    _EnvironmentType = Context
     
     _KeyValueStoreValidatorType = KeyValueStoreSchemaValidator
     
@@ -464,7 +300,7 @@ class EnvironmentStack(LazyMixin):
         if name == '_kvstore':
             self._kvstore = self._aggregated_context()
         else:
-            return super(EnvironmentStack, self)._set_cache_(name)
+            return super(ContextStack, self)._set_cache_(name)
 
     def __str__(self):
         return ''.join(self._walk_stack(self.RECURSE_ALWAYS, lambda env: str(env)+"\n"))
@@ -475,7 +311,7 @@ class EnvironmentStack(LazyMixin):
         """
         otp = str()
         for idx, env in enumerate(self._stack):
-            otp += "### Environment %i - %s ###############\n\n" % (idx, env.name())
+            otp += "### Context %i - %s ###############\n\n" % (idx, env.name())
             otp += env._contents_str()
         # for each env on stack
         return otp
@@ -502,7 +338,7 @@ class EnvironmentStack(LazyMixin):
     # @{
     
     def __len__(self):
-        """@return the length of the environment stack """
+        """@return the length of the Context stack """
         return len(self._stack)
     
     ## -- End Protocols -- @}
@@ -512,16 +348,16 @@ class EnvironmentStack(LazyMixin):
     #
     
     def _env_stack_readonly(self):
-        """@return our environment stack, reference. Must be treated read-only, as well as the environments
+        """@return our Context stack, reference. Must be treated read-only, as well as the environments
         @note can be used by environments to search the stack directly. Its a very private interface, and 
         just for very specific purposes, """
         return self._stack
     
     def _walk_stack(self, recurse, fresult, *opts, **kwargs):
-        """ recurse through the stack, calling f on the environment at index \a idx
+        """ recurse through the stack, calling f on the Context at index \a idx
             with opts and kwargs
             @param recurse : RECURSE_FOO flags control our recursion through the stack
-            @param fresult : function to call for the environment we're on,
+            @param fresult : function to call for the Context we're on,
                        needs to return results that can be added with '+'
             @param opts/kwargs : passed to f
         """
@@ -534,7 +370,7 @@ class EnvironmentStack(LazyMixin):
         return result
         
     def _find_env(self, predicate):
-        """ @return find first (top - down) environment matching the given predicate, or None"""
+        """ @return find first (top - down) Context matching the given predicate, or None"""
         for env in  reversed(self._stack):
             if predicate(env):
                 return env
@@ -554,7 +390,7 @@ class EnvironmentStack(LazyMixin):
                 base = aggregated_base or OrderedDict()
             # end setup base
             alg.diff(delegate, base, env._context()._data())
-        # end for each environment
+        # end for each Context
         self._num_aggregated_environments = len(self._stack)
 
         res = delegate.result()
@@ -572,9 +408,9 @@ class EnvironmentStack(LazyMixin):
     # @{
     
     def context(self):
-        """@return aggreated context of the whole environment stack,
+        """@return aggreated context of the whole Context stack,
             updates our internal context while building it,
-            so the environment we're querying for context already has
+            so the Context we're querying for context already has
             access to the updated context of the environments
          """
         kvstore = self._kvstore
@@ -592,19 +428,19 @@ class EnvironmentStack(LazyMixin):
         return self.context().value(schema.key(), schema)
     
     def top(self):
-        """@return the environment on the top of stack """
+        """@return the Context on the top of stack """
         return self._stack[-1]
     
     def schema_validator(self):
-        """@return a KeyValueStoreSchemaValidator instance initialized with all our Environment's schemas 
-        as well as registered EnvironmentStackContextClient services to allow schema and context validation"""
+        """@return a KeyValueStoreSchemaValidator instance initialized with all our Context's schemas 
+        as well as registered ContextStackClient services to allow schema and context validation"""
         validator = self._KeyValueStoreValidatorType()
         # bottom up - later environments override earlier ones
         for env in self._stack:
             validator.append(env.schema())
-            # Environment returns services newest first, which is something we hereby undo to allow
+            # Context returns services newest first, which is something we hereby undo to allow
             # proper schema merging.
-            for client in reversed(env.services(EnvironmentStackContextClient)):
+            for client in reversed(env.services(ContextStackClient)):
                 schema = client.schema()
                 if schema not in validator:
                     validator.append(schema)
@@ -614,8 +450,8 @@ class EnvironmentStack(LazyMixin):
         return validator
         
     def stack(self):
-        """@return our environment stack
-        @note not for general use, as you should not try to find individual environment instances. It can 
+        """@return our Context stack
+        @note not for general use, as you should not try to find individual Context instances. It can 
         be useful for closely bonded functions that whish to temporarily alter the stack though"""
         return self._stack
         
@@ -625,34 +461,34 @@ class EnvironmentStack(LazyMixin):
     ## @name Edit Interface
     # @{
     
-    def push(self, environment):
-        """ push an environment on to the stack
-            @param environment : string -> push newly created empty environment
-                                 or an instance of a Environment
-        @return pushed environment instance (which could be a new instance now thanks to auto-conversion)
+    def push(self, Context):
+        """ push an Context on to the stack
+            @param Context : string -> push newly created empty Context
+                                 or an instance of a Context
+        @return pushed Context instance (which could be a new instance now thanks to auto-conversion)
         """
-        if isinstance(environment, basestring):
-            environment_name = environment
-            environment = None
-        elif isinstance(environment, self._base_environment_type):
-            environment_name = environment.name()
+        if isinstance(Context, basestring):
+            environment_name = Context
+            Context = None
+        elif isinstance(Context, self._base_environment_type):
+            environment_name = Context.name()
         else:
-            raise TypeError("invalid type passed as environment")
+            raise TypeError("invalid type passed as Context")
         # end handle type for push
-        if environment is None:
-            environment = self._base_environment_type(environment_name)
+        if Context is None:
+            Context = self._base_environment_type(environment_name)
 
-        self._stack.append(environment)
-        return environment
+        self._stack.append(Context)
+        return Context
 
     def pop(self, until_size = -1):
         """
-        @return top of stack environment after popping it of does not allow the base Environment to be 
-        removed returns the environment removed.
+        @return top of stack Context after popping it of does not allow the base Context to be 
+        removed returns the Context removed.
         If until_size is larger -1, return value will be a correctly sorted list of environments, which can 
-        be used to put the popped environments on again using a loop like for env in res: bcore.environment.push(env)
+        be used to put the popped environments on again using a loop like for env in res: bcore.Context.push(env)
         @param until_size if positive, environments will be popped until the stack has the given size (i.e.
-        length). In this case, the last popped environment will be returned. Must be smaller than the current
+        length). In this case, the last popped Context will be returned. Must be smaller than the current
         stack size if larger than -1. Its valid to not pop anything if until_size == len(stack), mainly for
         convenience.
         """
@@ -666,20 +502,20 @@ class EnvironmentStack(LazyMixin):
             return list(reversed(res))
         # end handle pop-until
         
-        # don't count the base environment
+        # don't count the base Context
         if len(self._stack) > 1:
-            environment = self._stack.pop()
+            Context = self._stack.pop()
         else:
-            environment = None
+            Context = None
             raise ValueError("pop attempted on empty stack")
-        #end keep one environment
+        #end keep one Context
         
         self._mark_rebuild_changed_context()
-        return environment
+        return Context
 
     def reset(self, new_base=False):
         """ convenience method, clears the stack down to the base
-            @param new_base : replace the base environment with a new empty one
+            @param new_base : replace the base Context with a new empty one
         """
         if new_base:
             self._stack = [self._base_environment_type(BASE_IDENTIFIER)]
@@ -688,12 +524,12 @@ class EnvironmentStack(LazyMixin):
         # also clear the duplicate check registry
         self._mark_rebuild_changed_context()
         
-    def replace(self, predicate, environment):
-        """ search for an environment in the current stack (by name) and
+    def replace(self, predicate, Context):
+        """ search for an Context in the current stack (by name) and
             replace it with a new one
-            @returns the environment that was replaced if it was found, else None
-            @param predicate : p(env) => Bool a callable returning True if the given environment should be replaced
-            @param environment : instance of an environment to replace with, or anything accepted by push()
+            @returns the Context that was replaced if it was found, else None
+            @param predicate : p(env) => Bool a callable returning True if the given Context should be replaced
+            @param Context : instance of an Context to replace with, or anything accepted by push()
         """
         environment_shadow_stack = list()
         old_env = None
@@ -701,18 +537,18 @@ class EnvironmentStack(LazyMixin):
             env = self._stack.pop()
 
             if predicate(env):
-                self.push(environment)
+                self.push(Context)
                 old_env = env
                 break
             else:
                 environment_shadow_stack.append(env)
-            # end handle environment found
+            # end handle Context found
         # end while stack is large enough
 
         if old_env is None:
-            log.warning("search and replace environment failed, environment matching predicate %s not found on the stack"
+            log.warning("search and replace Context failed, Context matching predicate %s not found on the stack"
                             % str(predicate))
-        # end print warning if replace-environment was not found
+        # end print warning if replace-Context was not found
         
         self._stack.extend(reversed(environment_shadow_stack))
         self._mark_rebuild_changed_context()
@@ -731,10 +567,10 @@ class EnvironmentStack(LazyMixin):
         return self._walk_stack(self.RECURSE_ALWAYS, self._base_environment_type._classes, interface=interface)
     
     
-    def services(self, interface, traversal_mode = RECURSE_UNTIL_FOUND, predicate = ServiceAll):
+    def services(self, interface, traversal_mode = RECURSE_UNTIL_FOUND, predicate = lambda service, interface: True):
         """@return a list of services implementing \a interface, or an empty list.
-            The obtained services are persistent, owned by an Environment and will keep their state as long
-            as their environment is on the stack
+            The obtained services are persistent, owned by an Context and will keep their state as long
+            as their Context is on the stack
             @param interface the interface to search for
             @param traversal_mode : controls stack traversal, see _walk_stack
             @param predicate function(service, interface) returning True for each service instance implementing 
@@ -754,7 +590,7 @@ class EnvironmentStack(LazyMixin):
     ## @name Edit Interface
     # @{
     
-    def new_services(self, interface, take_ownership = False, predicate = CreateAlways, args = None, kwargs = None):
+    def new_services(self, interface, take_ownership = False, predicate_maycreate = lambda cls, services, classes: True, args = None, kwargs = None):
         """Create services matching the given interface. Based on the amount of available prototypes, zero or 
         more services will be created.
         @return a list of zero or more newly created service instances
@@ -764,7 +600,7 @@ class EnvironmentStack(LazyMixin):
         * cls = the candidate for instantiation
         * services = all created services so far, including the ones that already existed
         * classes = all found classes so far
-        @param take_ownership if True, newly created services will be owned by the top-level environment, otherwise
+        @param take_ownership if True, newly created services will be owned by the top-level Context, otherwise
         the caller is the only one keeping a pointer to them.
         @param args list of variable arguments for the constructor of cls, or None to indicate no arguments
         @param kwargs dictionary of keyword arguments for the constructor of cls, or None to indicate no kwargs
@@ -776,7 +612,7 @@ class EnvironmentStack(LazyMixin):
         args = args or list()
         kwargs = kwargs or dict()
         for cls in self.classes(interface):
-            if predicate(cls, services, classes):
+            if predicate_maycreate(cls, services, classes):
                 classes.append(cls)
                 pv = cls._auto_register_instance
                 cls._auto_register_instance = take_ownership
@@ -790,20 +626,20 @@ class EnvironmentStack(LazyMixin):
         return services
         
     ## -- End Edit Interface -- @}
-# end class EnvironmentStack
+# end class ContextStack
 
 
 # ==============================================================================
 ## @name Helpers
 # ------------------------------------------------------------------------------
-# Convenience facilities to help writing plugins and interfaces for easy use of the environment architecture
+# Convenience facilities to help writing plugins and interfaces for easy use of the Context architecture
 ## @{
 
 
 # inherits from InterfaceMeta to support inheritance in the implements() function
-class PluginMeta(bcore.MetaBase):
+class PluginMeta(MetaBase):
     """ metaclass for Plugin, registers the Plugin subclass in the current
-        environment. Can be used with any type, doesn't need to derive from Plugin.
+        Context. Can be used with any type, doesn't need to derive from Plugin.
         However, the Plugin implementation will register instances, which the implementor would have to 
         do by himself otherwise."""
         
@@ -812,9 +648,9 @@ class PluginMeta(bcore.MetaBase):
 
     def __new__(mcls, name, bases, clsdict):
         """Registers the plugin's type to allow it to be instantiated""" 
-        new_type = bcore.MetaBase.__new__(mcls, name, bases, clsdict)
+        new_type = MetaBase.__new__(mcls, name, bases, clsdict)
         if name != 'Plugin' and new_type._auto_register_class:
-            (mcls._stack or bcore.environment).register(new_type)
+            (mcls._stack or bcore.Context).register(new_type)
         # end exclude our own plugin marker (when type is instantated)
         return new_type
         
@@ -836,10 +672,10 @@ class Plugin(object):
     ## We try not to use global values to make it more testable
     _stack = None
     
-    ## If True, new instances will automatically register themselves with the current Environment
+    ## If True, new instances will automatically register themselves with the current Context
     _auto_register_instance = True
     
-    ## If True, any subclass of this type will be registered automatically with the current Environment
+    ## If True, any subclass of this type will be registered automatically with the current Context
     _auto_register_class = True
     
     ## -- End Configuration -- @}
@@ -847,10 +683,10 @@ class Plugin(object):
     
     def __new__(cls, *args, **kwargs):
         """ overloaded class creator, registers the instance in the current
-            environment for all our instances """
+            Context for all our instances """
         self = super(Plugin, cls).__new__(cls)
         if cls._auto_register_instance:
-            (cls._stack or bcore.environment).register(self)
+            (cls._stack or bcore.Context).register(self)
         # end handle registration
         return self
         
@@ -898,7 +734,7 @@ class PluginLoader(object):
         """ load all python \a files from \a path 
         @return list of loaded files as full paths"""
         res = list()
-        for filename in filter(lambda x: re.search(r"\.py$", x), files):
+        for filename in filter(lambda x: filename.endswith('.py'), files):
             if filename.startswith('__'):
                 continue
             py_file = os.sep.join([path, filename])
@@ -906,7 +742,6 @@ class PluginLoader(object):
             try:
                 self.load_file(py_file, mod_name)
             except Exception:
-                # DEBUG: Just because if that happens, the logger doesn't output anything for some reason
                 # TODO: fix the logger issue, traceback shouldn't be required
                 import traceback
                 traceback.print_exc()

@@ -1,26 +1,24 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.component.properties
+@package bcontext.properties
 @brief Implementation of property descriptors and properties for Environment Context Clients
 
 @copyright 2013 Sebastian Thiel
 """
-__all__ = ['ContextPropertyDescriptor', 'PropertyEnvironmentStackContextClientMeta',
-           'PropertyEnvironmentStackContextClient', 'CompoundPropertyDescriptor']
+__all__ = ['ContextPropertyDescriptor', 'PropertyContextStackContextClientMeta',
+           'PropertyContextStackContextClient', 'CompoundPropertyDescriptor']
 
-from .base import EnvironmentStackContextClient
-from ..kvstore import (
-                        KeyValueStoreSchema,
-                        RootKey
-                      )
-from ..properties import (
-                            PropertySchemaMeta,
-                            PropertyDescriptor,
-                            CompoundPropertyDescriptor,
-                            PropertyBase,
-                            NotDeletableError,
-                            NotWritableError
-                         )
+from .base import ContextStackClient
+
+from bkvstore import (KeyValueStoreSchema,
+                       RootKey )
+
+from bproperty import    ( PropertySchemaMeta,
+                           PropertyDescriptor,
+                           CompoundPropertyDescriptor,
+                           PropertyBase,
+                           NotDeletableError,
+                           NotWritableError )
 
 
 class ContextPropertyDescriptor(PropertyDescriptor):
@@ -74,7 +72,7 @@ class ContextPropertyDescriptor(PropertyDescriptor):
 # end class ContextPropertyDescriptor
 
 
-class PropertyEnvironmentStackContextClientMeta(PropertySchemaMeta):
+class PropertyContextStackContextClientMeta(PropertySchemaMeta):
     """A meta-class to automatically assemble a simplified schema from ContextDescriptors"""
     __slots__ = ()
     
@@ -96,13 +94,13 @@ class PropertyEnvironmentStackContextClientMeta(PropertySchemaMeta):
 # end class Property
 
 
-class PropertyEnvironmentStackContextClient(EnvironmentStackContextClient):
+class PropertyContextStackContextClient(ContextStackClient):
     """A context client to more easily accss context values, read-only"""
     __slots__ = (
                     '_context_value_cache', # An optional cache for our context value, 
                 )
     
-    __metaclass__ = PropertyEnvironmentStackContextClientMeta
+    __metaclass__ = PropertyContextStackContextClientMeta
     _schema_attribute = '_schema'
     
     
@@ -147,6 +145,6 @@ class PropertyEnvironmentStackContextClient(EnvironmentStackContextClient):
         
     ## -- End Context Value Caching -- @}
 
-# end class PropertyEnvironmentStackContextClient
+# end class PropertyContextStackContextClient
 
 

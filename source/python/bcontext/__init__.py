@@ -1,37 +1,17 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.component
-@brief A framework to further modularize the code in the bcore framework.
-
-@note when importing this module, we will put all exported items into the
-buitin module to make it available everywhere without import. Its a vital
-system, which should come at no extra effort.
+@package bcontext
+@brief A framework to manage an application context, made of implementation and configuration
 
 @page components Component Framework
 
-Notes
-=====
-
-* Singletons - via created instances that may derive from Singleton
-* Instantiation - yes, but as separate method
-* Service = instance providing some interface(s)
-* natural inheritance - no special implements function required
-* support for clonable types (by interface) - no, not interface instantiation contolled using interface description
-* Multi-inheritance - yes, naturally
-* referencing (strong, weak) and cleanup (deletion). See similar implementation in MRV event system - no, just 
-  strong referencing, deletion when environment gets replaced, popped.
-* services owned by environment, or by caller, depending on the way the service is retrieved.
-
-@todo remove notes when implementation is done
+@todo DOCS
 
 @copyright 2012 Sebastian Thiel
 """
-
-# make everything available from this level right away
-from . import base
+from __future__ import absolute_import
 
 # make sure people can get the most fundamental implementation in this package
 from .base import *
-from .exceptions import *
 from .properties import *
 

@@ -42,9 +42,6 @@ from bcore.base import *
 __version__ = Version('0.1.0')
 
 
-# C0103 environ is an invalid module variable name, shold be constant. However, its desired in our case
-# pylint: disable-msg=C0103
-
 # ==============================================================================
 ## \name Globals
 # ------------------------------------------------------------------------------
@@ -100,9 +97,9 @@ def _init_core():
     
 def init_environment_stack():
     """setup our global environment"""
-    import bcore.component
+    import bcontext
     global environment
-    environment = bcore.component.EnvironmentStack()
+    environment = bcontext.ContextStack()
 
     from bcore.environ import (OSEnvironment, PipelineBaseEnvironment)
 

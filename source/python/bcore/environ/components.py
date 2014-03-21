@@ -16,7 +16,7 @@ import platform
 import bcore
 from bcore import Version
 
-from ..component import EnvironmentStackContextClient
+from ..component import ContextStackClient
 from .interfaces import (
                             IPlatformService,
                             IHostApplication,
@@ -26,11 +26,8 @@ from .interfaces import (
 
 from . import schema
 
-# none of the methods below could be a function since they need to be
-# provided by a plugin and thus from a class
-# pylint: disable=R0201
 
-class PlatformServicesBase(IPlatformService, EnvironmentStackContextClient):
+class PlatformServicesBase(IPlatformService, ContextStackClient):
     """Base implementation for platform services"""
     
     _platform_names = {'linux2': 'lnx',
@@ -199,7 +196,7 @@ class DirectoryServicesMixin(object):
 # end class DirectoryServicesMixin
 
 
-class ProjectInformation(DirectoryServicesMixin, IProjectService, EnvironmentStackContextClient, Plugin):
+class ProjectInformation(DirectoryServicesMixin, IProjectService, ContextStackClient, Plugin):
     """Implements the project information interface, using the kvstore exclusively"""
     __slots__ = ()
 
@@ -211,7 +208,7 @@ class ProjectInformation(DirectoryServicesMixin, IProjectService, EnvironmentSta
 # end class ProjectInformation
 
 
-class SiteInformation(DirectoryServicesMixin, ISiteService, EnvironmentStackContextClient, Plugin):
+class SiteInformation(DirectoryServicesMixin, ISiteService, ContextStackClient, Plugin):
     """Implements the site information interface, using the kvstore exclusively"""
     __slots__ = ()
 
@@ -222,4 +219,3 @@ class SiteInformation(DirectoryServicesMixin, ISiteService, EnvironmentStackCont
     
 # end class SiteInformation
 
-# pylint: enable=R0201

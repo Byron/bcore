@@ -59,8 +59,6 @@ class SchemaDiffRecord(DiffRecord):
                     '_message'          # a message describing the issue - for now its just for the end-user
                 )
 
-    # R0913 too many arguments - its okay here I believe
-    # pylint: disable-msg=R0913
     def __init__(self, key, value_left, value_right, change_type, message):
         """Initialize the instance """
         super(SchemaDiffRecord, self).__init__(key, value_left, value_right, change_type)
@@ -171,8 +169,6 @@ class PathList(TypedList):
 # Custom Delegates to help verifying the schema in various ways.
 ## \{
 
-# W0703 catch exception is bad - we don't know it more precisely though, its intended !
-# pylint: disable-msg=W0703
 class ValidateSchemaMergeDelegate(AdditiveMergeDelegate):
     """Records clashes, and builds up a merged value of individual schemas"""
     __slots__ = (

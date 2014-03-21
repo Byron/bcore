@@ -202,9 +202,6 @@ class QualifiedKeyDiffDelegateBase(TwoWayDiffDelegateInterface):
 # Types which contain the basic diff implementation
 ## \{
 
-# Interface not implemented - oh yes it is. If it wasn't, AbcMeta would not allow us to use it
-# pylint: disable-msg=R0923
-
 class DiffIndexDelegate(QualifiedKeyDiffDelegateBase):
     """A diff delegate which builds up a generic DiffIndex.
     

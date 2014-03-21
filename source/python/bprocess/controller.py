@@ -22,7 +22,7 @@ import bcore.log
 from logging import TRACE
 
 from bkvstore import KeyValueStoreModifier
-from bcore.component import Environment
+from bcontext import Environment
 from .interfaces import IProcessControllerDelegate
 from bcore.environ import (
                                 IPlatformService,
@@ -218,7 +218,7 @@ class PackageDataIteratorMixin(object):
         @param schema KeyValueStoreSchema or any dict representing the data you wish to associate with
         a package. The schema must have the 'requires' key 
         @return KeyValueStoreSchema suitable for use in iteration. Assign it to your _schema class variable
-        if you are an EnvironmentStackContextClient subclass"""
+        if you are an ContextStackClient subclass"""
         return KeyValueStoreSchema(controller_schema.key(), 
                                             {   
                                                 package_schema.key() : schema
@@ -253,7 +253,7 @@ class PackageDataIteratorMixin(object):
     def _iter_package_data(self, context_value, package_name):
         """@return iterator yielding tuples (data, package_name) from your given context_value, matching your package schema
         @param context_value top-level data structure containing everything below the 'packages' key of the 
-        corresponding kvstore. If you are an EnvironmentStackContextClient, this value is the context_value()
+        corresponding kvstore. If you are an ContextStackClient, this value is the context_value()
         @param package_name name of the package at which to start the iteration - it will be returned as well."""
         return self._internal_iter_package_data(context_value, package_name)
 
@@ -277,7 +277,7 @@ class PackageDataIteratorMixin(object):
 # end class PackageIteratorMixin
 
 
-class PythonPackageIterator(EnvironmentStackContextClient, PackageDataIteratorMixin):
+class PythonPackageIterator(ContextStackClient, PackageDataIteratorMixin):
     """A utility type allowing to deal with additional python information
     
     Currently it is able to import any of the given modules, per package
@@ -477,7 +477,7 @@ class CommandlineOverridesEnvironment(Environment):
 ## -- End Utilities -- @}
 
 
-class ProcessController(GraphIteratorBase, EnvironmentStackContextClient, Plugin):
+class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
     """The main interface to deal with \ref processcontrol "Process Control" .
     
     It allows to control the environment in which processes are executed, as well as to alter their input 

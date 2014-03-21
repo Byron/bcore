@@ -7,15 +7,15 @@
 """
 __all__ = []
 
-from bcore.tests.component.base import TestComponentCoreBase
-from bcore.component import *
+from .base import TestContextBase
+from bcontext import *
 from bkvstore import RootKey
 from butility import Path
 
 
 ## [ExampleContextClient]
 
-class ExampleContextClient(PropertyEnvironmentStackContextClient):
+class ExampleContextClient(PropertyContextStackContextClient):
     __slots__ = ()
     
     site = CompoundPropertyDescriptor(ContextPropertyDescriptor(name='id', type=str),
@@ -28,7 +28,7 @@ class ExampleContextClient(PropertyEnvironmentStackContextClient):
 # end class ExampleContextClient
 
 
-class TestEnvironmentProperties(TestComponentCoreBase):
+class TestEnvironmentProperties(TestContextBase):
     __slots__ = ()
 
     def test_base(self):

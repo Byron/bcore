@@ -21,7 +21,7 @@ from .schema import (
                     )
 
 from .utility import FlatteningPackageDataIteratorMixin
-from bcore.component import EnvironmentStackContextClient
+from bcontext import ContextStackClient
 from bkvstore import (
                                 KeyValueStoreSchema,
                                 AnyKey
@@ -54,7 +54,7 @@ class ProcessConfigurationIncompatibleError(bcore.IContextController.ContextInco
 # end class ProcessConfigurationIncompatibleError
 
 
-class ProcessControlContextControllerBase(bcore.IContextController, EnvironmentStackContextClient,
+class ProcessControlContextControllerBase(bcore.IContextController, ContextStackClient,
                                             FlatteningPackageDataIteratorMixin, Plugin):
     """Basic implementation which uses the basic ProcessController implementation to implement 
     simple context tracking for the _before_scene_save() as well as 

@@ -11,7 +11,7 @@ __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_pack
 
 import bcore
 from bcore.log import module_logger
-from bcore.component import CreateFirst
+from bcontext import CreateFirst
 from bkvstore import (
                                 KeyValueStoreSchema,
                                 AnyKey,

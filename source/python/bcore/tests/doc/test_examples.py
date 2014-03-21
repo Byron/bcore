@@ -44,9 +44,6 @@ from bcore.processing.tractor.alf import (
 # Types that derive from the type to be tested
 ## \{
 
-# R0201 method could be a function - okay
-# pylint: disable-msg=R0201
-
 ## [LazyMixinExample Implementation]
 class LazyMixinExample(LazyMixin):
     """Example for LazyMixin"""

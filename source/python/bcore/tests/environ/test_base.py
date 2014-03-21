@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bcore.tests.environ.test_base
-@brief tests for bcore.environ.base, depends on bcore.component working correctly
+@brief tests for bcore.environ.base, depends on bcontext working correctly
 
 @copyright 2012 Sebastian Thiel
 """

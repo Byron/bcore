@@ -8,10 +8,6 @@
 __all__ = []
 
 from bcore.tests import TestCaseBase
-
-# W0614: Unused imports are okay, we are testing this
-# R0923: Interface not implemented - its okay here, in fact it is implemented ...
-# pylint: disable-msg=W0614,R0923
 from bcore.base import * 
 
 

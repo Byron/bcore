@@ -13,7 +13,7 @@ import os
 import sys
 import warnings
 import butility
-from ..component import EnvironmentStackContextClient
+from ..component import ContextStackClient
 from ..kvstore import KeyValueStoreSchema
 from .interfaces import ILog
 
@@ -43,7 +43,7 @@ class _KVStoreLoggingVerbosity(object):
 # end class _KVStoreLoggingVerbosity
 
 
-class LogProvider(ILog, EnvironmentStackContextClient, Singleton, Plugin):
+class LogProvider(ILog, ContextStackClient, Singleton, Plugin):
     """Implements the ILog interface and allows to initialize the logging system using context configuration"""
     __slots__ = ()
     

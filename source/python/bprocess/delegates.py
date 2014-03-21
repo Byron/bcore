@@ -38,7 +38,7 @@ from bdiff import (
                         ApplyDifferenceMergeDelegate
                     )
 
-from bcore.component import Environment
+from bcontext import Environment
 from .interfaces import (
                             IProcessControllerDelegate,
                             IPostLaunchProcessInformation

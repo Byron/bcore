@@ -68,8 +68,6 @@ class NoCategory(QualityCheckCategory):
     _description = ''
 
 
-# R0201 post_fix - method could be function - not in our case, cannot be inferred by the usage of self
-# pylint: disable-msg=R0201
 class QualityCheckRunnerDelegate(IQualityCheckRunnerDelegate):
 
     __slots__ = tuple()
@@ -228,8 +226,6 @@ class QualityCheckBase(IQualityCheck):
 # end class QualityCheckBase    
 
 
-# W0703 Catching exception is too general - we don't know better, and thus need to catch it generally
-# pylint: disable-msg=W0703
 class QualityCheckRunner(IQualityCheckRunner, Plugin):
     """Is a list of `QualityCheckBase` compatible instances which can be run safely, providing just-in-time information
     about the results of this run.
