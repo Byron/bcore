@@ -1,15 +1,15 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.test_properties
+@package bproperty.tests.test_properties
 @brief tests for butility.properties
 
 @copyright 2013 Sebastian Thiel
 """
 
-from .base import TestCaseBase
+from butility.tests import TestCaseBase
 
 # test * import
-from butility.properties import *
+from bproperty import *
 
 
 # ==============================================================================
