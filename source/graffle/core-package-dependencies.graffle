@@ -209,8 +209,8 @@
 					<integer>84</integer>
 					<key>Points</key>
 					<array>
-						<string>{258.53918884844421, 279.14706513090198}</string>
-						<string>{258.53918884844421, 309.43277944316623}</string>
+						<string>{258.53921620828027, 279.53923943947154}</string>
+						<string>{258.53921620828027, 309.43277942043477}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -379,7 +379,7 @@
 					<array>
 						<dict>
 							<key>Bounds</key>
-							<string>{{205.53920665478458, 246.93277942967322}, {106.00000000000007, 31.714285714285726}}</string>
+							<string>{{205.5392018838464, 247.32495371594882}, {106.00000000000007, 31.714285714285726}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -409,14 +409,14 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
 
-\f0\fs24 \cf0 bcore}</string>
+\f0\fs24 \cf0 bapplication}</string>
 								<key>VerticalPad</key>
 								<integer>0</integer>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{205.53920665478449, 241.64706514395894}, {31.176420202020211, 5.2857142857142945}}</string>
+							<string>{{205.53920188384632, 242.03923943023457}, {31.176420202020211, 5.2857142857142945}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -993,7 +993,7 @@
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2014-03-21 07:12:10 +0000</string>
+	<string>2014-03-23 15:02:19 +0000</string>
 	<key>Modifier</key>
 	<string>Sebastian Thiel</string>
 	<key>NotesVisible</key>

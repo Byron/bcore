@@ -144,7 +144,7 @@ class ActionDelegateMixin(object):
 
     def action(self, key):
         """@return an action implementation matching the given name key
-        @note this implementation looks for registered services
+        @note this implementation looks for registered instances
         @throw AssertionError if no suitable action was found"""
         tokens = key.split('.')
         assert len(tokens) > 2, "expected action key of format %s.type_name.name[.name...]" % action_schema.key()

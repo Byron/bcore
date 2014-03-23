@@ -28,7 +28,7 @@ from . import schema
 
 
 class PlatformServicesBase(IPlatformService, ContextStackClient):
-    """Base implementation for platform services"""
+    """Base implementation for platform instances"""
     
     _platform_names = {'linux2': 'lnx',
                        'sunos5': 'sun',
@@ -88,7 +88,7 @@ class PlatformServicesBase(IPlatformService, ContextStackClient):
 
 
 class LinuxPlatformService(PlatformServicesBase, Plugin):
-    """Platform services specific for Linux"""
+    """Platform instances specific for Linux"""
     
     # -------------------------
     ## @name Configuration
@@ -104,7 +104,7 @@ class LinuxPlatformService(PlatformServicesBase, Plugin):
 
     
 class MacPlatformService(PlatformServicesBase, Plugin):
-    """Platform services specific for Mac OS X"""
+    """Platform instances specific for Mac OS X"""
     # -------------------------
     ## @name Configuration
     # @{
@@ -119,7 +119,7 @@ class MacPlatformService(PlatformServicesBase, Plugin):
 
 
 class WindowsPlatformService(PlatformServicesBase, Plugin):
-    """Platform services specific to windows"""
+    """Platform instances specific to windows"""
     
     # -------------------------
     ## @name Configuration

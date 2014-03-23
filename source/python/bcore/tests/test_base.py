@@ -36,8 +36,8 @@ class TestCore(TestCaseBase):
         """Component Architecture framework should be available without explicit imports"""
         Plugin
         service
-        services
+        instances
         new_service
-        new_services
+        new_instances
    
 # end class TestCore

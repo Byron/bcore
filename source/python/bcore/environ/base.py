@@ -53,13 +53,13 @@ log = module_logger('bcore.environ.' + __name__)
 
 
 class OSEnvironment(bcontext.Environment):
-    """Environment containing services and information about the operating system we're running on.
+    """Environment containing instances and information about the operating system we're running on.
     Provides IPlatformService implementations"""
     _category = 'platform'
     _schema = platform_schema
     
     def __init__(self, name):
-        """make sure platform services for the current OS are available"""
+        """make sure platform instances for the current OS are available"""
         super(OSEnvironment, self).__init__(name)
 
         # instantiate platform singleton
@@ -259,7 +259,7 @@ class ConfigHierarchyEnvironment(bcontext.Environment, LazyMixin):
         
     def load_plugins(self):
         """Call this method explicitly once this instance was pushed onto the top of the environment stack.
-        This assures that new services are properly registered with it
+        This assures that new instances are properly registered with it
         @note plugins should be loaded only AFTER this environment was pushed onto the stack. Otherwise
         loaded plugins will end up in the previous environment, not in this one"""
         for path in self._filter_directories(self.config_directories()):

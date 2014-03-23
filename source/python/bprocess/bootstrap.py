@@ -148,7 +148,7 @@ class Bootstrapper(object):
         return None
         
     def _init_root_package_from_path(self, root_package_path):
-        """Initialize the given root package to make component services available
+        """Initialize the given root package to make component instances available
         @return module containing main interfaces"""
         sys.path.append(root_package_path)
         fmt = '%s.%s'

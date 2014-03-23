@@ -122,7 +122,7 @@ class IContextController(bcore.InterfaceBase):
     
 
 class IPlatformService(bcore.InterfaceBase):
-    """Interface for platform services specific to operating systems"""
+    """Interface for platform instances specific to operating systems"""
     
     # -------------------------
     ## @name Constants

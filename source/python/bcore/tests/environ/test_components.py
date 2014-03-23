@@ -44,7 +44,7 @@ class TestPlatformServices(TestIPlatformService):
 
 
 class TestProjectServices(TestISiteService):
-    """Tests for the default project-services implemntation """
+    """Tests for the default project-instances implemntation """
     __slots__ = ()
     
     subclass_type = type(service(IProjectService))
@@ -53,7 +53,7 @@ class TestProjectServices(TestISiteService):
 
 
 class TestSiteServices(TestIProjectService):
-    """Tests for the default site-services implemntation """
+    """Tests for the default site-instances implemntation """
     __slots__ = ()
     
     subclass_type = type(service(ISiteService))

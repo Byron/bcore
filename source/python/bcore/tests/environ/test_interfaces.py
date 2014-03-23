@@ -111,14 +111,14 @@ class TestIContextController(TestInterfaceBase):
 
 
 class TestDirectoryServicesMixin(object):
-    """Tests for the default project-services interface
+    """Tests for the default project-instances interface
     NOTE: We cannot be called alone, yet we want to be named after a valid test.
     All this is necessary as we want to use the same test implementation multiple times in the same module, 
     which doesn't natively work with the TestInterfaceBase subclasses"""
     
     __slots__ = ()
 
-    def test_directory_services(self):
+    def test_directory_instances(self):
         if not hasattr(self, '_instance'):
             return
         inst = self._instance
