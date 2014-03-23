@@ -170,6 +170,4 @@ class TestUtility(TestCaseBase):
         del sys.modules[mod_name]
         del sys.modules['submodule']
 
-
-
 # end class TestUtility

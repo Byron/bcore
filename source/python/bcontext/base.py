@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = ['Context', 'ContextStack', 'ContextStackClient'
+__all__ = ['Context', 'ContextStack', 'ContextStackClient',
            'StackAutoResolveAdditiveMergeDelegate']
 
 import re
@@ -27,7 +27,6 @@ from bkvstore import ( KeyValueStoreSchemaValidator,
                        KeyValueStoreSchema,
                        RootKey )
 
-from .utility import ContextStackClient
 
 log = logging.getLogger(__name__)
 
@@ -370,8 +369,9 @@ class ContextStack(LazyMixin):
         validator = self._KeyValueStoreValidatorType()
         # bottom up - later contexts override earlier ones
         for ctx in self._stack:
-            if hasattr()
-            validator.append(ctx.schema())
+            if hasattr(ctx, 'schema'):
+                validator.append(ctx.schema())
+            # end handle ContextStackClient contexts
             # Context returns services newest first, which is something we hereby undo to allow
             # proper schema merging.
             for client in reversed(ctx.services(ContextStackClient)):
@@ -475,7 +475,7 @@ class ContextStack(LazyMixin):
         """
         services = list()
         for ctx in reversed(self._stack):
-            services += ctx.services(interface=interface, predicate):
+            services += ctx.services(interface, predicate)
             if not find_all:
                 break
             # end abort search early
