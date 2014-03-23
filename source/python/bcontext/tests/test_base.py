@@ -23,10 +23,10 @@ class TestPlugin(TestContextBase):
 
     def test_loader(self):
         """Verify fundamental loader features"""
-        module = PluginLoader.load_file(self.fixture_path('plugin.py'), 'test_plugin')
+        module = PythonFileLoader.load_file(self.fixture_path('plugin.py'), 'test_plugin')
         assert module is not None and hasattr(module, 'MyDynamicPlugin')
         
-        self.failUnlessRaises(AssertionError, PluginLoader.load_file, self.fixture_path('plugin_fail.py'), 'doesnt-matter')
-        self.failUnlessRaises(IOError, PluginLoader.load_file, self.fixture_path('doesntexist.py'), 'doesnt-matter')
+        self.failUnlessRaises(AssertionError, PythonFileLoader.load_file, self.fixture_path('plugin_fail.py'), 'doesnt-matter')
+        self.failUnlessRaises(IOError, PythonFileLoader.load_file, self.fixture_path('doesntexist.py'), 'doesnt-matter')
 
 # end class TestPlugin

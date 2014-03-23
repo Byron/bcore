@@ -14,4 +14,4 @@ from __future__ import absolute_import
 # make sure people can get the most fundamental implementation in this package
 from .base import *
 from .properties import *
-
+from .utility import *

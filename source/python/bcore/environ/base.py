@@ -44,7 +44,8 @@ from ..kvstore import (
 
 from butility import (
                         Path,
-                        make_path
+                        make_path,
+                        PythonFileLoader
                     )
 import socket
 
@@ -262,7 +263,7 @@ class ConfigHierarchyEnvironment(bcontext.Environment, LazyMixin):
         @note plugins should be loaded only AFTER this environment was pushed onto the stack. Otherwise
         loaded plugins will end up in the previous environment, not in this one"""
         for path in self._filter_directories(self.config_directories()):
-            PluginLoader(path, recurse=True).load()
+            PythonFileLoader(path, recurse=True).load()
         # end load all plugins
     
     ## -- End Interface -- @}

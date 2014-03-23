@@ -7,7 +7,8 @@
 """
 __all__ = []
 
-from unittest import TestCase
+from .base import TestCaseBase
+import sys
 
 # test from * import
 from butility import *
@@ -26,7 +27,7 @@ class TestNonInstantiatable(NonInstantiatable):
 ## -- End TestTypes -- \}
 
 
-class TestUtility(TestCase):
+class TestUtility(TestCaseBase):
 
     def test_platform_utilities(self):
         """verify simple utilities"""
@@ -154,5 +155,21 @@ class TestUtility(TestCase):
         assert 'newone' not in dobj
         dobjclone.there.other = 42
         assert dobj.there.other == 7
+
+    def test_python_file_loader(self):
+        mod_name = 'test_module'
+        mod = PythonFileLoader.load_file(self.fixture_path('module.py'), mod_name)
+        assert mod
+        assert mod.Foo.hello() == 'world'
+
+        res = PythonFileLoader.load_files(self.fixture_path(''), recurse=True)
+        assert len(res) == 2
+        assert res[0].endswith('module.py')
+        assert res[1].endswith('submodule.py')
+
+        del sys.modules[mod_name]
+        del sys.modules['submodule']
+
+
 
 # end class TestUtility

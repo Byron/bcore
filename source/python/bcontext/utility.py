@@ -1,21 +1,14 @@
 #-*-coding:utf-8-*-
 """
-@package bcontext.plugin
+@package bcontext.utility
 @brief Implementation of utility types for registering plugins
 
 @copyright 2014 Sebastian Thiel
 """
-__all__ = ['PluginMeta', 'PluginLoader', 'Plugin', 'ContextStackClient']
-
-import imp
-import os
-import sys
-import re
-import logging
+__all__ = ['PluginMeta', 'Plugin']
 
 from butility import MetaBase
 
-log = logging.getLogger(__name__)
 
 
 # ==============================================================================
@@ -99,75 +92,5 @@ class Plugin(object):
     ## -- End Interface -- @}
 
 # end class Plugin
-
-
-class PluginLoader(object):
-    """ loads .py files from a given directory or load the given file, with recursion if desired
-        @note it just loads the .py files"""
-    __slots__ = (
-                '_path',   # path at which to load plugins 
-                '_recurse' # search for loadable plugins will be performed recursively
-                )
-        
-    def __init__(self, path, recurse=False):
-        self._path    = Path(path)
-        self._recurse = recurse
-
-    def _load_files(self, path, files):
-        """ load all python \a files from \a path 
-        @return list of loaded files as full paths"""
-        res = list()
-        def py_filter(f):
-            return filename.endswith('.py') and not \
-                   filename.startswith('__')
-        # end filter
-
-        for filename in filter(py_filter, files):
-            py_file = os.sep.join([path, filename])
-            (mod_name, _) = os.path.splitext(os.path.basename(py_file))
-            try:
-                self.load_file(py_file, mod_name)
-            except Exception:
-                # TODO: fix the logger issue, traceback shouldn't be required
-                import traceback
-                traceback.print_exc()
-                log.error("Failed to load %s from %s", mod_name, py_file, exc_info=True)
-            else:
-                log.info("loaded %s into module %s", py_file, mod_name)
-                res.append(py_file)
-            # end handle result
-        # end for eahc file to load
-        return res
-
-    def load(self):
-        """ perform the actual loading
-        @return a list of files loaded successfully"""
-        # if we should recurse, we just use the standard dirwalk.
-        # we use topdown so top directories should be loaded before their
-        # subdirectories and we follow symlinks, since it seems likely that's
-        # what people will expect
-        res = list()
-        if self._path.isfile():
-            res += self._load_files(self._path.dirname(), [self._path.basename()])
-        else:
-            for path, dirs, files in os.walk(self._path, topdown=True, followlinks=True):
-                res += self._load_files(path, files)
-                if not self._recurse:
-                    break
-                # end handle recursion
-            # end for each directory to walk
-        # end handle file or directory
-        return res
-        
-    @classmethod
-    def load_file(cls, python_file, module_name):
-        """Load the contents of the given python file into a module of the given name.
-        If the module is already loaded, it will be reloaded
-        @return the loaded module object
-        @throws Exception any exception raised when trying to load the module"""
-        imp.load_source(module_name, python_file)
-        return sys.modules[module_name]
-        
-# end class PluginLoader
 
 ## -- End Plugin Handling -- @}

@@ -5,12 +5,19 @@
 
 @copyright 2014 Sebastian Thiel
 """
-__all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator']
+__all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator', 'PythonFileLoader']
 
 from UserDict import DictMixin
+import imp
+import sys
+import os
 import re
 import pprint
+import logging
 from copy import deepcopy
+from .path import Path
+
+log = logging.getLogger(__name__)
 
 
 class Version(object):
@@ -726,3 +733,77 @@ class ProgressIndicator(object):
     #} END query
 
 # end clas ProgressIndicator
+
+
+class PythonFileLoader(object):
+    """ loads .py files from a given directory or load the given file, with recursion if desired
+        @note it just loads the .py files"""
+    __slots__ = ()
+        
+    @classmethod
+    def _load_files(cls, path, files):
+        """load all python \a files from \a path
+        @return list of loaded files as full paths"""
+        res = list()
+        def py_filter(f):
+            return f.endswith('.py') and not \
+                   f.startswith('__')
+        # end filter
+
+        for filename in filter(py_filter, files):
+            py_file = os.sep.join([path, filename])
+            (mod_name, _) = os.path.splitext(os.path.basename(py_file))
+            try:
+                cls.load_file(py_file, mod_name)
+            except Exception:
+                # TODO: fix the logger issue, traceback shouldn't be required
+                import traceback
+                traceback.print_exc()
+                log.error("Failed to load %s from %s", mod_name, py_file, exc_info=True)
+            else:
+                log.info("loaded %s into module %s", py_file, mod_name)
+                res.append(py_file)
+            # end handle result
+        # end for eahc file to load
+        return res
+
+    # -------------------------
+    ## @name Interface
+    # @{
+    
+    @classmethod
+    def load_files(cls, path, recurse=False):
+        """Load all .py files found in the given directory, or load the file it points to
+        @param path either path to directory, or path to py file.
+        @param recurse if True, path will be searched for usable files recursively
+        @return a list of files loaded successfully"""
+        # if we should recurse, we just use the standard dirwalk.
+        # we use topdown so top directories should be loaded before their
+        # subdirectories and we follow symlinks, since it seems likely that's
+        # what people will expect
+        res = list()
+        path = Path(path)
+        if path.isfile():
+            res += cls._load_files(path.dirname(), [path.basename()])
+        else:
+            for path, dirs, files in os.walk(path, topdown=True, followlinks=True):
+                res += cls._load_files(path, files)
+                if not recurse:
+                    break
+                # end handle recursion
+            # end for each directory to walk
+        # end handle file or directory
+        return res
+        
+    @classmethod
+    def load_file(cls, python_file, module_name):
+        """Load the contents of the given python file into a module of the given name.
+        If the module is already loaded, it will be reloaded
+        @return the loaded module object
+        @throws Exception any exception raised when trying to load the module"""
+        imp.load_source(module_name, python_file)
+        return sys.modules[module_name]
+
+    ## -- End Interface -- @}
+# end class PythonFileLoader
+

@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = ['Context', 'ContextStack',
+__all__ = ['Context', 'ContextStack', 'ContextStackClient'
            'StackAutoResolveAdditiveMergeDelegate']
 
 import re

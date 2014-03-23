@@ -339,7 +339,7 @@ class PythonPackageIterator(ContextStackClient, PackageDataIteratorMixin):
                     if not plugin_path.isabs():
                         plugin_path = package.root_path() / plugin_path
                     # end make plugin path absolute
-                    PluginLoader(plugin_path).load()
+                    PythonFileLoader(plugin_path).load()
                 #end for each plugin path
             # end handle plugin paths
         #end for each package
@@ -730,7 +730,7 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
         # end for each package
         
         for path in plugin_paths:
-            PluginLoader(path).load()
+            PythonFileLoader(path).load()
         # end for each sorted plug-in to load
         
         for module in import_modules:

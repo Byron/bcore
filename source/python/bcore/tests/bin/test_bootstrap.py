@@ -17,7 +17,7 @@ from bcore.tests.processcontrol.test_base import TestProcessController
 
 # Dynamic loading of wrapper code - its not in a package for good reason
 dirname = os.path.dirname
-loaded_files = PluginLoader(os.path.join(dirname(dirname(dirname(__file__))), 'bin'), recurse=False).load()
+loaded_files = PythonFileLoader(os.path.join(dirname(dirname(dirname(__file__))), 'bin'), recurse=False).load()
 assert len(loaded_files) == 1
 wrapper_file = loaded_files[0]
 import bootstrap
