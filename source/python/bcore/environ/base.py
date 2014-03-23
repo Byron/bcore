@@ -150,7 +150,7 @@ class ConfigHierarchyEnvironment(bcontext.Environment, LazyMixin):
         
     def _iter_config_environments(self):
         """@return iterator yielding environments of our type on the stack, which are not us"""
-        for env in bcore.environment._env_stack_readonly():
+        for env in bcore.environment.stack():
             # we should be last, but lets not assume that
             if env is self or not isinstance(env, ConfigHierarchyEnvironment):
                 continue
