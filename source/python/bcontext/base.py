@@ -212,6 +212,17 @@ class Context(object):
         if plugin not in self._registry:
             self._registry.append(plugin)
         return plugin
+
+    def set_settings(self, kvstore):
+        """Set our kvstore to the given one.
+        @note this method is used for API completeness, the common way of doing this is to derive 
+        an own type from Context and ContextStackClient to specify an own kvstore with values initialized
+        by some means, like reading it from a configuration file.
+        @param kvstore a KeyValueStoreModifier compatible instance
+        @return previous kvstore"""
+        prev = self._kvstore
+        self._kvstore = kvstore
+        return prev
     
     ## -- End Edit Interface -- @}
 
@@ -331,6 +342,8 @@ class ContextStack(LazyMixin):
             context = self.ContextType(context)
         # end handle string contexts
         self._stack.append(context)
+
+        # NOTE: for pushes, no rebuild is needed, we are smart enough to merge in what needs to be merged
         return context
 
     def pop(self, until_size = -1):

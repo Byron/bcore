@@ -328,7 +328,8 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
             self._merged_value = self._tree_stack[-1]
         else:
             # in the previous run, we already grabbed the last remaining entry on the tree stack
-            assert self._merged_value is popped_value 
+            assert self._merged_value is popped_value
+            pass
         # end handle merged value
             
         super(MergeDelegate, self).pop_tree_level()
@@ -479,7 +480,7 @@ class AdditiveMergeDelegate(MergeDelegate):
         return right_value
         
     def _handle_deleted(self, key, parent_tree, previous_value):
-        """Keep 'deletions', we are something light an additive merge"""
+        """Keep 'deletions', we are something like an additive merge"""
         # to do that, we have to put the key into the parent_tree
         # Drop the value if it is at the root key - this indicates that a scalar value now is a tree
         if key is not RootKey:

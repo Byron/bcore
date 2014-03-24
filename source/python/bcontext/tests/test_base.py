@@ -14,6 +14,7 @@ from butility import (InterfaceBase,
 from .base import TestContextBase
 from butility import PythonFileLoader
 
+from bkvstore import KeyValueStoreModifier
 from bcontext import *
 
 
@@ -100,6 +101,36 @@ class TestPlugin(TestContextBase):
         stack.new_instances(str, args=[5], take_ownership=True)
         assert len(stack.instances(str)) == 1
 
+    def test_stack_settings(self):
+        """test settings aggregation"""
+        kv1 = KeyValueStoreModifier({'one' : {'one' : 1,
+                                              'two' : 2},
+                                     'two' : 2})
+
+        stack = ContextStack()
+        ctx = Context('first')
+        ctx.set_settings(kv1)
+        stack.push(ctx)
+
+        kv2 = KeyValueStoreModifier({'one' : {'one' : '1',
+                                              'three' : 3},
+                                     'two' : {'one' : 1, 'foo' : 2},
+                                     'three' : 3})
+
+        # Can't compare directly, as we started out without ordered dict.
+        # Thus this comparison is a bit rough
+        assert stack.settings().keys() == kv1.keys()
+
+        ctx = Context('second')
+        ctx.set_settings(kv2)
+        stack.push(ctx)
+
+        kvd = stack.settings().data()
+        assert kvd.one.one == '1'
+        assert kvd.one.three == 3
+        assert kvd.one.two == 2
+        assert kvd.three == 3
+        assert kvd.two.one == 1
 
     def test_plugin(self):
         """verify plugin type registration works"""
