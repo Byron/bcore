@@ -165,5 +165,18 @@ class TestDiffAlgorithms(TestCase):
         delegate.reset()
         assert self.twoway.diff(delegate, 1, nval)
         assert delegate.result().to_dict() == nval
+
+    def test_scalar_to_tree_merge(self):
+        """A value changes from a scalar to a tree"""
+        d1 = { 'one' : 42 }
+        d2 = { 'one' : { 'one' : 1,
+                         'two' : 2}}
+        delegate = AdditiveMergeDelegate()
+        TwoWayDiff().diff(delegate, d1, d2)
+
+        res = delegate.result()
+        assert isinstance(res['one'], dict)
+        assert res['one']['one'] == 1
+        assert res['one']['two'] == 2
         
 # end class TestDiff

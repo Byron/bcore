@@ -264,7 +264,7 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         delegate.reset()
         TwoWayDiff().diff(delegate, dict(), dict1)
         assert delegate.result() == dict1, 'addition of full dict onto empty one is full dict' 
-        
+
     def test_defaults(self):
         schema = KeyValueStoreSchema('site', { 'name' :  str,   # can be type
                                                 'location' : str(),

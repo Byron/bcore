@@ -483,7 +483,9 @@ class AdditiveMergeDelegate(MergeDelegate):
         """Keep 'deletions', we are something like an additive merge"""
         # to do that, we have to put the key into the parent_tree
         # Drop the value if it is at the root key - this indicates that a scalar value now is a tree
-        if key is not RootKey:
+        # We should only keep it though if there is no other, more complex value already.
+        # This may happen as addition events are sent before deletion events.
+        if key is not RootKey and key not in parent_tree:
             parent_tree[key] = previous_value
         # handle key type
         

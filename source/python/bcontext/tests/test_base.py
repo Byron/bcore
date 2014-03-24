@@ -117,9 +117,7 @@ class TestPlugin(TestContextBase):
                                      'two' : {'one' : 1, 'foo' : 2},
                                      'three' : 3})
 
-        # Can't compare directly, as we started out without ordered dict.
-        # Thus this comparison is a bit rough
-        assert stack.settings().keys() == kv1.keys()
+        assert stack.settings().data().to_dict() == kv1.data()
 
         ctx = Context('second')
         ctx.set_settings(kv2)
@@ -131,6 +129,11 @@ class TestPlugin(TestContextBase):
         assert kvd.one.two == 2
         assert kvd.three == 3
         assert kvd.two.one == 1
+
+        # popping the previous context should bring the original one back
+        stack.pop()
+        kvd = stack.settings().data()
+        assert kvd.to_dict() == kv1.data()
 
     def test_plugin(self):
         """verify plugin type registration works"""
