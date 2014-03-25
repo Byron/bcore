@@ -9,3 +9,6 @@ section:
   subsection:
     string: other value
     list: [string, 4.2, 42, [string, 3.3, 33]]
+  other_tree:
+    foo: 1
+    bar: 2

@@ -18,6 +18,7 @@ from bkvstore import ( KeyValueStoreProviderDiffDelegate,
                        YAMLStreamSerializer )
 from bkvstore.serialize import *
 from bkvstore.persistence import OrderedDictYAMLLoader
+from bkvstore.types import YAMLKeyValueStoreModifier
 from butility import tagged_file_paths
 
 
@@ -41,22 +42,16 @@ class LooseYAMLKeyValueStoreModifier(ChangeTrackingSerializingKeyValueStoreModif
 
 
 
-
 class TestYamlConfiguration(TestConfigurationBase):
     __slots__ = ()
     
-    @classmethod
-    def fixture_path(cls, filename):
-        """@return path to our own fixtures"""
-        return super(TestYamlConfiguration, cls).fixture_path("test_yaml/%s" % filename)
-        
     @classmethod
     def config_fixtures(cls, tag_list):
         """@return all configuration fixture paths which match the given tags"""
         return tagged_file_paths(cls.fixture_path(''), tag_list, '*.yaml')
         
     @with_rw_directory
-    def test_yaml_modifier(self, rw_dir):
+    def __test_yaml_modifier(self, rw_dir):
         """Verify only the changes are written back
         @todo when diffing anything, the order of keys gets messed up (after set_value), probably because of the merge
         However, lets just move on for now.
@@ -122,5 +117,30 @@ class TestYamlConfiguration(TestConfigurationBase):
         paths = cmod.value(key, dict())
         assert paths.project_root.fs_path == "P:\\JOBS", "Should have windows config"
         assert paths.cache_root.fs_path == "/SOMETHING", "Should still have my changes applied"
+
+    def test_yaml_merge(self):
+        """Assert that horizontal yaml merging works as expected"""
+        basic = self.fixture_path('basic.yaml')
+        basic_ovr = self.fixture_path('basic_overrides.yaml')
+
+        # paths and open files can be used
+        store = YAMLKeyValueStoreModifier((basic, open(basic_ovr, 'rb')))
+        d = store.data()
+        assert d.section.string == 'newvalue', "Simple scalar override didn't turn out as expected"
+        print d
+        assert isinstance(d.section.int, dict), "Should have overridden a scalar with a tree"
+        assert d.section.int.foo == 1 and d.section.int.bar == 2, "expected particular tree values"
+
+        assert d.section.list == ['item5', 'item4', 'item3', 'item2', 'item1']
+        assert d.section.subsection is not None, "subsection shouldn't be overridden by None"
+        assert isinstance(d.section.other_tree, dict), "Can't override a complex value with a scalar in additive mode"
+
+
+        # The inverse will have an inverse effect - order matters, of course
+        store = YAMLKeyValueStoreModifier((basic_ovr, basic))
+        print store.data()
+
+        self.fail("Check how it deals with parse errors")
+        
         
 # end class TestYamlConfiguration

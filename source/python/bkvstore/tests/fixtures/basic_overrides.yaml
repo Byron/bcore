@@ -1,0 +1,14 @@
+section:
+  # Scalar values can be converted into trees
+  string: newvalue
+  int:
+    foo: 1
+    bar: 2
+  # List are usually appended
+  list:
+    - item5
+    - item4
+  # Empty keys end up as None value in yaml
+  subsection:
+  # scalar values shouldn't override non-scalar ones
+  other_tree: 42

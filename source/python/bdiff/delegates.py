@@ -280,6 +280,7 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
     def result(self):
         """@return our merged value, or NoValue if the diff didn't yet run"""
         assert not self._tree_stack, "Tree stack should be empty (unless there is a bug)"
+        print "DEBUG: DONE"
         return self._merged_value
         
     def reset(self):
@@ -297,6 +298,7 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
     def push_tree_level(self, key, left_tree, right_tree):
         """Update the value pointer accordingly, building a tree structure on the fly."""
         # keep merged value uptodate even during pushes
+        print "PUSH", key
         if key is RootKey:
             assert len(self._tree_stack) == 0, "Should have empty tree stack"
             if self._merged_value is NoValue:
@@ -304,16 +306,25 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
             #end assure we reuse root-level values if we had one
             self._tree_stack.append(self._merged_value)
         else:
-            # connect parents - we can run through the hierarchy multiple times
             assert self._tree_stack, "Should have at least one tree already"
+            # connect parents - we can run through the hierarchy multiple times
             self._merged_value = self._tree_stack[-1].setdefault(key, self.DictType())
+            # If or left tree is actually not a tree, but a scalar (which is when it is NoValue)
+            # We want to be sure that the merged_value can hold the values which might be coming in
+            # Therefore we enforce a dict
+            if left_tree is NoValue and not isinstance(self._merged_value, self.DictType):
+                self._merged_value = self.DictType()
+                self._tree_stack[-1][key] = self._merged_value
+            # end assure dicts override scalars
             self._tree_stack.append(self._merged_value)
         #end handle root key
         super(MergeDelegate, self).push_tree_level(key, left_tree, right_tree)
 
     def pop_tree_level(self):
         """Set the parent dict as new value"""
+        
         popped_value = self._tree_stack.pop()
+        print "POP", type(popped_value)
 
         # If this is not the top-level (and thus, last) value, we will prune empty trees
         if self.delete_empty_trees and not popped_value and self._tree_stack: 
@@ -348,6 +359,7 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
           
         We will copy right values to assure they are independent.
         """
+        print "DEBUG:", self._qualified_key(key), left_value, right_value, change_type
         value_to_set = NoValue
         if change_type is self.added:
             value_to_set = self._handle_added(key, left_value, right_value)
@@ -360,7 +372,7 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
             # at the initial value, NoValue.
             # However, the _handle_deleted method requires parent_tree to be a tree-like objects, and asserts for it
             # We assure this now
-            parent_tree = self._merged_value 
+            parent_tree = self._merged_value
             if parent_tree is NoValue:
                 parent_tree = self.DictType()
             # handle possiblity of having NoValue as merged_value
@@ -445,15 +457,20 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
         @param value the value you have determined
         """
         assert value is not NoValue, "value should not be a marker"
-        
+
         # We might not have a parent tree (which is when we compare two non-trees)
         # The underlying algorithm may go up and down multiple times, therefore we might have
         # a tree value here already when another value comes in.
         # Deal with it
+        print "SETTING VALUE", self._qualified_key(key), value, type(self._merged_value)
         if self.is_tree(self._merged_value) and key is not RootKey:
             # just overwrite possibly existing values, subclasses might have initialized our merge-base with
             # something non-empty. Otherwise, we could assert that the key is not yet in current_parent
-            self._merged_value[key] = value
+            # Don't allow overwriting complex values with non-complex ones. If value would be a dict, 
+            # we wouldn't be here either !
+            if key not in self._merged_value or not isinstance(self._merged_value[key], self.DictType):
+                self._merged_value[key] = value
+            # end ignore overwriting trees with scalars
         else:
             self._merged_value = value
         #end handle merged value specialty

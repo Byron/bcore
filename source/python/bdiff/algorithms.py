@@ -78,8 +78,10 @@ class TwoWayDiff(object):
                 keys_to_check_for_modifications = delegate.possibly_modified_keys(l_keys, r_keys, keys_added_to_right)
                 delegate.push_tree_level(_key, left, right)
                 for child_key in keys_to_check_for_modifications:
-                    self.diff(delegate, delegate.value_by_key(left, child_key), 
-                                delegate.value_by_key(right, child_key), _key=child_key)
+                    self.diff(delegate, 
+                              delegate.value_by_key(left, child_key), 
+                              delegate.value_by_key(right, child_key), 
+                              _key=child_key)
                 #end for each key to check
                 delegate.pop_tree_level()
             # register changes created by type changes from tree to value and vice versa
