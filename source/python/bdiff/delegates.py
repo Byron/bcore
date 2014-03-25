@@ -280,7 +280,6 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
     def result(self):
         """@return our merged value, or NoValue if the diff didn't yet run"""
         assert not self._tree_stack, "Tree stack should be empty (unless there is a bug)"
-        print "DEBUG: DONE"
         return self._merged_value
         
     def reset(self):
@@ -298,7 +297,6 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
     def push_tree_level(self, key, left_tree, right_tree):
         """Update the value pointer accordingly, building a tree structure on the fly."""
         # keep merged value uptodate even during pushes
-        print "PUSH", key
         if key is RootKey:
             assert len(self._tree_stack) == 0, "Should have empty tree stack"
             if self._merged_value is NoValue:
@@ -324,7 +322,6 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
         """Set the parent dict as new value"""
         
         popped_value = self._tree_stack.pop()
-        print "POP", type(popped_value)
 
         # If this is not the top-level (and thus, last) value, we will prune empty trees
         if self.delete_empty_trees and not popped_value and self._tree_stack: 
@@ -359,7 +356,6 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
           
         We will copy right values to assure they are independent.
         """
-        print "DEBUG:", self._qualified_key(key), left_value, right_value, change_type
         value_to_set = NoValue
         if change_type is self.added:
             value_to_set = self._handle_added(key, left_value, right_value)
@@ -462,7 +458,6 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
         # The underlying algorithm may go up and down multiple times, therefore we might have
         # a tree value here already when another value comes in.
         # Deal with it
-        print "SETTING VALUE", self._qualified_key(key), value, type(self._merged_value)
         if self.is_tree(self._merged_value) and key is not RootKey:
             # just overwrite possibly existing values, subclasses might have initialized our merge-base with
             # something non-empty. Otherwise, we could assert that the key is not yet in current_parent

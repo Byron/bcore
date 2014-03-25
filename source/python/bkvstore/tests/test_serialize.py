@@ -127,7 +127,6 @@ class TestYamlConfiguration(TestConfigurationBase):
         store = YAMLKeyValueStoreModifier((basic, open(basic_ovr, 'rb')))
         d = store.data()
         assert d.section.string == 'newvalue', "Simple scalar override didn't turn out as expected"
-        print d
         assert isinstance(d.section.int, dict), "Should have overridden a scalar with a tree"
         assert d.section.int.foo == 1 and d.section.int.bar == 2, "expected particular tree values"
 
@@ -138,7 +137,6 @@ class TestYamlConfiguration(TestConfigurationBase):
 
         # The inverse will have an inverse effect - order matters, of course
         store = YAMLKeyValueStoreModifier((basic_ovr, basic))
-        print store.data()
 
         self.fail("Check how it deals with parse errors")
         
