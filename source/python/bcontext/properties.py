@@ -10,7 +10,7 @@ __all__ = ['ContextPropertyDescriptor', 'PropertyContextStackContextClientMeta',
 
 from .base import ContextStackClient
 
-from bkvstore import (KeyValueStoreSchema,
+from bkvstore import ( KeyValueStoreSchema,
                        RootKey )
 
 from bproperty import    ( PropertySchemaMeta,
@@ -24,7 +24,7 @@ from bproperty import    ( PropertySchemaMeta,
 class ContextPropertyDescriptor(PropertyDescriptor):
     """A descriptor which sets a particular value type, and simplified getters"""
     __slots__ = (
-                    '_value_type', # the type values we return set will have
+                    '_value_type', # the type values we return will have
                 )
     
     def __init__(self, *args, **kwargs):

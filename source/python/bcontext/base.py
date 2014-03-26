@@ -43,10 +43,11 @@ class ContextStackClient(InterfaceBase):
     ContextStack to verify its data.
     
     This type basically brings together a schema with another type, to make data access to any context easy
+    @todo this system is for review, as there will be no 'global' state that we may know here. This would go to the bapplication interface
     """
     __slots__ = ()
 
-    ## Schema specifying how we would like to access the global Context context 
+    ## Schema specifying how we would like to access the global context 
     ## It must be set by subclasses if they access the context
     ## The base implementation of schema() will just return this class-level instance, per instance 
     ## schemas are generally possible though

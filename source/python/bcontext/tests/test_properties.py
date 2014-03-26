@@ -12,6 +12,7 @@ from bcontext import *
 from bkvstore import RootKey
 from butility import Path
 
+from nose import SkipTest
 
 ## [ExampleContextClient]
 
@@ -33,6 +34,7 @@ class TestEnvironmentProperties(TestContextBase):
 
     def test_base(self):
         """Test functionality of KVStore properties"""
+        raise SkipTest("TODO: Revision of this test once it's clear where the ContextClient is going, and properties of course")
         client = ExampleContextClient()
         assert client.schema().key() == RootKey
         assert issubclass(client.schema().site.id, str)
