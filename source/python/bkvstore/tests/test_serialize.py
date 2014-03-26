@@ -137,8 +137,18 @@ class TestYamlConfiguration(TestConfigurationBase):
 
         # The inverse will have an inverse effect - order matters, of course
         store = YAMLKeyValueStoreModifier((basic_ovr, basic))
+        d = store.data()
+        assert d.section.string == 'value'
+        assert isinstance(d.section.int, dict)
+        assert d.section.list == ['item3', 'item2', 'item1', 'item5', 'item4']
+        assert isinstance(d.section.other_tree, dict)
+            
 
-        self.fail("Check how it deals with parse errors")
+        err_indent = self.fixture_path('with_error/invalid_indent.yaml')
+        inexistent = 'clearly/doesn_t/exist'
+        store = YAMLKeyValueStoreModifier((basic, err_indent, inexistent))
+
+        assert store.data() == YAMLKeyValueStoreModifier((basic, )).data(), "invalid files shouldn't affect the outcome, but be ignored"
         
         
 # end class TestYamlConfiguration
