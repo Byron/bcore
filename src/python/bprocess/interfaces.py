@@ -7,11 +7,11 @@
 """
 __all__ = ['IProcessControllerDelegate', 'IPostLaunchProcessInformation']
 
-import bcore
-from bcore import abstractmethod
+from butility import (InterfaceBase,
+                      abstractmethod)
 
 
-class IProcessControllerDelegate(bcore.InterfaceBase):
+class IProcessControllerDelegate(InterfaceBase):
     """brief docs"""
     __slots__ = ()
 
@@ -96,7 +96,7 @@ class IProcessControllerDelegate(bcore.InterfaceBase):
 # end class IProcessControllerDelegate
 
 
-class IPostLaunchProcessInformation(bcore.InterfaceBase):
+class IPostLaunchProcessInformation(InterfaceBase):
     """An interface to provide information about the currently running process as launched by the IProcessController.
     It works for spawned as well as for replaced processes (execv).
     

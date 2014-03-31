@@ -7,8 +7,10 @@
 """
 __all__ = []
 
-from bcore.tests import TestCaseBase
-from bcore.base import * 
+from butility.tests import TestCaseBase
+from butility import InterfaceBase
+
+import bcore
 
 # ==============================================================================
 ## \name Test Types
@@ -26,31 +28,20 @@ class TestInterface(InterfaceBase):
 class TestCore(TestCaseBase):
     __slots__ = ()
     
-    def test_interface(self):
-        """verify supports methods"""
-        tif = TestInterface()
-        self.failUnless(tif.supports(TestInterface))
-        
-    def test_component_framework(self):
-        """Component Architecture framework should be available without explicit imports"""
-        Plugin
-        service
-        instances
-        new_service
-        new_instances
-
     def test_application(self):
         """Test BApplication functionality"""
-        self.fail("todo")
 
-        assert bcore.Application.main is bcore.app()
+        self.failUnlessRaises(EnvironmentError, bcore.app)
+
+        app = bcore.Application.new()
+        assert bcore.Application.main is bcore.app() is app
         bcore.app().instance(ISomeService)
         bcore.app().type(ISomeService)
         bcore.app().settings().value_by_schema(schema)
         assert bcore.app().raw_settings() is bcore.app().context().settings().data()
 
         class MyPluginType(bcore.app().Plugin):
-        """A type for the registry"""
+            """A type for the registry"""
             __slots__ = ()
         
         # end class MyPluginType

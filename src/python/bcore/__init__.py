@@ -37,6 +37,7 @@ import sys
 import ConfigParser
 import logging
 
+from butility import Version
 from .base import Application
 
 __version__ = Version('0.1.0')
@@ -177,4 +178,5 @@ def _initialize():
 
 
 # auto-initialize the main package !
-_initialize()
+# TBD
+# _initialize()

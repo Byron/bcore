@@ -7,6 +7,7 @@
 """
 __all__ = ['Application']
 
+from itertools import chain
 
 from bcontext import (HierarchicalContext,
                       ContextStack,
@@ -32,7 +33,10 @@ class Application(object):
     @note by itself, the Application is not a singleton, but can be used as such. For that reason, the 'bapp'
     is taking care of instantiating them, keeping the first as the 'global' one.
     """
-    __slots__ = ('_stack')
+    # slots just used as documentation to make instance-overrides of class members work
+    # __slots__ = ('_stack',  # A ContextStack instance
+    #            'Plugin'   # An instance level Plugin type, returning our own stack
+    #             )
 
 
     # -------------------------
@@ -45,13 +49,33 @@ class Application(object):
     
     ## -- End Constants -- @}
 
+    # -------------------------
+    ## @name Subclass Configuration
+    # Variables for overrides by subclasses
+    # @{
+
+    ## Type used when building the ContextStack (settings, registry)
+    HierarchicalContextType = HierarchicalContext
+
+    ## The name of the sub-directory to consider when loading plugins from all settings directories
+    # May be None to load plugins from the settings directories directly
+    plugins_subdirectory = 'plug-ins'
+
+    ## The kind of Plugin we use
+    PluginType = bcontext.Plugin
+
+    ## The type of ContextStack we create
+    ContextStackType = ContextStack
+    
+    ## -- End Subclass Configuration -- @}
 
     # -------------------------
     ## @name Types
     # @{
 
-    class Plugin(bcontext.Plugin):
-    """An App-Aware Plugin which will retrieve the current application context when needed"""
+    class Plugin(PluginType):
+        """An App-Aware Plugin which will retrieve the current application context when needed.
+        It is only actually used by types which are  """
         __slots__ = ()
 
         default_stack = ContextStack()
@@ -65,6 +89,9 @@ class Application(object):
             # by us if present.
             # Each Application instance will just set a respective instance variable with the custom type
             if main is None:
+                if len(cls.default_stack) == 1:
+                    cls.default_stack.push("early-startup-intermediary")
+                # end create first user-controlled context
                 return cls.default_stack
             # end handle default stack
             return main.context()
@@ -73,19 +100,24 @@ class Application(object):
 
     ## -- End Types -- @}
 
-    # -------------------------
-    ## @name Subclass Configuration
-    # Variables for overrides by subclasses
-    # @{
+    def __init__(self, context_stack):
+        """Initialize this instance with it's own context stack"""
+        # If our type's Plugin's default stack still has anything in its registry, put it onto our stack.
+        # It came first, and should thus be first. 
+        def_stack = type(self).Plugin.default_stack
+        if len(def_stack) > 1:
+            prev_contexts = def_stack.pop(until_size=1)
+            cur_contexts = context_stack.pop(until_size=1)
+            for ctx in chain(contexts, cur_contexts):
+                context_stack.push(ctx)
+            # end handle context merge
+        # end bring in latest items
 
-    ## Type used when building the ContextStack (settings, registry)
-    HierarchicalContextType = HiearchicalContext
-
-    ## The name of the sub-directory to consider when loading plugins from all settings directories
-    # May be None to load plugins from the settings directories directly
-    plugins_subdirectory = 'plug-ins'
-    
-    ## -- End Subclass Configuration -- @}
+        self._stack = context_stack
+        self.Plugin = self.PluginType.__metaclass__.__new__(self.PluginType.__metaclass__,
+                                                            'ApplicationPlugin', 
+                                                           (self.PluginType,), 
+                                                           dict(_stack_ = context_stack))
 
 
     # -------------------------
@@ -115,15 +147,17 @@ class Application(object):
         @note in every program, the Application instance must be initialized before anything that uses the 
         default application is imported. Otherwise, types cannot be registered
         """
+        stack = cls.ContextStackType()
+        inst = cls(stack)
         # NOTE: should we have a default Application that will later be merged into anyone created by the user ?
         # Or should this be default behaviour ? Any existing app is merged into the new one ?
         # Could be undesirable, and can only be properly handled (in to catch types I believe)
-        
-    
+
+        if cls.main is None:
+            cls.main = inst
+        # end set main only if we are the first
+
+        return inst
+
     ## -- End Interface -- @}
-
-    
-
-    
-
 # end class Application
