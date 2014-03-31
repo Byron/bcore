@@ -41,8 +41,8 @@ class TestProcessController(ProcessController):
 
     dry_run = True
     
-    _auto_register_class = False
-    _auto_register_instance = False
+    _auto_register_class_ = False
+    _auto_register_instance_ = False
     
 # end class TestProcessController
 

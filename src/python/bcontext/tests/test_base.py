@@ -138,12 +138,15 @@ class TestPlugin(TestContextBase):
     def test_plugin(self):
         """verify plugin type registration works"""
         stack = ContextStack()
-        MyPlugin = PluginMeta.new(stack)
-        assert MyPlugin._stack is stack
-        assert MyPlugin.__metaclass__._stack is stack
+
+        class MyPlugin(Plugin):
+            """A plugin, for our stack"""
+            __slots__ = ()
+            _stack_ = stack
+
+        # end class PluginType
 
         class PluginType(MyPlugin):
-            """A plugin, for our stack"""
             __slots__ = ('id')
 
             count = 0
@@ -151,7 +154,7 @@ class TestPlugin(TestContextBase):
             def __init__(self):
                 self.id = self.count
                 type(self).count += 1
-
+        
         # end class PluginType
 
         assert len(stack.classes(PluginType)) == 1, "Expected to have caught type"

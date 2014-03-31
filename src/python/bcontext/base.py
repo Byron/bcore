@@ -508,12 +508,12 @@ class ContextStack(LazyMixin):
                 continue
             # end predicate
 
-            type_is_plugin = hasattr(cls, '_auto_register_instance')
+            type_is_plugin = hasattr(cls, '_auto_register_instance_')
             # We always disable auto-registering, as we want to assure it will be owned by us !
             # And not some other stack its Plugin may refer to
             if type_is_plugin:
-                pv = cls._auto_register_instance
-                cls._auto_register_instance = False
+                pv = cls._auto_register_instance_
+                cls._auto_register_instance_ = False
             # end handle auto-register
 
             try:
@@ -523,7 +523,7 @@ class ContextStack(LazyMixin):
                 # end register instance manually
             finally:
                 if type_is_plugin:
-                    cls._auto_register_instance = pv
+                    cls._auto_register_instance_ = pv
                 # end handle auto-register
             # end handle value reset, no matter what
             

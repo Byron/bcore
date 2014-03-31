@@ -7,6 +7,8 @@
 """
 __all__ = ['PluginMeta', 'Plugin']
 
+from itertools import chain
+
 from butility import MetaBase
 
 
@@ -24,41 +26,32 @@ class PluginMeta(MetaBase):
         However, the Plugin implementation will register instances, which the implementor would have to 
         do by himself otherwise."""
         
-    ## See Plugin._stack
-    _stack = None
-
     def __new__(mcls, name, bases, clsdict):
         """Registers the plugin's type to allow it to be instantiated""" 
         new_type = MetaBase.__new__(mcls, name, bases, clsdict)
-        if name != 'Plugin' and hasattr(new_type, '_auto_register_class') and new_type._auto_register_class:
-            assert mcls._stack, 'ContextStack must be set in %s for it to work' % mcls.__name__
-            mcls._stack.register(new_type)
-        # end exclude our own plugin marker (when type is instantated)
+        original_plugin_type = globals().get('Plugin')
+
+        if original_plugin_type is not None and hasattr(new_type, '_auto_register_class_') and new_type._auto_register_class_:
+            # at this point, we are already treating some Plugin subclass
+            plugin_base = None
+            for typ in chain(*(base.mro() for base in bases)):
+                if issubclass(typ, original_plugin_type):
+                    plugin_base = typ
+                    break
+                # end obtain PluginBase
+            # end for each base of type Plugin
+            assert plugin_base, "Didn't find a single base of type Plugin, this MetaClass must not be used alone"
+            # We assume someone overrides Plugin and implements the one method that needs implementation.
+            # Therefore, direct Plugin bases are assumed to be the base of the type we would be interested in
+            # Which also shouldn't ever get into the registry
+            if original_plugin_type is not plugin_base:
+                plugin_base._stack().register(new_type)
+            # end handle type registration
+        # end handle Plugin instantiation
+
         return new_type
         # end check 
         
-    # -------------------------
-    ## @name Interface
-    # @{
-
-    @classmethod
-    def new(self, stack):
-        """@return a new \a Plugin type which uses the given stack for registering instances.
-        Additionally, it will use a custom metaclass that uses the stack as well for registering new types
-        @param stack a context stack instance. It will be used to auto-register new types and instances
-        @todo this method might want to move to BApplication, or similar"""
-        prefix = 'CustomStack'
-        clsdict = {'_stack' : stack}
-        meta_class_type = MetaBase.__new__(MetaBase, prefix + 'PluginMeta', (PluginMeta,), clsdict)
-
-        clsdict['__metaclass__'] = meta_class_type
-        plugin_type = meta_class_type.__new__(meta_class_type, prefix + 'Plugin', (Plugin,), clsdict)
-
-        return plugin_type
-        
-    ## -- End Interface -- @}
-        
-
 # end class PluginMeta
 
 # Careful about renames: name is used verbatim in code above !
@@ -70,16 +63,16 @@ class Plugin(object):
     # -------------------------
     ## @name Configuration
     # @{
-    
-    ## ContextStack to use when handling service registration
-    # Will default to the context of our metaclass if unset
-    _stack = None
+
+    ## A ContextStack instance to use to register new types and instances.
+    # Must be set in subclass
+    _stack_ = None
     
     ## If True, new instances will automatically register themselves with the current Context
-    _auto_register_instance = True
+    _auto_register_instance_ = True
     
     ## If True, any subclass of this type will be registered automatically with the current Context
-    _auto_register_class = True
+    _auto_register_class_ = True
     
     ## -- End Configuration -- @}
     
@@ -88,10 +81,8 @@ class Plugin(object):
         """ overloaded class creator, registers the instance in the current
             Context for all our instances """
         self = super(Plugin, cls).__new__(cls)
-        if cls._auto_register_instance:
-            stack = cls._stack or cls.__metaclass__._stack
-            assert stack, "ContextStack must be set in Plugin type"
-            stack.register(self)
+        if cls._auto_register_instance_:
+            cls._stack().register(self)
         # end handle registration
         return self
         
@@ -108,8 +99,22 @@ class Plugin(object):
         @note by default, we just create a name from the name of the class, unless _plugin_name is 
         set as member variable"""
         return cls._plugin_name or cls.__name__
-    
+
     ## -- End Interface -- @}
+
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
+
+    @classmethod
+    def _stack(cls):
+        """@return our current context stack. By default, we will return our own class member _stack_, which 
+        must not be None"""
+        assert cls._stack_, "Subclass should have set _stack_ variable, or have overridden this method"
+        return cls._stack_
+        
+    
+    ## -- End Subclass Interface -- @}
 
 # end class Plugin
 
