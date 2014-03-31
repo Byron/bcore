@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.actions.copy
+@package bprocess.actions.copy
 @brief Basic copy action
 
 @copyright 2013 Sebastian Thiel

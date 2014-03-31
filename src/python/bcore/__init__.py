@@ -37,7 +37,7 @@ import sys
 import ConfigParser
 import logging
 
-from bcore.base import *
+from .base import Application
 
 __version__ = Version('0.1.0')
 
@@ -60,6 +60,21 @@ log_env_var = 'BCORE_STARTUP_LOG_LEVEL'
 minimal_init_evar = 'BCORE_INIT_ENVIRONMENT_DISABLE'
 
 ## -- End Globals -- @}
+
+
+# -------------------------
+## @name Interface
+# @{
+
+def app():
+    """@return currently initialized global app instance. See 
+    @throws EnvironmentError if it wasn't yet initialized"""
+    if Application.main is None:
+        raise EnvironmentError("Application instance not yet initialized - call bcore.Application.new()")
+    # end assert application was setup
+    return Application.main
+
+## -- End Interface -- @}
 
 
 
@@ -125,7 +140,7 @@ def  init_environment():
     do it for the callers convenience.
     @todo consider moving processcontrol into bcore, as the rule would require it. Imports in bcore have to be
     from core, otherwise it must be loaded on demand"""
-    from bcore.processcontrol import (
+    from bprocess import (
                                         ControlledProcessEnvironment,
                                         PythonPackageIterator
                                   )

@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.processcontrol.test_actions
-@brief tests for bcore.processcontrol.actions
+@package bprocess.tests.test_actions
+@brief tests for bprocess.actions
 
 @copyright 2013 Sebastian Thiel
 """
@@ -15,7 +15,7 @@ from bcore.tests import (
                       )
 
 from btransaction import Transaction
-from bcore.processcontrol.actions import CopyAction
+from bprocess.actions import CopyAction
 from bkvstore import KeyValueStoreModifier
 
 

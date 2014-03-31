@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.processcontrol.delegate
+@package bprocess.tests.delegate
 @brief A delegate for testing process communication
 
 @copyright 2013 Sebastian Thiel
@@ -9,7 +9,7 @@ __all__ = []
 
 import subprocess
 
-from bcore.processcontrol import ProcessControllerDelegate
+from bprocess import ProcessControllerDelegate
 from butility import Path 
 
 class TestCommunicatorDelegate(ProcessControllerDelegate):

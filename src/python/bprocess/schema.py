@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.utility
+@package bprocess.utility
 @brief A collection of utilities to ease the work of controller and delegate
 
 @copyright 2013 Sebastian Thiel
@@ -23,7 +23,7 @@ from bcore import Version
 from butility import LazyMixin
 from butility import Path
 
-log = module_logger('bcore.processcontrol.schema')
+log = module_logger('bprocess.schema')
 
 # ==============================================================================
 ## @name Utilities

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.gui.ui
+@package bprocess.gui.ui
 @brief Contains all compiled .ui packages
 
 @copyright 2013 Sebastian Thiel

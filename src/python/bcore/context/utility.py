@@ -15,7 +15,7 @@ import bcore
 def file_environment(*paths, **kwargs):
     """A context manager which sets up a a context based on the given file paths. To achieve that, it will 
     alter the current global context as defined in bcore.environment to contain all environments obtained when
-    creating ConfigHierarchyEnvironment instances for all the given paths.
+    creating HierarchicalContext instances for all the given paths.
     @return returned value is the altered bcore.environment instance, just for convenience
     @note this will temporarily change the bcore.environment, which is a rather expensive operation both in terms
     of IO and CPU
@@ -29,8 +29,8 @@ def file_environment(*paths, **kwargs):
         raise StopIteration
     # end handle empty paths
     
-    from .base import ConfigHierarchyEnvironment
-    from bcore.processcontrol import ControlledProcessEnvironment
+    from .base import HierarchicalContext
+    from bprocess import ControlledProcessEnvironment
     
     # This is potentially dangerous, but we only assume to find the pipeline base environment which is 
     # supposed to hold the main pipeline configuration, and which must exist. We will keep this one, 
@@ -50,7 +50,7 @@ def file_environment(*paths, **kwargs):
             popped_environments.append(bcore.environment.pop())
         # end pop environments
         for path in paths:
-            env = bcore.environment.push(ConfigHierarchyEnvironment(path))
+            env = bcore.environment.push(HierarchicalContext(path))
             if kwargs.get('load_plugins', False):
                 env.load_plugins()
             # end handle plugins

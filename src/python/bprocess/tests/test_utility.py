@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.processcontrol.test_utility
-@brief tests for bcore.processcontrol
+@package bprocess.tests.test_utility
+@brief tests for bprocess
 
 @copyright 2012 Sebastian Thiel
 """
@@ -9,7 +9,7 @@ from bcore.tests import (
                         TestCaseBase,
                         with_rw_directory
                     )
-from bcore.processcontrol.utility import *
+from bprocess.utility import *
 from bkvstore import KeyValueStoreModifier
 
 

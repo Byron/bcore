@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.actions.base
+@package bprocess.actions.base
 @brief Base implementation of action handler
 
 @copyright 2013 Sebastian Thiel

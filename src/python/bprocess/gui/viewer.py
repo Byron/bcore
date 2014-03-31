@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.gui.viewer
+@package bprocess.gui.viewer
 @brief A widget to visualize the package structure
 
 @copyright 2013 Sebastian Thiel
@@ -20,7 +20,7 @@ from .ui import (
 from bcore.gui import remove_widget_children
 from butility import capitalize
 
-log = service(bcore.ILog).new('bcore.processcontrol.gui.viewer')
+log = service(bcore.ILog).new('bprocess.gui.viewer')
 
 
 class PackageWidget(QtGui.QFrame):

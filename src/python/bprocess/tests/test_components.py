@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.processcontrol.test_components
+@package bprocess.tests.test_components
 @brief Tests our component implementations
 
 @copyright 2013 Sebastian Thiel
@@ -9,7 +9,7 @@ __all__ = []
 
 from bcore.tests import TestCaseBase
 
-from bcore.processcontrol import (
+from bprocess import (
                                     ProcessControlContextControllerBase,
                                     ProcessConfigurationIncompatibleError
                                 )

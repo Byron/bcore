@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.processcontrol.test_base
-@brief tests for bcore.processcontrol
+@package bprocess.tests.test_base
+@brief tests for bprocess
 
 @copyright 2012 Sebastian Thiel
 """
@@ -14,7 +14,7 @@ import tempfile
 
 import bcore
 from bcore.tests import TestCaseBase
-from bcore.processcontrol import *
+from bprocess import *
 
 from butility import Path
 

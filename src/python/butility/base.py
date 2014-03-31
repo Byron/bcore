@@ -7,8 +7,8 @@
 """
 __all__ = ['Error', 'InterfaceBase', 'MetaBase', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIteratorBase',
-           'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths']
-
+           'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE']
+           
 import functools
 import logging
 import os
@@ -32,6 +32,9 @@ log = logging.getLogger('butility.base')
 ## @{
 
 container_types = (list , set, tuple)
+
+## The TRACE log level, between DEBUG and INFO
+TRACE = (logging.DEBUG + logging.INFO) / 2
 
 ## -- End Constants -- @}
 

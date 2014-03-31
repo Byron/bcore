@@ -13,7 +13,7 @@ import os.path
 
 import bcore
 from bcore.tests import TestCaseBase
-from bcore.tests.processcontrol.test_base import TestProcessController
+from bprocess.tests.test_base import TestProcessController
 
 # Dynamic loading of wrapper code - its not in a package for good reason
 dirname = os.path.dirname

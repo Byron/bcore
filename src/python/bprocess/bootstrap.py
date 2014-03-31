@@ -1,10 +1,14 @@
 #!/usr/bin/env python2.6
 #-*-coding:utf-8-*-
 """
-@package bcore.bin.wrapper
-@brief bootstrapper to allow importing bcore with the actual implementation
+@package bprocess.bootstrap
+@brief bootstrapper to allow importing the bprocess framework.
 
-@note this is an executable which is not meant to be imported. All dependencies are included in the file
+Using it's own location, it will alter the python path so that the bprocess package can be imported. 
+It assumes that within that path, it will find all packages it depends on, which are all expected to be part
+of the core repository.
+
+@note this is an executable which is not meant to be imported. All dependencies are included in the file.
 
 @copyright 2012 Sebastian Thiel
 """

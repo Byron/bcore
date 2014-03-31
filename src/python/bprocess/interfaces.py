@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.interfaces
+@package bprocess.interfaces
 @brief Interfaces dealing with the startup engine for processes
 
 @copyright 2012 Sebastian Thiel
@@ -160,7 +160,7 @@ class IPostLaunchProcessInformation(bcore.InterfaceBase):
         
     @abstractmethod
     def config_hashmap(self):
-        """@return hash map used by the ConfigHierarchyEnvironment type, based on all files we loaded
+        """@return hash map used by the HierarchicalContext type, based on all files we loaded
         in the wrapper's environment, or None if there is no such data
         """
     ## -- End Query Interface -- @}

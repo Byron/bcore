@@ -24,7 +24,7 @@ from butility import (
                     )
 
 from bkvstore import KeyValueStoreSchema
-from bcore.processcontrol import (ProcessControllerDelegate,
+from bprocess import (ProcessControllerDelegate,
                                   IPostLaunchProcessInformation)
 from bcore.log import module_logger
 from butility import wraps

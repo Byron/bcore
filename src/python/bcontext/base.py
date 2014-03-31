@@ -97,7 +97,7 @@ class Context(object):
     """ A context is defined by its kvstore, holding configuration values, and a list of instances or 
     classes. An class is an implementation of a particlar interface, by which it may be retrieved or instantiated.
 
-    Each Context has a name and a category, which helps to further distinguish it.
+    Each Context has a name which helps to further distinguish it.
 
     A Context maintains a strong pointer to all Plugin instances by default.
     """

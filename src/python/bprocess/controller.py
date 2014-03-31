@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.controller
+@package bprocess.controller
 @brief Contains the controller implementation
 
 @copyright 2013 Sebastian Thiel
@@ -13,50 +13,39 @@ import sys
 import os
 import subprocess
 import logging
+
 from pprint import pprint
 
-from bcore import Version
-from butility import Path
+from butility import (Version,
+                      Path,
+                      TRACE)
 
-import bcore.log
-from logging import TRACE
-
-from bkvstore import KeyValueStoreModifier
-from bcontext import Environment
+from bkvstore import (KeyValueStoreModifier,
+                      KeyValueStoreSchema,
+                      RootKey)
+from bcontext import Context
 from .interfaces import IProcessControllerDelegate
-from bcore.environ import (
-                                IPlatformService,
-                                ConfigHierarchyEnvironment,
-                                PipelineBaseEnvironment
-                            )
-from bkvstore import (
-                                KeyValueStoreSchema,
-                                RootKey
-                            )
-from butility import (
-                            LazyMixin,
-                            update_env_path,
-                            GraphIteratorBase,
-                            DictObject
-                       )
+from bcore.environ import (IPlatformService,
+                           HierarchicalContext,
+                           PipelineBaseEnvironment )
+from butility import (LazyMixin,
+                      update_env_path,
+                      GraphIteratorBase,
+                      DictObject)
 
-from .delegates import (
-                        DelegateEnvironmentOverride,
+from .delegates import (DelegateEnvironmentOverride,
                         PostLaunchProcessInformation,
                         ProcessControllerDelegateProxy,
                         DisplayHelpException,
-                        DisplayContextException,
-                      )
-from .schema import (
-                        controller_schema,
-                        package_schema,
-                        package_vspec_schema,
-                        process_schema,
-                        python_package_schema
-                    )
+                        DisplayContextException)
+from .schema import (controller_schema,
+                     package_schema,
+                     package_vspec_schema,
+                     process_schema,
+                     python_package_schema)
 
 
-log = bcore.log.module_logger('bcore.processcontrol.controller')
+log = logging.getLogger('bprocess.controller')
 
 
 # ==============================================================================
@@ -90,7 +79,7 @@ def set_vspec_value(kvstore, package_name, vspec):
     kvstore.set_value('%s.%s.vspec' % (controller_schema.key(), package_name), vspec) 
     
 
-class _ProcessControllerEnvironment(Environment):
+class _ProcessControllerContext(Context):
     """An environment to allow us to persistently alter the context and to bring in values"""
     __slots__ = ()
     
@@ -99,7 +88,7 @@ class _ProcessControllerEnvironment(Environment):
     
     def __init__(self, program, executable, bootstrap_dir):
         """Store the bootstrap directory in our context"""
-        super(_ProcessControllerEnvironment, self).__init__("ProcessController")
+        super(_ProcessControllerContext, self).__init__("ProcessController")
         
         process = self._context().value(self._schema.key(), self._schema)
         process.id = program
@@ -109,7 +98,7 @@ class _ProcessControllerEnvironment(Environment):
         process.executable = str(executable)
         self._context().set_value(self._schema.key(), process)
         
-# end class _ProcessControllerEnvironment
+# end class _ProcessControllerContext
         
 
 class ProcessControllerPackageSpecification(LazyMixin):
@@ -377,7 +366,7 @@ class VSpecResolvingPythonPackageIterator(PythonPackageIterator):
 # end class VSpecResolvingPythonPackageIterator
 
 
-class ExecutableEnvironment(ConfigHierarchyEnvironment):
+class ExecutableEnvironment(HierarchicalContext):
     """An environment automatically adding process information if this process was launched 
     through process control
     Additionally it will load python modules as defined in the respective schema
@@ -405,11 +394,11 @@ class ExecutableEnvironment(ConfigHierarchyEnvironment):
 # end class ExecutableEnvironment
 
 
-class ControlledProcessEnvironment(ConfigHierarchyEnvironment):
+class ControlledProcessEnvironment(HierarchicalContext):
     """An environment which may only be created in processes started by ProcessControll to restore the exact 
     environment used when the wrapper was invoked.
 
-    We are also a ConfigHierarchyEnvironment to assure that future environments will not load the 
+    We are also a HierarchicalContext to assure that future environments will not load the 
     same yaml files again.
 
     @note useful for assuring the wrapped process behaves exactly like the wrapper itself
@@ -807,11 +796,11 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
             log.warn("Adjusted bootstrap_dir %s to %s as previous one didn't exist", bootstrap_dir, new_bootstrap_dir)
             bootstrap_dir = new_bootstrap_dir
          # end assure we have at least a good initial configuration
-        bcore.environment.push(_ProcessControllerEnvironment(program, self._boot_executable, bootstrap_dir))
+        bcore.environment.push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir))
         
         bcore.environment.push(PipelineBaseEnvironment('Wrapper Pipeline Base'))
         for path in (bootstrap_dir, self._cwd):
-            bcore.environment.push(ConfigHierarchyEnvironment(path))
+            bcore.environment.push(HierarchicalContext(path))
         # end for each path (hierarchy) to check for configurations
         
         # Evaluate Program Database

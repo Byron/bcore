@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.utility
+@package bprocess.utility
 @brief Misc utilities for use with the package system of process control
 
 @copyright 2013 Sebastian Thiel
@@ -17,7 +17,7 @@ from bkvstore import (KeyValueStoreModifier,
 from butility import OrderedDict
 import bcore.log
 
-log = bcore.log.module_logger('bcore.processcontrol.utility')
+log = bcore.log.module_logger('bprocess.utility')
 
 
 class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):

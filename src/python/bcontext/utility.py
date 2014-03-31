@@ -10,9 +10,8 @@ __all__ = ['PluginMeta', 'Plugin']
 from butility import MetaBase
 
 
-
 # ==============================================================================
-## @name Plugin Hanlding
+## @name Plugin Handling
 # ------------------------------------------------------------------------------
 # Convenience facilities to help writing plugins and interfaces for easy use the ContextStack
 ## @{

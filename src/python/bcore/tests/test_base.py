@@ -10,7 +10,6 @@ __all__ = []
 from bcore.tests import TestCaseBase
 from bcore.base import * 
 
-
 # ==============================================================================
 ## \name Test Types
 # ------------------------------------------------------------------------------
@@ -39,5 +38,16 @@ class TestCore(TestCaseBase):
         instances
         new_service
         new_instances
+
+    def test_application(self):
+        """Test BApplication functionality"""
+        self.fail("todo")
+
+        assert bcore.Application.main is bcore.app()
+        bcore.app().instance(ISomeService)
+        bcore.app().type(ISomeService)
+        bcore.app().settings().value_by_schema(schema)
+        assert bcore.app().raw_settings() is bcore.app().context().settings().data()
+
    
 # end class TestCore

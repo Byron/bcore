@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.processcontrol
-@brief tests for bcore.processcontrol
+@package bprocess.tests
+@brief tests for bprocess
 
 @copyright 2012 Sebastian Thiel
 """

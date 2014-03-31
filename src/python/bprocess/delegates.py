@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol
+@package bprocess
 @brief implementations of the interfaces related to process control
 
 @copyright 2012 Sebastian Thiel
@@ -26,7 +26,7 @@ from cPickle import (
 import logging
 
 import bcore.log
-from bcore.environ import ConfigHierarchyEnvironment
+from bcore.environ import HierarchicalContext
 from bkvstore import (
                                 RootKey,
                                 KeyValueStoreProvider,
@@ -62,7 +62,7 @@ from .schema import (
 
 from butility import Path
 
-log = bcore.log.module_logger('bcore.processcontrol.delegate')
+log = bcore.log.module_logger('bprocess.delegate')
 
 
 # ==============================================================================
@@ -316,7 +316,7 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
         # merge and store
         hash_map = dict()
         for einstance in bcore.environment.stack():
-            if isinstance(einstance, ConfigHierarchyEnvironment):
+            if isinstance(einstance, HierarchicalContext):
                 hash_map.update(einstance.hash_map())
             # end update hash_map
         # end for each env on stack
@@ -451,7 +451,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
-                    bcore.environment.push(ConfigHierarchyEnvironment(path.dirname()))
+                    bcore.environment.push(HierarchicalContext(path.dirname()))
                 # end handle valid directory
                 continue
             # end ignore non-wrapper args
@@ -599,7 +599,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # print out all files participating in environment stack
                 log.debug("CONFIGURATION FILES IN LOADING ORDER")
                 for env in bcore.environment.stack():
-                    if not isinstance(env, ConfigHierarchyEnvironment):
+                    if not isinstance(env, HierarchicalContext):
                         continue
                     #end ignore non configuration items
                     for path in env.config_files():

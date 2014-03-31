@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.gui.controller
+@package bprocess.gui.controller
 @brief Contains package controllers, implementing some logic
 
 @copyright 2013 Sebastian Thiel
@@ -14,7 +14,7 @@ from ..utility import PackageMetaDataChangeTracker
 
 from .controller_ui import Ui_PackageViewerWindow
 
-log = service(bcore.ILog).new('bcore.processcontrol.gui.controller')
+log = service(bcore.ILog).new('bprocess.gui.controller')
 
 
 class PackageViewerWindow(QtGui.QWidget, IHubPanel):

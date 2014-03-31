@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.actions.schema
+@package bprocess.actions.schema
 @brief Contains schemas used in all actions we implement
 
 @copyright 2013 Sebastian Thiel

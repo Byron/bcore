@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.actions
+@package bprocess.actions
 @brief Package containing the actions implementation, a generalized utility to so something when a program is started
 
 Actions are the application of the command pattern to do anything.

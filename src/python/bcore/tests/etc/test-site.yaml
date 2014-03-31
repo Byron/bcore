@@ -40,7 +40,7 @@ packages:
       prepend:
         - -c
       append:
-        - from bcore.tests.processcontrol.test_base import TestCommand; TestCommand().execute()
+        - from bprocess.tests.test_base import TestCommand; TestCommand().execute()
       
   py-program-overrides:
     # A python program to receive overrides of the context before starting the program
@@ -67,4 +67,4 @@ packages:
   hub:
     python:
       import:
-        bcore.processcontrol.gui
+        bprocess.gui

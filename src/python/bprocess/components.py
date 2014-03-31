@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol.components
+@package bprocess.components
 @brief Provides implementations of certain components that benefit from working together with process control
 
 @copyright 2013 Sebastian Thiel
@@ -8,36 +8,28 @@
 __all__ = ['ProcessControlContextControllerBase', 'ProcessConfigurationIncompatibleError']
 
 import bcore
-from .controller import (
-                            ProcessController,
-                            PackageDataIteratorMixin,
-                            PythonPackageIterator,
-                            CommandlineOverridesEnvironment
-                        )
+from .controller import ( ProcessController,
+                          PackageDataIteratorMixin,
+                          PythonPackageIterator,
+                          CommandlineOverridesEnvironment )
 from .delegates import PostLaunchProcessInformation
-from .schema import (
-                        process_schema,
-                        package_schema
-                    )
+from .schema import ( process_schema,
+                      package_schema )
 
 from .utility import FlatteningPackageDataIteratorMixin
 from bcontext import ContextStackClient
-from bkvstore import (
-                                KeyValueStoreSchema,
-                                AnyKey
-                            )
-from bdiff import (
-                                TwoWayDiff,
-                                DiffIndexDelegate
-                         )
+from bkvstore import ( KeyValueStoreSchema,
+                       AnyKey )
+from bdiff import ( TwoWayDiff,
+                    DiffIndexDelegate )
 
-from bcore import Version
-from butility import OrderedDict
+from butility import ( Version,
+                       OrderedDict )
 
-from bcore.environ import ConfigHierarchyEnvironment
-from bcore.log import module_logger
+from bcontext import HierarchicalContext
+import logging
 
-log = module_logger('bcore.processcontrol.components')
+log = logging.getLogger('bprocess.components')
 
 
 class ProcessConfigurationIncompatibleError(bcore.IContextController.ContextIncompatible):
@@ -75,7 +67,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ContextStack
     # @{
     
     ## Environment used to load configuration and plugins
-    ConfigHierarchyEnvironmentType = ConfigHierarchyEnvironment
+    HierarchicalContextType = HierarchicalContext
     
     ## If True, plugins will be loaded recursively from all environments we create, i.e. for executable 
     ## and scene contexts)
@@ -101,9 +93,9 @@ class ProcessControlContextControllerBase(bcore.IContextController, ContextStack
     
     def _push_configuration(self, dirname):
         """Push all configuration found at the given directory and parent folders, loading plugins on the way.
-        @return the newly pushed environment of type ConfigHierarchyEnvironmentType
+        @return the newly pushed environment of type HierarchicalContextType
         @note subclasses can override it for special handling"""
-        env = bcore.environment.push(self.ConfigHierarchyEnvironmentType(dirname))
+        env = bcore.environment.push(self.HierarchicalContextType(dirname))
         # Make sure we apply commandline overrides last
         bcore.environment.push(CommandlineOverridesEnvironment())
         if self.load_plugins:

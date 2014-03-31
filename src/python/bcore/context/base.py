@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = [ 'OSEnvironment', 'PipelineBaseEnvironment', 'ConfigHierarchyEnvironment', 
+__all__ = [ 'OSEnvironment', 'PipelineBaseEnvironment', 'StackAwareHierarchicalContext', 
             'HostApplicationEnvironment']
 
 import sys
@@ -30,10 +30,6 @@ from .interfaces import (
                        )
 
 from butility import (
-                        int_bits,
-                        tagged_file_paths,
-                        update_env_path,
-                        LazyMixin,
                         OrderedDict,
                         login_name
                        )
@@ -96,72 +92,38 @@ class OSEnvironment(bcontext.Environment):
 # end class OSEnvironment
         
         
-class HostApplicationEnvironment(bcontext.Environment):
+class HostApplicationEnvironment(bcontext.Context):
     """A base class for all host applications."""
     __slots__ = ()
-    _category = "host_application"
     
 
 # end class HostApplicationEnvironment
         
-        
-class ConfigHierarchyEnvironment(bcontext.Environment, LazyMixin):
-    """An environment which is finding configuration paths in the directory hierarchy based on some root, 
-    and which loads yaml files into its own context.
-    
-    A2dditionally, it can load plug-ins from the very same folders, however, this should be triggerd once
-    the environment was put onto the stack.
-    
-    As a main feature, the loader will find other loaders on the same stack and prevent the same file to 
-    be laoded multiple times, just in case multiple loaders are created on different levels of the same
-    hierarchy.
+
+class StackAwareHierarchicalContext(bcontext.HierarchicalContext):
+    """A context which will assure a configuration file is never loaded twice.
+    This can happen if paths have common roots, which is the case almost always.
+
+    To prevent duplicate loads, which in turn may yield somewhat unexpected application settings, this implementation 
+    uses the current applications stack to find other Contexts of our type.
     """
-    _category = 'recursive-directory-loader'
-    __slots__ = (
-                    '_directory',       ## Directory from were to start the search for configuartion directories
-                    '_config_dirs',     ## Cache for all located configuration directories
-                    '_config_files',    ## All files we have loaded so far, in loading-order
-                    '_hash_map'         ## a mapping between a hash of a configuration file, and the file itself
-                )
-    
-    # -------------------------
-    ## @name Configuration
-    # @{
-    
-    ## the name of the directory in which we expect configuration files
-    default_config_dir_name = 'etc'
-    
-    ## -- End Configuration -- @}
-    
-    def __init__(self, directory, load_config = True):
-        """Initialize the instance with a directory from which it should search for configuration paths 
-        and plug-ins.
-        @param directory from which to start finding directories to laod values from
-        @param load_config if True, we will load the configuration from all found configuration directories
-        @note plugins must be loaded separately, if desired, to assure they end up in this environment, not in 
-        the previous one.
-        """
-        super(ConfigHierarchyEnvironment, self).__init__(directory)
+    __slots__ = ('_hash_map')
+
+    def __init__(self, directory, **kwargs):
+        super(StackAwareHierarchicalContext, self).__init__(directory, **kwargs)
         self._hash_map = OrderedDict()
-        self._directory = make_path(directory)
-        self._config_files = tuple()
-        if load_config:
-            self._load_configuration()
-        # end handle configuration loading
-        
+
     def _iter_config_environments(self):
         """@return iterator yielding environments of our type on the stack, which are not us"""
         for env in bcore.environment.stack():
             # we should be last, but lets not assume that
-            if env is self or not isinstance(env, ConfigHierarchyEnvironment):
+            if env is self or not isinstance(env, HierarchicalContext):
                 continue
             yield env
         # end for each environment
         
     def _filter_directories(self, directories):
-        """@return a list of directories that we should actually use to obtain configuration from
-        @param directories a list of input-directories that should be filtered
-        @note default implementation will ignore directories that have already been loaded by other environments
+        """@note default implementation will ignore directories that have already been loaded by other environments
         on the stack
         """
         # for now, just iterate the environment stack directly, lets just pretend we know it very well
@@ -172,11 +134,9 @@ class ConfigHierarchyEnvironment(bcontext.Environment, LazyMixin):
             current_dirs |= set(env.config_directories())
         # end for each stack environment
         return filter(lambda dir: dir not in current_dirs, directories)
-        
+
     def _filter_files(self, files):
-        """Filter the given files which are supposed to be loaded by YAMLKeyValueStoreModifier
-        @return a sorted list of files that should actually be loaded
-        @note our implementation will compare file hashes in our own hash map with ones of other
+        """@note our implementation will compare file hashes in our own hash map with ones of other
         instances of this type on the stack to assure we don't accidentally load the same file
         @note This method will update our _hash_map member"""
         for config_file in files:
@@ -192,86 +152,21 @@ class ConfigHierarchyEnvironment(bcontext.Environment, LazyMixin):
         # return all remaining ones
         # Make sure we don't change the sorting order !
         return list(self._hash_map[key] for key in self._hash_map if key in our_files) 
-        
-    def _load_configuration(self):
-        """Load all configuration files from our directories.
-        Right now we implement it using tagged configuration files
-        @todo at some point, support writing to the user directory. However, its non-trivial and we 
-        have to do it at some later point"""
-        svc = service(IPlatformService)
-        tags = (svc.id(svc.ID_SHORT), svc.id(svc.ID_FULL), str(int_bits()))
-        config_paths = list()
-        
-        for path in self._filter_directories(self.config_directories()):
-            config_paths.extend(tagged_file_paths(path, tags, '*' + YAMLKeyValueStoreModifier.StreamSerializerType.file_extension))
-        # end for each path in directories
-        
-        # We may have no configuration files left here, as the filter could remove them all (in case they
-        # are non-unique)
-        # for now, no writer
-        config_paths = self._filter_files(config_paths)
-        if config_paths:
-            log.debug("Environment %s initializes its paths", self.name())
-            #end for each path
-            self._kvstore = YAMLKeyValueStoreModifier(config_paths)
-            self._config_files = tuple(config_paths)
-        # end handle yaml store
-        
-    def _set_cache_(self, name):
-        if name == '_config_dirs':
-            dirs = list()
-            path = self._directory.abspath() 
-            new_path = Path()
-            # prevent to reach root, on linux we would get /etc, which we don't search for anything
-            while path.dirname() != path:
-                new_path = path / self.default_config_dir_name
-                if new_path.isdir():
-                    dirs.insert(0, new_path)
-                # end keep existing
-                path = path.dirname()
-            # end less loop
-            self._config_dirs = dirs
-        else:
-            super(ConfigHierarchyEnvironment, self)._set_cache_(name)
-        # end handle name
-        
+
     # -------------------------
     ## @name Interface
     # @{
-    
-    def config_directories(self):
-        """@return a list of directories, least significant, highest-level directory first, directories 
-        deeper down the hierarchy follow, i.e. [/foo, /foo/bar, /foo/bar/baz/feps] that will be used to load 
-        configuration and plugins
-        @note returned list is a reference
-        """
-        return self._config_dirs
-        
-    def config_files(self):
-        """@return a tuple of all configuration files loaded by this instance as tuple. May be empty if 
-        nothing was loaded yet"""
-        return self._config_files
 
     def hash_map(self):
         """@return a dictionary of a mapping of md5 binary strings to the path of the loaded file"""
         return self._hash_map
-        
-        
-    def load_plugins(self):
-        """Call this method explicitly once this instance was pushed onto the top of the environment stack.
-        This assures that new instances are properly registered with it
-        @note plugins should be loaded only AFTER this environment was pushed onto the stack. Otherwise
-        loaded plugins will end up in the previous environment, not in this one"""
-        for path in self._filter_directories(self.config_directories()):
-            PythonFileLoader(path, recurse=True).load()
-        # end load all plugins
     
     ## -- End Interface -- @}
-    
-# end class ConfigHierarchyEnvironment
+
+# end class StackAwaHierarchicalContext
         
     
-class PipelineBaseEnvironment(ConfigHierarchyEnvironment):
+class PipelineBaseEnvironment(bcontext.HierarchicalContext):
     """Environment containing basic information about the pipelne context
        we were started in.
        We will also load most fundamental pipeline configuration, located in directories at our location,
@@ -313,7 +208,7 @@ class PipelineBaseEnvironment(ConfigHierarchyEnvironment):
         if not value.root_path.executables:
             value.root_path.executables = self._root_path() / 'bin' / service(IPlatformService).id(IPlatformService.ID_FULL)
         if not value.root_path.configuration:
-            value.root_path.configuration = Path(value.root_path.repository) / self.default_config_dir_name
+            value.root_path.configuration = Path(value.root_path.repository) / self.config_dir_name
         if not value.root_path.core:
             value.root_path.core = Path(__file__).dirname().dirname().dirname().dirname()
         self._set_context_value(value)
@@ -332,8 +227,8 @@ class PipelineBaseEnvironment(ConfigHierarchyEnvironment):
     @classmethod
     def user_config_directory(cls):
         """@return the directory in which the user configuration is to be found"""
-        return make_path('~').expanduser() / cls.default_config_dir_name
+        return make_path('~').expanduser() / cls.config_dir_name
         
     ## -- End Interface -- @}
 
-# end class ConfigHierarchyEnvironment
+# end class HierarchicalContext

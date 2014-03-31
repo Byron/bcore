@@ -1,23 +1,17 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.processcontrol
-@brief An engine to contol the startup environment of processes that are to be started
+@package bprocess
+@brief An framework to contol the startup environment of newly spawned or executed processes
 
 @page processcontrol Process Control
 
 Requirements
 ============
 
-Implementation in bcore
--------------------------
-The current implementation lies outside of TX, which has a few disadvantages. Keep the wrapper inside of it, 
-and use symlinks where required.
-Make a difference between the boot-strapper and the actual implementation.
-
 Declarative operations
 ----------------------
 
-Using a standard KV store, a configuration tree is build providing all values the engine needs to perform 
+Using a standard KV store, a configuration tree is build providing all values the framework needs to perform 
 specific operations. Those include setting environment variables in various 
 ways, possibly filling in templates and copying the result to specific places. This can be used to prepare 
 configuration files for example.
@@ -31,9 +25,9 @@ Imperative operations
 ----------------------
 
 It should be possible to override the implementation based on the program you want to start, using pipeline plugins.
-Engine can be used by anyone
+framework can be used by anyone
 
-It must be possible to easily use the engine to launch other programs. This functionality would be required to 
+It must be possible to easily use the framework to launch other programs. This functionality would be required to 
 implement a launcher properly. Therefore there is no need to use the bootstrapper to get it started. 
 Instead one can just use the same entry point the bootstrapper eventually uses.
 
