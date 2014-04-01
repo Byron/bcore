@@ -11,6 +11,7 @@ __all__ = [ 'OSEnvironment', 'PipelineBaseEnvironment', 'StackAwareHierarchicalC
 import sys
 import os
 import platform
+import logging
 import hashlib
 
 import bcore
@@ -22,7 +23,7 @@ from .schema import (
                         platform_schema
                     )
 
-from ..log import module_logger
+
 
 from .interfaces import (
                             IHostApplication,
@@ -45,10 +46,10 @@ from butility import (
                     )
 import socket
 
-log = module_logger('bcore.environ.' + __name__)
+log = logging.getLogger('bcore.environ.' + __name__)
 
 
-class OSEnvironment(bcontext.Environment):
+class OSEnvironment(bcontext.Context):
     """Environment containing instances and information about the operating system we're running on.
     Provides IPlatformService implementations"""
     _category = 'platform'
@@ -67,7 +68,7 @@ class OSEnvironment(bcontext.Environment):
                     win32 = components.WindowsPlatformService
                     )[sys.platform]()
                     
-            value = self.context_value(self._kvstore, resolve=False)
+            value = self.settings_value(self._kvstore, resolve=False)
             if not value.platform.id:
                 value.platform.id = inst.id(inst.ID_FULL)
             # Enforce the actual system user
@@ -75,7 +76,7 @@ class OSEnvironment(bcontext.Environment):
             value.user.home = Path('~').expanduser()
             value.host.fqname = socket.gethostname()
             value.host.name = value.host.fqname.split('.')[0]
-            self._set_context_value(value)
+            self._set_settings_value(value)
         except KeyError:
             raise EnvironmentError("Unknown platform %s" % sys.platform)
         # end handle platform singleton
@@ -200,7 +201,7 @@ class PipelineBaseEnvironment(bcontext.HierarchicalContext):
         """Modify the repository_root value to what we determined at runtime 
         """
         super(PipelineBaseEnvironment, self)._load_configuration()
-        value = self.context_value(self._kvstore, resolve=False)
+        value = self.settings_value(self._kvstore, resolve=False)
         if not value.root_path.repository:
             value.root_path.repository = self._root_path()
         if not value.root_path.software:
@@ -211,7 +212,7 @@ class PipelineBaseEnvironment(bcontext.HierarchicalContext):
             value.root_path.configuration = Path(value.root_path.repository) / self.config_dir_name
         if not value.root_path.core:
             value.root_path.core = Path(__file__).dirname().dirname().dirname().dirname()
-        self._set_context_value(value)
+        self._set_settings_value(value)
         
     def _root_path(self):
         """@return the assumed pipeline root path

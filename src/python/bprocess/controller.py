@@ -214,12 +214,12 @@ class PackageDataIteratorMixin(object):
                                             }
                                             )
     
-    def _internal_iter_package_data(self, context_value_or_kvstore, package_name, package_schema = None):
-        """If schema is None, we use the context_value mode, otherwise we access a kvstore directly"""
+    def _internal_iter_package_data(self, settings_value_or_kvstore, package_name, package_schema = None):
+        """If schema is None, we use the settings_value mode, otherwise we access a kvstore directly"""
         if package_schema:
-            data_by_name = lambda n: context_value_or_kvstore.value('%s.%s' % (controller_schema.key(), n), package_schema)
+            data_by_name = lambda n: settings_value_or_kvstore.value('%s.%s' % (controller_schema.key(), n), package_schema)
         else:
-            data_by_name = lambda n: context_value_or_kvstore[n]
+            data_by_name = lambda n: settings_value_or_kvstore[n]
         # end handle query function
         
         seen = set()
@@ -239,12 +239,12 @@ class PackageDataIteratorMixin(object):
         
         return recurse_packages(package_name)
 
-    def _iter_package_data(self, context_value, package_name):
-        """@return iterator yielding tuples (data, package_name) from your given context_value, matching your package schema
-        @param context_value top-level data structure containing everything below the 'packages' key of the 
-        corresponding kvstore. If you are an ContextStackClient, this value is the context_value()
+    def _iter_package_data(self, settings_value, package_name):
+        """@return iterator yielding tuples (data, package_name) from your given settings_value, matching your package schema
+        @param settings_value top-level data structure containing everything below the 'packages' key of the 
+        corresponding kvstore. If you are an ContextStackClient, this value is the settings_value()
         @param package_name name of the package at which to start the iteration - it will be returned as well."""
-        return self._internal_iter_package_data(context_value, package_name)
+        return self._internal_iter_package_data(settings_value, package_name)
 
     def _iter_package_data_by_schema(self, kvstore, package_name, package_schema):
         """As _iter_package_data(), but more efficient as it will pick the packages individually. This 
@@ -356,9 +356,9 @@ class VSpecResolvingPythonPackageIterator(PythonPackageIterator):
         # end handle no wrapped process
         
         kvstore = KeyValueStoreModifier(dict())
-        for pdata, pname in self._iter_package_data(self.context_value(store, resolve=False), info.process_data().id):
+        for pdata, pname in self._iter_package_data(self.settings_value(store, resolve=False), info.process_data().id):
             set_vspec_value(kvstore, pname, package_vspec(pdata))
-        # end for pdata, pname in self._iter_package_data(self.context_value(store), info.process_data().id)
+        # end for pdata, pname in self._iter_package_data(self.settings_value(store), info.process_data().id)
 
         return kvstore
 

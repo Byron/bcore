@@ -7,6 +7,8 @@
 """
 __all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin']
 
+import logging
+
 import bcore
 from .controller import PackageDataIteratorMixin
 from .schema import (package_meta_data_schema,
@@ -17,7 +19,7 @@ from bkvstore import (KeyValueStoreModifier,
 from butility import OrderedDict
 import bcore.log
 
-log = bcore.log.module_logger('bprocess.utility')
+log = logging.getLogger('bprocess.utility')
 
 
 class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
@@ -32,7 +34,7 @@ class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
         sub_tree = OrderedDict()
         tree[controller_schema.key()] = sub_tree
         
-        for data, name  in self._iter_package_data(self.context_value(kvstore), program):
+        for data, name  in self._iter_package_data(self.settings_value(kvstore), program):
             # We keep requires to allow iteration
             sub_tree[name] = data
         #end for each package to query
@@ -124,7 +126,7 @@ class PackageMetaDataChangeTracker( PersistentSettingsContextStackContextClient,
             # end handle file exists
             context = KeyValueStoreModifier(data)
         # end handle previous value
-        return self.context_value(context)
+        return self.settings_value(context)
         
     def iter_package_data(self, previous = False):
         """@return iterator returning tuples of (data, name) package data and name items. The data matches our 

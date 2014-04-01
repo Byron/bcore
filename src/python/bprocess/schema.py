@@ -8,9 +8,9 @@
 __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_package_schema',
            'package_meta_data_schema']
 
+import logging
 
 import bcore
-from bcore.log import module_logger
 from bcontext import CreateFirst
 from bkvstore import (
                                 KeyValueStoreSchema,
@@ -23,7 +23,7 @@ from bcore import Version
 from butility import LazyMixin
 from butility import Path
 
-log = module_logger('bprocess.schema')
+log = logging.getLogger('bprocess.schema')
 
 # ==============================================================================
 ## @name Utilities

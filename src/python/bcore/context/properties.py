@@ -8,7 +8,7 @@
 __all__ = ['ContextPropertyDescriptor', 'PropertyContextStackContextClientMeta',
            'PropertyContextStackContextClient', 'CompoundPropertyDescriptor']
 
-from .base import ContextStackClient
+from .utility import ContextStackClient
 
 from bkvstore import ( KeyValueStoreSchema,
                        RootKey )
@@ -97,7 +97,7 @@ class PropertyContextStackContextClientMeta(PropertySchemaMeta):
 class PropertyContextStackContextClient(ContextStackClient):
     """A context client to more easily accss context values, read-only"""
     __slots__ = (
-                    '_context_value_cache', # An optional cache for our context value, 
+                    '_settings_value_cache', # An optional cache for our context value, 
                 )
     
     __metaclass__ = PropertyContextStackContextClientMeta
@@ -121,18 +121,18 @@ class PropertyContextStackContextClient(ContextStackClient):
         """Update our context value, which effectively retrieves a new value copy and stores it
         in the cache
         @return this instance"""
-        self._context_value_cache = self.context_value()
+        self._settings_value_cache = self.settings_value()
         return self
         
     def has_value_cache(self):
         """@return True if we have a cached value"""
-        return hasattr(self, '_context_value_cache')
+        return hasattr(self, '_settings_value_cache')
         
     def clear_value_cache(self):
         """Remove our value cache. This is ideally called when you are done with interacting with your values
         @return this instance"""
         if self.has_value_cache():
-            del(self._context_value_cache)
+            del(self._settings_value_cache)
         # end remove cache attribute
         return self
         
@@ -141,7 +141,7 @@ class PropertyContextStackContextClient(ContextStackClient):
         @note will automatically be updated in case it doesn't yet exist"""
         if not self.has_value_cache():
             self.update_value_cache()
-        return self._context_value_cache
+        return self._settings_value_cache
         
     ## -- End Context Value Caching -- @}
 

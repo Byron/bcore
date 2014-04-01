@@ -12,6 +12,7 @@ __all__ = ['ProcessControllerDelegate', 'DelegateEnvironmentOverride', 'PostLaun
 import os
 import sys
 import re
+import logging
 
 import bcore
 import yaml
@@ -49,7 +50,8 @@ from butility import (
                             DictObject,
                             Singleton,
                             LazyMixin,
-                            StringChunker
+                            StringChunker,
+                            set_log_level
                         )
 
 from .actions import ActionDelegateMixin
@@ -62,7 +64,7 @@ from .schema import (
 
 from butility import Path
 
-log = bcore.log.module_logger('bprocess.delegate')
+log = logging.getLogger('bprocess.delegate')
 
 
 # ==============================================================================
@@ -593,7 +595,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         if arg == 'help':
             raise DisplayHelpException(self._wrapper_arg_help)
         elif arg in self._wrapper_logging_levels:
-            bcore.log.set_log_level(logging.root, getattr(logging, arg.upper()))
+            set_log_level(logging.root, getattr(logging, arg.upper()))
             
             if arg == 'debug':
                 # print out all files participating in environment stack

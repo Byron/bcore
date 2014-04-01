@@ -12,6 +12,7 @@ import sys
 import shutil
 import tempfile
 import inspect
+import logging
 
 import bcore
 from butility.tests import (TestCaseBase,
@@ -23,12 +24,11 @@ from bkvstore import KeyValueStoreSchema
 # TODO
 # from bprocess import (ProcessControllerDelegate,
 #                       IPostLaunchProcessInformation)
-from bcore.log import module_logger
 from butility import wraps
 
 import nose
 
-log = module_logger('bcore.tests')
+log = logging.getLogger('bcore.tests')
 
 
 # ==============================================================================
@@ -36,48 +36,6 @@ log = module_logger('bcore.tests')
 # ------------------------------------------------------------------------------
 # Classes to use for all test-cases
 ## @{
-
-class EnvironmentAwareTestCaseBase(TestCaseBase):
-    """TODO: review this one !! Should be in bregistry, or however it is called then
-    @warning Be sure that types involved in pipeline components are created within the function that tests them.
-    Otherwise those types will affect other tests.
-    """
-    __slots__ = (
-                    '_previous_stack_len'  # Previous length of the stack encountered before we ran a test
-                )
-    
-    # -------------------------
-    ## @name Subclass Overrides
-    # @{
-    
-    ## File that this type lifes in. Useful for out-of-tree subtypes
-    fixture_root = make_path(__file__).dirname()
-    
-    ## -- End Subclass Overrides -- @}
-
-    # -------------------------
-    ## @name Setup and Teardown
-    # Instance-methods are called before/after each individual test.
-    #
-    # Class-methods are called once before/after all tests run.
-    #
-    # Override them to setup sandboxes and to clean up afterwards
-    # @{
-    
-    def setUp(self):
-        """Runs before each individual test to set it up"""
-        # be sure each test has his own environment to be independent of others
-        self._previous_stack_len = len(bcore.environment)
-        bcore.environment.push(str(self))
-    
-    def tearDown(self):
-        """Runs after each test case to clean up afterwards"""
-        assert isinstance(bcore.environment.pop(until_size = self._previous_stack_len), list)
-
-
-    ## -- End Setup and Teardown -- @}
-
-# end class EnvironmentAwareTestCaseBase
 
 
 # TODO

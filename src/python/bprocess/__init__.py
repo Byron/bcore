@@ -66,3 +66,4 @@ from .controller import *
 from .delegates import *
 from .schema import *
 from .components import *
+from .app import *

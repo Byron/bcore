@@ -73,14 +73,5 @@ class TestCore(TestCaseBase):
         inst = CustomPluginType()
         assert bcore.app().instance(ICustomInterface) is inst
 
-        # bcore.app().settings().value_by_schema(schema)
-        # assert bcore.app().raw_settings() is bcore.app().context().settings().data()
-
-        # class MyPluginType(bcore.app().Plugin):
-        #     """A type for the registry"""
-        #     __slots__ = ()
-        
-        # # end class MyPluginType
-
    
 # end class TestCore

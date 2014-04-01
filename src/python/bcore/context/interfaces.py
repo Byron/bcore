@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package bcore.environ.interfaces
+@package bcore.context.interfaces
 @brief Most basic interfaces for general usage, useful in all host applications !
 
 @copyright 2012 Sebastian Thiel
@@ -9,11 +9,12 @@
 __all__ = ['IHostApplication', 'IPlatformService', 'IContextController', 
            'IProjectService', 'IDirectoryService', 'ISiteService']
 
-import bcore
-from bcore import abstractmethod
+from butility import (InterfaceBase,
+                      abstractmethod,
+                      Error)
 
 
-class IHostApplication(bcore.InterfaceBase):
+class IHostApplication(InterfaceBase):
     """ Host Application Interface with the standard functions
         we expect host applications to support """
         
@@ -47,7 +48,7 @@ class IHostApplication(bcore.InterfaceBase):
         
         
         
-class IContextController(bcore.InterfaceBase):
+class IContextController(InterfaceBase):
     """A controller to deal with the context changes of a typical application.
     
     It deals with two kinds of context:
@@ -69,7 +70,7 @@ class IContextController(bcore.InterfaceBase):
     __slots__ = ()
     
     
-    class ContextIncompatible(bcore.Error):
+    class ContextIncompatible(Error):
         """Indicate the new scene context is not compatible with the current one.
         If converted to string, a descriptive error message should be generated"""
         __slots__ = ()
@@ -82,12 +83,12 @@ class IContextController(bcore.InterfaceBase):
     ## @name Interface
     # @{
     
-    @bcore.abstractmethod
+    @abstractmethod
     def init(self):
         """Should be used to initialize the executable context as well as callbacks to follow the scene context.
         @note must be called exactly once on a new instance, which should exist only once per application"""
         
-    @bcore.abstractmethod
+    @abstractmethod
     def pop_scene_context(self):
         """Remove all environments pushed onto the stack if they belong to the scene context.
         
@@ -102,7 +103,7 @@ class IContextController(bcore.InterfaceBase):
     ## @name Callbacks
     # @{
     
-    @bcore.abstractmethod
+    @abstractmethod
     def change_scene_context(self, filepath):
         """Change our context from the previous one the to one indicated by the given file.
         
@@ -110,7 +111,7 @@ class IContextController(bcore.InterfaceBase):
         changed to), and execption of type 
         
         @note should be called by subclasses from their respective callbacks
-        @param filepath bcore.path.Path instance of filename to change the context to in one way or another
+        @param filepath butility.Path instance of filename to change the context to in one way or another
         @throws IContextController.ContextIncompatible
         """
         
@@ -121,7 +122,7 @@ class IContextController(bcore.InterfaceBase):
         
     
 
-class IPlatformService(bcore.InterfaceBase):
+class IPlatformService(InterfaceBase):
     """Interface for platform instances specific to operating systems"""
     
     # -------------------------
@@ -168,7 +169,7 @@ class IPlatformService(bcore.InterfaceBase):
     ## -- End Interface -- @}
     
     
-class IDirectoryService(bcore.InterfaceBase):
+class IDirectoryService(InterfaceBase):
     """Provides information about the directory structure, and generally where to find things"""
     __slots__ = ()
 

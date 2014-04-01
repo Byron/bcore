@@ -5,11 +5,64 @@
 
 @copyright 2013 Sebastian Thiel
 """
-__all__ = ['file_environment']
+__all__ = ['file_environment', 'ContextStackClient']
 
 from contextlib import contextmanager
 
+from butility import InterfaceBase
+
+from bkvstore import KeyValueStoreSchema
 import bcore
+
+
+# ==============================================================================
+## @name Types
+# ------------------------------------------------------------------------------
+## @{
+
+class ContextStackClient(InterfaceBase):
+    """Base implementation to allow anyone to safely use the context of the global Context stack.
+    Everyone using the global context should derive from it to facilitate context usage and to allow the 
+    ContextStack to verify its data.
+    
+    This type basically brings together a schema with another type, to make data access to any context easy
+    @todo this system is for review, as there will be no 'global' state that we may know here. This would go to the bapplication interface
+    """
+    __slots__ = ()
+
+    ## Schema specifying how we would like to access the global context 
+    ## It must be set by subclasses if they access the context
+    ## The base implementation of schema() will just return this class-level instance, per instance 
+    ## schemas are generally possible though
+    _schema = None 
+    
+    @classmethod
+    def settings_schema(cls):
+        """@return our schema instance, by default it will return the class level instance
+        """
+        assert isinstance(cls._schema, KeyValueStoreSchema), "Subclass must provide a schema instance"
+        return cls._schema
+        
+    @classmethod
+    def settings_value(cls, context = None, resolve=True):
+        """@return a nested dict with getattr access as obtained from the current ContextStack's context, 
+        validated against our schema.
+        @param cls
+        @param context if not None, use the given context (KeyValueStoreProvider) instead of the global one
+        @param resolve if True, string values will be resolved
+        @note use this method when you need access to the datastructure matching your schema"""
+        return (context or bcore.app().context()).value_by_schema(cls.settings_schema(), resolve=resolve)
+
+## -- End Types -- @}
+
+
+# ==============================================================================
+## @name Context Managers
+# ------------------------------------------------------------------------------
+## @{
+
+## -- End Context Managers -- @}
+
 
 @contextmanager
 def file_environment(*paths, **kwargs):

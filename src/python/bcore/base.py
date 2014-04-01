@@ -14,6 +14,8 @@ from bcontext import (HierarchicalContext,
                       Context)
 
 import bcontext
+from .context import LogConfigurator
+
 
 
 # -------------------------
@@ -33,10 +35,7 @@ class InstanceNotFound(TypeNotFound):
 
 # end class InstanceNotFound
 
-
-
 ## -- End Exceptions -- @}
-
 
 
 class Application(object):
@@ -90,6 +89,9 @@ class Application(object):
 
     ## The type of ContextStack we create
     ContextStackType = ContextStack
+
+    ## A utility to setup the logging system
+    LogConfiguratorType = LogConfigurator
     
     ## -- End Subclass Configuration -- @}
 
@@ -146,12 +148,33 @@ class Application(object):
 
 
     # -------------------------
+    ## @name Subclass Interface
+    # @{
+
+    @classmethod
+    def _init_instance(cls):
+        """Create a new instance, and set our main variable.
+        Additionally, setup logging
+        @return new instance of our type"""
+        stack = cls.ContextStackType()
+        inst = cls(stack)
+
+        if cls.main is None:
+            cls.main = inst
+        # end set main only if we are the first
+
+        return inst
+        
+    ## -- End Subclass Interface -- @}
+
+    # -------------------------
     ## @name Interface
     # @{
 
     @classmethod
     def new(cls, settings_paths=tuple(), settings_hierarchy=False, 
-                 load_plugins = True):
+                 load_plugins = True,
+                 setup_logging = True):
         """Create a new Application instance, configured with all items an application needs to function.
         This is mainly a registry for settings, types and instances providing particular instances.
 
@@ -168,19 +191,23 @@ class Application(object):
         settings_search_path will be searched for configuration files too. By default, 'etc' directories will
         be considered a source for settings files.
         @param load_plugins if True, plugins will be loaded from all plugins subdirectories
+        @param setup_logging if True, logging will be configured using the LogConfigurator, which in turn
+        is setup using our context
         @return a new Application instance
         @note in every program, the Application instance must be initialized before anything that uses the 
         default application is imported. Otherwise, types cannot be registered
         """
-        stack = cls.ContextStackType()
-        inst = cls(stack)
-        # NOTE: should we have a default Application that will later be merged into anyone created by the user ?
-        # Or should this be default behaviour ? Any existing app is merged into the new one ?
-        # Could be undesirable, and can only be properly handled (in to catch types I believe)
+        inst = cls._init_instance()
 
-        if cls.main is None:
-            cls.main = inst
-        # end set main only if we are the first
+        # TODO: Init Context stack
+        if setup_logging:
+            cls.LogConfiguratorType.initialize()
+        # end handle log setup
+
+        return inst
+
+    # end handle accelerated module initialization
+    
 
         return inst
 

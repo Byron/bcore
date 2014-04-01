@@ -123,7 +123,7 @@ class PersistentSettingsContextStackContextClient(ContextStackClient, LazyMixin)
         
     def _initial_settings_value(self):
         """@return nested value to initialize the SettingsType instance with"""
-        return self.context_value()
+        return self.settings_value()
     
     def _set_cache_(self, name):
         if name == '_settings_data':

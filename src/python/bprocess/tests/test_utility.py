@@ -50,7 +50,7 @@ class TestUtilities(TestCaseBase):
         
         # make changes
         tracker.reset()
-        packages = tracker.context_value(tracker.kvstore)
+        packages = tracker.settings_value(tracker.kvstore)
         # This will changes the current state
         packages.nosetests.version = '5.0'
         packages.nosetests.url = 'foo.bar'

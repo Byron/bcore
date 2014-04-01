@@ -7,7 +7,8 @@
 """
 __all__ = ['Error', 'InterfaceBase', 'MetaBase', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIteratorBase',
-           'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE']
+           'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
+           'set_log_level']
            
 import functools
 import logging
@@ -34,9 +35,31 @@ log = logging.getLogger('butility.base')
 container_types = (list , set, tuple)
 
 ## The TRACE log level, between DEBUG and INFO
-TRACE = (logging.DEBUG + logging.INFO) / 2
+TRACE = int((logging.INFO + logging.DEBUG) / 2)
 
 ## -- End Constants -- @}
+
+
+# ==============================================================================
+## @name Logging
+# ------------------------------------------------------------------------------
+## @{
+
+## Adjust logging configuration
+# It's basically setup that will be there whenever someone uses the basic parts of the core package#
+# That's how it should be though, TRACE should be there, and code relies on it.
+setattr(logging, 'TRACE', TRACE)
+logging.addLevelName(TRACE, 'TRACE')
+
+
+def set_log_level(logger, level):
+    """Set the loggers and its handlers log level to the given one"""
+    for handler in logger.handlers:
+         handler.setLevel(level)
+    logger.setLevel(level)
+
+## -- End Logging -- @}
+
 
 
 

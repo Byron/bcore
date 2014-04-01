@@ -13,10 +13,11 @@ import os
 import sys
 import platform
 
-import bcore
-from bcore import Version
+from butility import Version
 
-from ..component import ContextStackClient
+
+import bcore
+from .utility import ContextStackClient
 from .interfaces import (
                             IPlatformService,
                             IHostApplication,
@@ -66,7 +67,7 @@ class PlatformServicesBase(IPlatformService, ContextStackClient):
                 raise EnvironmentError("Unknown platform: %s" % sys.platform)
         elif id_type == self.ID_FULL:
             # TODO: cache this with lazymixin
-            return self.context_value().platform.id
+            return self.settings_value().platform.id
         else:
             raise ValueError("invalid id type")
         # end handle type
@@ -87,7 +88,7 @@ class PlatformServicesBase(IPlatformService, ContextStackClient):
 # end class PlatformServicesBase
 
 
-class LinuxPlatformService(PlatformServicesBase, Plugin):
+class LinuxPlatformService(PlatformServicesBase, bcore.plugin_type()):
     """Platform instances specific for Linux"""
     
     # -------------------------
@@ -168,7 +169,7 @@ class DirectoryServicesMixin(object):
     # Methods for implementation or overrides by subclass
     # @{
     
-    @bcore.abstractmethod
+    @abstractmethod
     def _directory_data(self):
         """@return a dictionary whose values are behind keys with names matching PATH_(.*)
         @note Used by the default path() implementation"""
@@ -178,7 +179,7 @@ class DirectoryServicesMixin(object):
     
     def id(self):
         """Default implemnetation which assumes we have an id attribute to obtain a name"""
-        return self.context_value().id
+        return self.settings_value().id
     
     def path(self, id):
         root = self._directory_data()
@@ -203,7 +204,7 @@ class ProjectInformation(DirectoryServicesMixin, IProjectService, ContextStackCl
     _schema = schema.project_schema
     
     def _directory_data(self):
-        return self.context_value().directory
+        return self.settings_value().directory
     
 # end class ProjectInformation
 
@@ -215,7 +216,7 @@ class SiteInformation(DirectoryServicesMixin, ISiteService, ContextStackClient, 
     _schema = schema.site_schema
     
     def _directory_data(self):
-        return self.context_value().root_path
+        return self.settings_value().root_path
     
 # end class SiteInformation
 

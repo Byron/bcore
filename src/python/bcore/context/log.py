@@ -1,24 +1,20 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.log.components
+@package bcore.context.log
 @brief A module to help initializing the logging system
-
-@note must be imported once the core framework is already up, marrying logging with components
 
 @copyright 2013 Sebastian Thiel
 """
-__all__ = []
+__all__ = ['LogConfigurator']
 
 import os
 import sys
 import warnings
-import butility
-from ..component import ContextStackClient
-from ..kvstore import KeyValueStoreSchema
-from .interfaces import ILog
+
+from .utility import ContextStackClient
+from bkvstore import KeyValueStoreSchema
 
 from butility import Path
-from butility import Singleton
 
 import logging
 import logging.config
@@ -43,7 +39,7 @@ class _KVStoreLoggingVerbosity(object):
 # end class _KVStoreLoggingVerbosity
 
 
-class LogProvider(ILog, ContextStackClient, Singleton, Plugin):
+class LogConfigurator(ContextStackClient):
     """Implements the ILog interface and allows to initialize the logging system using context configuration"""
     __slots__ = ()
     
@@ -71,7 +67,7 @@ class LogProvider(ILog, ContextStackClient, Singleton, Plugin):
         """Initialize the logging system using the information provided by the context
         @note at some point we might want to implement a more sophisticated yaml based log initialization"""
         # definition of possible overrides (i.e. which configuration file to use)
-        value = cls.context_value()
+        value = cls.settings_value()
         log_config_file = value.inifile
         
         # See #6239
@@ -134,30 +130,6 @@ class LogProvider(ILog, ContextStackClient, Singleton, Plugin):
             log.debug("Logging to directory disabled")
         # end handle logdir exists
         
-    def new(self, name):
-        return logging.getLogger(name)
-        
-    # -------------------------
-    ## @name Interface
-    # Our custom interface
-    # @{
-    
-    @classmethod
-    def set_verbosity(cls, level=None):
-        """Sets the verbosity to the given level, affecting any of the systems logger
-        @param cls
-        @param level if not None, set the given level, an integer between 1 and 50 (logging.CRITICAL).
-        If None, the kvstore's value of the context will be used to set it
-        @return this class"""
-        if level is None:
-            level = cls.context_value().verbosity.level
-        # end handle level default
-        logging.root.setLevel(level)
-        return cls
-    
-    ## -- End Interface -- @}
-
-
-# end class LogProvider
+# end class LogConfigurator
 
 ## -- End Classes -- @}

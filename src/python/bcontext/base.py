@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = ['Context', 'ContextStack', 'ContextStackClient',
+__all__ = ['Context', 'ContextStack',
            'StackAutoResolveAdditiveMergeDelegate']
 
 import re
@@ -31,47 +31,6 @@ from bkvstore import ( KeyValueStoreSchemaValidator,
 log = logging.getLogger(__name__)
 
 
-
-# ==============================================================================
-## @name Utilities
-# ------------------------------------------------------------------------------
-## @{
-
-class ContextStackClient(InterfaceBase):
-    """Base implementation to allow anyone to safely use the context of the global Context stack.
-    Everyone using the global context should derive from it to facilitate context usage and to allow the 
-    ContextStack to verify its data.
-    
-    This type basically brings together a schema with another type, to make data access to any context easy
-    @todo this system is for review, as there will be no 'global' state that we may know here. This would go to the bapplication interface
-    """
-    __slots__ = ()
-
-    ## Schema specifying how we would like to access the global context 
-    ## It must be set by subclasses if they access the context
-    ## The base implementation of schema() will just return this class-level instance, per instance 
-    ## schemas are generally possible though
-    _schema = None 
-    
-    @classmethod
-    def schema(cls):
-        """@return our schema instance, by default it will return the class level instance
-        """
-        assert isinstance(cls._schema, KeyValueStoreSchema), "Subclass must provide a schema instance"
-        return cls._schema
-        
-    @classmethod
-    def kvstore_value(cls, context, resolve=True):
-        """@return a nested dict with getattr access as obtained from the current ContextStack's context, 
-        validated against our schema.
-        @param cls
-        @param context if not None, use the given context (KeyValueStoreProvider) instead of the global one
-        @param resolve if True, string values will be resolved
-        @note use this method when you need access to the datastructure matching your schema"""
-        schema = cls.schema()
-        return context.value(schema.key(), schema, resolve=resolve)
-        
-# end class ContextStackClient
 
 
 class StackAutoResolveAdditiveMergeDelegate(AutoResolveAdditiveMergeDelegate):
@@ -217,7 +176,7 @@ class Context(object):
     def set_settings(self, kvstore):
         """Set our kvstore to the given one.
         @note this method is used for API completeness, the common way of doing this is to derive 
-        an own type from Context and ContextStackClient to specify an own kvstore with values initialized
+        an own type from Context to specify an own kvstore with values initialized
         by some means, like reading it from a configuration file.
         @param kvstore a KeyValueStoreModifier compatible instance
         @return previous kvstore"""
@@ -449,18 +408,22 @@ class ContextStack(LazyMixin):
     
     def schema_validator(self):
         """@return a KeyValueStoreSchemaValidator instance initialized with all our Context's schemas 
-        as well as registered ContextStackClient instances to allow schema and context validation"""
+        as well as those types presenting KeyValueStoreSchema instances through a schema() method
+        @todo this method should be introduced by a an ApplicationAwareStack, as it relies on the context
+        client"""
         validator = self._KeyValueStoreValidatorType()
         # bottom up - later contexts override earlier ones
         for ctx in self._stack:
-            if hasattr(ctx, 'schema'):
-                validator.append(ctx.schema())
-            # end handle ContextStackClient contexts
+            if hasattr(ctx, 'settings_schema'):
+                schema = ctx.settings_schema()
+                assert isinstance(schema, KeyValueStoreSchema)
+                validator.append()
+            # end handle contexts with schema
             # Context returns instances newest first, which is something we hereby undo to allow
             # proper schema merging.
-            for client in reversed(ctx.instances(ContextStackClient)):
-                schema = client.schema()
-                if schema not in validator:
+            for schema_provider in reversed(ctx.types(object, lambda cls: hasattr(cls, 'settings_schema'))):
+                schema = schema_provider.settings_schema()
+                if isinstance(schema, KeyValueStoreSchema) and schema not in validator:
                     validator.append(schema)
                 # end append schema exclusively
             # end for each client instance
