@@ -95,7 +95,7 @@ class StackAutoResolveAdditiveMergeDelegate(AutoResolveAdditiveMergeDelegate):
 
 class Context(object):
     """ A context is defined by its kvstore, holding configuration values, and a list of instances or 
-    classes. An class is an implementation of a particlar interface, by which it may be retrieved or instantiated.
+    types. An class is an implementation of a particlar interface, by which it may be retrieved or instantiated.
 
     Each Context has a name which helps to further distinguish it.
 
@@ -166,8 +166,8 @@ class Context(object):
         """@return our name, which helps to visualize this Context"""
         return self._name
 
-    def classes(self, interface, predicate = lambda cls: True):
-        """@return all classes implementing \a interface
+    def types(self, interface, predicate = lambda cls: True):
+        """@return all types implementing \a interface
         @param interface the interface to search for
         @param predicate f(cls) => Bool, return True for each class supporting the interface 
         you want to have returned
@@ -400,14 +400,14 @@ class ContextStack(LazyMixin):
     ## @name Query Interface
     # @{
     
-    def classes(self, interface, predicate = lambda cls: True):
-        """@return a list of all registered plugin classes supporting the given interface
+    def types(self, interface, predicate = lambda cls: True):
+        """@return a list of all registered plugin types supporting the given interface
         @param predicate f(service) => Bool, returns True for each class implementing
         interface that should be returned
         """
         res = list()
         for ctx in reversed(self._stack):
-            res += ctx.classes(interface, predicate)
+            res += ctx.types(interface, predicate)
         # end for each context
         return res
     
@@ -503,7 +503,7 @@ class ContextStack(LazyMixin):
         args = args or list()
         kwargs = kwargs or dict()
 
-        for cls in self.classes(interface):
+        for cls in self.types(interface):
             if not maycreate(cls, instances):
                 continue
             # end predicate

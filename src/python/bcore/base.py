@@ -5,7 +5,7 @@
 
 @copyright 2014 Sebastian Thiel
 """
-__all__ = ['Application']
+__all__ = ['Application', 'TypeNotFound', 'InstanceNotFound']
 
 from itertools import chain
 
@@ -14,6 +14,30 @@ from bcontext import (HierarchicalContext,
                       Context)
 
 import bcontext
+
+
+# -------------------------
+## @name Exceptions
+# @{
+
+class TypeNotFound(ValueError):
+    """Thrown if a type cannot be found in the context"""
+    __slots__ = ()
+
+# end class TypeNotFound
+
+
+class InstanceNotFound(TypeNotFound):
+    """Thrown if a requested instance could not be found in the context"""
+    __slots__ = ()
+
+# end class InstanceNotFound
+
+
+
+## -- End Exceptions -- @}
+
+
 
 class Application(object):
     """An application contains all state for a particular application.
@@ -88,13 +112,13 @@ class Application(object):
             # Then this implementation could keep its own catch-all stack which is later merged
             # by us if present.
             # Each Application instance will just set a respective instance variable with the custom type
-            if main is None:
+            if Application.main is None:
                 if len(cls.default_stack) == 1:
                     cls.default_stack.push("early-startup-intermediary")
                 # end create first user-controlled context
                 return cls.default_stack
             # end handle default stack
-            return main.context()
+            return Application.main.context()
     
     # end class Plugin
 
@@ -108,7 +132,8 @@ class Application(object):
         if len(def_stack) > 1:
             prev_contexts = def_stack.pop(until_size=1)
             cur_contexts = context_stack.pop(until_size=1)
-            for ctx in chain(contexts, cur_contexts):
+            for ctx in chain(prev_contexts, cur_contexts):
+                assert not ctx.settings().data(), "Settings of context should be unset"
                 context_stack.push(ctx)
             # end handle context merge
         # end bring in latest items
@@ -158,6 +183,37 @@ class Application(object):
         # end set main only if we are the first
 
         return inst
+
+    def instance(self, interface, predicate = lambda service: True):
+        """@return the first found instance implementing the given interface. 
+        The instance is persistent and owned by the Application's context.
+        @param interface a class/type, that the instance should support
+        @param predicate f(instance) => Bool, returning True for each instance supporting interface that 
+        should be returned
+        @throws InstanceNotFound
+        @note use this function assuming that you will receive a service, no checking necessary. 
+        Of course using it that way is only possible if your code is in an application that may make such 
+        assumptions. Otherwise, see Application.context().instances()"""
+        instances = self.context().instances(interface, predicate = predicate)
+        if not instances:
+            raise InstanceNotFound(interface)
+        # end handle no instance
+        return instances[0]
+
+    def type(self, interface, predicate = lambda type: True):
+        """@return a type which implements the given interface. You can use it to create a new instance
+        @param interface which must be supported by the returned type
+        @param predicate f(type) => Bool, returning True for each type which seems usable
+        @throws TypeNotFound"""
+        types = self.context().types(interface, predicate = predicate)
+        if not types:
+            raise TypeNotFound(interface)
+        # end handle no type
+        return types[0]
+
+    def context(self):
+        """@return our ContextStack instance"""
+        return self._stack
 
     ## -- End Interface -- @}
 # end class Application

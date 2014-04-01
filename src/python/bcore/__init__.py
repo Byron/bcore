@@ -38,7 +38,7 @@ import ConfigParser
 import logging
 
 from butility import Version
-from .base import Application
+from .base import *
 
 __version__ = Version('0.1.0')
 
@@ -74,6 +74,16 @@ def app():
         raise EnvironmentError("Application instance not yet initialized - call bcore.Application.new()")
     # end assert application was setup
     return Application.main
+
+def plugin_type():
+    """@return a PluginType which is a suitable base for your Plugin, which will be part of the 
+    application context.
+    @note this method should be used preferably as it will also work if there is no Application instance yet.
+    Your type will be stored in a temoprary registry, and transferred to the final one when the first Application 
+    is instantiated.
+    """
+    return Application.main and Application.main.Plugin or Application.Plugin
+    
 
 ## -- End Interface -- @}
 

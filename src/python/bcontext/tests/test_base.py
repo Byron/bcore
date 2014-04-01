@@ -25,12 +25,12 @@ class TestPlugin(TestContextBase):
         ctx = Context('name')
         assert ctx.name() == 'name'
 
-        assert not ctx.classes(object)
+        assert not ctx.types(object)
         assert not ctx.instances(object)
         assert len(ctx.settings().keys()) == 0
 
         inst = ctx.register('foo')
-        assert not ctx.classes(str)
+        assert not ctx.types(str)
         assert len(ctx.instances(str)) == 1
 
         ctx.register(inst)
@@ -49,7 +49,7 @@ class TestPlugin(TestContextBase):
 
         # an empty stack should provide nothing
         assert len(stack.instances(object)) == 0
-        assert len(stack.classes(object)) == 0
+        assert len(stack.types(object)) == 0
         assert len(stack.settings().keys()) == 0
         assert len(stack.new_instances(object)) == 0
 
@@ -157,7 +157,7 @@ class TestPlugin(TestContextBase):
         
         # end class PluginType
 
-        assert len(stack.classes(PluginType)) == 1, "Expected to have caught type"
+        assert len(stack.types(PluginType)) == 1, "Expected to have caught type"
         assert not stack.instances(PluginType), "There is no instance yet"
 
         # context for instances

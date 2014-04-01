@@ -149,7 +149,7 @@ class ActionDelegateMixin(object):
         tokens = key.split('.')
         assert len(tokens) > 2, "expected action key of format %s.type_name.name[.name...]" % action_schema.key()
         type_name = tokens[1]
-        for cls in bcore.environment.classes(PackageActionBase):
+        for cls in bcore.environment.types(PackageActionBase):
             if cls.type_name == type_name:
                 return cls
         # end for each class
