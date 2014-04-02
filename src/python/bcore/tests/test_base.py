@@ -51,6 +51,7 @@ class TestCore(TestCoreCaseBase):
         app = bcore.Application.new(setup_logging=False)
         assert bcore.Application.main is bcore.app() is app
         self.failUnlessRaises(InstanceNotFound, bcore.app().instance, file)
+        self.failUnlessRaises(InstanceNotFound, bcore.app().new_instance, file)
         self.failUnlessRaises(TypeNotFound, bcore.app().type, file)
 
         # As there is no instance, this one won't find one either
@@ -63,6 +64,11 @@ class TestCore(TestCoreCaseBase):
         # current main application
         inst = CustomPluginType()
         assert bcore.app().instance(ICustomInterface) is inst
+
+        # create a new instance
+        new_inst = bcore.app().new_instance(ICustomInterface)
+        assert new_inst is not inst
+        assert bcore.app().instance(ICustomInterface) is inst, "new_inst should not be owned by context"
 
     @preserve_application
     def test_hierarchical_loading(self):

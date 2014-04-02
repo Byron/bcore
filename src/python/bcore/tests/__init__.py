@@ -13,6 +13,7 @@ Imports bcore.tests
 # Import all core features into the main package
 import sys
 from .base import *
+
 import logging
 from butility import init_ipython_terminal
 

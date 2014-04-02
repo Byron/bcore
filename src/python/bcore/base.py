@@ -240,6 +240,21 @@ class Application(object):
         # end handle no instance
         return instances[0]
 
+    def new_instance(self, interface, *args, **kwargs):
+        """@return a new instance owned by you which supports the given interface. You will receive
+        an instance of a type most suitable for you based on it's position in the ContextStack.
+        @param interface the new instance must implement
+        @param args given to new instance
+        @param kwargs given to new instance
+        @throws InstanceNotFound"""
+        new_instances = self.context().new_instances(interface, take_ownership=False, 
+                                                     maycreate = lambda cls, instances: not instances,
+                                                     args=args, kwargs=kwargs)
+        if not new_instances:
+            raise InstanceNotFound(interface)
+        # end handle no instance
+        return new_instances[0]
+        
     def type(self, interface, predicate = lambda type: True):
         """@return a type which implements the given interface. You can use it to create a new instance
         @param interface which must be supported by the returned type
