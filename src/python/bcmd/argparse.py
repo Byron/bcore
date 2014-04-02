@@ -1875,7 +1875,41 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 else:
                     start = start_index + 1
                     selected_patterns = arg_strings_pattern[start:]
+
                     arg_count = match_argument(action, selected_patterns)
+
+                    # lookahead search to protect against greedy searches
+                    if action.nargs in (ONE_OR_MORE, ZERO_OR_MORE) and arg_count > 1:
+                        # find positional action arguments after us, and truncate the pattern
+                        # accordingly if an argument matches
+                        aiterator = iter(self._actions)
+                        for a in aiterator:
+                            if a is action:
+                                break
+                        # end forward iterator
+
+                        for a in aiterator:
+                            if not a.choices:
+                                continue
+                            
+                            choices = a.choices
+                            if isinstance(choices, dict):
+                                choices = choices.keys()
+                            # end handle choice types
+                            
+                            # see if one argument is also a choice. If so, adjust argcount
+                            args = arg_strings[start:start+arg_count]
+                            for aid, arg in enumerate(args):
+                                if arg in choices:
+                                    # argcount = aid (points to previous arg)
+                                    # verify parsed args are still correct, and alter it
+                                    arg_count = match_argument(action, arg_strings_pattern[start:start+aid])
+                                    break
+                                # end adjust arg_count
+                            # end for each aid
+                        # end for each action to check
+                    # end greedyness protection
+
                     stop = start + arg_count
                     args = arg_strings[start:stop]
                     action_tuples.append((action, args, option_string))

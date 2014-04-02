@@ -29,6 +29,14 @@ from .utility import (
                     )
 
 
+class InputError(Exception):
+    """Thrown if one of the inputs to the commands turned out to be invalid"""
+    __slots__ = ()
+    
+
+# end class InputError
+
+
 class CommandBase(ICommand, LazyMixin):
     """Implements a simple command which is easily configured through overridable class members.
     
@@ -210,7 +218,7 @@ class CommandBase(ICommand, LazyMixin):
             subparsers = parser.add_subparsers(**scmds_dict)
             for cmd in subcommands:
                 cmd_info = command_info(cmd)
-                subparser = subparsers.add_parser(cmd_info.name)
+                subparser = subparsers.add_parser(cmd_info.name, description=cmd_info.description, help=cmd_info.description)
                 subparser.set_defaults(subcommand=cmd)
                 cmd.setup_argparser(subparser)
             # end for each subcommand
@@ -247,6 +255,9 @@ class CommandBase(ICommand, LazyMixin):
             return self.ARGUMENT_HANDLED
         except ParserError, err:
             self.log().error(str(err))
+            return self.ARGUMENT_ERROR
+        except InputError, err:
+            (parsed_args.subcommand and parsed_args.subcommand.log() or self.log()).error(str(err))
             return self.ARGUMENT_ERROR
         except (ArgumentError, ArgumentTypeError), err:
             parser.print_usage(sys.stderr)

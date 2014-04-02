@@ -57,6 +57,41 @@
 			<key>Head</key>
 			<dict>
 				<key>ID</key>
+				<integer>82</integer>
+			</dict>
+			<key>ID</key>
+			<integer>131</integer>
+			<key>Points</key>
+			<array>
+				<string>{281.47360814250106, 230.00662833423115}</string>
+				<string>{432.13414543993338, 385.92615201208247}</string>
+			</array>
+			<key>Style</key>
+			<dict>
+				<key>stroke</key>
+				<dict>
+					<key>HeadArrow</key>
+					<string>StickArrow</string>
+					<key>Legacy</key>
+					<true/>
+					<key>Pattern</key>
+					<integer>1</integer>
+					<key>TailArrow</key>
+					<string>0</string>
+				</dict>
+			</dict>
+			<key>Tail</key>
+			<dict>
+				<key>ID</key>
+				<integer>93</integer>
+			</dict>
+		</dict>
+		<dict>
+			<key>Class</key>
+			<string>LineGraphic</string>
+			<key>Head</key>
+			<dict>
+				<key>ID</key>
 				<integer>109</integer>
 			</dict>
 			<key>ID</key>
@@ -169,8 +204,8 @@
 			<integer>126</integer>
 			<key>Points</key>
 			<array>
-				<string>{326.47053288036835, 172.5000200472773}</string>
-				<string>{326.47053288036835, 197.43277734637903}</string>
+				<string>{309.41876256618224, 172.34440548835661}</string>
+				<string>{282.85008007437801, 197.58831654465479}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -199,7 +234,7 @@
 			<array>
 				<dict>
 					<key>Bounds</key>
-					<string>{{273.47054482019689, 140.28573431544132}, {106.00000000000007, 31.714285714285726}}</string>
+					<string>{{273.47054482019684, 140.28571877579319}, {106.00000000000007, 31.714285714285726}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -236,7 +271,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{273.47054482019689, 135.00002002972701}, {31.176420202020211, 5.2857142857142945}}</string>
+					<string>{{273.47054482019684, 135.00000449007888}, {31.176420202020211, 5.2857142857142945}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -416,8 +451,8 @@
 			<integer>84</integer>
 			<key>Points</key>
 			<array>
-				<string>{238.96433509729135, 172.21457571008668}</string>
-				<string>{292.64340682435704, 197.71820726735803}</string>
+				<string>{222.18747045344281, 172.34442289483596}</string>
+				<string>{248.75378650279592, 197.58835814150629}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -451,8 +486,8 @@
 			<integer>85</integer>
 			<key>Points</key>
 			<array>
-				<string>{326.47054992106024, 230.14706306514944}</string>
-				<string>{326.47054992106024, 385.78571561434421}</string>
+				<string>{271.06459380914504, 230.12298550858361}</string>
+				<string>{321.20981345003912, 385.80979317091004}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -486,8 +521,8 @@
 			<integer>86</integer>
 			<key>Points</key>
 			<array>
-				<string>{296.59018246623731, 229.88416810982869}</string>
-				<string>{235.01755093724032, 263.04860850392089}</string>
+				<string>{250.74362822704913, 230.01351072076022}</string>
+				<string>{220.1974515246865, 262.91926602036438}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -657,7 +692,7 @@
 			<array>
 				<dict>
 					<key>Bounds</key>
-					<string>{{273.47053573664164, 197.93277736392926}, {106.00000000000007, 31.714285714285726}}</string>
+					<string>{{152.13720618500673, 197.93277736392926}, {227.33332955163499, 31.714285714285726}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -694,7 +729,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{273.47053573664164, 192.64706307821504}, {31.176420202020211, 5.2857142857142945}}</string>
+					<string>{{152.13720618500673, 192.64706307821504}, {66.862635924774608, 5.2857142857142945}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -1196,7 +1231,7 @@
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2014-04-02 15:02:55 +0000</string>
+	<string>2014-04-02 15:56:54 +0000</string>
 	<key>Modifier</key>
 	<string>Sebastian Thiel</string>
 	<key>NotesVisible</key>

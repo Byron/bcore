@@ -67,7 +67,7 @@ from butility import Path
 log = logging.getLogger('bprocess.delegate')
 
 
-# ==============================================================================
+#ocio ==============================================================================
 ## @name Utilities
 # ------------------------------------------------------------------------------
 ## @{
@@ -480,8 +480,8 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 (evar != 'home' and evar.endswith('home')) or
                  # Should be done in their own delegate !
                  evar.endswith('tree') or 
-                 evar.endswith('LOCATION') or
-                 evar == 'OCIO') 
+                 evar.endswith('location') or
+                 evar == 'ocio') 
         
     def variable_is_appendable(self, environment_variable, value):
         """Default implementation always assumes paths are appendable, except for a custom set 

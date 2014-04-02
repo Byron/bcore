@@ -867,12 +867,13 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
             
             # TODO: remove this flag
             if root_package.data().legacy_inherit_env:
-                # this is usefu if we are started from another wrapper (legacy)
-                self._env = os.environ
+                # this is useful if we are started from another wrapper, or if 
+                # Always copy the environment, never write it directly to assure we can do in-process launches
+                self._env.update(os.environ)
 
                 # But be sure we don't inherit this evar - it can be set later through config though
                 if bcore.minimal_init_evar in os.environ:
-                    del(os.environ[bcore.minimal_init_evar])
+                    del(sefl._env[bcore.minimal_init_evar])
                 # end cleanup environment
             # end reuse full parent environment
             
