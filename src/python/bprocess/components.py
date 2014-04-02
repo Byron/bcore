@@ -95,9 +95,9 @@ class ProcessControlContextControllerBase(bcore.IContextController, ContextStack
         """Push all configuration found at the given directory and parent folders, loading plugins on the way.
         @return the newly pushed environment of type HierarchicalContextType
         @note subclasses can override it for special handling"""
-        env = bcore.environment.push(self.HierarchicalContextType(dirname))
+        env = bcore.app().context().push(self.HierarchicalContextType(dirname))
         # Make sure we apply commandline overrides last
-        bcore.environment.push(CommandlineOverridesEnvironment())
+        bcore.app().context().push(CommandlineOverridesEnvironment())
         if self.load_plugins:
             env.load_plugins()
         # end handle plugin loading
@@ -153,7 +153,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ContextStack
         assert self._initial_stack_len is not None, 'call set_static_stack_len at the end of your init()'
         # get rid of previous scene stack
         log.debug("popping scene context")
-        return bcore.environment.pop(until_size = self._initial_stack_len)
+        return bcore.app().context().pop(until_size = self._initial_stack_len)
     
     ## -- End Overridable Methods -- @}
     
@@ -184,7 +184,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ContextStack
         @param length If None, The length set will be the current length of the stack. Otherwise the given
         length will be used
         @note its valid to call it multiple times, to re-adjust the are of the static context accordingly"""
-        self._initial_stack_len = length or len(bcore.environment)
+        self._initial_stack_len = length or len(bcore.app().context())
     
     ## -- End Interface -- @}
     
@@ -217,7 +217,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ContextStack
         res = self.pop_scene_context()
         self._push_configuration(filepath.dirname())
         try:
-            self._check_process_compatibility(bcore.environment.context())
+            self._check_process_compatibility(bcore.app().context().context())
             # if this worked, load plugins
             PythonPackageIterator().import_modules()
         except ProcessConfigurationIncompatibleError:
@@ -225,7 +225,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ContextStack
             # in the context of the given file
             if self.restore_stack_if_new_context_is_incompatible:
                 for env in res:
-                    bcore.environment.push(env)
+                    bcore.app().context().push(env)
                 # end for each env to put back
             # end should we restore the stack ?
             raise

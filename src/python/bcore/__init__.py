@@ -99,7 +99,6 @@ def _init_pre_app_loggig():
             raise AssertionError(msg)
         #end handle early log-level setup
     # end have env var
-    _init_component_framework()
 
 ## -- End Initialization Handlers -- @}
 

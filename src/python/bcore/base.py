@@ -14,7 +14,7 @@ from bcontext import (HierarchicalContext,
                       Context)
 
 import bcontext
-from .context import LogConfigurator
+from .utility import LogConfigurator
 
 
 

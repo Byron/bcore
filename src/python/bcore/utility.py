@@ -1,30 +1,62 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.context.log
-@brief A module to help initializing the logging system
+@package bcore.utility
+@brief Contains utilities with minimal dependencies
 
-@copyright 2013 Sebastian Thiel
+@copyright 2014 Sebastian Thiel
 """
-__all__ = ['LogConfigurator']
+__all__ = ['ContextStackClient', 'LogConfigurator']
 
 import os
-import sys
 import warnings
-
-from .utility import ContextStackClient
-from bkvstore import KeyValueStoreSchema
+import logging
+import logging.config
 
 from butility import Path
 
-import logging
-import logging.config
+from bkvstore import KeyValueStoreSchema
+import bcore
 
 
 
 # ==============================================================================
-## @name Classes
+## @name Types
 # ------------------------------------------------------------------------------
 ## @{
+
+class ContextStackClient(object):
+    """Base implementation to allow anyone to safely use the context of the global Context stack.
+    Everyone using the global context should derive from it to facilitate context usage and to allow the 
+    ContextStack to verify its data.
+    
+    This type basically brings together a schema with another type, to make data access to any context easy
+    @todo this system is for review, as there will be no 'global' state that we may know here. This would go to the bapplication interface
+    """
+    __slots__ = ()
+
+    ## Schema specifying how we would like to access the global context 
+    ## It must be set by subclasses if they access the context
+    ## The base implementation of schema() will just return this class-level instance, per instance 
+    ## schemas are generally possible though
+    _schema = None 
+    
+    @classmethod
+    def settings_schema(cls):
+        """@return our schema instance, by default it will return the class level instance
+        """
+        assert isinstance(cls._schema, KeyValueStoreSchema), "Subclass must provide a schema instance"
+        return cls._schema
+        
+    @classmethod
+    def settings_value(cls, context = None, resolve=True):
+        """@return a nested dict with getattr access as obtained from the current ContextStack's context, 
+        validated against our schema.
+        @param cls
+        @param context if not None, use the given context (KeyValueStoreProvider) instead of the global one
+        @param resolve if True, string values will be resolved
+        @note use this method when you need access to the datastructure matching your schema"""
+        return (context or bcore.app().context().settings()).value_by_schema(cls.settings_schema(), resolve=resolve)
+
 
 class _KVStoreLoggingVerbosity(object):
     """Implements a valid verbosity"""
@@ -55,9 +87,10 @@ class LogConfigurator(ContextStackClient):
                                               'verbosity' : _KVStoreLoggingVerbosity,
                                                         # Disables any kind of logging configuration
                                                         # which may be provided by the host application
-                                                        # NOTE: At some point we should control it precise
+                                                        # NOTE: At some point we should control it precisely
                                                         # enough to never use this flag
-                                              'disable' : False
+                                                        # NOTE: it is up to the configuration to enable this one
+                                              'disable' : True
                                             })
     
     ## -- End Configuration -- @}
@@ -79,7 +112,10 @@ class LogConfigurator(ContextStackClient):
     
         # initialize fallback defaults if no configuration file was found
         if not log_config_file or not os.path.isfile(log_config_file):
-            warnings.warn("logging system using basic configuration, log config file '%s' wasn't accessible" % log_config_file)
+            if not log_config_file:
+                warnings.warn("logging.inifile is not set, resorting to standard logging setup")
+            else:
+                warnings.warn("log config file '%s' wasn't accessible, resorting to standard logging setup" % log_config_file)
             logging.basicConfig()
         else:
             # BUGFIX 3369
@@ -132,4 +168,9 @@ class LogConfigurator(ContextStackClient):
         
 # end class LogConfigurator
 
-## -- End Classes -- @}
+
+## -- End Types -- @}
+
+
+
+warnings

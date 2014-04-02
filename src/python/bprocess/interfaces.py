@@ -26,7 +26,7 @@ class IProcessControllerDelegate(InterfaceBase):
         This method is executed after the initial environment configuration was performed by the controller, 
         based on the current working directory and the executable's location.
         The delegate should - if adequate - alter the environment stack by pushing a new environment on top to
-        setup overrides, see bcore.environment for more information.
+        setup overrides, see bcore.app().context() for more information.
         It may also change the environment (env), and modify the executable arguments (args).
         @note for a variable description, see pre_start()
         @note you must not use this method to alter argument lists, see pre_start() for that reason"""

@@ -116,7 +116,7 @@ class StackAwareHierarchicalContext(bcontext.HierarchicalContext):
 
     def _iter_config_environments(self):
         """@return iterator yielding environments of our type on the stack, which are not us"""
-        for env in bcore.environment.stack():
+        for env in bcore.app().context().stack():
             # we should be last, but lets not assume that
             if env is self or not isinstance(env, HierarchicalContext):
                 continue

@@ -557,12 +557,12 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
             except DisplayHelpException, err:
                 self._help_string = err.help_string
             except DisplayContextException:
-                sys.stderr.write(str(bcore.environment._contents_str()))
+                sys.stderr.write(str(bcore.app().context()._contents_str()))
                 # just cause us to exit elegantly
                 self._help_string = "Context displayed\n"
             except Exception, err:
                 if self._is_debug_mode():
-                    sys.stderr.write(str(bcore.environment._contents_str()))
+                    sys.stderr.write(str(bcore.app().context()._contents_str()))
                 # end handle debug mode
                 raise
             #end assure context is written
@@ -585,10 +585,10 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
     def _package_data(cls, name):
         """@return verified package data for a package of the given name"""
         key = '%s.%s' % (cls._schema.key(), name)
-        if not bcore.environment.context().has_value(key):
+        if not bcore.app().context().context().has_value(key):
             raise EnvironmentError("A package named '%s' did not exist in the database" % name)
         # end graceful key handling
-        return bcore.environment.context().value(key, cls._package_data_schema, resolve=True)
+        return bcore.app().context().context().value(key, cls._package_data_schema, resolve=True)
         
     @classmethod
     def _package(cls, name):
@@ -639,7 +639,7 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
         """@return iterator yielding ProcessControllerPackageSpecification instances for all packages that the given one requires
         , including the ProcessControllerPackageSpecification corresponding to package_name itself, in unspecified order.
         @param package_name name of the package from which to start the iteration.
-        @note database used is the currently active kvstore, as provided by bcore.environment.context()
+        @note database used is the currently active kvstore, as provided by bcore.app().context().context()
         """
         package = self._package(package_name)
         yield package
@@ -684,7 +684,7 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
         """Load all plugins from all our packages into the environment of the given name.
         It will be pushed on the stack automatically.
         @return self"""
-        bcore.environment.push(env_name)
+        bcore.app().context().push(env_name)
         
         # First iteration sets the python path
         package_cache = list()
@@ -748,7 +748,7 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
         # end for each package name
         type(self)._package_data_schema = prev_schema
 
-        env = bcore.environment.push("Fill VSpec")
+        env = bcore.app().context().push("Fill VSpec")
         assert hasattr(env, '_kvstore'), "Expected Environment instance to have kvstore"
         env._kvstore = kvstore
         
@@ -765,7 +765,7 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
         
         @return self
         """
-        self._stack_len = len(bcore.environment)
+        self._stack_len = len(bcore.app().context())
         
         def root_package_and_executable_provider():
             root_package = executable_provider_package = self._package(program)
@@ -796,11 +796,11 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
             log.warn("Adjusted bootstrap_dir %s to %s as previous one didn't exist", bootstrap_dir, new_bootstrap_dir)
             bootstrap_dir = new_bootstrap_dir
          # end assure we have at least a good initial configuration
-        bcore.environment.push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir))
+        bcore.app().context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir))
         
-        bcore.environment.push(PipelineBaseEnvironment('Wrapper Pipeline Base'))
+        bcore.app().context().push(PipelineBaseEnvironment('Wrapper Pipeline Base'))
         for path in (bootstrap_dir, self._cwd):
-            bcore.environment.push(HierarchicalContext(path))
+            bcore.app().context().push(HierarchicalContext(path))
         # end for each path (hierarchy) to check for configurations
         
         # Evaluate Program Database
@@ -839,7 +839,7 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
             # end use delegate overrides
             
             self._executable_path = executable_provider_package.executable()
-            prev_len = len(bcore.environment)
+            prev_len = len(bcore.app().context())
             self.delegate().prepare_environment(self._executable_path, self._env, self._args, self._cwd)
             
             # RESOLVE VSPEC
@@ -851,7 +851,7 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
             
             # If there were changes to the environment, pick them up by clearing our data. This would the delegate 
             # name to be updated as well.
-            if len(bcore.environment) - num_new_environments != prev_len:
+            if len(bcore.app().context()) - num_new_environments != prev_len:
                 root_package, executable_provider_package = root_package_and_executable_provider()
                 self._executable_path = executable_provider_package.executable()
                 
@@ -1054,7 +1054,7 @@ class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
         
         # before doing anything with the process, bring the environment stack back to where it was
         # This 'cleanup' is required for in-process launches
-        bcore.environment.pop(until_size = self._stack_len)
+        bcore.app().context().pop(until_size = self._stack_len)
         
         if not self.dry_run:
             

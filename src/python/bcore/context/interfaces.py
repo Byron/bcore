@@ -63,7 +63,7 @@ class IContextController(InterfaceBase):
         of plugins, before we change to the new scene. If its okay, we may proceed, otherwise the scene change
         should be aborted.
         
-    @note If we talk about context, we mean the kvstore of the bcore.environment instance.
+    @note If we talk about context, we mean the kvstore of the bcore.app().context() instance.
     @note This type is meant to be used as Singleton, and must be initialized once during your application's 
     boot sequence.
     """

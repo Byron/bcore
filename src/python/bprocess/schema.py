@@ -50,7 +50,7 @@ class NamedServiceProcessControllerDelegate(LazyMixin):
                 return
             # end handle value unset
             
-            delegates = bcore.environment.new_instances(IProcessControllerDelegate, 
+            delegates = bcore.app().context().new_instances(IProcessControllerDelegate, 
                                             predicate = lambda *args: self._type_matches_name(self._delegate_name, *args))
             if not delegates:
                 raise AssertionError("Delegate named '%s' could not be found in service registry" % self._delegate_name)

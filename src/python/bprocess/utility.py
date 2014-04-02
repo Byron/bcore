@@ -7,6 +7,7 @@
 """
 __all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin']
 
+from contextlib import contextmanager
 import logging
 
 import bcore
@@ -17,9 +18,73 @@ from bcore.environ import PersistentSettingsContextStackContextClient
 from bkvstore import (KeyValueStoreModifier,
                       PathList)
 from butility import OrderedDict
-import bcore.log
 
 log = logging.getLogger('bprocess.utility')
+
+from bcore import HierarchicalContext
+from bprocess import ControlledProcessEnvironment
+
+
+
+# ==============================================================================
+## @name Context Managers
+# ------------------------------------------------------------------------------
+## @{
+
+@contextmanager
+def file_environment(*paths, **kwargs):
+    """A context manager which sets up a a context based on the given file paths. To achieve that, it will 
+    alter the current global context as defined in bcore.app().context() to contain all environments obtained when
+    creating HierarchicalContext instances for all the given paths.
+    @return returned value is the altered bcore.app().context() instance, just for convenience
+    @note this will temporarily change the bcore.app().context(), which is a rather expensive operation both in terms
+    of IO and CPU
+    @param paths any path that should be used to define the future context. If empty, the current 
+    environment will not be altered. Each path should be a directory !
+    @param kwargs valid keys are 
+    + load_plugins default False, if True, plugins will be loaded for all given paths.
+    @note usage: file_environment(scene, executable, cwd) as env: env.context() ..."""
+    if not paths:
+        yield bcore.app().context()
+        raise StopIteration
+    # end handle empty paths
+    
+    # This is potentially dangerous, but we only assume to find the pipeline base environment which is 
+    # supposed to hold the main pipeline configuration, and which must exist. We will keep this one, 
+    # but recreate all others based on the input paths
+    size = -1
+    for index, env in enumerate(bcore.app().context().stack()):
+        if isinstance(env, ControlledProcessEnvironment):
+            size = index + 1
+            break
+        # end check for special environment
+    # end for each env
+    assert size > -1, "Didn't find ControlledProcessEnvironment on stack"
+    
+    popped_environments = list()
+    try:
+        while len(bcore.app().context()) > size:
+            popped_environments.append(bcore.app().context().pop())
+        # end pop environments
+        for path in paths:
+            env = bcore.app().context().push(HierarchicalContext(path))
+            if kwargs.get('load_plugins', False):
+                env.load_plugins()
+            # end handle plugins
+        # end for each path
+        yield bcore.app().context()
+    finally:
+        if len(bcore.app().context()) > size:
+            bcore.app().context().pop(until_size = size)
+        # end only pop if it makes sense
+        
+        # put all environments back, after removing previous ones
+        for env in reversed(popped_environments):
+            bcore.app().context().push(env)
+        # end for each env
+
+## -- End Context Managers -- @}
+
 
 
 class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
@@ -83,7 +148,7 @@ class PackageMetaDataChangeTracker( PersistentSettingsContextStackContextClient,
     
     def _initial_settings_value(self):
         """@return a flattened list of just the packages we are concerned with"""
-        return self._flattened_package_tree(self._package_name, bcore.environment.context())
+        return self._flattened_package_tree(self._package_name, bcore.app().context().context())
     
     def settings_id(self):
         """@return our settings id

@@ -22,7 +22,7 @@ class TestEnvironment(TestCaseBase):
         ose = OSEnvironment('test_os')
         
         # Test Validation
-        validator = bcore.environment.schema_validator()
+        validator = bcore.app().context().schema_validator()
         assert len(validator) > 0
         assert len(validator.validate_schema()[1]) == 0, "default schema's should have no clashes"
     

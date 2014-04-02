@@ -121,7 +121,7 @@ class TestProcessControl(TestCaseBase):
             assert pinfo.executable.isfile()
             assert pinfo.bootstrap_dir.isdir()
             assert pinfo.id
-            assert bcore.environment.context().value_by_schema(process_schema).executable == pinfo.executable
+            assert bcore.app().context().context().value_by_schema(process_schema).executable == pinfo.executable
         # end handle data
         
         

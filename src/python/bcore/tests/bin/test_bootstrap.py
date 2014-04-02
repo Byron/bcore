@@ -35,7 +35,7 @@ class TestBootstrap(TestCaseBase):
         """test fundamentals
         @note doesn't run all code paths, but its just a few lines"""
         # Have to register the controller explicitly to make it available
-        bcore.environment.register(TestProcessController)
+        bcore.app().context().register(TestProcessController)
         
         # Should be dealing with its executable being python as well as its file
         self.failUnlessRaises(AssertionError, TestBootstrapper().main, wrapper_file)

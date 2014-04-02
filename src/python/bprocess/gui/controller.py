@@ -72,5 +72,5 @@ class PackageViewerWindow(QtGui.QWidget, IHubPanel):
 
 # end class PackageWidget
 
-bcore.environment.register(PackageViewerWindow)
+bcore.app().context().register(PackageViewerWindow)
 
