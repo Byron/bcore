@@ -41,7 +41,7 @@ import re
 log = logging.getLogger("bcore.path")
 
 __version__ = '3.0'
-__all__ = ['Path', 'BasePath', 'make_path']
+__all__ = ['Path', 'BasePath']
 
 # Platform-specific support for path.owner
 if os.name == 'nt':
@@ -1221,17 +1221,6 @@ class ConversionPath(BasePath):
     # } END special methods
     
 # END handle backslashes
-
-
-#{ Utilities 
-def make_path(path):
-    """@return A path instance of the correct type
-    @note use this constructor if you use the Path.set_separator method at runtime
-        to assure you will always create instances of the actual type, and not only
-        of the type you imported last"""
-    return Path(path)
-
-#} END utilities
 
 # assure separator is set
 ################################

@@ -14,7 +14,7 @@ import shutil
 import tempfile
 import inspect
 
-from butility import (make_path,
+from butility import (Path,
                       MetaBase,
                       wraps)
 import nose
@@ -32,7 +32,7 @@ def _maketemp(*args, **kwargs):
     tdir = tempfile.mktemp(*args, **kwargs)
     if sys.platform == 'darwin':
         tdir = '/private' + tdir
-    return make_path(tdir)
+    return Path(tdir)
 
 
 class TempRWDirProvider(object):
@@ -67,7 +67,7 @@ def with_rw_directory(func):
     """
     @wraps(func)
     def wrapper(self):
-        path = make_path(_maketemp(prefix=func.__name__))
+        path = Path(_maketemp(prefix=func.__name__))
         path.mkdir()
         keep = False
         try:
@@ -187,7 +187,7 @@ class TestCaseBase(unittest.TestCase):
     fixture_subdir = ''
     
     ## File that this type lifes in. Useful for out-of-tree subtypes
-    fixture_root = make_path(__file__).dirname()
+    fixture_root = Path(__file__).dirname()
     
     ## -- End Subclass Overrides -- @}
 
@@ -204,7 +204,7 @@ class TestCaseBase(unittest.TestCase):
         would like to get an absolute path for, i.e. 'myfile.ext', 'directory/myfile.ext'e
         @return absolute butility.path into the fixture repository
         """
-        return make_path(cls.fixture_root / 'fixtures' / cls.fixture_subdir / filename)
+        return Path(cls.fixture_root / 'fixtures' / cls.fixture_subdir / filename)
     ## -- End Utilities -- @}
 
 # end class TestCaseBase

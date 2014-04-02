@@ -13,7 +13,7 @@ from bkvstore import (
                                 ChangeTrackingJSONKeyValueStoreModifier,
                                 KeyValueStoreProvider
                             )
-from bcontext import ContextStackClient
+from bcontext import ApplicationSettingsClient
 from bdiff import (
                             merge_data,
                             AutoResolveAdditiveMergeDelegate
@@ -84,7 +84,7 @@ class PersistentSettings(ChangeTrackingJSONKeyValueStoreModifier):
 # end class PersistentSettings
 
 
-class PersistentSettingsContextStackContextClient(ContextStackClient, LazyMixin):
+class PersistentSettingsContextStackContextClient(ApplicationSettingsClient, LazyMixin):
     """A type that facilitates the use of settings data for reading and writing.
     
     It will read your information form the global context according to your schema, and provide simple
@@ -112,7 +112,7 @@ class PersistentSettingsContextStackContextClient(ContextStackClient, LazyMixin)
     # @{
     
     ## Your schema which is used to read data from the kvstore initially. It must be set, and is repeated
-    ## here just for documentation. See ContextStackClient for more information
+    ## here just for documentation. See ApplicationSettingsClient for more information
     _schema = None
     
     ## -- End Subclass Configuration -- @}

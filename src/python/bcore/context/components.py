@@ -17,18 +17,16 @@ from butility import Version
 
 
 import bcore
-from .utility import ContextStackClient
-from .interfaces import (
-                            IPlatformService,
-                            IHostApplication,
-                            IProjectService,
-                            ISiteService
-                        )
+from bcore.utility import ApplicationSettingsClient
+from .interfaces import (IPlatformService,
+                         IHostApplication,
+                         IProjectService,
+                         ISiteService)
 
 from . import schema
 
 
-class PlatformServicesBase(IPlatformService, ContextStackClient):
+class PlatformServicesBase(IPlatformService, ApplicationSettingsClient):
     """Base implementation for platform instances"""
     
     _platform_names = {'linux2': 'lnx',
@@ -197,7 +195,7 @@ class DirectoryServicesMixin(object):
 # end class DirectoryServicesMixin
 
 
-class ProjectInformation(DirectoryServicesMixin, IProjectService, ContextStackClient, Plugin):
+class ProjectInformation(DirectoryServicesMixin, IProjectService, ApplicationSettingsClient, Plugin):
     """Implements the project information interface, using the kvstore exclusively"""
     __slots__ = ()
 
@@ -209,7 +207,7 @@ class ProjectInformation(DirectoryServicesMixin, IProjectService, ContextStackCl
 # end class ProjectInformation
 
 
-class SiteInformation(DirectoryServicesMixin, ISiteService, ContextStackClient, Plugin):
+class SiteInformation(DirectoryServicesMixin, ISiteService, ApplicationSettingsClient, Plugin):
     """Implements the site information interface, using the kvstore exclusively"""
     __slots__ = ()
 

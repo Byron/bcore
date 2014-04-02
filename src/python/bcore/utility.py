@@ -5,16 +5,19 @@
 
 @copyright 2014 Sebastian Thiel
 """
-__all__ = ['ContextStackClient', 'LogConfigurator']
+__all__ = ['ApplicationSettingsClient', 'LogConfigurator', 'StackAwareHierarchicalContext']
 
 import os
 import warnings
+import hashlib
 import logging
 import logging.config
 
-from butility import Path
+from butility import (Path,
+                      OrderedDict)
 
 from bkvstore import KeyValueStoreSchema
+from bcontext import HierarchicalContext
 import bcore
 
 
@@ -24,7 +27,7 @@ import bcore
 # ------------------------------------------------------------------------------
 ## @{
 
-class ContextStackClient(object):
+class ApplicationSettingsClient(object):
     """Base implementation to allow anyone to safely use the context of the global Context stack.
     Everyone using the global context should derive from it to facilitate context usage and to allow the 
     ContextStack to verify its data.
@@ -58,6 +61,75 @@ class ContextStackClient(object):
         return (context or bcore.app().context().settings()).value_by_schema(cls.settings_schema(), resolve=resolve)
 
 
+# end class ApplicationSettingsClient
+
+
+class StackAwareHierarchicalContext(HierarchicalContext):
+    """A context which will assure a configuration file is never loaded twice.
+    This can happen if paths have common roots, which is the case almost always.
+
+    To prevent duplicate loads, which in turn may yield somewhat unexpected application settings, this implementation 
+    uses the current applications stack to find other Contexts of our type.
+    """
+    __slots__ = ('_hash_map')
+
+    def __init__(self, directory, **kwargs):
+        super(StackAwareHierarchicalContext, self).__init__(directory, **kwargs)
+        self._hash_map = OrderedDict()
+
+    def _iter_application_contexts(self):
+        """@return iterator yielding environments of our type on the stack, which are not us"""
+        for ctx in bcore.app().context().stack():
+            # we should be last, but lets not assume that
+            if ctx is self or not isinstance(ctx, HierarchicalContext):
+                continue
+            yield ctx
+        # end for each environment
+        
+    def _filter_directories(self, directories):
+        """@note default implementation will ignore directories that have already been loaded by other environments
+        on the stack
+        """
+        # for now, just iterate the environment stack directly, lets just pretend we know it very well
+        # as we are an environment !
+        # We keep file ordering
+        current_dirs = set()
+        for env in self._iter_application_contexts():
+            current_dirs |= set(env.config_directories())
+        # end for each stack environment
+        return filter(lambda dir: dir not in current_dirs, directories)
+
+    def _filter_files(self, files):
+        """@note our implementation will compare file hashes in our own hash map with ones of other
+        instances of this type on the stack to assure we don't accidentally load the same file
+        @note This method will update our _hash_map member"""
+        for config_file in files:
+            self._hash_map[hashlib.md5(open(config_file).read()).digest()] = config_file
+        #end for each file
+        
+        # subtract all existing hashes
+        our_files = set(self._hash_map.keys())
+        for env in self._iter_application_contexts():
+            our_files -= set(env._hash_map.keys())
+        #end for each environment
+        
+        # return all remaining ones
+        # Make sure we don't change the sorting order !
+        return list(self._hash_map[key] for key in self._hash_map if key in our_files) 
+
+    # -------------------------
+    ## @name Interface
+    # @{
+
+    def hash_map(self):
+        """@return a dictionary of a mapping of md5 binary strings to the path of the loaded file"""
+        return self._hash_map
+    
+    ## -- End Interface -- @}
+
+# end class StackAwaHierarchicalContext
+
+
 class _KVStoreLoggingVerbosity(object):
     """Implements a valid verbosity"""
     __slots__ = ('level')
@@ -71,7 +143,7 @@ class _KVStoreLoggingVerbosity(object):
 # end class _KVStoreLoggingVerbosity
 
 
-class LogConfigurator(ContextStackClient):
+class LogConfigurator(ApplicationSettingsClient):
     """Implements the ILog interface and allows to initialize the logging system using context configuration"""
     __slots__ = ()
     
@@ -168,9 +240,4 @@ class LogConfigurator(ContextStackClient):
         
 # end class LogConfigurator
 
-
 ## -- End Types -- @}
-
-
-
-warnings

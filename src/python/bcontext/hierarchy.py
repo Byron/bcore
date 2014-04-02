@@ -14,14 +14,17 @@ from butility import (LazyMixin,
                       int_bits,
                       Path,
                       PythonFileLoader,
-                      tagged_file_paths)
+                      tagged_file_paths,
+                      OrderedDict)
+from bkvstore import YAMLKeyValueStoreModifier
 from .base import Context
 
 log = logging.getLogger(__name__)
 
 
 
-class HierarchicalContext(Context):
+
+class HierarchicalContext(Context, LazyMixin):
     """A Context which is finding configuration paths in the directory hierarchy based on some root, 
     and which loads one or more yaml files into its own kvstore.
     
@@ -36,7 +39,6 @@ class HierarchicalContext(Context):
                     '_directory',       ## Directory from were to start the search for configuartion directories
                     '_config_dirs',     ## Cache for all located configuration directories
                     '_config_files',    ## All files we have loaded so far, in loading-order
-                    '_hash_map'         ## a mapping between a hash of a configuration file, and the file itself
                 )
     
     # -------------------------
@@ -65,9 +67,10 @@ class HierarchicalContext(Context):
         one. Otherwise, we will just consider configuration in the given directory.
         @note plugins must be loaded separately with load_plugins(), if desired, to assure they end up in this context, not in 
         the previous one which is already on the stack
+        @note settings will be delay-loaded, first time they are actually queried
         """
         super(HierarchicalContext, self).__init__(directory)
-        self._directory = make_path(directory)
+        self._directory = Path(directory)
         self._config_files = tuple()
 
         if traverse_settings_hierarchy:
@@ -83,8 +86,16 @@ class HierarchicalContext(Context):
         # end handle traversal
 
         if load_config:
-            self._load_configuration()
+            # clear the cache, which was set by our base class during reset
+            del self._kvstore
         # end handle configuration loading
+
+    def _set_cache_(self, name):
+        if name == '_kvstore':
+            self._load_configuration()
+        else:
+            return super(HierarchicalContext, self)._set_cache_(name)
+        #end handle name
 
     @classmethod
     def _platform_id_short(cls):
@@ -117,6 +128,8 @@ class HierarchicalContext(Context):
             #end for each path
             self._kvstore = YAMLKeyValueStoreModifier(config_paths)
             self._config_files = tuple(config_paths)
+        else:
+            self._kvstore = self.KeyValueStoreModifierType(OrderedDict())
         # end handle yaml store
 
     def _traverse_config_directories(self):

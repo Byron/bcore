@@ -16,7 +16,7 @@ import logging
 import threading
 import time
 
-from butility import (make_path,
+from butility import (Path,
 					  InterfaceBase,
 					  ProgressIndicator,
 					  abstractmethod,

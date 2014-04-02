@@ -207,7 +207,7 @@ class PackageDataIteratorMixin(object):
         @param schema KeyValueStoreSchema or any dict representing the data you wish to associate with
         a package. The schema must have the 'requires' key 
         @return KeyValueStoreSchema suitable for use in iteration. Assign it to your _schema class variable
-        if you are an ContextStackClient subclass"""
+        if you are an ApplicationSettingsClient subclass"""
         return KeyValueStoreSchema(controller_schema.key(), 
                                             {   
                                                 package_schema.key() : schema
@@ -242,7 +242,7 @@ class PackageDataIteratorMixin(object):
     def _iter_package_data(self, settings_value, package_name):
         """@return iterator yielding tuples (data, package_name) from your given settings_value, matching your package schema
         @param settings_value top-level data structure containing everything below the 'packages' key of the 
-        corresponding kvstore. If you are an ContextStackClient, this value is the settings_value()
+        corresponding kvstore. If you are an ApplicationSettingsClient, this value is the settings_value()
         @param package_name name of the package at which to start the iteration - it will be returned as well."""
         return self._internal_iter_package_data(settings_value, package_name)
 
@@ -266,7 +266,7 @@ class PackageDataIteratorMixin(object):
 # end class PackageIteratorMixin
 
 
-class PythonPackageIterator(ContextStackClient, PackageDataIteratorMixin):
+class PythonPackageIterator(ApplicationSettingsClient, PackageDataIteratorMixin):
     """A utility type allowing to deal with additional python information
     
     Currently it is able to import any of the given modules, per package
@@ -466,7 +466,7 @@ class CommandlineOverridesEnvironment(Environment):
 ## -- End Utilities -- @}
 
 
-class ProcessController(GraphIteratorBase, ContextStackClient, Plugin):
+class ProcessController(GraphIteratorBase, ApplicationSettingsClient, Plugin):
     """The main interface to deal with \ref processcontrol "Process Control" .
     
     It allows to control the environment in which processes are executed, as well as to alter their input 

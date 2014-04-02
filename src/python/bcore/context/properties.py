@@ -8,7 +8,7 @@
 __all__ = ['ContextPropertyDescriptor', 'PropertyContextStackContextClientMeta',
            'PropertyContextStackContextClient', 'CompoundPropertyDescriptor']
 
-from .utility import ContextStackClient
+from .utility import ApplicationSettingsClient
 
 from bkvstore import ( KeyValueStoreSchema,
                        RootKey )
@@ -94,7 +94,7 @@ class PropertyContextStackContextClientMeta(PropertySchemaMeta):
 # end class Property
 
 
-class PropertyContextStackContextClient(ContextStackClient):
+class PropertyContextStackContextClient(ApplicationSettingsClient):
     """A context client to more easily accss context values, read-only"""
     __slots__ = (
                     '_settings_value_cache', # An optional cache for our context value, 

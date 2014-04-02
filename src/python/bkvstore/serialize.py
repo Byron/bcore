@@ -12,7 +12,7 @@ __all__ = ['ChangeTrackingSerializingKeyValueStoreModifierBase', 'SerializingKey
 import logging
 
 
-from butility import (make_path,
+from butility import (Path,
                       InterfaceBase,
                       abstractmethod)
 
@@ -114,7 +114,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
         for path_or_stream in input_paths:
             if not hasattr(path_or_stream, 'read'):
                 # assume its a path
-                path_or_stream = make_path(path_or_stream)
+                path_or_stream = Path(path_or_stream)
             # end handle type
             self._input_paths.append(path_or_stream)
         #end for each path

@@ -7,7 +7,9 @@
 """
 __all__ = []
 
-from butility.tests import TestCaseBase
+from .base import (preserve_application,
+                   TestCoreCaseBase)
+                            
 from butility import (InterfaceBase,
                       abstractmethod)
 
@@ -16,22 +18,11 @@ import bcore
 from bcore import (InstanceNotFound,
                    TypeNotFound)
 
-# ==============================================================================
-## \name Test Types
-# ------------------------------------------------------------------------------
-# Types that derive from the type that should actually be tested
-## \{
 
-class TestInterface(InterfaceBase):
+class TestCore(TestCoreCaseBase):
     __slots__ = ()
     
-# end class TestInterface
-## -- End Test Types -- \}
-
-
-class TestCore(TestCaseBase):
-    __slots__ = ()
-    
+    @preserve_application
     def test_application(self):
         """Test BApplication functionality"""
 
@@ -57,7 +48,7 @@ class TestCore(TestCaseBase):
         # end class CustomPluginType
 
         # we don't have access to the stack without an application, so lets make one
-        app = bcore.Application.new()
+        app = bcore.Application.new(setup_logging=False)
         assert bcore.Application.main is bcore.app() is app
         self.failUnlessRaises(InstanceNotFound, bcore.app().instance, file)
         self.failUnlessRaises(TypeNotFound, bcore.app().type, file)
@@ -73,5 +64,15 @@ class TestCore(TestCaseBase):
         inst = CustomPluginType()
         assert bcore.app().instance(ICustomInterface) is inst
 
-   
+    @preserve_application
+    def test_hierarchical_loading(self):
+        """See the hierarchical yaml loader in action"""
+        assert bcore.Application.main is None
+        app = bcore.Application.new(setup_logging=False, 
+                                    settings_paths=(self.fixture_path(''),),
+                                    settings_hierarchy=True)
+
+        assert len(app.settings().data())
+
+       
 # end class TestCore

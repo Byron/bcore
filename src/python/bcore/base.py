@@ -9,12 +9,14 @@ __all__ = ['Application', 'TypeNotFound', 'InstanceNotFound']
 
 from itertools import chain
 
-from bcontext import (HierarchicalContext,
-                      ContextStack,
+from bcontext import (ContextStack,
                       Context)
 
+from .utility import (LogConfigurator,
+                      StackAwareHierarchicalContext)
+
 import bcontext
-from .utility import LogConfigurator
+
 
 
 
@@ -78,7 +80,7 @@ class Application(object):
     # @{
 
     ## Type used when building the ContextStack (settings, registry)
-    HierarchicalContextType = HierarchicalContext
+    HierarchicalContextType = StackAwareHierarchicalContext
 
     ## The name of the sub-directory to consider when loading plugins from all settings directories
     # May be None to load plugins from the settings directories directly
@@ -100,8 +102,9 @@ class Application(object):
     # @{
 
     class Plugin(PluginType):
-        """An App-Aware Plugin which will retrieve the current application context when needed.
-        It is only actually used by types which are  """
+        """This is an intermediat Plugin type implementation which may be used by code 
+        which is run even though there is no Application yet.
+        Instead of dealing with this directly, you should use bcore.plugin_type()"""
         __slots__ = ()
 
         default_stack = ContextStack()
@@ -173,7 +176,7 @@ class Application(object):
 
     @classmethod
     def new(cls, settings_paths=tuple(), settings_hierarchy=False, 
-                 load_plugins = True,
+                 load_plugins = False, recursive_plugin_loading = False, plugins_subdirectory='plug-ins',
                  setup_logging = True):
         """Create a new Application instance, configured with all items an application needs to function.
         This is mainly a registry for settings, types and instances providing particular instances.
@@ -191,6 +194,9 @@ class Application(object):
         settings_search_path will be searched for configuration files too. By default, 'etc' directories will
         be considered a source for settings files.
         @param load_plugins if True, plugins will be loaded from all plugins subdirectories
+        @param recursive_plugin_loading if True, plugins may reside in sub-folders and will be loaded anyway
+        @param plugins_subdirectory the directory within each configuration directory which should be searched
+        for plug-ins. That way, you can separate plug-ins from other code
         @param setup_logging if True, logging will be configured using the LogConfigurator, which in turn
         is setup using our context
         @return a new Application instance
@@ -199,7 +205,14 @@ class Application(object):
         """
         inst = cls._init_instance()
 
-        # TODO: Init Context stack
+        for path in settings_paths:
+            ctx = inst.context().push(cls.HierarchicalContextType(path, 
+                                                            traverse_settings_hierarchy=settings_hierarchy))
+            if load_plugins:
+                ctx.load_plugins(recurse = recursive_plugin_loading,
+                                 subdirectory = plugins_subdirectory)
+        # end for each path to push
+
         if setup_logging:
             cls.LogConfiguratorType.initialize()
         # end handle log setup
@@ -241,6 +254,12 @@ class Application(object):
     def context(self):
         """@return our ContextStack instance"""
         return self._stack
+
+    def settings(self):
+        """A shortcut to context().settings()
+        @return the KeyValueStoreProvider representing our settings"""
+        return self.context().settings()
+        
 
     ## -- End Interface -- @}
 # end class Application

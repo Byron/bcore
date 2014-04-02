@@ -11,13 +11,13 @@ import yaml
 
 
 from butility.tests import TestCaseBase
-from butility import make_path
+from butility import Path
 from bkvstore import OrderedDictYAMLLoader
 
 class TestConfigurationBase(TestCaseBase):
     __slots__ = ()
 
-    fixture_root = make_path(__file__).dirname()
+    fixture_root = Path(__file__).dirname()
 
     @classmethod
     def config_data(cls, name):
