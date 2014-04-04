@@ -6,14 +6,11 @@
 @copyright 2012 Sebastian Thiel
 """
 
-__all__ = ['PythonHostApplication', 'LinuxPlatformService', 'MacPlatformService', 'ProjectInformation', 
-           'WindowsPlatformService']
+__all__ = ['LinuxPlatformService', 'MacPlatformService', 'ProjectInformation', 'WindowsPlatformService']
 
-import os
 import sys
-import platform
 
-from butility import Version
+from bcontext import HierarchicalContext
 
 
 import bcore
@@ -26,13 +23,10 @@ from .interfaces import (IPlatformService,
 from . import schema
 
 
-class PlatformServicesBase(IPlatformService, ApplicationSettingsClient):
+class PlatformServicesBase(IPlatformService, ApplicationSettingsClient, bcore.plugin_type()):
     """Base implementation for platform instances"""
     
-    _platform_names = {'linux2': 'lnx',
-                       'sunos5': 'sun',
-                       'darwin': 'mac',
-                       'win32':  'win'}
+    platform_names_map = HierarchicalContext.platform_names_map
                        
     # -------------------------
     ## @name Configuration
@@ -50,6 +44,10 @@ class PlatformServicesBase(IPlatformService, ApplicationSettingsClient):
     
     ## our platform schema
     _schema = schema.platform_schema
+
+
+    # We want to be pure singleton instances, no one should instantiate one of our subclasses
+    _auto_register_class_ = False
     
     ## -- End Configuration -- @}
 
@@ -60,7 +58,7 @@ class PlatformServicesBase(IPlatformService, ApplicationSettingsClient):
     def id(self, id_type = IPlatformService.ID_SHORT):
         if id_type == self.ID_SHORT:
             try:
-                return self._platform_names[sys.platform]
+                return self.platform_names_map[sys.platform]
             except KeyError:
                 raise EnvironmentError("Unknown platform: %s" % sys.platform)
         elif id_type == self.ID_FULL:
@@ -86,7 +84,7 @@ class PlatformServicesBase(IPlatformService, ApplicationSettingsClient):
 # end class PlatformServicesBase
 
 
-class LinuxPlatformService(PlatformServicesBase, bcore.plugin_type()):
+class LinuxPlatformService(PlatformServicesBase):
     """Platform instances specific for Linux"""
     
     # -------------------------
@@ -102,7 +100,7 @@ class LinuxPlatformService(PlatformServicesBase, bcore.plugin_type()):
 # end class LinuxPlatformService
 
     
-class MacPlatformService(PlatformServicesBase, Plugin):
+class MacPlatformService(PlatformServicesBase):
     """Platform instances specific for Mac OS X"""
     # -------------------------
     ## @name Configuration
@@ -117,7 +115,7 @@ class MacPlatformService(PlatformServicesBase, Plugin):
 # end class MacPlatformService
 
 
-class WindowsPlatformService(PlatformServicesBase, Plugin):
+class WindowsPlatformService(PlatformServicesBase):
     """Platform instances specific to windows"""
     
     # -------------------------
@@ -131,31 +129,6 @@ class WindowsPlatformService(PlatformServicesBase, Plugin):
     ## -- End Configuration -- @}
     
 # end class WindowsPlatformService
-
-
-class PythonHostApplication(IHostApplication, Plugin):
-    """A simple environment when running just inside of a standard python interpreter"""
-    __slots__ = ()
-
-    def version(self):
-        return Version('.'.join(str(token) for token in sys.version_info))
-        
-    def name(self):
-        return 'cpython'
-        
-    def quit(self, exit_code):
-        sys.exit(exit_code)
-    
-    def load(self, filename):
-        raise NotImplementedError("can't be done")
-        
-    def save(self, filename):
-        raise NotImplementedError("can't be done")
-        
-    def loaded_file(self):
-        raise NotImplementedError("can't be done")
-
-# end class PythonHostApplication
 
 
 class DirectoryServicesMixin(object):
@@ -195,7 +168,7 @@ class DirectoryServicesMixin(object):
 # end class DirectoryServicesMixin
 
 
-class ProjectInformation(DirectoryServicesMixin, IProjectService, ApplicationSettingsClient, Plugin):
+class ProjectInformation(DirectoryServicesMixin, IProjectService, ApplicationSettingsClient):
     """Implements the project information interface, using the kvstore exclusively"""
     __slots__ = ()
 
@@ -207,7 +180,7 @@ class ProjectInformation(DirectoryServicesMixin, IProjectService, ApplicationSet
 # end class ProjectInformation
 
 
-class SiteInformation(DirectoryServicesMixin, ISiteService, ApplicationSettingsClient, Plugin):
+class SiteInformation(DirectoryServicesMixin, ISiteService, ApplicationSettingsClient):
     """Implements the site information interface, using the kvstore exclusively"""
     __slots__ = ()
 

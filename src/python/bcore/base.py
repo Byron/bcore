@@ -205,6 +205,8 @@ class Application(object):
         """
         inst = cls._init_instance()
 
+        # TODO: Flags for more specific contexts, which add various pieces of information to the kvstore
+
         for path in settings_paths:
             ctx = inst.context().push(cls.HierarchicalContextType(path, 
                                                             traverse_settings_hierarchy=settings_hierarchy))
@@ -216,11 +218,6 @@ class Application(object):
         if setup_logging:
             cls.LogConfiguratorType.initialize()
         # end handle log setup
-
-        return inst
-
-    # end handle accelerated module initialization
-    
 
         return inst
 

@@ -5,7 +5,7 @@
 
 @copyright 2013 Sebastian Thiel
 """
-__all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin']
+__all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment']
 
 from contextlib import contextmanager
 import logging
@@ -14,7 +14,7 @@ import bcore
 from .controller import PackageDataIteratorMixin
 from .schema import (package_meta_data_schema,
                      controller_schema)
-from bcore.environ import PersistentSettingsContextStackContextClient
+from bcore.environ import PersistentApplicationSettingsClient
 from bkvstore import (KeyValueStoreModifier,
                       PathList)
 from butility import OrderedDict
@@ -108,7 +108,7 @@ class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
 # end class FlattenedPackgeTreeMixin
 
 
-class PackageMetaDataChangeTracker( PersistentSettingsContextStackContextClient, 
+class PackageMetaDataChangeTracker( PersistentApplicationSettingsClient, 
                                     FlatteningPackageDataIteratorMixin):
     """A utility to track and query changes done to meta-data of individual packages, and to iterate 
     package information.

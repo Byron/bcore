@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = [ 'OSEnvironment', 'PipelineBaseEnvironment', 'HostApplicationEnvironment']
+__all__ = [ 'OSContext', 'ApplicationContext', 'HostApplicationEnvironment']
 
 import sys
 import os
@@ -16,46 +16,34 @@ import bcore
 import bcontext
 
 from . import components
-from .schema import (
-                        site_schema,
-                        platform_schema
-                    )
+from .schema import (site_schema,
+                     platform_schema)
 
 
 
-from .interfaces import (
-                            IHostApplication,
-                            IPlatformService,
-                       )
+from .interfaces import IPlatformService
 
-from butility import (
-                        OrderedDict,
-                        login_name
-                       )
-from ..kvstore import (
-                        YAMLKeyValueStoreModifier,
-                        KeyValueStoreSchema
-                      )
+from butility import (OrderedDict,
+                      login_name)
+from ..kvstore import (YAMLKeyValueStoreModifier,
+                       KeyValueStoreSchema )
 
-from butility import (
-                        Path,
-                        Path,
-                        PythonFileLoader
-                    )
+from butility import (Path,
+                      PythonFileLoader )
 import socket
 
 log = logging.getLogger('bcore.environ.' + __name__)
 
 
-class OSEnvironment(bcontext.Context):
-    """Environment containing instances and information about the operating system we're running on.
+class OSContext(bcontext.Context):
+    """Context containing information about the operating system we're running on.
     Provides IPlatformService implementations"""
     _category = 'platform'
     _schema = platform_schema
     
     def __init__(self, name):
         """make sure platform instances for the current OS are available"""
-        super(OSEnvironment, self).__init__(name)
+        super(OSContext, self).__init__(name)
 
         # instantiate platform singleton
         try:
@@ -80,26 +68,15 @@ class OSEnvironment(bcontext.Context):
         # end handle platform singleton
 
         # Basic directory information
-        # Those will need the PipelineBaseEnvironment to have acted already (when used)
+        # Those will need the ApplicationContext to have acted already (when used)
         # Order matters, as we go from general to granular
         components.SiteInformation()
         components.ProjectInformation()
         
-        # Default host application is a python interpreter
-        components.PythonHostApplication()
-        
-# end class OSEnvironment
+# end class OSContext
         
         
-class HostApplicationEnvironment(bcontext.Context):
-    """A base class for all host applications."""
-    __slots__ = ()
-    
-
-# end class HostApplicationEnvironment
-        
-    
-class PipelineBaseEnvironment(bcontext.HierarchicalContext):
+class ApplicationContext(bcontext.HierarchicalContext):
     """Environment containing basic information about the pipelne context
        we were started in.
        We will also load most fundamental pipeline configuration, located in directories at our location,
@@ -119,7 +96,7 @@ class PipelineBaseEnvironment(bcontext.HierarchicalContext):
     def __init__(self, name):
         """puts pipeline base paths and python paths into the context and the
            environment. It also creates some basic components"""
-        super(PipelineBaseEnvironment, self).__init__(Path(__file__).dirname())
+        super(ApplicationContext, self).__init__(Path(__file__).dirname())
         
     def _filter_directories(self, directories):
         """amend the user's private configuration directory - people can just drop files there"""
@@ -127,12 +104,12 @@ class PipelineBaseEnvironment(bcontext.HierarchicalContext):
         if user_dir.isdir():
             directories.append(user_dir)
         # user dir needs to exist - for now we don't create it
-        return super(PipelineBaseEnvironment, self)._filter_directories(directories)
+        return super(ApplicationContext, self)._filter_directories(directories)
         
     def _load_configuration(self):
         """Modify the repository_root value to what we determined at runtime 
         """
-        super(PipelineBaseEnvironment, self)._load_configuration()
+        super(ApplicationContext, self)._load_configuration()
         value = self.settings_value(self._kvstore, resolve=False)
         if not value.root_path.repository:
             value.root_path.repository = self._root_path()

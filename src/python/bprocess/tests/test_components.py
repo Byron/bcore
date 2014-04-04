@@ -33,7 +33,7 @@ class TestProcessControlContextController(TestCaseBase):
        ctrl = TestProcessController()
        ctrl.set_static_stack_len()
        
-       assert len(ctrl.pop_scene_context()) == 0, 'should have popped nothing, but its okay'
+       assert len(ctrl.pop_asset_context()) == 0, 'should have popped nothing, but its okay'
        
        kv_a = YAMLKeyValueStoreModifier([self.fixture_path('processcontrol/process_config_a.yaml')])
        kv_a_changed_version = YAMLKeyValueStoreModifier([self.fixture_path('processcontrol/process_config_a_changed_version.yaml')])

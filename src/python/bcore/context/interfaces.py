@@ -13,39 +13,6 @@ from butility import (InterfaceBase,
                       abstractmethod,
                       Error)
 
-
-class IHostApplication(InterfaceBase):
-    """ Host Application Interface with the standard functions
-        we expect host applications to support """
-        
-    @abstractmethod
-    def version(self):
-        """@return a \ref bcore.Version "Version" instance, representing the host application version"""
-        
-    @abstractmethod
-    def name(self):
-        """@return string of name of host application"""
-    
-    @abstractmethod
-    def quit(self, exit_code):
-        """shutdown the host application
-        @param exit_code a value from 0 to 255, 0 indicating no error"""
-
-    @abstractmethod
-    def load(self, filepath):
-        """load a scene from filepath
-        @return self"""
-
-    @abstractmethod
-    def save(self, filepath):
-        """save the scene as filepath.
-        Overwrite existing files without user intervention
-        @return self"""
-        
-    @abstractmethod
-    def loaded_file(self):
-        """@return path to the currently loaded file or None if there is no loaded file"""
-        
         
         
 class IContextController(InterfaceBase):
@@ -89,7 +56,7 @@ class IContextController(InterfaceBase):
         @note must be called exactly once on a new instance, which should exist only once per application"""
         
     @abstractmethod
-    def pop_scene_context(self):
+    def pop_asset_context(self):
         """Remove all environments pushed onto the stack if they belong to the scene context.
         
         @return list of popped environments in natural order
@@ -104,7 +71,7 @@ class IContextController(InterfaceBase):
     # @{
     
     @abstractmethod
-    def change_scene_context(self, filepath):
+    def change_asset_context(self, filepath):
         """Change our context from the previous one the to one indicated by the given file.
         
         If the context of the current scene is incompatible to the one we are about to change to (or have

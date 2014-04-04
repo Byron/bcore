@@ -27,7 +27,7 @@ from bcontext import Context
 from .interfaces import IProcessControllerDelegate
 from bcore.environ import (IPlatformService,
                            HierarchicalContext,
-                           PipelineBaseEnvironment )
+                           ApplicationContext )
 from butility import (LazyMixin,
                       update_env_path,
                       GraphIteratorBase,
@@ -798,7 +798,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, Plugin):
          # end assure we have at least a good initial configuration
         bcore.app().context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir))
         
-        bcore.app().context().push(PipelineBaseEnvironment('Wrapper Pipeline Base'))
+        bcore.app().context().push(ApplicationContext('Wrapper Pipeline Base'))
         for path in (bootstrap_dir, self._cwd):
             bcore.app().context().push(HierarchicalContext(path))
         # end for each path (hierarchy) to check for configurations

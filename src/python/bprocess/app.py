@@ -47,4 +47,12 @@ class ProcessAwareApplication(bcore.Application):
 
         return inst
 
+    # -------------------------
+    ## @name Interface
+    # @{
+
+    ## @todo provide information about the application, like name, arguments, dependencies
+    
+    ## -- End Interface -- @}
+
 # end class ProcessAwareApplication

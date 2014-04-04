@@ -8,10 +8,8 @@
 __all__ = []
 
 from butility import Path
-from bkvstore import (
-                                RootKey, 
-                                KeyValueStoreSchema
-                             )
+from bkvstore import (RootKey,
+                      KeyValueStoreSchema )
 
 
 site_schema = KeyValueStoreSchema('site', { 'id' :  str,      # name of the site

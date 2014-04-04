@@ -144,7 +144,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
         log.error(msg)
         raise ProcessConfigurationIncompatibleError(msg, index)
         
-    def pop_scene_context(self):
+    def pop_asset_context(self):
         """Remove all environments pushed onto the stack if they belong to the scene context.
         This is determined just by the number of environments on the stack before we started dealing with
         the scene context
@@ -165,7 +165,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
     def _setup_scene_callbacks(self):
         """Set up an application callback to assure this instance is notified before the scene changes
         or after the scene has changed (depending on the capabilities).
-        It should adapt the application interface to the change_scene_context() method, which should be
+        It should adapt the application interface to the change_asset_context() method, which should be
         called.
         """
         
@@ -200,7 +200,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
         self.set_static_stack_len()
         return self
         
-    def change_scene_context(self, filepath):
+    def change_asset_context(self, filepath):
         """Change our context from the previous one the to one indicated by the given file.
         This will load configuration and plugins starting at the given filepath, upwards the directory
         tree.
@@ -214,7 +214,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
         """
         log.debug("changing scene context to '%s'", filepath)
         
-        res = self.pop_scene_context()
+        res = self.pop_asset_context()
         self._push_configuration(filepath.dirname())
         try:
             self._check_process_compatibility(bcore.app().context().context())

@@ -18,8 +18,8 @@ class TestEnvironment(TestCaseBase):
     __slots__ = ()
 
     def test_base(self):
-        pbe = PipelineBaseEnvironment('test_pb')
-        ose = OSEnvironment('test_os')
+        pbe = ApplicationContext('test_pb')
+        ose = OSContext('test_os')
         
         # Test Validation
         validator = bcore.app().context().schema_validator()

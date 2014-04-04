@@ -23,16 +23,6 @@ from bcore.environ import (
 
 
 
-class TestHostApplication(TestIHostApplication):
-    """This type benefits from test in the Interface base tests"""
-    subclass_type = PythonHostApplication
-    
-    def file_path(self):
-        raise NotImplementedError
-
-# end class TestComponents
-
-
 class TestPlatformServices(TestIPlatformService):
     """Reuse default testcases with our type"""
     __slots__ = ()

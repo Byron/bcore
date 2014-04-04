@@ -5,21 +5,18 @@
 
 @copyright 2013 Sebastian Thiel
 """
-__all__ = ['PersistentSettings', 'PersistentSettingsContextStackContextClient']
+__all__ = ['PersistentSettings', 'PersistentApplicationSettingsClient']
 
 import bcore
 from copy import deepcopy
-from bkvstore import (
-                                ChangeTrackingJSONKeyValueStoreModifier,
-                                KeyValueStoreProvider
-                            )
+from bkvstore import (ChangeTrackingJSONKeyValueStoreModifier,
+                      KeyValueStoreProvider)
 from bcontext import ApplicationSettingsClient
-from bdiff import (
-                            merge_data,
-                            AutoResolveAdditiveMergeDelegate
-                         )
-from butility import LazyMixin
-from .base import PipelineBaseEnvironment
+from bdiff import (merge_data,
+                   AutoResolveAdditiveMergeDelegate)
+from butility import (LazyMixin,
+                      abstractmethod)
+from .base import ApplicationContext
 
 
 class _PersistentSettingsMergeDelegate(AutoResolveAdditiveMergeDelegate):
@@ -84,7 +81,7 @@ class PersistentSettings(ChangeTrackingJSONKeyValueStoreModifier):
 # end class PersistentSettings
 
 
-class PersistentSettingsContextStackContextClient(ApplicationSettingsClient, LazyMixin):
+class PersistentApplicationSettingsClient(ApplicationSettingsClient, LazyMixin):
     """A type that facilitates the use of settings data for reading and writing.
     
     It will read your information form the global context according to your schema, and provide simple
@@ -119,7 +116,7 @@ class PersistentSettingsContextStackContextClient(ApplicationSettingsClient, Laz
     
     def _settings_path(self):
         """@return the target path to write settings to"""
-        return PipelineBaseEnvironment.user_config_directory() / self.settings_id() + PersistentSettings.StreamSerializerType.file_extension
+        return ApplicationContext.user_config_directory() / self.settings_id() + PersistentSettings.StreamSerializerType.file_extension
         
     def _initial_settings_value(self):
         """@return nested value to initialize the SettingsType instance with"""
@@ -131,7 +128,7 @@ class PersistentSettingsContextStackContextClient(ApplicationSettingsClient, Laz
         elif name == '_settings_kvstore':
             self._settings_kvstore = self.SettingsType(self._initial_settings_value(), self._settings_path())  
         else:
-            return super(PersistentSettingsContextStackContextClient, self)._set_cache_(name)
+            return super(PersistentApplicationSettingsClient, self)._set_cache_(name)
         #end handle name
     
     # -------------------------
@@ -151,7 +148,7 @@ class PersistentSettingsContextStackContextClient(ApplicationSettingsClient, Laz
         #end for each attribute
         return self
     
-    @bcore.abstractmethod
+    @abstractmethod
     def settings_id(self):
         """@return string id to identify our settings
         A unique id to be used when dealing with settings of all instances of your type
@@ -187,5 +184,5 @@ class PersistentSettingsContextStackContextClient(ApplicationSettingsClient, Laz
         
     ## -- End Interface -- @}
 
-# end class PersistentSettingsContextStackContextClient
+# end class PersistentApplicationSettingsClient
 

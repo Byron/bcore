@@ -5,10 +5,10 @@
 
 @copyright 2013 Sebastian Thiel
 """
-__all__ = ['ContextPropertyDescriptor', 'PropertyContextStackContextClientMeta',
-           'PropertyContextStackContextClient', 'CompoundPropertyDescriptor']
+__all__ = ['ContextPropertyDescriptor', 'PropertyApplicationSettingsClientMeta',
+           'PropertyApplicationSettingsClient', 'CompoundPropertyDescriptor']
 
-from .utility import ApplicationSettingsClient
+from bcore.utility import ApplicationSettingsClient
 
 from bkvstore import ( KeyValueStoreSchema,
                        RootKey )
@@ -72,7 +72,7 @@ class ContextPropertyDescriptor(PropertyDescriptor):
 # end class ContextPropertyDescriptor
 
 
-class PropertyContextStackContextClientMeta(PropertySchemaMeta):
+class PropertyApplicationSettingsClientMeta(PropertySchemaMeta):
     """A meta-class to automatically assemble a simplified schema from ContextDescriptors"""
     __slots__ = ()
     
@@ -94,13 +94,13 @@ class PropertyContextStackContextClientMeta(PropertySchemaMeta):
 # end class Property
 
 
-class PropertyContextStackContextClient(ApplicationSettingsClient):
+class PropertyApplicationSettingsClient(ApplicationSettingsClient):
     """A context client to more easily accss context values, read-only"""
     __slots__ = (
                     '_settings_value_cache', # An optional cache for our context value, 
                 )
     
-    __metaclass__ = PropertyContextStackContextClientMeta
+    __metaclass__ = PropertyApplicationSettingsClientMeta
     _schema_attribute = '_schema'
     
     
@@ -145,6 +145,6 @@ class PropertyContextStackContextClient(ApplicationSettingsClient):
         
     ## -- End Context Value Caching -- @}
 
-# end class PropertyContextStackContextClient
+# end class PropertyApplicationSettingsClient
 
 

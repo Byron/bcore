@@ -16,7 +16,7 @@ from nose import SkipTest
 
 ## [ExampleContextClient]
 
-class ExampleContextClient(PropertyContextStackContextClient):
+class ExampleContextClient(PropertyApplicationSettingsClient):
     __slots__ = ()
     
     site = CompoundPropertyDescriptor(ContextPropertyDescriptor(name='id', type=str),
