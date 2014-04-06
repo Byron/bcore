@@ -283,7 +283,7 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                             )
         
         root = 'base'
-        site_name_unresolved = 'bcore-{site.location}'
+        site_name_unresolved = 'bapp-{site.location}'
         unresolved = '{site.root_path.base}/some/viable/value'
         unresolvable = '{foo.bar}/hi'
         data = OrderedDict({ 'site' : OrderedDict({ 'name' :  site_name_unresolved,
@@ -324,7 +324,7 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         assert resolved_path.startswith(root)
         
         resolved_value = kvstore.value(schema.key(), schema, resolve=True)
-        assert resolved_value.name_recursive == 'bcore-munich'
+        assert resolved_value.name_recursive == 'bapp-munich'
         assert resolved_value.root_path.software == resolved_path
         assert resolved_value.root_path.unresolvable == '', 'unresolvable values are not resolved ... for now'
         assert resolved_value.root_path.listed == [resolved_path, resolved_path, [resolved_path, '5']]

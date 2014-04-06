@@ -12,8 +12,8 @@ import os
 
 import tempfile
 
-import bcore
-from bcore.tests import TestCaseBase
+import bapp
+from bapp.tests import TestCaseBase
 from bprocess import *
 
 from butility import Path
@@ -113,7 +113,7 @@ class TestProcessControl(TestCaseBase):
         
     def test_post_launch_info(self):
         """Just some basic tests"""
-        info = new_service(bcore.IPostLaunchProcessInformation)
+        info = new_service(bapp.IPostLaunchProcessInformation)
         if not info.has_data():
             assert info.data() is None and info.process_data() is None
         else:
@@ -121,7 +121,7 @@ class TestProcessControl(TestCaseBase):
             assert pinfo.executable.isfile()
             assert pinfo.bootstrap_dir.isdir()
             assert pinfo.id
-            assert bcore.app().context().context().value_by_schema(process_schema).executable == pinfo.executable
+            assert bapp.main().context().context().value_by_schema(process_schema).executable == pinfo.executable
         # end handle data
         
         

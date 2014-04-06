@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore
+@package bapp
 
 @mainpage Overview
 
@@ -21,10 +21,10 @@
 
 Interfaces are the preferred way to obtain functionality from the \ref components "components framework".
 
-As they are so important, all interfaces defined here are automatically available in the bcore package. 
+As they are so important, all interfaces defined here are automatically available in the bapp package. 
 See the following example for reference.
 
-@snippet bcore/tests/doc/test_examples.py interface_builtin
+@snippet bapp/tests/doc/test_examples.py interface_builtin
 
 @copyright 2012 Sebastian Thiel
 """
@@ -49,7 +49,7 @@ __version__ = Version('0.1.0')
 
 ## Used to set the logging up very early to see everything. Useful for debugging usually, log-levels will 
 ## be set at later points as well
-log_env_var = 'BCORE_STARTUP_LOG_LEVEL'
+log_env_var = 'bapp_STARTUP_LOG_LEVEL'
 
 ## -- End Constants -- @}
 
@@ -58,11 +58,11 @@ log_env_var = 'BCORE_STARTUP_LOG_LEVEL'
 ## @name Interface
 # @{
 
-def app():
+def main():
     """@return currently initialized global app instance. See 
     @throws EnvironmentError if it wasn't yet initialized"""
     if Application.main is None:
-        raise EnvironmentError("Application instance not yet initialized - call bcore.Application.new()")
+        raise EnvironmentError("Application instance not yet initialized - call bapp.Application.new()")
     # end assert application was setup
     return Application.main
 
@@ -83,7 +83,7 @@ def plugin_type():
 # ==============================================================================
 ## @name Initialization Handlers
 # ------------------------------------------------------------------------------
-# Specialized functions to initialize part of the bcore package
+# Specialized functions to initialize part of the bapp package
 ## @{
 
 
@@ -104,7 +104,7 @@ def _init_pre_app_loggig():
 
 
 def _initialize():
-    """Initialize the bcore package."""
+    """Initialize the bapp package."""
     _init_pre_app_loggig()
 
     

@@ -8,13 +8,13 @@
 __all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElementNodeBase']
 
 
-from bcore import MetaBase
-from bcore.utility import  (
+from bapp import MetaBase
+from bapp.utility import  (
                             DictObject, 
                             LazyMixin,
                         )
 
-from bcore.core.kvstore import (
+from bapp.core.kvstore import (
                                 RelaxedKeyValueStoreProviderDiffDelegate,
                                 KeyValueStoreProvider
                             )

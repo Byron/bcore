@@ -26,7 +26,7 @@ class IProcessControllerDelegate(InterfaceBase):
         This method is executed after the initial environment configuration was performed by the controller, 
         based on the current working directory and the executable's location.
         The delegate should - if adequate - alter the environment stack by pushing a new environment on top to
-        setup overrides, see bcore.app().context() for more information.
+        setup overrides, see bapp.main().context() for more information.
         It may also change the environment (env), and modify the executable arguments (args).
         @note for a variable description, see pre_start()
         @note you must not use this method to alter argument lists, see pre_start() for that reason"""
@@ -59,7 +59,7 @@ class IProcessControllerDelegate(InterfaceBase):
         """Called right before starting the process, and is meant to allow the delegate to see everything influencing 
         the soon-to-be-created process.
         The delegate can modify any of the arguments, or return them unchanged.
-        @param executable an unverified bcore.path object to the executable the controller would try to launch
+        @param executable an unverified bapp.path object to the executable the controller would try to launch
         @param env process environment as created from scratch by the controller
         @param args argument list as provided initially to the bootstrapper. You can parse them or adjust them
         to your liking. It does not contain the executable itself.
@@ -112,19 +112,19 @@ class IPostLaunchProcessInformation(InterfaceBase):
     
     ## Environment variable to hold formatted datastructure with information about the running process.
     # The actual format is an implementation detail.
-    storage_environment_variable = 'BCORE_PROCESS_POST_LAUNCH_INFORMATION'
+    storage_environment_variable = 'bapp_PROCESS_POST_LAUNCH_INFORMATION'
     
     
     ## A yaml-formatted data structure to provide information matching the process_schema
-    process_information_environment_variable = 'BCORE_PROCESS_INFORMATION_YAML'
+    process_information_environment_variable = 'bapp_PROCESS_INFORMATION_YAML'
     
     
     ## A yaml-formatted structure keeping commandline overrides.
-    commandline_overrides_environment_variable = 'BCORE_PROCESS_COMMANDLINE_OVERRIDES_YAML'
+    commandline_overrides_environment_variable = 'bapp_PROCESS_COMMANDLINE_OVERRIDES_YAML'
 
     ## An encoded storage for all yaml files which are part of our configuration which is stored 
-    ## in BCORE_PROCESS_POST_LAUNCH_INFORMATION
-    config_file_hash_map_environment_variable = 'BCORE_PROCESS_CONFIG_FILE_HASHMAP'
+    ## in bapp_PROCESS_POST_LAUNCH_INFORMATION
+    config_file_hash_map_environment_variable = 'bapp_PROCESS_CONFIG_FILE_HASHMAP'
     
     ## -- End Configuration -- @}
     

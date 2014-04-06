@@ -8,13 +8,13 @@
 __all__ = ['PackageViewerWindow']
 from PySide import QtGui
 
-import bcore
-from bcore.gui.hub.interfaces import IHubPanel
+import bapp
+from bapp.gui.hub.interfaces import IHubPanel
 from ..utility import PackageMetaDataChangeTracker
 
 from .controller_ui import Ui_PackageViewerWindow
 
-log = service(bcore.ILog).new('bprocess.gui.controller')
+log = service(bapp.ILog).new('bprocess.gui.controller')
 
 
 class PackageViewerWindow(QtGui.QWidget, IHubPanel):
@@ -39,7 +39,7 @@ class PackageViewerWindow(QtGui.QWidget, IHubPanel):
         @param changes_only if False, all package data will be shown
         @return this instance"""
         if package_name_or_tracker is None:
-            svc = new_service(bcore.IPostLaunchProcessInformation)
+            svc = new_service(bapp.IPostLaunchProcessInformation)
             if not svc.has_data():
                 self.viewer().message.setText("Process is not wrapped, no package information available")
                 return self
@@ -72,5 +72,5 @@ class PackageViewerWindow(QtGui.QWidget, IHubPanel):
 
 # end class PackageWidget
 
-bcore.app().context().register(PackageViewerWindow)
+bapp.main().context().register(PackageViewerWindow)
 

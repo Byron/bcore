@@ -7,9 +7,9 @@
 """
 __all__ = ['Error', 'InvalidValueError', 'MissingFormatResultError']
 
-import bcore
+import bapp
 
-class Error(bcore.Error):
+class Error(bapp.Error):
     """Base exception for all exceptions thrown by bsemantic"""
     __slots__ = ()
 

@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.test_base
-@brief tests for bcore.base
+@package bapp.tests.test_base
+@brief tests for bapp.base
 
 @copyright 2012 Sebastian Thiel
 """
@@ -13,12 +13,12 @@ from .base import (preserve_application,
 from butility import (InterfaceBase,
                       abstractmethod)
 
-import bcore
+import bapp
 
-from bcore import (InstanceNotFound,
+from bapp import (InstanceNotFound,
                    TypeNotFound)
 
-from bcore.contexts import (ApplicationContext,
+from bapp.contexts import (ApplicationContext,
                             OSContext)
 
 
@@ -29,7 +29,7 @@ class TestCore(TestCoreCaseBase):
     def test_application(self):
         """Test BApplication functionality"""
 
-        self.failUnlessRaises(EnvironmentError, bcore.app)
+        self.failUnlessRaises(EnvironmentError, bapp.main)
 
         class ICustomInterface(InterfaceBase):
             __slots__ = ()
@@ -41,7 +41,7 @@ class TestCore(TestCoreCaseBase):
         # end class ICustomInterface
 
         # It is possible to setup plugins even without an Application
-        class CustomPluginType(ICustomInterface, bcore.plugin_type()):
+        class CustomPluginType(ICustomInterface, bapp.plugin_type()):
             """Works without application"""
             __slots__ = ()
         
@@ -51,33 +51,33 @@ class TestCore(TestCoreCaseBase):
         # end class CustomPluginType
 
         # we don't have access to the stack without an application, so lets make one
-        app = bcore.Application.new(setup_logging=False)
-        assert bcore.Application.main is bcore.app() is app
-        self.failUnlessRaises(InstanceNotFound, bcore.app().instance, file)
-        self.failUnlessRaises(InstanceNotFound, bcore.app().new_instance, file)
-        self.failUnlessRaises(TypeNotFound, bcore.app().type, file)
+        app = bapp.Application.new(setup_logging=False)
+        assert bapp.Application.main is bapp.main() is app
+        self.failUnlessRaises(InstanceNotFound, bapp.main().instance, file)
+        self.failUnlessRaises(InstanceNotFound, bapp.main().new_instance, file)
+        self.failUnlessRaises(TypeNotFound, bapp.main().type, file)
 
         # As there is no instance, this one won't find one either
-        self.failUnlessRaises(InstanceNotFound, bcore.app().instance, ICustomInterface)
+        self.failUnlessRaises(InstanceNotFound, bapp.main().instance, ICustomInterface)
 
         # the custom type can already be found
-        assert bcore.app().type(ICustomInterface) is CustomPluginType
+        assert bapp.main().type(ICustomInterface) is CustomPluginType
 
         # instance is cought by the associated context automatically. Early types will always go to the 
         # current main application
         inst = CustomPluginType()
-        assert bcore.app().instance(ICustomInterface) is inst
+        assert bapp.main().instance(ICustomInterface) is inst
 
         # create a new instance
-        new_inst = bcore.app().new_instance(ICustomInterface)
+        new_inst = bapp.main().new_instance(ICustomInterface)
         assert new_inst is not inst
-        assert bcore.app().instance(ICustomInterface) is inst, "new_inst should not be owned by context"
+        assert bapp.main().instance(ICustomInterface) is inst, "new_inst should not be owned by context"
 
     @preserve_application
     def test_hierarchical_loading(self):
         """See the hierarchical yaml loader in action"""
-        assert bcore.Application.main is None
-        app = bcore.Application.new(setup_logging=False, 
+        assert bapp.Application.main is None
+        app = bapp.Application.new(setup_logging=False, 
                                     settings_paths=(self.fixture_path(''),),
                                     settings_hierarchy=True)
 
@@ -95,7 +95,7 @@ class TestContext(TestCoreCaseBase):
         pbe = ApplicationContext('test_pb')
         ose = OSContext('test_os')
 
-        app = bcore.Application.new()
+        app = bapp.Application.new()
         app.context().push(pbe)
         app.context().push(ose)
         

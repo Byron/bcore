@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.environ.test_components
-@brief tests for bcore.environ.components
+@package bapp.tests.environ.test_components
+@brief tests for bapp.environ.components
 
 @copyright 2013 Sebastian Thiel
 """
@@ -10,7 +10,7 @@ __all__ = []
 from .test_interfaces import (TestIPlatformService,
                               TestISiteService,
                               TestIProjectService)
-from bcore.services import (LinuxPlatformService,
+from bapp.services import (LinuxPlatformService,
                             ProjectInformation,
                             SiteInformation)
 

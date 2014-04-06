@@ -89,7 +89,7 @@ And the actual implementation looks like this:
 
 @copyright 2013 Sebastian Thiel
 """
-from bcore import Version
+from bapp import Version
 __version__ = Version("0.1.0")
 
 

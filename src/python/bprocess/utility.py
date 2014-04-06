@@ -10,18 +10,18 @@ __all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin',
 from contextlib import contextmanager
 import logging
 
-import bcore
+import bapp
 from .controller import PackageDataIteratorMixin
 from .schema import (package_meta_data_schema,
                      controller_schema)
-from bcore.environ import PersistentApplicationSettingsClient
+from bapp.environ import PersistentApplicationSettingsClient
 from bkvstore import (KeyValueStoreModifier,
                       PathList)
 from butility import OrderedDict
 
 log = logging.getLogger('bprocess.utility')
 
-from bcore import HierarchicalContext
+from bapp import HierarchicalContext
 from bprocess import ControlledProcessEnvironment
 
 
@@ -34,10 +34,10 @@ from bprocess import ControlledProcessEnvironment
 @contextmanager
 def file_environment(*paths, **kwargs):
     """A context manager which sets up a a context based on the given file paths. To achieve that, it will 
-    alter the current global context as defined in bcore.app().context() to contain all environments obtained when
+    alter the current global context as defined in bapp.main().context() to contain all environments obtained when
     creating HierarchicalContext instances for all the given paths.
-    @return returned value is the altered bcore.app().context() instance, just for convenience
-    @note this will temporarily change the bcore.app().context(), which is a rather expensive operation both in terms
+    @return returned value is the altered bapp.main().context() instance, just for convenience
+    @note this will temporarily change the bapp.main().context(), which is a rather expensive operation both in terms
     of IO and CPU
     @param paths any path that should be used to define the future context. If empty, the current 
     environment will not be altered. Each path should be a directory !
@@ -45,7 +45,7 @@ def file_environment(*paths, **kwargs):
     + load_plugins default False, if True, plugins will be loaded for all given paths.
     @note usage: file_environment(scene, executable, cwd) as env: env.context() ..."""
     if not paths:
-        yield bcore.app().context()
+        yield bapp.main().context()
         raise StopIteration
     # end handle empty paths
     
@@ -53,7 +53,7 @@ def file_environment(*paths, **kwargs):
     # supposed to hold the main pipeline configuration, and which must exist. We will keep this one, 
     # but recreate all others based on the input paths
     size = -1
-    for index, env in enumerate(bcore.app().context().stack()):
+    for index, env in enumerate(bapp.main().context().stack()):
         if isinstance(env, ControlledProcessEnvironment):
             size = index + 1
             break
@@ -63,24 +63,24 @@ def file_environment(*paths, **kwargs):
     
     popped_environments = list()
     try:
-        while len(bcore.app().context()) > size:
-            popped_environments.append(bcore.app().context().pop())
+        while len(bapp.main().context()) > size:
+            popped_environments.append(bapp.main().context().pop())
         # end pop environments
         for path in paths:
-            env = bcore.app().context().push(HierarchicalContext(path))
+            env = bapp.main().context().push(HierarchicalContext(path))
             if kwargs.get('load_plugins', False):
                 env.load_plugins()
             # end handle plugins
         # end for each path
-        yield bcore.app().context()
+        yield bapp.main().context()
     finally:
-        if len(bcore.app().context()) > size:
-            bcore.app().context().pop(until_size = size)
+        if len(bapp.main().context()) > size:
+            bapp.main().context().pop(until_size = size)
         # end only pop if it makes sense
         
         # put all environments back, after removing previous ones
         for env in reversed(popped_environments):
-            bcore.app().context().push(env)
+            bapp.main().context().push(env)
         # end for each env
 
 ## -- End Context Managers -- @}
@@ -148,13 +148,13 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsClient,
     
     def _initial_settings_value(self):
         """@return a flattened list of just the packages we are concerned with"""
-        return self._flattened_package_tree(self._package_name, bcore.app().context().context())
+        return self._flattened_package_tree(self._package_name, bapp.main().context().context())
     
     def settings_id(self):
         """@return our settings id
         @note this type is already 'asset' aware, which might not be the right spot for it. Should be 
         in derivd type"""
-        return self.settings_prefix + '%s.%s' % (service(bcore.IProjectService).id(), self._package_name)
+        return self.settings_prefix + '%s.%s' % (service(bapp.IProjectService).id(), self._package_name)
     
     # -------------------------
     ## @name Interface

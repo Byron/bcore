@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package bcore.services
+@package bapp.services
 @brief core services providing basic information
 
 @copyright 2012 Sebastian Thiel
@@ -11,7 +11,7 @@ __all__ = ['LinuxPlatformService', 'MacPlatformService', 'ProjectInformation', '
 import sys
 
 
-import bcore
+import bapp
 from butility import abstractmethod
 from bcontext import HierarchicalContext
 from .utility import ApplicationSettingsClient
@@ -23,7 +23,7 @@ from .interfaces import (IPlatformService,
 from . import schema
 
 
-class PlatformServicesBase(IPlatformService, ApplicationSettingsClient, bcore.plugin_type()):
+class PlatformServicesBase(IPlatformService, ApplicationSettingsClient, bapp.plugin_type()):
     """Base implementation for platform instances"""
     
     platform_names_map = HierarchicalContext.platform_names_map

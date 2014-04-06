@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.properties
+@package bapp.properties
 @brief Implementation of property descriptors and properties for Environment Context Clients
 
 @copyright 2013 Sebastian Thiel
@@ -8,7 +8,7 @@
 __all__ = ['ContextPropertyDescriptor', 'PropertyApplicationSettingsClientMeta',
            'PropertyApplicationSettingsClient', 'CompoundPropertyDescriptor']
 
-from bcore.utility import ApplicationSettingsClient
+from bapp.utility import ApplicationSettingsClient
 
 from bkvstore import ( KeyValueStoreSchema,
                        RootKey )

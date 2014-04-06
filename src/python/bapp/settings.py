@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.settings
+@package bapp.settings
 @brief A module with a user-settings implementation
 
 @copyright 2013 Sebastian Thiel

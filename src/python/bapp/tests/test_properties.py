@@ -9,7 +9,7 @@ __all__ = []
 
 from .base import (TestCoreCaseBase,
                    with_application)
-from bcore.properties import *
+from bapp.properties import *
 from bkvstore import RootKey
 from butility import Path
 

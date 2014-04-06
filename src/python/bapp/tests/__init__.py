@@ -1,11 +1,11 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests
-Main test package for all bcore code.
+@package bapp.tests
+Main test package for all bapp code.
 
 Provides core functionality which will be used by all test cases in one way or another.
 
-Imports bcore.tests
+Imports bapp.tests
 
 @copyright 2012 Sebastian Thiel
 """

@@ -14,8 +14,8 @@ from bsemantic import (
                               )
 from bsemantic.inference import *
 from bsemantic.tests.base import TestBase
-from bcore.utility import DictObject
-from bcore.core.kvstore import (
+from bapp.utility import DictObject
+from bapp.core.kvstore import (
                                 KeyValueStoreProvider,
                                 ValidatedKeyValueStoreSchema, 
                                 KeyValueStoreSchemaValidator

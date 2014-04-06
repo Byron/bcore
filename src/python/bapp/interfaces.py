@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@package bcore.interfaces
+@package bapp.interfaces
 @brief Most basic interfaces for general usage, useful in all host applications !
 
 @copyright 2012 Sebastian Thiel
@@ -30,7 +30,7 @@ class IContextController(InterfaceBase):
         of plugins, before we change to the new scene. If its okay, we may proceed, otherwise the scene change
         should be aborted.
         
-    @note If we talk about context, we mean the kvstore of the bcore.app().context() instance.
+    @note If we talk about context, we mean the kvstore of the bapp.main().context() instance.
     @note This type is meant to be used as Singleton, and must be initialized once during your application's 
     boot sequence.
     """
@@ -213,7 +213,7 @@ class ISiteService(IDirectoryService):
     PATH_REPOSITORY = 'repository'
     ## Root for software packages
     PATH_SOFTWARE = 'software'
-    ## Base path containing the bcore
+    ## Base path containing the bapp
     PATH_CORE = 'core'
     ## Root path containing all projects
     PATH_PROJECTS = 'projects'

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.doc
+@package bapp.tests.doc
 A special package which contains tests that are used to be extracted as doxygen
 snippets.
 
@@ -25,7 +25,7 @@ myfeature()
 In your documentation docstring, you add the snippet like so:
 @code
 def myfeature():
-    "@snippet bcore/tests/doc/test_examples.py snippet for myfeature"
+    "@snippet bapp/tests/doc/test_examples.py snippet for myfeature"
     pass
 @endcode
 @copyright 2012 Sebastian Thiel

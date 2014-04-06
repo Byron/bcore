@@ -7,7 +7,7 @@
 """
 __all__ = ['ProcessControlContextControllerBase', 'ProcessConfigurationIncompatibleError']
 
-import bcore
+import bapp
 from .controller import ( ProcessController,
                           PackageDataIteratorMixin,
                           PythonPackageIterator,
@@ -32,7 +32,7 @@ import logging
 log = logging.getLogger('bprocess.components')
 
 
-class ProcessConfigurationIncompatibleError(bcore.IContextController.ContextIncompatible):
+class ProcessConfigurationIncompatibleError(bapp.IContextController.ContextIncompatible):
     """Thrown to indicate the current process configuration cannot be used in another context"""
     __slots__ = (
                     'index' ## A DiffIndex record containing the exact changes
@@ -46,7 +46,7 @@ class ProcessConfigurationIncompatibleError(bcore.IContextController.ContextInco
 # end class ProcessConfigurationIncompatibleError
 
 
-class ProcessControlContextControllerBase(bcore.IContextController, ApplicationSettingsClient,
+class ProcessControlContextControllerBase(bapp.IContextController, ApplicationSettingsClient,
                                             FlatteningPackageDataIteratorMixin, Plugin):
     """Basic implementation which uses the basic ProcessController implementation to implement 
     simple context tracking for the _before_scene_save() as well as 
@@ -95,9 +95,9 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
         """Push all configuration found at the given directory and parent folders, loading plugins on the way.
         @return the newly pushed environment of type HierarchicalContextType
         @note subclasses can override it for special handling"""
-        env = bcore.app().context().push(self.HierarchicalContextType(dirname))
+        env = bapp.main().context().push(self.HierarchicalContextType(dirname))
         # Make sure we apply commandline overrides last
-        bcore.app().context().push(CommandlineOverridesEnvironment())
+        bapp.main().context().push(CommandlineOverridesEnvironment())
         if self.load_plugins:
             env.load_plugins()
         # end handle plugin loading
@@ -153,7 +153,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
         assert self._initial_stack_len is not None, 'call set_static_stack_len at the end of your init()'
         # get rid of previous scene stack
         log.debug("popping scene context")
-        return bcore.app().context().pop(until_size = self._initial_stack_len)
+        return bapp.main().context().pop(until_size = self._initial_stack_len)
     
     ## -- End Overridable Methods -- @}
     
@@ -161,7 +161,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
     ## @name Subclass Interface
     # @{
     
-    @bcore.abstractmethod
+    @bapp.abstractmethod
     def _setup_scene_callbacks(self):
         """Set up an application callback to assure this instance is notified before the scene changes
         or after the scene has changed (depending on the capabilities).
@@ -184,7 +184,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
         @param length If None, The length set will be the current length of the stack. Otherwise the given
         length will be used
         @note its valid to call it multiple times, to re-adjust the are of the static context accordingly"""
-        self._initial_stack_len = length or len(bcore.app().context())
+        self._initial_stack_len = length or len(bapp.main().context())
     
     ## -- End Interface -- @}
     
@@ -210,14 +210,14 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
         using the process controller.
         
         @note should be called by subclasses from their respective callbacks
-        @param filepath bcore.path.Path instance of filename to change the context to in one way or another
+        @param filepath bapp.path.Path instance of filename to change the context to in one way or another
         """
         log.debug("changing scene context to '%s'", filepath)
         
         res = self.pop_asset_context()
         self._push_configuration(filepath.dirname())
         try:
-            self._check_process_compatibility(bcore.app().context().context())
+            self._check_process_compatibility(bapp.main().context().context())
             # if this worked, load plugins
             PythonPackageIterator().import_modules()
         except ProcessConfigurationIncompatibleError:
@@ -225,7 +225,7 @@ class ProcessControlContextControllerBase(bcore.IContextController, ApplicationS
             # in the context of the given file
             if self.restore_stack_if_new_context_is_incompatible:
                 for env in res:
-                    bcore.app().context().push(env)
+                    bapp.main().context().push(env)
                 # end for each env to put back
             # end should we restore the stack ?
             raise

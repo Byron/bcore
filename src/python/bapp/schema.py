@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.schema
+@package bapp.schema
 @brief All environment schemas used in the pipeline core
 
 @copyright 2013 Sebastian Thiel

@@ -44,20 +44,20 @@ In the first example, a \ref butility.properties.types.PrefixProperty "PrefixPro
 accessing the classes member variables. For safety and efficiency, they are put into slots. However, technique
 works similarly without slots as well.
 
-@snippet bcore/tests/core/test_properties.py PrefixPropertyClass
+@snippet bapp/tests/core/test_properties.py PrefixPropertyClass
 
 This is how properties can be accessed.
 
-@snippet bcore/tests/core/test_properties.py PrefixPropertyClass Usage
+@snippet bapp/tests/core/test_properties.py PrefixPropertyClass Usage
 
 The next example uses the specialization for EnvironmentContextClients.
 
-@snippet bcore/tests/core/component/test_properties.py ExampleContextClient
+@snippet bapp/tests/core/component/test_properties.py ExampleContextClient
 
 When using the properties, access was simplified to be more the way the kvstore is supposed to be used. Also note 
 the direct property access, as opposed to using property access methods.
 
-@snippet bcore/tests/core/component/test_properties.py ExampleContextClient Usage
+@snippet bapp/tests/core/component/test_properties.py ExampleContextClient Usage
 
 @copyright 2013 Sebastian Thiel
 """

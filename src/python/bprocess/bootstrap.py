@@ -24,8 +24,8 @@ basename = os.path.basename
 dirname = os.path.dirname
 
 
-# Make sure bcore doesn't initialize the environment as the wrapper logic takes care of that
-os.environ['BCORE_INIT_ENVIRONMENT_DISABLE'] = '1'
+# Make sure bapp doesn't initialize the environment as the wrapper logic takes care of that
+os.environ['bapp_INIT_ENVIRONMENT_DISABLE'] = '1'
 
 # BASIC LOGGING SETUP
 #####################
@@ -40,12 +40,12 @@ for item in chain([logging.root], logging.root.handlers):
 
 
 class Bootstrapper(object):
-    """Contains for logic required to import bcore and launch the actual implementation from our root package.
+    """Contains for logic required to import bapp and launch the actual implementation from our root package.
     It implements the following algorithm
     
     * Find the wrapper's original, non-symlinked location and see if it is within its source tree. The following 
       locations are tried in order
-    ** read BCORE_PIPE_PACKAGE_PATH variable to the location from which root_package_name can be imported
+    ** read bapp_PIPE_PACKAGE_PATH variable to the location from which root_package_name can be imported
     ** follow symlink of this file
     ** On windows, a side-by-side file will be read for the path to follow.
     * finally, adjust the path to initialize the root package and pass control to its implementation
@@ -59,10 +59,10 @@ class Bootstrapper(object):
     # @{
     
     ## A variable we can use to override the pipeline root package location, useful for testing
-    pipe_package_env_var = 'BCORE_PIPE_PACKAGE_PATH'
+    pipe_package_env_var = 'bapp_PIPE_PACKAGE_PATH'
     
     ## Name of the root package that contains all of the core code
-    root_package_name = 'bcore'
+    root_package_name = 'bapp'
     
     ## module path to wrapper engine interface
     engine_interface_module_name = 'processcontrol'
@@ -143,7 +143,7 @@ class Bootstrapper(object):
         # end handle envrionment error
        
     def _root_package_path(self, executable):
-        """@return a string to the folder containing the bcore.package or None if it wasn't found.
+        """@return a string to the folder containing the bapp.package or None if it wasn't found.
         We try to guesstimage it just by name
         @param executable possibly the original executable"""
         root_path = dirname(dirname(executable))

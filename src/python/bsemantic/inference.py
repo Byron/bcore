@@ -13,10 +13,10 @@ __all__ = ['InferenceStringFormatNodeTreeDelegate', 'InferenceStringFormatNodeTr
 import parse
 
 
-import bcore.core.logging
+import bapp.core.logging
 
 from .generators import StringFormatNodeTree
-from bcore.core.kvstore import UnorderedKeyValueStoreModifier
+from bapp.core.kvstore import UnorderedKeyValueStoreModifier
                                 
 
 
@@ -27,7 +27,7 @@ class InferenceStringFormatNodeTreeDelegate(object):
                     '_parsed_data',     # a dictionary of DictObjects with the parsed (nested) data
                 )
     
-    log = bcore.core.logging.module_logger('from bsemantic.inference')
+    log = bapp.core.logging.module_logger('from bsemantic.inference')
     
     
     def __init__(self, data_sets=list()):

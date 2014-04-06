@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.cmd.test_base
+@package bapp.tests.cmd.test_base
 @brief tests for bcmd.base
 
 @copyright 2013 Sebastian Thiel
@@ -8,7 +8,7 @@
 __all__ = []
 
 
-from bcore.tests import TestCaseBase
+from bapp.tests import TestCaseBase
 
 # Test * import
 from bcmd import *

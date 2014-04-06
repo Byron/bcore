@@ -1,19 +1,19 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.test_settings
-@brief tests for bcore.environ.settings
+@package bapp.tests.test_settings
+@brief tests for bapp.environ.settings
 
 @copyright 2013 Sebastian Thiel
 """
 __all__ = []
 
-import bcore
+import bapp
 from .base import with_application
 from butility.tests import (TestCaseBase,
                             with_rw_directory)
 
 # try * import
-from bcore.settings import *
+from bapp.settings import *
 from butility import OrderedDict
 from bkvstore import (KeyValueStoreSchema,
                       RootKey)

@@ -7,4 +7,4 @@
 __all__ = []
 
 # Makes additional delegates available
-import bcore.tests.base
+import bapp.tests.base

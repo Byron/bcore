@@ -480,7 +480,7 @@ class AdditiveMergeDelegate(MergeDelegate):
     An example usage is the following, which creates a delegate of a derived type, and fills it with information
     consecutively.
     @note Will concatenate lists !
-    @snippet bcore/core/kvstore/serialize.py additive example
+    @snippet bapp/core/kvstore/serialize.py additive example
     """
     __slots__ = ()
     

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.base
+@package bapp.base
 @brief Implements the Application type
 
 @copyright 2014 Sebastian Thiel
@@ -69,7 +69,7 @@ class Application(object):
     # @{
 
     ## A variable to keep the first created Application instance, see Application.new()
-    ## The very same instance will be placed in bcore.app
+    ## The very same instance will be placed in bapp.app
     main = None
     
     ## -- End Constants -- @}
@@ -113,7 +113,7 @@ class Application(object):
     class Plugin(PluginType):
         """This is an intermediat Plugin type implementation which may be used by code 
         which is run even though there is no Application yet.
-        Instead of dealing with this directly, you should use bcore.plugin_type()"""
+        Instead of dealing with this directly, you should use bapp.plugin_type()"""
         __slots__ = ()
 
         default_stack = ContextStack()

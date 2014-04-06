@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-from bcore.tests import (
+from bapp.tests import (
                         TestCaseBase,
                         with_rw_directory
                     )

@@ -14,7 +14,7 @@ __all__ = []
 from bsemantic import ElementNodeTree
 from bsemanticgenerators import *
 from bsemantic.tests.base import TestBase
-from bcore.utility import DictObject
+from bapp.utility import DictObject
 
 
 class TestGenerators(TestBase):

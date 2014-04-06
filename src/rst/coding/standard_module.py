@@ -90,12 +90,12 @@ from re import match
 
 #! second import block gets our own libraries, which follow optional 
 #! third-party libraries
-import bcore
-import bcore.log
+import bapp
+import bapp.log
 
 #! from x import * statements have a separate block
-from bcore import one
-from bcore.package import (
+from bapp import one
+from bapp.package import (
                             first,
                             second
                         )

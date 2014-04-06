@@ -7,7 +7,7 @@
 """
 __all__ = []
 
-from bcore.tests import TestCaseBase
+from bapp.tests import TestCaseBase
 
 from bprocess import (
                                     ProcessControlContextControllerBase,

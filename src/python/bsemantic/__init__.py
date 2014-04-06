@@ -96,7 +96,7 @@ Usage Tips
 
 @copyright 2012 Sebastian Thiel
 """
-from bcore import Version
+from bapp import Version
 __version__ = Version("0.1.0")
 
 from .base import *

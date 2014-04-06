@@ -153,7 +153,7 @@ def tagged_file_paths(directory, taglist, pattern=None):
     Suppose you have two paths, one is a global one in a read-only location,
     another is a local one in the user's home.
 
-    The list of file-paths (bcore.path instances) returned would be all matching files from the global path and
+    The list of file-paths (bapp.path instances) returned would be all matching files from the global path and
     all matching files from the local one, sorted such that the file with the smallest amount
     of tags come first, files with more tags (more specialized ones) will come after that. 
 
@@ -223,14 +223,14 @@ def tagged_file_paths(directory, taglist, pattern=None):
 ## \{
 
 class MetaBase(ABCMeta):
-    """A base class for all other meta-classes used in the @ref bcore package.
+    """A base class for all other meta-classes used in the @ref bapp package.
     
     It provides facilities to automatically wrap methods into decorators which 
     perform certain tasks, like additional logging for improved debugging.
     
-    * All subclasses of InterfaceBase are put into bcore as well, allowing their access
-      through bcore.InterfaceName.
-    * Puts new types into bcore if the type itself (not its subtype) has the 'place_into_root_package' set to True
+    * All subclasses of InterfaceBase are put into bapp as well, allowing their access
+      through bapp.InterfaceName.
+    * Puts new types into bapp if the type itself (not its subtype) has the 'place_into_root_package' set to True
     """
     
     # -------------------------
@@ -291,14 +291,14 @@ class LazyMixin(object):
     return the cached value as stored in the Instance's dict or slot.
     
     Here is how you implement your subtype
-    @snippet bcore/tests/doc/test_examples.py LazyMixinExample Implementation
+    @snippet bapp/tests/doc/test_examples.py LazyMixinExample Implementation
     
     In code, you can use the lazy attributes natively, its entirely transparent
     to the caller.
     Ideally, this system is used for internal attributes which will be set on first
     use, maybe by reading from a file or a slow device.
     
-    @snippet bcore/tests/doc/test_examples.py LazyMixinExample Example
+    @snippet bapp/tests/doc/test_examples.py LazyMixinExample Example
     """
     __slots__ = tuple()
     

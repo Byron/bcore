@@ -7,8 +7,8 @@
 """
 __all__ = ['TestBase']
 
-from bcore.tests import TestCaseBase
-from bcore.utility import DictObject
+from bapp.tests import TestCaseBase
+from bapp.utility import DictObject
 
 import yaml
 try:
@@ -17,7 +17,7 @@ except ImportError:
     from yaml import Loader
 #end obtain fast loader if possible
 
-from bcore.path import Path
+from bapp.path import Path
 
 
 class TestBase(TestCaseBase):

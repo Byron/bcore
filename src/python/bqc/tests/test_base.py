@@ -1,14 +1,14 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.qc.test_base
-@brief tests for bcore.qc.base
+@package bapp.tests.qc.test_base
+@brief tests for bapp.qc.base
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = []
 
-from bcore.tests import TestCaseBase
-from bcore.qc import *
+from bapp.tests import TestCaseBase
+from bapp.qc import *
 
 from cStringIO import StringIO
 

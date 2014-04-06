@@ -10,7 +10,7 @@ __all__ = ['NosetestDelegate']
 
 import logging
 
-import bcore
+import bapp
 from bkvstore import KeyValueStoreSchema
 from bprocess import (ProcessControllerDelegate,
                       IPostLaunchProcessInformation)
@@ -60,7 +60,7 @@ class NosetestDelegate(ProcessControllerDelegate):
     def start_nose(cls):
         """Start nose with the arguments previously specified on the commandline
         @return true if all tests succeeded, false on failure"""
-        kvstore = bcore.app().new_instance(IPostLaunchProcessInformation).as_kvstore()
+        kvstore = bapp.main().new_instance(IPostLaunchProcessInformation).as_kvstore()
         value = kvstore.value(cls.schema.key(), cls.schema)
         
         return nose.main(argv=['nosetests'] + value.args)
@@ -76,7 +76,7 @@ class NoseStartScriptDelegate(NosetestDelegate):
         """@return path to python script that can serve as entrypoint"""
         return Path(__file__).dirname() / 'start-nose.py'
         
-    @bcore.abstractmethod
+    @bapp.abstractmethod
     def modify_args(self, args, script_path):
         """@return modified argument list containing entry_script_path() in a way that causes the hostapplication
         to execute it

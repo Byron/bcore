@@ -14,7 +14,7 @@ import sys
 import re
 import logging
 
-import bcore
+import bapp
 import yaml
 
 import binascii
@@ -26,8 +26,8 @@ from cPickle import (
 
 import logging
 
-import bcore.log
-from bcore.environ import HierarchicalContext
+import bapp.log
+from bapp.environ import HierarchicalContext
 from bkvstore import (
                                 RootKey,
                                 KeyValueStoreProvider,
@@ -176,16 +176,16 @@ class DelegateEnvironmentOverride(Environment):
         @param kwargs kwargs to be passed to set_context_override()
         @return self
         @note we will put ourselves onto the environment stack for convenience"""
-        new_value = bcore.app().context().context().value(schema.key(), schema)
+        new_value = bapp.main().context().context().value(schema.key(), schema)
         delegate.set_context_override(schema, new_value, *args, **kwargs)
         
         # find only the changed values and write them as kvstore
-        prev_value = bcore.app().context().context().value(schema.key(), schema)
+        prev_value = bapp.main().context().context().value(schema.key(), schema)
         delegate = self.DifferenceDelegate()
         TwoWayDiff().diff(delegate, prev_value, new_value)
         
         self._kvstore.set_value(schema.key(), delegate.result())
-        return bcore.app().context().push(self)
+        return bapp.main().context().push(self)
         
 # end class ProcessControllerEnvironment
 
@@ -300,7 +300,7 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
         """Store the data within the environment for later retrieval
         @param env the environment dict to be used for the soon-to-be-started process
         @return self"""
-        source = self._encode(bcore.app().context().context().data())
+        source = self._encode(bapp.main().context().context().data())
 
         if source:
             # Linux max-chunk size is actually not set, but now we chunk everything
@@ -312,12 +312,12 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
         # end handle source too big to be stored
         
         # store process data as well
-        self._store_yaml_data(self.process_information_environment_variable, env, bcore.app().context().context().value_by_schema(process_schema))
+        self._store_yaml_data(self.process_information_environment_variable, env, bapp.main().context().context().value_by_schema(process_schema))
 
         # Store ConfigHierarchy hashmap for restoring it later
         # merge and store
         hash_map = dict()
-        for einstance in bcore.app().context().stack():
+        for einstance in bapp.main().context().stack():
             if isinstance(einstance, HierarchicalContext):
                 hash_map.update(einstance.hash_map())
             # end update hash_map
@@ -424,7 +424,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     ---help
         Prints this help and exits.
         
-    Set the BCORE_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
+    Set the bapp_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
     framework.
     """
     # -------------------------
@@ -453,7 +453,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
-                    bcore.app().context().push(HierarchicalContext(path.dirname()))
+                    bapp.main().context().push(HierarchicalContext(path.dirname()))
                 # end handle valid directory
                 continue
             # end ignore non-wrapper args
@@ -462,7 +462,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         
         # set overrides
         if kvstore_overrides.keys():
-            environment = bcore.app().context().push(DelegateCommandlineOverridesEnvironment('wrapper commandline overrides', 
+            environment = bapp.main().context().push(DelegateCommandlineOverridesEnvironment('wrapper commandline overrides', 
                                                                                       kvstore_overrides))
             PostLaunchProcessInformation().store_commandline_overrides(env, kvstore_overrides.data())
         #end handle overrides
@@ -600,7 +600,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             if arg == 'debug':
                 # print out all files participating in environment stack
                 log.debug("CONFIGURATION FILES IN LOADING ORDER")
-                for env in bcore.app().context().stack():
+                for env in bapp.main().context().stack():
                     if not isinstance(env, HierarchicalContext):
                         continue
                     #end ignore non configuration items
@@ -634,7 +634,7 @@ class MayaProcessControllerDelegate(ProcessControllerDelegate):
     
     context_from_path_arguments = True
 
-    _unappendable_variables = ProcessControllerDelegate._unappendable_variables + ('BCORE_PIPELINE_BASE_PATH', )
+    _unappendable_variables = ProcessControllerDelegate._unappendable_variables + ('bapp_PIPELINE_BASE_PATH', )
     
     def verify_path(self, environment_variable, path):
         """Deals properly with icon-paths, those are only relevant on linux"""

@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.bin.test_wrapper
-@brief tests for bcore.bin.wrapper
+@package bapp.tests.bin.test_wrapper
+@brief tests for bapp.bin.wrapper
 
 @copyright 2012 Sebastian Thiel
 """
@@ -11,8 +11,8 @@ __all__ = []
 import sys
 import os.path
 
-import bcore
-from bcore.tests import TestCaseBase
+import bapp
+from bapp.tests import TestCaseBase
 from bprocess.tests.test_base import TestProcessController
 
 # Dynamic loading of wrapper code - its not in a package for good reason
@@ -35,7 +35,7 @@ class TestBootstrap(TestCaseBase):
         """test fundamentals
         @note doesn't run all code paths, but its just a few lines"""
         # Have to register the controller explicitly to make it available
-        bcore.app().context().register(TestProcessController)
+        bapp.main().context().register(TestProcessController)
         
         # Should be dealing with its executable being python as well as its file
         self.failUnlessRaises(AssertionError, TestBootstrapper().main, wrapper_file)

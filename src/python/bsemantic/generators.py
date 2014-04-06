@@ -19,13 +19,13 @@ from .base import (
                         RelaxedKeyValueStoreProvider
                    )
 from .exceptions import MissingFormatResultError
-from bcore.core.kvstore import (
+from bapp.core.kvstore import (
                                 UnorderedKeyValueStoreModifier,
                                 KeyValueStoreProvider
                             )
-from bcore.utility import DictObject
+from bapp.utility import DictObject
 
-import bcore.core.logging
+import bapp.core.logging
 
 
 # ==============================================================================
@@ -70,7 +70,7 @@ class StringFormatNode(ValidatedElementNodeBase):
     re_compound_fields = re.compile(r'\{(\w+(?:\.\w+)*).*?\}')
     
     ## We use a log just to be sure we don't loose inforation
-    log = bcore.core.logging.module_logger('bsemanticgenerators')
+    log = bapp.core.logging.module_logger('bsemanticgenerators')
     
     def __init__(self, *args, **kwargs):
         super(StringFormatNode, self).__init__(*args, **kwargs)

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.qc
+@package bapp.qc
 @brief a module containing base classes for the quality check framework
 
 @copyright 2012 Sebastian Thiel
@@ -12,8 +12,8 @@ __all__ = [ 'QualityCheckCategory', 'NoCategory', 'QualityCheckBase', 'QualityCh
 import sys
 import traceback
 
-from bcore import abstractmethod
-from bcore import InterfaceBase
+from bapp import abstractmethod
+from bapp import InterfaceBase
 from .interfaces import (
                          IQualityCheck,
                          IQualityCheckRunner,
@@ -22,7 +22,7 @@ from .interfaces import (
                         )
 
 from butility import wraps
-import bcore.log
+import bapp.log
 
 # ==============================================================================
 ## @name Decorators
@@ -72,7 +72,7 @@ class QualityCheckRunnerDelegate(IQualityCheckRunnerDelegate):
 
     __slots__ = tuple()
     
-    log = bcore.log.module_logger('bcore.qc.base.QualityCheckRunnerDelegate')
+    log = bapp.log.module_logger('bapp.qc.base.QualityCheckRunnerDelegate')
     
     # -------------------------
     ## @name Interface
@@ -248,7 +248,7 @@ class QualityCheckRunner(IQualityCheckRunner, Plugin):
     stop_run = 'stop_run'
     
     ## default logger we will use
-    log = bcore.log.module_logger('bcore.qc.base.QualityCheckRunnerDelegate')
+    log = bapp.log.module_logger('bapp.qc.base.QualityCheckRunnerDelegate')
     
     ## -- End Configuration -- @}
     

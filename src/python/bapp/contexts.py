@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.contexts
+@package bapp.contexts
 @brief custom contexts to ingest additional information into the ContextStack
 
 @copyright 2012 Sebastian Thiel
@@ -10,7 +10,7 @@ __all__ = [ 'OSContext', 'ApplicationContext']
 import sys
 import socket
 
-import bcore
+import bapp
 from bcontext import (HierarchicalContext,
                       Context)
 
@@ -108,7 +108,7 @@ class ApplicationContext(HierarchicalContext, ApplicationSettingsClient):
         if not value.root_path.software:
             value.root_path.software = self._root_path() / 'software'
         if not value.root_path.executables:
-            value.root_path.executables = self._root_path() / 'bin' / bcore.app().instance(IPlatformService).id(IPlatformService.ID_FULL)
+            value.root_path.executables = self._root_path() / 'bin' / bapp.main().instance(IPlatformService).id(IPlatformService.ID_FULL)
         if not value.root_path.configuration:
             value.root_path.configuration = Path(value.root_path.repository) / self.config_dir_name
         if not value.root_path.core:

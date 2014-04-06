@@ -7,13 +7,13 @@
 """
 __all__ = ['ProcessAwareApplication']
 
-import bcore
+import bapp
 
 from bprocess import (ControlledProcessEnvironment,
                       PythonPackageIterator )
 
 
-class ProcessAwareApplication(bcore.Application):
+class ProcessAwareApplication(bapp.Application):
     """An application type which ignores all configuration, and initialized the application context 
     by loading it from the context previously saved by the bootstrapper.
 

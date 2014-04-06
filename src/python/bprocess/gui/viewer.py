@@ -12,15 +12,15 @@ from PySide import (
                         QtGui
                    )
 
-import bcore
+import bapp
 from .ui import (
                     Ui_PackageFrame,
                     Ui_PackageViewerWidget,
                 )
-from bcore.gui import remove_widget_children
+from bapp.gui import remove_widget_children
 from butility import capitalize
 
-log = service(bcore.ILog).new('bprocess.gui.viewer')
+log = service(bapp.ILog).new('bprocess.gui.viewer')
 
 
 class PackageWidget(QtGui.QFrame):

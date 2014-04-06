@@ -10,7 +10,7 @@ __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_pack
 
 import logging
 
-import bcore
+import bapp
 from bcontext import CreateFirst
 from bkvstore import (
                                 KeyValueStoreSchema,
@@ -19,7 +19,7 @@ from bkvstore import (
                                 PathList
                             )
 from .interfaces import IProcessControllerDelegate
-from bcore import Version
+from bapp import Version
 from butility import LazyMixin
 from butility import Path
 
@@ -50,7 +50,7 @@ class NamedServiceProcessControllerDelegate(LazyMixin):
                 return
             # end handle value unset
             
-            delegates = bcore.app().context().new_instances(IProcessControllerDelegate, 
+            delegates = bapp.main().context().new_instances(IProcessControllerDelegate, 
                                             predicate = lambda *args: self._type_matches_name(self._delegate_name, *args))
             if not delegates:
                 raise AssertionError("Delegate named '%s' could not be found in service registry" % self._delegate_name)

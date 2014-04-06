@@ -9,7 +9,7 @@ __all__ = []
 
 import logging
 
-from bcore.tests import (
+from bapp.tests import (
                         TestCaseBase,
                         with_rw_directory
                       )

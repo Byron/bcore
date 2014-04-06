@@ -8,7 +8,7 @@ __all__ = []
 
 import sys
 
-import bcore
+import bapp
 from butility.tests import (TestCaseBase,
                             with_rw_directory)
 

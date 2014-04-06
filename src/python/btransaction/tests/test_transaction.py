@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.processing.transaction.test_transaction
+@package bapp.tests.processing.transaction.test_transaction
 @brief tests for btransaction
 
 @copyright 2013 Sebastian Thiel

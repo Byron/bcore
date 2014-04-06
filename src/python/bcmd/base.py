@@ -9,9 +9,9 @@ __all__ = ['CommandBase', 'SubCommandBase']
 
 import sys
 
-import bcore
-from bcore.core.kvstore import KeyValueStoreProvider
-from bcore.utility import LazyMixin
+import bapp
+from bapp.core.kvstore import KeyValueStoreProvider
+from bapp.utility import LazyMixin
 
 from .argparse import (
                         ArgumentError,
@@ -123,7 +123,7 @@ class CommandBase(ICommand, LazyMixin):
             if self._is_subcommand():
                 lid = '%s %s' % (self.main_command_name, self.name)
             # end handle subcommands
-            self._log = new_service(bcore.ILog).new(lid)
+            self._log = new_service(bapp.ILog).new(lid)
         elif name == '_info':
             assert self.name and self.version and self.description
             log_id = self.log_id or self.name

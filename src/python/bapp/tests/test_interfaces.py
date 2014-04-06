@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.tests.test_interfaces
+@package bapp.tests.test_interfaces
 @brief tests for base interfaces - they don't do anything theselves, but need subclassing
 
 @copyright 2013 Sebastian Thiel
@@ -9,12 +9,12 @@ __all__ = []
 
 import os
 
-import bcore
+import bapp
 from butility.tests import (TestInterfaceBase,
                             TempRWDirProvider)
 from butility import Path
 from .base import with_application
-from bcore.interfaces import *
+from bapp.interfaces import *
 
 
 class TestIPlatformService(TestInterfaceBase):
@@ -61,7 +61,7 @@ class TestIContextController(TestInterfaceBase):
     @with_application
     def test_base(self):
         assert self.file_in_context_a.isfile() and self.file_in_context_b.isfile(), 'test files must be set'
-        host = new_service(bcore.IHostApplication)
+        host = new_service(bapp.IHostApplication)
         
         assert host.loaded_file() != self.file_in_context_a
         host.load(self.file_in_context_a)

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.utility
+@package bapp.utility
 @brief Contains utilities with minimal dependencies
 
 @copyright 2014 Sebastian Thiel
@@ -18,7 +18,7 @@ from butility import (Path,
 
 from bkvstore import KeyValueStoreSchema
 from bcontext import HierarchicalContext
-import bcore
+import bapp
 
 
 
@@ -58,7 +58,7 @@ class ApplicationSettingsClient(object):
         @param context if not None, use the given context (KeyValueStoreProvider) instead of the global one
         @param resolve if True, string values will be resolved
         @note use this method when you need access to the datastructure matching your schema"""
-        return (context or bcore.app().context().settings()).value_by_schema(cls.settings_schema(), resolve=resolve)
+        return (context or bapp.main().context().settings()).value_by_schema(cls.settings_schema(), resolve=resolve)
 
 
 # end class ApplicationSettingsClient
@@ -79,7 +79,7 @@ class StackAwareHierarchicalContext(HierarchicalContext):
 
     def _iter_application_contexts(self):
         """@return iterator yielding environments of our type on the stack, which are not us"""
-        for ctx in bcore.app().context().stack():
+        for ctx in bapp.main().context().stack():
             # we should be last, but lets not assume that
             if ctx is self or not isinstance(ctx, StackAwareHierarchicalContext):
                 continue
@@ -178,7 +178,7 @@ class LogConfigurator(ApplicationSettingsClient):
         # See #6239
         # NOTE: at least the environment variable can probably be removed once the actual culprit is found
         # Why does our configuration kill pythons logging entirely in case of katana at least ?
-        if value.disable or 'BCORE_LOGGING_INITIALIZATION_DISABLE' in os.environ:
+        if value.disable or 'bapp_LOGGING_INITIALIZATION_DISABLE' in os.environ:
             return
         # end no init if disabled
     

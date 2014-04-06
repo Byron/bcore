@@ -63,7 +63,7 @@ def with_rw_directory(func):
     suffixed with alphanumeric characters to make it unique.
 
     Example:
-    @snippet bcore/tests/doc/test_examples.py with_rw_directory
+    @snippet bapp/tests/doc/test_examples.py with_rw_directory
     """
     @wraps(func)
     def wrapper(self):

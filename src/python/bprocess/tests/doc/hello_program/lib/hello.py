@@ -1,8 +1,8 @@
 
 import sys
-import bcore.cmd
+import bapp.cmd
 
-class HelloWorldCommand(bcore.cmd.CommandBase):
+class HelloWorldCommand(bapp.cmd.CommandBase):
     __slots__ = ()
     
     name = 'hello'

@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bcore.qc.interfaces
+@package bapp.qc.interfaces
 @brief Interfaces used in the quality checking framework
 
 @copyright 2013 Sebastian Thiel
@@ -8,8 +8,8 @@
 __all__ = ['IQualityCheck', 'IQualityCheckProvider', 'IQualityCheckRunnerDelegate', 'IQualityCheckRunner', 
             'QualityCheckCategory']
 
-import bcore
-from bcore import abstractmethod
+import bapp
+from bapp import abstractmethod
 
 # -------------------------
 ## @name Utility
@@ -46,7 +46,7 @@ class QualityCheckCategory(object):
 ## -- End Utility -- @}
 
 
-class IQualityCheckProvider(bcore.InterfaceBase):
+class IQualityCheckProvider(bapp.InterfaceBase):
     """A simple interface implementing an algorithm to select checks for the current context"""
     __slots__ = ()
     
@@ -57,7 +57,7 @@ class IQualityCheckProvider(bcore.InterfaceBase):
 # end class IQualityCheckProvider
 
 
-class IQualityCheck(bcore.InterfaceBase):
+class IQualityCheck(bapp.InterfaceBase):
     """A base class providing the foundation for all actual QualityCheck implementations."""
     __slots__ = ()      
    
@@ -144,7 +144,7 @@ class IQualityCheck(bcore.InterfaceBase):
 # end class IQualityCheck    
 
 
-class IQualityCheckRunner(list, bcore.InterfaceBase):
+class IQualityCheckRunner(list, bapp.InterfaceBase):
     """Is a list of `QualityCheckBase` compatible instances which can be run safely, providing just-in-time information
     about the results of this run.
     
@@ -198,7 +198,7 @@ class IQualityCheckRunner(list, bcore.InterfaceBase):
 # end class IQualityCheckRunner
 
 
-class IQualityCheckRunnerDelegate(bcore.InterfaceBase):
+class IQualityCheckRunnerDelegate(bapp.InterfaceBase):
     """Defines a callback interface to be used by `QualityCheckRunner` instances
     
     The delegate may control the runner by returning codes for the runner to interpret.
