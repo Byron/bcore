@@ -386,7 +386,7 @@ class ContextStack(LazyMixin):
         instances = list()
         for ctx in reversed(self._stack):
             instances += ctx.instances(interface, predicate)
-            if not find_all:
+            if instances and not find_all:
                 break
             # end abort search early
         # end for each context

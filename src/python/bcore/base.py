@@ -94,6 +94,15 @@ class Application(object):
 
     ## A utility to setup the logging system
     LogConfiguratorType = LogConfigurator
+
+    ## The default OS context type
+    # Lazliy imported, but may be overridden by subclass
+    OSContextType = None
+
+    ## The default application context type
+    # See above
+    ApplicationContextType = None
+
     
     ## -- End Subclass Configuration -- @}
 
@@ -177,7 +186,8 @@ class Application(object):
     @classmethod
     def new(cls, settings_paths=tuple(), settings_hierarchy=False, 
                  load_plugins = False, recursive_plugin_loading = False, plugins_subdirectory='plug-ins',
-                 setup_logging = True):
+                 setup_logging = True,
+                 with_default_contexts = True ):
         """Create a new Application instance, configured with all items an application needs to function.
         This is mainly a registry for settings, types and instances providing particular instances.
 
@@ -199,13 +209,24 @@ class Application(object):
         for plug-ins. That way, you can separate plug-ins from other code
         @param setup_logging if True, logging will be configured using the LogConfigurator, which in turn
         is setup using our context
+        @param with_default_contexts if True, we will initialize an OSContext and an ApplicationContext
         @return a new Application instance
         @note in every program, the Application instance must be initialized before anything that uses the 
         default application is imported. Otherwise, types cannot be registered
         """
         inst = cls._init_instance()
 
-        # TODO: Flags for more specific contexts, which add various pieces of information to the kvstore
+        # This needs lazy import
+        from .contexts import (OSContext, 
+                               ApplicationContext)
+
+        if with_default_contexts:
+            typ = cls.OSContextType or OSContext
+            inst.context().push(typ('os'))
+
+            typ = cls.ApplicationContextType or ApplicationContext
+            inst.context().push(typ('app'))
+        # end handle ApplicationContext
 
         for path in settings_paths:
             ctx = inst.context().push(cls.HierarchicalContextType(path, 

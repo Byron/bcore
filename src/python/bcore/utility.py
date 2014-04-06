@@ -81,7 +81,7 @@ class StackAwareHierarchicalContext(HierarchicalContext):
         """@return iterator yielding environments of our type on the stack, which are not us"""
         for ctx in bcore.app().context().stack():
             # we should be last, but lets not assume that
-            if ctx is self or not isinstance(ctx, HierarchicalContext):
+            if ctx is self or not isinstance(ctx, StackAwareHierarchicalContext):
                 continue
             yield ctx
         # end for each environment
@@ -94,8 +94,8 @@ class StackAwareHierarchicalContext(HierarchicalContext):
         # as we are an environment !
         # We keep file ordering
         current_dirs = set()
-        for env in self._iter_application_contexts():
-            current_dirs |= set(env.config_directories())
+        for ctx in self._iter_application_contexts():
+            current_dirs |= set(ctx.config_directories())
         # end for each stack environment
         return filter(lambda dir: dir not in current_dirs, directories)
 
@@ -127,7 +127,7 @@ class StackAwareHierarchicalContext(HierarchicalContext):
     
     ## -- End Interface -- @}
 
-# end class StackAwaHierarchicalContext
+# end class StackAwareHierarchicalContext
 
 
 class _KVStoreLoggingVerbosity(object):

@@ -50,7 +50,6 @@ class OSContext(Context, ApplicationSettingsClient):
                     darwin = services.MacPlatformService,
                     win32 = services.WindowsPlatformService
                     )[sys.platform]()
-                    
             value = self.settings_value(self._kvstore, resolve=False)
             if not value.platform.id:
                 value.platform.id = inst.id(inst.ID_FULL)
@@ -86,9 +85,10 @@ class ApplicationContext(HierarchicalContext, ApplicationSettingsClient):
     ## -- End Configuration -- @}
 
     def __init__(self, name):
-        """puts pipeline base paths and python paths into the context and the
+        """puts this base paths and python paths into the context and the
            environment. It also creates some basic components"""
-        super(ApplicationContext, self).__init__(Path(__file__).dirname())
+        super(ApplicationContext, self).__init__(self._root_path(),
+                                                 traverse_settings_hierarchy=False)
         
     def _filter_directories(self, directories):
         """amend the user's private configuration directory - people can just drop files there"""
@@ -122,11 +122,11 @@ class ApplicationContext(HierarchicalContext, ApplicationSettingsClient):
         services.ProjectInformation()
         
     def _root_path(self):
-        """@return the assumed pipeline root path
-        @note The pipeline being self contained, we should be in the pipeline directory hierarchy,
+        """@return the assumed application root path
+        @note The application being self contained, we should be in the application directory hierarchy,
         wherefore if we go up the directory hierarchy, we must be able to find the config dir,
         which is located in what we take to be the pipeline base directory"""
-        return self.config_directories()[0].dirname()
+        return Path(__file__).dirname()
         
     # -------------------------
     ## @name Interface
