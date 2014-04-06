@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bapplication.base
+@package bcore.base
 @brief Implements the Application type
 
 @copyright 2014 Sebastian Thiel

@@ -206,7 +206,11 @@ class ContextStack(LazyMixin):
     ## @name Configuration
     # @{
 
+    ## The type of context we instantiate, for example during push("name")
     ContextType = Context
+
+    ## The type of validator we create, for example during schema_validator()
+    KeyValueStoreValidatorType = KeyValueStoreSchemaValidator
     
     ## -- End Configuration -- @}
 
@@ -411,13 +415,13 @@ class ContextStack(LazyMixin):
         as well as those types presenting KeyValueStoreSchema instances through a schema() method
         @todo this method should be introduced by a an ApplicationAwareStack, as it relies on the context
         client"""
-        validator = self._KeyValueStoreValidatorType()
+        validator = self.KeyValueStoreValidatorType()
         # bottom up - later contexts override earlier ones
         for ctx in self._stack:
             if hasattr(ctx, 'settings_schema'):
                 schema = ctx.settings_schema()
                 assert isinstance(schema, KeyValueStoreSchema)
-                validator.append()
+                validator.append(schema)
             # end handle contexts with schema
             # Context returns instances newest first, which is something we hereby undo to allow
             # proper schema merging.

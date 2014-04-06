@@ -18,6 +18,9 @@ import bcore
 from bcore import (InstanceNotFound,
                    TypeNotFound)
 
+from bcore.contexts import (ApplicationContext,
+                            OSContext)
+
 
 class TestCore(TestCoreCaseBase):
     __slots__ = ()
@@ -82,3 +85,22 @@ class TestCore(TestCoreCaseBase):
 
        
 # end class TestCore
+
+
+class TestContext(TestCoreCaseBase):
+    __slots__ = ()
+
+    @preserve_application
+    def test_base(self):
+        pbe = ApplicationContext('test_pb')
+        ose = OSContext('test_os')
+
+        app = bcore.Application.new()
+        app.context().push(pbe)
+        app.context().push(ose)
+        
+        # Test Validation
+        validator = app.context().schema_validator()
+        assert len(validator) > 0
+        assert len(validator.validate_schema()[1]) == 0, "default schema's should have no clashes"
+    
