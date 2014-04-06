@@ -77,7 +77,7 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         assert len(cps.keys()) == 1, "exepected exactly one top-level key"
         # try non-existing base key
         assert len(cps.keys('doesnt.exist')) == 0, "nonexisting key should return empty list"
-        assert len(cps.keys('section')) == 5, "Should have 4 keys in section"
+        assert len(cps.keys('section')) == 6, "Should have 6 keys in section"
         assert isinstance(cps.value('section.int', 50.0), float), "typecast should have been done automatically"
         
     def _assert_cp_interface_nested(self, config_provider_type):

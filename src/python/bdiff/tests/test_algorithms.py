@@ -141,7 +141,8 @@ class TestDiffAlgorithms(TestCase):
         res = delegate.result()
         assert res['1'] == 'one'
         assert res['2'] == 'two_changed'
-        assert res['3'] == 'three'
+        assert res['3'] == { '1' : 'sub-one',
+                             '2' : 'sub-two' }
         assert res['5'] == { '1' : 'value-modified' }
         assert res['4'].to_dict() == {'1': {'1': 'sub-sub-one', '2': 'sub-sub-two'}}
         

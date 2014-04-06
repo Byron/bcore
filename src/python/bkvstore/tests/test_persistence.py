@@ -34,7 +34,7 @@ class TestConfigurationCore(TestConfigurationBase):
             assert len(data) == 1
             section = data['section']
             assert isinstance(section, OrderedDict)
-            assert len(section) == 5
+            assert len(section) == 6
             isection = iter(section)
             assert isection.next() == 'string'
             assert isection.next() == 'int'
