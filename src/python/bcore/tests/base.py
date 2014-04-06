@@ -35,6 +35,19 @@ def preserve_application(fun):
     # end wrapper
     return wrapper
 
+def with_application(fun):
+    """similar to preserve_application(), but will create a new application object that will 
+    be discarded once the decorated function completes.
+    It's useful if there is ApplictionSettingsClient code that tries to access the central information database"""
+    @wraps(fun)
+    def wrapper(*args, **kwargs):
+        assert bcore.Application.main is None, "Should have no application yet"
+        bcore.Application.new()
+        return fun(*args, **kwargs)
+    # end wrapper
+    return preserve_application(wrapper)        
+    
+
 ## -- End Decorators -- @}
 
 
