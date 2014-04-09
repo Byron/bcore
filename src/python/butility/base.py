@@ -8,9 +8,10 @@
 __all__ = ['Error', 'InterfaceBase', 'MetaBase', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIteratorBase',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
-           'set_log_level']
+           'set_log_level', 'partial']
            
-import functools
+from functools import (wraps,
+                       partial)
 import logging
 import os
 import sys
@@ -75,20 +76,6 @@ class Error(Exception):
 
 # end class Error
 ## -- End Exceptions -- \}
-
-
-# ==============================================================================
-## @name Decorator Tools
-# ------------------------------------------------------------------------------
-# Tools useful in conjunction with decorators.
-## @{
-
-def wraps(func):
-    """Wrapper around the default 'wraps' utility to opt-in on additional
-    improvements or fixes"""
-    return functools.wraps(func)
-
-## -- End Decorator Tools -- @}
 
 
 # ==============================================================================

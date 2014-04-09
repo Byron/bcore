@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = ['KeyValueStoreProvider', 'KeyValueStoreModifier', 'Error', 'NoValueForKeyError', 
+__all__ = ['KeyValueStoreProvider', 'KeyValueStoreModifier', 'Error', 'NoSuchKeyError', 
            'UnorderedKeyValueStoreModifier', 'ChangeTrackingKeyValueStoreModifier']
 
 import copy
@@ -38,8 +38,8 @@ class Error(Exception):
 # end class Error
 
 
-class NoValueForKeyError(Error, KeyError):
-    """Thrown if a value is missing for a given key"""
+class NoSuchKeyError(Error, KeyError):
+    """Thrown if a value is missing for a given key,"""
 
     def __init__(self, key):
         """initialize this instance with a key for which there was no value"""
@@ -152,7 +152,7 @@ class KeyValueStoreProvider(object):
 
         In any way its to be assured that changes to the returned value are not
         affecting the in-memory representation of the original values.
-        @throw If no default value is provided, as it is None, a `NoValueForKeyError` is thrown"""
+        @throw If no default value is provided, as it is None, a `NoSuchKeyError` is thrown"""
         # value can be None - we diff against it anyway
         value = self._resolve_value(key, self._value_dict)
         args = [key, self.log]
@@ -166,7 +166,7 @@ class KeyValueStoreProvider(object):
         value = delegate.result()
         if value is NoValue:
             # neither the default nor the stored value provided a value
-            raise NoValueForKeyError(key)
+            raise NoSuchKeyError(key)
         #end handle no value
         return value
         

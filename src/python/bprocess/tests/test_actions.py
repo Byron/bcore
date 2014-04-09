@@ -9,10 +9,8 @@ __all__ = []
 
 import logging
 
-from bapp.tests import (
-                        TestCaseBase,
-                        with_rw_directory
-                      )
+from butility.tests import ( TestCaseBase,
+                             with_rw_directory )
 
 from btransaction import Transaction
 from bprocess.actions import CopyAction

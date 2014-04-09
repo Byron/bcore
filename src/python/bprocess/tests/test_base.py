@@ -13,6 +13,7 @@ import os
 import tempfile
 
 import bapp
+
 from butility.tests import TestCaseBase
 from bprocess import *
 
@@ -64,7 +65,7 @@ class TestProcessControl(TestCaseBase):
 
     def test_forced_spawn(self):
         """Verify that we can easily enforce a process to be spawned, without overwriting any 'natural' configuration"""
-        pctrl = new_service(ProcessController).init(pseudo_executable('rvio'), list())
+        pctrl = ProcessController().init(pseudo_executable('rvio'), list())
         assert type(pctrl) is ProcessController and not pctrl.dry_run
 
         assert pctrl.set_should_spawn_process_override(True) is None
@@ -72,7 +73,7 @@ class TestProcessControl(TestCaseBase):
         
     def test_python_execution(self):
         """we should be able to execute any code directly using the delegate, without spawning"""
-        pctrl = new_service(ProcessController).init(pseudo_executable('py-program'), list())
+        pctrl = ProcessController().init(pseudo_executable('py-program'), list())
         
         process = pctrl.execute()
         assert process.returncode == 0
@@ -113,7 +114,7 @@ class TestProcessControl(TestCaseBase):
         
     def test_post_launch_info(self):
         """Just some basic tests"""
-        info = new_service(bapp.IPostLaunchProcessInformation)
+        info = bapp.main().new_instance(IPostLaunchProcessInformation)
         if not info.has_data():
             assert info.data() is None and info.process_data() is None
         else:

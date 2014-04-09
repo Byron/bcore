@@ -69,7 +69,7 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                             "Need default value if a key could not be found in section")
         # SH: None should be allowed, it could be what the user wants to store, and there's NoValue for marking
         #     something as having no value instead of None
-        #self.failUnlessRaises(NoValueForKeyError, cps.value, 'doesnt_exist', None)
+        #self.failUnlessRaises(NoSuchKeyError, cps.value, 'doesnt_exist', None)
         
         assert cps.value('section.string', 'doesntmatter') == 'value', "Expected a key-hit as value exists"
         assert cps.value('section.int', 50) == 42, "integers should work similarly and come out in proper type"

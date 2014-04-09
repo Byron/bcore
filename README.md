@@ -45,6 +45,8 @@ Such a *rule-set* in terms of more natural language would be comparable to *gram
 
 **Please see the documentation of the bsemantic package for more details**.
 
+## Credits / External Packages
 
+* ``yaml``, see http://yaml.org
 
 ![alt tag](https://raw.githubusercontent.com/Byron/bcore/master/src/images/under_construction.png)
