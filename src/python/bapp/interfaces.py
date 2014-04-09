@@ -33,6 +33,7 @@ class IContextController(InterfaceBase):
     @note If we talk about context, we mean the kvstore of the bapp.main().context() instance.
     @note This type is meant to be used as Singleton, and must be initialized once during your application's 
     boot sequence.
+    @todo move to bprocess
     """
     __slots__ = ()
     

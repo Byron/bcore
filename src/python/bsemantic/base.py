@@ -14,7 +14,7 @@ from bapp.utility import  (
                             LazyMixin,
                         )
 
-from bapp.core.kvstore import (
+from bkvstore import (
                                 RelaxedKeyValueStoreProviderDiffDelegate,
                                 KeyValueStoreProvider
                             )

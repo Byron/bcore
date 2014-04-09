@@ -11,28 +11,29 @@ import bapp
 from .controller import ( ProcessController,
                           PackageDataIteratorMixin,
                           PythonPackageIterator,
-                          CommandlineOverridesEnvironment )
+                          CommandlineOverridesContext )
 from .delegates import PostLaunchProcessInformation
 from .schema import ( process_schema,
                       package_schema )
 
 from .utility import FlatteningPackageDataIteratorMixin
-from bcontext import ApplicationSettingsClient
+from bapp import ( ApplicationSettingsClient,
+                   IContextController,
+                   StackAwareHierarchicalContext )
 from bkvstore import ( KeyValueStoreSchema,
                        AnyKey )
 from bdiff import ( TwoWayDiff,
                     DiffIndexDelegate )
-
 from butility import ( Version,
-                       OrderedDict )
+                       OrderedDict, 
+                       abstractmethod )
 
-from bcontext import HierarchicalContext
 import logging
 
 log = logging.getLogger('bprocess.components')
 
 
-class ProcessConfigurationIncompatibleError(bapp.IContextController.ContextIncompatible):
+class ProcessConfigurationIncompatibleError(IContextController.ContextIncompatible):
     """Thrown to indicate the current process configuration cannot be used in another context"""
     __slots__ = (
                     'index' ## A DiffIndex record containing the exact changes
@@ -46,8 +47,8 @@ class ProcessConfigurationIncompatibleError(bapp.IContextController.ContextIncom
 # end class ProcessConfigurationIncompatibleError
 
 
-class ProcessControlContextControllerBase(bapp.IContextController, ApplicationSettingsClient,
-                                            FlatteningPackageDataIteratorMixin, Plugin):
+class ProcessControlContextControllerBase(IContextController, ApplicationSettingsClient,
+                                          FlatteningPackageDataIteratorMixin, bapp.plugin_type()):
     """Basic implementation which uses the basic ProcessController implementation to implement 
     simple context tracking for the _before_scene_save() as well as 
     _after_scene_save() methods"""
@@ -67,7 +68,7 @@ class ProcessControlContextControllerBase(bapp.IContextController, ApplicationSe
     # @{
     
     ## Environment used to load configuration and plugins
-    HierarchicalContextType = HierarchicalContext
+    HierarchicalContextType = StackAwareHierarchicalContext
     
     ## If True, plugins will be loaded recursively from all environments we create, i.e. for executable 
     ## and scene contexts)
@@ -97,7 +98,7 @@ class ProcessControlContextControllerBase(bapp.IContextController, ApplicationSe
         @note subclasses can override it for special handling"""
         env = bapp.main().context().push(self.HierarchicalContextType(dirname))
         # Make sure we apply commandline overrides last
-        bapp.main().context().push(CommandlineOverridesEnvironment())
+        bapp.main().context().push(CommandlineOverridesContext())
         if self.load_plugins:
             env.load_plugins()
         # end handle plugin loading
@@ -161,7 +162,7 @@ class ProcessControlContextControllerBase(bapp.IContextController, ApplicationSe
     ## @name Subclass Interface
     # @{
     
-    @bapp.abstractmethod
+    @abstractmethod
     def _setup_scene_callbacks(self):
         """Set up an application callback to assure this instance is notified before the scene changes
         or after the scene has changed (depending on the capabilities).
@@ -217,7 +218,7 @@ class ProcessControlContextControllerBase(bapp.IContextController, ApplicationSe
         res = self.pop_asset_context()
         self._push_configuration(filepath.dirname())
         try:
-            self._check_process_compatibility(bapp.main().context().context())
+            self._check_process_compatibility(bapp.main().context().settings())
             # if this worked, load plugins
             PythonPackageIterator().import_modules()
         except ProcessConfigurationIncompatibleError:

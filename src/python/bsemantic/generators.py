@@ -19,7 +19,7 @@ from .base import (
                         RelaxedKeyValueStoreProvider
                    )
 from .exceptions import MissingFormatResultError
-from bapp.core.kvstore import (
+from bkvstore import (
                                 UnorderedKeyValueStoreModifier,
                                 KeyValueStoreProvider
                             )

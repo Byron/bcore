@@ -7,8 +7,8 @@
 """
 __all__ = []
 
-
-from bapp.tests import TestCaseBase
+import bapp
+from butility.tests import TestCaseBase
 
 # Test * import
 from bcmd import *
@@ -56,7 +56,7 @@ class MainCommand(CommandBase):
 # end class MainCommand
 
 
-class SimpleSubcommand(SimpleCommand, SubCommandBase, Plugin):
+class SimpleSubcommand(SimpleCommand, SubCommandBase, bapp.plugin_type()):
     """A simple command to be used as subcommand"""
     __slots__ = ()
     

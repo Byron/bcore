@@ -11,17 +11,14 @@ __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_pack
 import logging
 
 import bapp
-from bcontext import CreateFirst
-from bkvstore import (
-                                KeyValueStoreSchema,
-                                AnyKey,
-                                StringList,
-                                PathList
-                            )
+from bkvstore import (KeyValueStoreSchema,
+                      AnyKey,
+                      StringList,
+                      PathList )
 from .interfaces import IProcessControllerDelegate
-from bapp import Version
-from butility import LazyMixin
-from butility import Path
+from butility import (Version,
+                      LazyMixin,
+                      Path )
 
 log = logging.getLogger('bprocess.schema')
 
@@ -35,10 +32,6 @@ class NamedServiceProcessControllerDelegate(LazyMixin):
     We use it as dynamic constructor"""
     __slots__ = ('instance', '_delegate_name')
     
-    @classmethod
-    def _type_matches_name(cls, name, svccls, *args):
-        return CreateFirst(svccls, *args) and svccls.__name__ == name
-    
     def __init__(self, delegate_name = None):
         """Fill our instance"""
         self._delegate_name = delegate_name
@@ -51,7 +44,7 @@ class NamedServiceProcessControllerDelegate(LazyMixin):
             # end handle value unset
             
             delegates = bapp.main().context().new_instances(IProcessControllerDelegate, 
-                                            predicate = lambda *args: self._type_matches_name(self._delegate_name, *args))
+                            maycreate = lambda cls, instances: not instances and cls.__name__ == self._delegate_name)
             if not delegates:
                 raise AssertionError("Delegate named '%s' could not be found in service registry" % self._delegate_name)
             # handle delegate instantiation

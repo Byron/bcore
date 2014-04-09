@@ -8,10 +8,8 @@
 __all__ = ['ActionDelegateMixin', 'PackageActionBase']
 
 import bapp
-from btransaction import (
-                                        Transaction,
-                                        Operation
-                                      )
+from btransaction import ( Transaction,
+                           Operation )
 
 from .schema import action_schema
 
@@ -94,7 +92,7 @@ class PackageActionBase(Operation):
         @param cls
         @param key key at which the kvstore should be sampled, usually created by data_key()
         @param kvstore store to use. Default store will be used if None"""
-        kvstore = kvstore or bapp.main().context().context()
+        kvstore = kvstore or bapp.main().context().settings()
         assert cls.action_schema is not None, "'action_schema' to be set in subclass"
         if not kvstore.has_value(key):
             raise ValueError("Action at key '%s' doesn't exist" % key)

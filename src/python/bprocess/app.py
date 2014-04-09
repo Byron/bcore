@@ -9,7 +9,7 @@ __all__ = ['ProcessAwareApplication']
 
 import bapp
 
-from bprocess import (ControlledProcessEnvironment,
+from bprocess import (ControlledProcessContext,
                       PythonPackageIterator )
 
 
@@ -29,7 +29,7 @@ class ProcessAwareApplication(bapp.Application):
         everything.
         Relevant keys are only 'load_plugins', which is True by default, and setup_logging, which is True as well
         @return a new application instance"""
-        proc_env = ControlledProcessEnvironment()
+        proc_env = ControlledProcessContext()
         if not proc_env.has_data():
             return super(ProcessAwareApplication, cls).new(*args, **kwargs)
         # end handle no process control

@@ -1,14 +1,15 @@
 #-*-coding:utf-8-*-
 """
 @package bapp.tests.qc.test_base
-@brief tests for bapp.qc.base
+@brief tests for bqc.base
 
 @copyright 2012 Sebastian Thiel
 """
 __all__ = []
 
-from bapp.tests import TestCaseBase
-from bapp.qc import *
+import bapp
+from butility.tests import TestCaseBase
+from bqc import *
 
 from cStringIO import StringIO
 
@@ -38,7 +39,7 @@ class TestStreamingDelegate(StreamingQualityCheckRunnerDelegate):
 # ------------------------------------------------------------------------------
 ## @{
 
-class QualityCheckMockup(QualityCheckBase, Plugin):
+class QualityCheckMockup(QualityCheckBase, bapp.plugin_type()):
     """A utility to test the quality check framework """
 
     __slots__ = (

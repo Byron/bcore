@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bapp.qc.interfaces
+@package bqc.interfaces
 @brief Interfaces used in the quality checking framework
 
 @copyright 2013 Sebastian Thiel

@@ -14,15 +14,15 @@ import bapp
 from .controller import PackageDataIteratorMixin
 from .schema import (package_meta_data_schema,
                      controller_schema)
-from bapp.environ import PersistentApplicationSettingsClient
+from bapp import PersistentApplicationSettingsClient
 from bkvstore import (KeyValueStoreModifier,
                       PathList)
 from butility import OrderedDict
 
 log = logging.getLogger('bprocess.utility')
 
-from bapp import HierarchicalContext
-from bprocess import ControlledProcessEnvironment
+from bapp import StackAwareHierarchicalContext
+from .controller import ControlledProcessContext
 
 
 
@@ -35,7 +35,7 @@ from bprocess import ControlledProcessEnvironment
 def file_environment(*paths, **kwargs):
     """A context manager which sets up a a context based on the given file paths. To achieve that, it will 
     alter the current global context as defined in bapp.main().context() to contain all environments obtained when
-    creating HierarchicalContext instances for all the given paths.
+    creating StackAwareHierarchicalContext instances for all the given paths.
     @return returned value is the altered bapp.main().context() instance, just for convenience
     @note this will temporarily change the bapp.main().context(), which is a rather expensive operation both in terms
     of IO and CPU
@@ -54,12 +54,12 @@ def file_environment(*paths, **kwargs):
     # but recreate all others based on the input paths
     size = -1
     for index, env in enumerate(bapp.main().context().stack()):
-        if isinstance(env, ControlledProcessEnvironment):
+        if isinstance(env, ControlledProcessContext):
             size = index + 1
             break
         # end check for special environment
     # end for each env
-    assert size > -1, "Didn't find ControlledProcessEnvironment on stack"
+    assert size > -1, "Didn't find ControlledProcessContext on stack"
     
     popped_environments = list()
     try:
@@ -67,7 +67,7 @@ def file_environment(*paths, **kwargs):
             popped_environments.append(bapp.main().context().pop())
         # end pop environments
         for path in paths:
-            env = bapp.main().context().push(HierarchicalContext(path))
+            env = bapp.main().context().push(StackAwareHierarchicalContext(path))
             if kwargs.get('load_plugins', False):
                 env.load_plugins()
             # end handle plugins
@@ -148,7 +148,7 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsClient,
     
     def _initial_settings_value(self):
         """@return a flattened list of just the packages we are concerned with"""
-        return self._flattened_package_tree(self._package_name, bapp.main().context().context())
+        return self._flattened_package_tree(self._package_name, bapp.main().context().settings())
     
     def settings_id(self):
         """@return our settings id

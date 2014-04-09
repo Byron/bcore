@@ -7,10 +7,8 @@
 """
 __all__ = ['action_schema']
 
-from bkvstore import (
-                                KeyValueStoreSchema,
-                                AnyKey,
-                            )
+from bkvstore import ( KeyValueStoreSchema,
+                       AnyKey )
 
 from butility import Path
 

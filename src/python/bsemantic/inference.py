@@ -16,7 +16,7 @@ import parse
 import bapp.core.logging
 
 from .generators import StringFormatNodeTree
-from bapp.core.kvstore import UnorderedKeyValueStoreModifier
+from bkvstore import UnorderedKeyValueStoreModifier
                                 
 
 

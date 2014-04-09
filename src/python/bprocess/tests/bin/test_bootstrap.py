@@ -12,7 +12,7 @@ import sys
 import os.path
 
 import bapp
-from bapp.tests import TestCaseBase
+from butility.tests import TestCaseBase
 from bprocess.tests.test_base import TestProcessController
 
 # Dynamic loading of wrapper code - its not in a package for good reason

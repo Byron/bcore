@@ -5,12 +5,11 @@
 
 @copyright 2012 Sebastian Thiel
 """
-from bapp.tests import (
-                        TestCaseBase,
-                        with_rw_directory
-                    )
-from bprocess.utility import *
+from butility.tests import ( TestCaseBase,
+                             with_rw_directory )
 from bkvstore import KeyValueStoreModifier
+from bapp.tests import with_application
+from bprocess.utility import *
 
 
 class TestUtilities(TestCaseBase):
@@ -18,6 +17,7 @@ class TestUtilities(TestCaseBase):
     __slots__ = ()
     
     
+    @with_application
     @with_rw_directory
     def test_base(self, rw_dir):
         """test fundamentals"""

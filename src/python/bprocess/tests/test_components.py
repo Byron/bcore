@@ -7,12 +7,10 @@
 """
 __all__ = []
 
-from bapp.tests import TestCaseBase
-
-from bprocess import (
-                                    ProcessControlContextControllerBase,
-                                    ProcessConfigurationIncompatibleError
-                                )
+from butility.tests import TestCaseBase
+from bapp.tests import with_application
+from bprocess import ( ProcessControlContextControllerBase,
+                       ProcessConfigurationIncompatibleError )
 from bkvstore import YAMLKeyValueStoreModifier
 
 
@@ -28,6 +26,7 @@ class TestProcessController(ProcessControlContextControllerBase):
 class TestProcessControlContextController(TestCaseBase):
     """Verify the context controller, triggering a few of its functions manually"""
    
+    @with_application
     def test_base(self):
        """verify basic functionality"""
        ctrl = TestProcessController()

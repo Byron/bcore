@@ -14,6 +14,7 @@ import bapp
 from bkvstore import KeyValueStoreSchema
 from bprocess import (ProcessControllerDelegate,
                       IPostLaunchProcessInformation)
+from butility import abstractmethod
 import nose
 
 logging.getLogger('bprocess.tests.base')
@@ -42,7 +43,7 @@ class NosetestDelegate(ProcessControllerDelegate):
         try:
             sep_index = args.index('--')
             noseargs = args[:sep_index]
-            self.DelegateEnvironmentOverrideType('NosetestsOverride').setup(self, self.schema, noseargs)
+            self.DelegateContextOverrideType('NosetestsOverride').setup(self, self.schema, noseargs)
             args = args[sep_index+1:]
             
             log.info("Starting nosetest with args: %s", ' '.join(noseargs))
@@ -76,7 +77,7 @@ class NoseStartScriptDelegate(NosetestDelegate):
         """@return path to python script that can serve as entrypoint"""
         return Path(__file__).dirname() / 'start-nose.py'
         
-    @bapp.abstractmethod
+    @abstractmethod
     def modify_args(self, args, script_path):
         """@return modified argument list containing entry_script_path() in a way that causes the hostapplication
         to execute it

@@ -13,7 +13,7 @@ import os
 import tempfile
 
 import bapp
-from bapp.tests import TestCaseBase
+from butility.tests import TestCaseBase
 from bprocess import *
 
 from butility import Path
@@ -121,7 +121,7 @@ class TestProcessControl(TestCaseBase):
             assert pinfo.executable.isfile()
             assert pinfo.bootstrap_dir.isdir()
             assert pinfo.id
-            assert bapp.main().context().context().value_by_schema(process_schema).executable == pinfo.executable
+            assert bapp.main().context().settings().value_by_schema(process_schema).executable == pinfo.executable
         # end handle data
         
         

@@ -37,6 +37,7 @@ import ConfigParser
 import logging
 
 from butility import Version
+
 from .base import *
 
 __version__ = Version('0.1.0')
@@ -110,3 +111,13 @@ def _initialize():
     
 
 _initialize()
+
+
+# Have to import the rest of the bunch later to workaround natural dependency issues
+from .contexts import *
+from .interfaces import *
+from .properties import *
+from .services import *
+from .settings import *
+from .utility import *
+

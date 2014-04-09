@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bapp.tests.test_settings
-@brief tests for bapp.environ.settings
+@brief tests for bapp.settings
 
 @copyright 2013 Sebastian Thiel
 """

@@ -6,8 +6,8 @@
 @copyright 2013 Sebastian Thiel
 """
 __all__ = ['ProcessController', 'ProcessControllerPackageSpecification', 'PackageDataIteratorMixin',
-           'ExecutableEnvironment', 'PythonPackageIterator', 'CommandlineOverridesEnvironment', 
-           'ControlledProcessEnvironment']
+           'ExecutableContext', 'PythonPackageIterator', 'CommandlineOverridesContext', 
+           'ControlledProcessContext']
 
 import sys
 import os
@@ -16,33 +16,34 @@ import logging
 
 from pprint import pprint
 
-from butility import (Version,
-                      Path,
-                      TRACE)
+import bapp
+from butility import ( Version,
+                       Path,
+                       TRACE,
+                       LazyMixin,
+                       update_env_path,
+                       GraphIteratorBase,
+                       DictObject )
 
-from bkvstore import (KeyValueStoreModifier,
-                      KeyValueStoreSchema,
-                      RootKey)
+from bkvstore import ( KeyValueStoreModifier,
+                       KeyValueStoreSchema,
+                       RootKey )
 from bcontext import Context
 from .interfaces import IProcessControllerDelegate
-from bapp.environ import (IPlatformService,
-                           HierarchicalContext,
-                           ApplicationContext )
-from butility import (LazyMixin,
-                      update_env_path,
-                      GraphIteratorBase,
-                      DictObject)
-
-from .delegates import (DelegateEnvironmentOverride,
-                        PostLaunchProcessInformation,
-                        ProcessControllerDelegateProxy,
-                        DisplayHelpException,
-                        DisplayContextException)
-from .schema import (controller_schema,
-                     package_schema,
-                     package_vspec_schema,
-                     process_schema,
-                     python_package_schema)
+from bapp import         ( IPlatformService,
+                           StackAwareHierarchicalContext,
+                           ApplicationContext, 
+                           ApplicationSettingsClient )
+from .delegates import ( DelegateContextOverride,
+                         PostLaunchProcessInformation,
+                         ProcessControllerDelegateProxy,
+                         DisplayHelpException,
+                         DisplayContextException )
+from .schema import ( controller_schema,
+                      package_schema,
+                      package_vspec_schema,
+                      process_schema,
+                      python_package_schema )
 
 
 log = logging.getLogger('bprocess.controller')
@@ -366,7 +367,7 @@ class VSpecResolvingPythonPackageIterator(PythonPackageIterator):
 # end class VSpecResolvingPythonPackageIterator
 
 
-class ExecutableEnvironment(HierarchicalContext):
+class ExecutableContext(StackAwareHierarchicalContext):
     """An environment automatically adding process information if this process was launched 
     through process control
     Additionally it will load python modules as defined in the respective schema
@@ -379,7 +380,7 @@ class ExecutableEnvironment(HierarchicalContext):
         to the kvstore"""
         pinfo = PostLaunchProcessInformation()
         executable = pinfo.executable()
-        super(ExecutableEnvironment, self).__init__(executable or "Executable Environment (uncontrolled process)", 
+        super(ExecutableContext, self).__init__(executable or "Executable Environment (uncontrolled process)", 
                                                     load_config = executable is not None)
         
         
@@ -391,10 +392,10 @@ class ExecutableEnvironment(HierarchicalContext):
             # we want in other environments, and load it !
             self._config_dirs = list()
         # end handle data
-# end class ExecutableEnvironment
+# end class ExecutableContext
 
 
-class ControlledProcessEnvironment(HierarchicalContext):
+class ControlledProcessContext(StackAwareHierarchicalContext):
     """An environment which may only be created in processes started by ProcessControll to restore the exact 
     environment used when the wrapper was invoked.
 
@@ -408,7 +409,7 @@ class ControlledProcessEnvironment(HierarchicalContext):
     def __init__(self):
         """Set ourselves to all data provided by the wrapper
         @note does nothing if we are not wrapped"""
-        super(ControlledProcessEnvironment, self).__init__("Wrapped Environment", load_config = False)
+        super(ControlledProcessContext, self).__init__("Wrapped Environment", load_config = False)
 
         ppi = PostLaunchProcessInformation()
         store = ppi.as_kvstore()
@@ -430,10 +431,10 @@ class ControlledProcessEnvironment(HierarchicalContext):
         
     ## -- End Interface -- @}
 
-# end class ControlledProcessEnvironment
+# end class ControlledProcessContext
 
 
-class CommandlineOverridesEnvironment(Environment):
+class CommandlineOverridesContext(Context):
     """An environment to re-apply commandline overrides. It should usually be added last
     @todo this would better be part of the executable environment, just MERGING the overrides into 
     the kvstore would do just fine"""
@@ -441,7 +442,7 @@ class CommandlineOverridesEnvironment(Environment):
 
     def __init__(self, name='commandline overrides'):
         """Setup our commandline overrides, if there are some"""
-        super(CommandlineOverridesEnvironment, self).__init__(name)
+        super(CommandlineOverridesContext, self).__init__(name)
         
         overrides = PostLaunchProcessInformation().commandline_overrides()
         if overrides:
@@ -461,12 +462,12 @@ class CommandlineOverridesEnvironment(Environment):
         # finally, import modules based on a rather complete configuration
         iterator.import_modules()
         
-# end class CommandlineOverridesEnvironment
+# end class CommandlineOverridesContext
 
 ## -- End Utilities -- @}
 
 
-class ProcessController(GraphIteratorBase, ApplicationSettingsClient, Plugin):
+class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugin_type()):
     """The main interface to deal with \ref processcontrol "Process Control" .
     
     It allows to control the environment in which processes are executed, as well as to alter their input 
@@ -585,10 +586,10 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, Plugin):
     def _package_data(cls, name):
         """@return verified package data for a package of the given name"""
         key = '%s.%s' % (cls._schema.key(), name)
-        if not bapp.main().context().context().has_value(key):
+        if not bapp.main().context().settings().has_value(key):
             raise EnvironmentError("A package named '%s' did not exist in the database" % name)
         # end graceful key handling
-        return bapp.main().context().context().value(key, cls._package_data_schema, resolve=True)
+        return bapp.main().context().settings().value(key, cls._package_data_schema, resolve=True)
         
     @classmethod
     def _package(cls, name):
@@ -639,7 +640,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, Plugin):
         """@return iterator yielding ProcessControllerPackageSpecification instances for all packages that the given one requires
         , including the ProcessControllerPackageSpecification corresponding to package_name itself, in unspecified order.
         @param package_name name of the package from which to start the iteration.
-        @note database used is the currently active kvstore, as provided by bapp.main().context().context()
+        @note database used is the currently active kvstore, as provided by bapp.main().context().settings()
         """
         package = self._package(package_name)
         yield package
@@ -800,7 +801,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, Plugin):
         
         bapp.main().context().push(ApplicationContext('Wrapper Pipeline Base'))
         for path in (bootstrap_dir, self._cwd):
-            bapp.main().context().push(HierarchicalContext(path))
+            bapp.main().context().push(StackAwareHierarchicalContext(path))
         # end for each path (hierarchy) to check for configurations
         
         # Evaluate Program Database

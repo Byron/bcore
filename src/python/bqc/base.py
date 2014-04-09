@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bapp.qc
+@package bqc
 @brief a module containing base classes for the quality check framework
 
 @copyright 2012 Sebastian Thiel
@@ -72,7 +72,7 @@ class QualityCheckRunnerDelegate(IQualityCheckRunnerDelegate):
 
     __slots__ = tuple()
     
-    log = bapp.log.module_logger('bapp.qc.base.QualityCheckRunnerDelegate')
+    log = bapp.log.module_logger('bqc.base.QualityCheckRunnerDelegate')
     
     # -------------------------
     ## @name Interface
@@ -226,7 +226,7 @@ class QualityCheckBase(IQualityCheck):
 # end class QualityCheckBase    
 
 
-class QualityCheckRunner(IQualityCheckRunner, Plugin):
+class QualityCheckRunner(IQualityCheckRunner, bapp.plugin_type()):
     """Is a list of `QualityCheckBase` compatible instances which can be run safely, providing just-in-time information
     about the results of this run.
     
@@ -248,7 +248,7 @@ class QualityCheckRunner(IQualityCheckRunner, Plugin):
     stop_run = 'stop_run'
     
     ## default logger we will use
-    log = bapp.log.module_logger('bapp.qc.base.QualityCheckRunnerDelegate')
+    log = bapp.log.module_logger('bqc.base.QualityCheckRunnerDelegate')
     
     ## -- End Configuration -- @}
     

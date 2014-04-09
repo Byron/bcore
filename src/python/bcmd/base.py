@@ -10,7 +10,7 @@ __all__ = ['CommandBase', 'SubCommandBase']
 import sys
 
 import bapp
-from bapp.core.kvstore import KeyValueStoreProvider
+from bkvstore import KeyValueStoreProvider
 from bapp.utility import LazyMixin
 
 from .argparse import (

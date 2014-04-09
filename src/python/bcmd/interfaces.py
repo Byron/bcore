@@ -8,11 +8,11 @@
 __all__ = ['ICommand', 'ISubCommand']
 
 import bapp
-from bapp import Version
-from bapp.core.kvstore import (   
-                                KeyValueStoreSchema,
-                                RootKey
-                            )
+from butility import ( Version,
+                       InterfaceBase,
+                       abstractmethod)
+from bkvstore import ( KeyValueStoreSchema,
+                                RootKey )
 
 class ICommand(bapp.InterfaceBase):
     """A command implementing the command pattern, specialized for use with the commandline."""

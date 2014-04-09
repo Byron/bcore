@@ -47,4 +47,4 @@ Such a *rule-set* in terms of more natural language would be comparable to *gram
 
 
 
-![alt tag](https://raw.githubusercontent.com/Byron/bcore/master/source/images/under_construction.png)
+![alt tag](https://raw.githubusercontent.com/Byron/bcore/master/src/images/under_construction.png)

@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = ['ProcessControllerDelegate', 'DelegateEnvironmentOverride', 'PostLaunchProcessInformation', 
+__all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'PostLaunchProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate', 'DisplayHelpException',
            'ProcessControllerDelegateProxy', 'DisplayContextException', 'MariControllerDelegate']
 
@@ -15,52 +15,42 @@ import re
 import logging
 
 import bapp
+# This yaml import is save, as bkvstore will place it's own yaml module there just in case there is no 
+# installed one 
 import yaml
 
 import binascii
 import zlib
-from cPickle import (
-                        loads, 
-                        dumps
-                    )
+
+from cPickle import (loads,
+                     dumps)
 
 import logging
 
-import bapp.log
-from bapp.environ import HierarchicalContext
-from bkvstore import (
-                                RootKey,
-                                KeyValueStoreProvider,
-                                KeyValueStoreModifier
-                            )
-from bdiff import (
-                        NoValue,
-                        TwoWayDiff,
-                        ApplyDifferenceMergeDelegate
-                    )
+from bapp import StackAwareHierarchicalContext
+from bkvstore import ( RootKey,
+                       KeyValueStoreProvider,
+                       KeyValueStoreModifier )
+from bdiff import ( NoValue,
+                    TwoWayDiff,
+                    ApplyDifferenceMergeDelegate )
 
-from bcontext import Environment
-from .interfaces import (
-                            IProcessControllerDelegate,
-                            IPostLaunchProcessInformation
-                       )
+from bcontext import Context
+from .interfaces import ( IProcessControllerDelegate,
+                          IPostLaunchProcessInformation )
 
-from butility import (
-                            update_env_path,
-                            DictObject,
-                            Singleton,
-                            LazyMixin,
-                            StringChunker,
-                            set_log_level
-                        )
+from butility import ( update_env_path,
+                       DictObject,
+                       Singleton,
+                       LazyMixin,
+                       StringChunker,
+                       set_log_level )
 
 from .actions import ActionDelegateMixin
 
-from .schema import (
-                        controller_schema,
-                        process_schema,
-                        NamedServiceProcessControllerDelegate
-                    )
+from .schema import ( controller_schema,
+                      process_schema,
+                      NamedServiceProcessControllerDelegate )
 
 from butility import Path
 
@@ -128,7 +118,7 @@ class DisplayContextException(Exception):
 # end class DisplayContextException
 
 
-class DelegateCommandlineOverridesEnvironment(Environment):
+class DelegateCommandlineOverridesContext(Context):
     """An environment with a custom initializer to allow storing an arbitrary dict as kvstore override"""
     __slots__ = ()
     
@@ -137,7 +127,7 @@ class DelegateCommandlineOverridesEnvironment(Environment):
         @param name of environment
         @param data if set, it may be a dictionary or a KeyValueStoreProvider instance. In the former case,
         it will be converted accordingly"""
-        super(DelegateCommandlineOverridesEnvironment, self).__init__(name)
+        super(DelegateCommandlineOverridesContext, self).__init__(name)
         if isinstance(data, KeyValueStoreProvider):
             self._kvstore = data
         elif data:
@@ -145,15 +135,15 @@ class DelegateCommandlineOverridesEnvironment(Environment):
             self._kvstore = KeyValueStoreProvider(data)
         # end handle 
 
-# end class DelegateCommandlineOverridesEnvironment
+# end class DelegateCommandlineOverridesContext
 
 
-class DelegateEnvironmentOverride(Environment):
-    """An environment specifically designed to be used by a delegate to override particular values of our 
+class DelegateContextOverride(Context):
+    """A context specifically designed to be used by a delegate to override particular values of our 
     kvstore.
     It knows our base schema and uses it to obtain the unresolved datablock, for being changed by the 
-    delegate in a relatively save manner. It will then be written into the environments kvstore
-    @note This environment puts itself on the stack to take that burden off the caller !"""
+    delegate in a relatively save manner. It will then be written into the contexts kvstore
+    @note This context puts itself on the stack to take that burden off the caller !"""
     _category = 'DelegateOverride'
     
     class DifferenceDelegate(ApplyDifferenceMergeDelegate):
@@ -163,7 +153,7 @@ class DelegateEnvironmentOverride(Environment):
         def _resolve_conflict(self, key, left_value, right_value):
             if isinstance(right_value, NamedServiceProcessControllerDelegate):
                 return NoValue
-            return super(DelegateEnvironmentOverride.DifferenceDelegate, self)._resolve_conflict(key, left_value, right_value)
+            return super(DelegateContextOverride.DifferenceDelegate, self)._resolve_conflict(key, left_value, right_value)
     
     # end class DifferenceDelegate
     
@@ -176,11 +166,11 @@ class DelegateEnvironmentOverride(Environment):
         @param kwargs kwargs to be passed to set_context_override()
         @return self
         @note we will put ourselves onto the environment stack for convenience"""
-        new_value = bapp.main().context().context().value(schema.key(), schema)
+        new_value = bapp.main().context().settings().value(schema.key(), schema)
         delegate.set_context_override(schema, new_value, *args, **kwargs)
         
         # find only the changed values and write them as kvstore
-        prev_value = bapp.main().context().context().value(schema.key(), schema)
+        prev_value = bapp.main().context().settings().value(schema.key(), schema)
         delegate = self.DifferenceDelegate()
         TwoWayDiff().diff(delegate, prev_value, new_value)
         
@@ -190,7 +180,7 @@ class DelegateEnvironmentOverride(Environment):
 # end class ProcessControllerEnvironment
 
 
-class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, LazyMixin, Plugin):
+class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, LazyMixin, bapp.plugin_type()):
     """Store the entire kvstore (after cleanup) in a data string in the environment and allow to retrieve it
     @note this class uses a cache to assure we don't get data more often than necessary. It is all static and 
     will not change"""
@@ -300,7 +290,7 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
         """Store the data within the environment for later retrieval
         @param env the environment dict to be used for the soon-to-be-started process
         @return self"""
-        source = self._encode(bapp.main().context().context().data())
+        source = self._encode(bapp.main().context().settings().data())
 
         if source:
             # Linux max-chunk size is actually not set, but now we chunk everything
@@ -312,13 +302,13 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
         # end handle source too big to be stored
         
         # store process data as well
-        self._store_yaml_data(self.process_information_environment_variable, env, bapp.main().context().context().value_by_schema(process_schema))
+        self._store_yaml_data(self.process_information_environment_variable, env, bapp.main().context().settings().value_by_schema(process_schema))
 
         # Store ConfigHierarchy hashmap for restoring it later
         # merge and store
         hash_map = dict()
         for einstance in bapp.main().context().stack():
-            if isinstance(einstance, HierarchicalContext):
+            if isinstance(einstance, StackAwareHierarchicalContext):
                 hash_map.update(einstance.hash_map())
             # end update hash_map
         # end for each env on stack
@@ -360,7 +350,7 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
 ## @{
 
 
-class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin, Plugin):
+class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin, bapp.plugin_type()):
     """Implements the controller's delegate
     
     Wrapper Arguments
@@ -432,7 +422,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     # @{
     
     ## Type used when instanating an environment to keep delegate configuration overrides
-    DelegateEnvironmentOverrideType = DelegateEnvironmentOverride
+    DelegateContextOverrideType = DelegateContextOverride
     
     ## -- End Configuration -- @}
     
@@ -453,7 +443,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
-                    bapp.main().context().push(HierarchicalContext(path.dirname()))
+                    bapp.main().context().push(StackAwareHierarchicalContext(path.dirname()))
                 # end handle valid directory
                 continue
             # end ignore non-wrapper args
@@ -462,7 +452,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         
         # set overrides
         if kvstore_overrides.keys():
-            environment = bapp.main().context().push(DelegateCommandlineOverridesEnvironment('wrapper commandline overrides', 
+            environment = bapp.main().context().push(DelegateCommandlineOverridesContext('wrapper commandline overrides', 
                                                                                       kvstore_overrides))
             PostLaunchProcessInformation().store_commandline_overrides(env, kvstore_overrides.data())
         #end handle overrides
@@ -569,7 +559,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         
     def set_context_override(self, schema, value, *args, **kwargs):
         """Use the given ProcessController schema to safely alter the given context value.
-        @note only called by the utility type, DelegateEnvironmentOverride .
+        @note only called by the utility type, DelegateContextOverride .
         @param schema defined by the ProcessController who is driving the process
         @param value obtained from the global context, matching the schema, with entirely unresolved values.
         @param args defined by the caller
@@ -577,13 +567,13 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         raise NotImplementedError("To be defined by subclass")
     
     def new_environment_override(self, *args, **kwargs):
-        """Initialize a DelegateEnvironmentOverride instance to allow making selective version overrides. The
+        """Initialize a DelegateContextOverride instance to allow making selective version overrides. The
         schema used is the one of the ProcessController, allowing full access to all package data
         @note Must be called during prepare_environment() to have an effect
         @param args passed to set_context_override()
         @param kwargs passed to set_context_override()
-        @return newly created DelegateEnvironmentOverride instance"""
-        return self.DelegateEnvironmentOverrideType(type(self).__name__ + ' Override').setup(self, controller_schema, *args, **kwargs)
+        @return newly created DelegateContextOverride instance"""
+        return self.DelegateContextOverrideType(type(self).__name__ + ' Override').setup(self, controller_schema, *args, **kwargs)
         
     def handle_argument(self, arg, kvstore):
         """Method called whenver an argument destined for the wrapper is to be evaluated.
@@ -601,7 +591,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # print out all files participating in environment stack
                 log.debug("CONFIGURATION FILES IN LOADING ORDER")
                 for env in bapp.main().context().stack():
-                    if not isinstance(env, HierarchicalContext):
+                    if not isinstance(env, StackAwareHierarchicalContext):
                         continue
                     #end ignore non configuration items
                     for path in env.config_files():

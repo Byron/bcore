@@ -7,7 +7,7 @@
 """
 __all__ = ['TestBase']
 
-from bapp.tests import TestCaseBase
+from butility.tests import TestCaseBase
 from bapp.utility import DictObject
 
 import yaml

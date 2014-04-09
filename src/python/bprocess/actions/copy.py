@@ -7,13 +7,14 @@
 """
 __all__ = ['CopyAction']
 
+import bapp
 from bkvstore import PathList
 from butility import Path
 
 from .base import PackageActionBase
 
         
-class CopyAction(PackageActionBase, Plugin):
+class CopyAction(PackageActionBase, bapp.plugin_type()):
     """An action to copy a single file to a folder"""
     __slots__ = (
                     ## True if we wrote the file to the folder
