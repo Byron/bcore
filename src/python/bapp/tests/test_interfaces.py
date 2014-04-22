@@ -40,44 +40,6 @@ class TestIPlatformService(TestInterfaceBase):
 # end class TestIPlatformService
 
 
-class TestIContextController(TestInterfaceBase):
-    """Attempts to trigger callbacks, even though this interface cannot verify it actually works"""
-    __slots__ = ()
-    
-    # -------------------------
-    ## @name Configuration
-    ## To be set by subclass
-    # @{
-    
-    ## A file to load, which is assumed to be in contet A. It should be picked up by the implementation.
-    file_in_context_a = None
-    
-    ## A file to load, being in a different context. The implementation should realize this and handle it 
-    ## accordingly
-    file_in_context_b = None
-    
-    ## -- End Configuration -- @}
-    
-    @with_application
-    def test_base(self):
-        assert self.file_in_context_a.isfile() and self.file_in_context_b.isfile(), 'test files must be set'
-        host = new_service(bapp.IHostApplication)
-        
-        assert host.loaded_file() != self.file_in_context_a
-        host.load(self.file_in_context_a)
-        assert host.loaded_file() == self.file_in_context_a
-        
-        # (re)loading the same file is okay
-        host.load(self.file_in_context_a)
-        
-        # changing to a changed context should fail or indicate some sort of error
-        host.load(self.file_in_context_b)
-        # both files are valid, dependending on whether the implementation can prevent the file from being opened
-        assert host.loaded_file() == self.file_in_context_b or host.loaded_file() == self.file_in_context_a 
-        
-# end class TestIContextController
-
-
 class TestDirectoryServicesMixin(object):
     """Tests for the default project-instances interface
     NOTE: We cannot be called alone, yet we want to be named after a valid test.

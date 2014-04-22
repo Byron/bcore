@@ -15,6 +15,7 @@ import tempfile
 import bapp
 
 from butility.tests import TestCaseBase
+from bapp.tests import with_application
 from bprocess import *
 
 from butility import Path
@@ -56,6 +57,7 @@ class TestProcessControl(TestCaseBase):
     """Tests for the process control engine"""
     __slots__ = ()
     
+    @with_application(from_file=__file__)
     def test_base(self):
         """test fundamentals"""
         # Now we could nicely mock the environment - lets do this once we have a CWD environment
@@ -63,6 +65,7 @@ class TestProcessControl(TestCaseBase):
         # failure as foo cannot be found
         self.failUnlessRaises(EnvironmentError, TestProcessController().init, pseudo_executable('foo'), ('hello', 'world'))
 
+    @with_application(from_file=__file__)
     def test_forced_spawn(self):
         """Verify that we can easily enforce a process to be spawned, without overwriting any 'natural' configuration"""
         pctrl = ProcessController().init(pseudo_executable('rvio'), list())
@@ -70,7 +73,8 @@ class TestProcessControl(TestCaseBase):
 
         assert pctrl.set_should_spawn_process_override(True) is None
         assert pctrl.execute().returncode == 255
-        
+    
+    @with_application(from_file=__file__)    
     def test_python_execution(self):
         """we should be able to execute any code directly using the delegate, without spawning"""
         pctrl = ProcessController().init(pseudo_executable('py-program'), list())
@@ -78,17 +82,19 @@ class TestProcessControl(TestCaseBase):
         process = pctrl.execute()
         assert process.returncode == 0
         
+    @with_application(from_file=__file__)
     def test_custom_args(self):
         """verify we can handle custom arguments"""
         cmd_path = pseudo_executable('py-program-overrides')
-        assert new_service(ProcessController).init(cmd_path, '---foo=bar ---help'.split()).execute().returncode == 0
+        assert ProcessController().init(cmd_path, '---foo=bar ---help'.split()).execute().returncode == 0
         
-        pctrl = new_service(ProcessController)
+        pctrl = ProcessController()
         self.failUnlessRaises(AssertionError, pctrl.init, cmd_path, ['---foo'])
         
-        pctrl = new_service(ProcessController).init(cmd_path, '---foo=bar ---hello.world=42'.split())
+        pctrl = ProcessController().init(cmd_path, '---foo=bar ---hello.world=42'.split())
         assert pctrl.execute().returncode == 0
         
+    @with_application(from_file=__file__)
     def test_execute_in_context(self):
         process = ProcessController().init(pseudo_executable('py-program'), ['--hello', 'world']).execute_in_current_context()
         assert process.returncode == 1, "should not have understood our arguments"
@@ -101,6 +107,7 @@ class TestProcessControl(TestCaseBase):
         process.communicate()
         assert process.returncode == 0
         
+    @with_application(from_file=__file__)
     def test_iteration(self):
         """verify simple package iteration works (for those who want it)"""
         count = 0
@@ -112,6 +119,7 @@ class TestProcessControl(TestCaseBase):
         
         self.failUnlessRaises(EnvironmentError, ProcessController().iter_packages('foobar').next)
         
+    @with_application(from_file=__file__)
     def test_post_launch_info(self):
         """Just some basic tests"""
         info = bapp.main().new_instance(IPostLaunchProcessInformation)

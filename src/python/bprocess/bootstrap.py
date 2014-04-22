@@ -61,8 +61,8 @@ class Bootstrapper(object):
     ## A variable we can use to override the pipeline root package location, useful for testing
     pipe_package_env_var = 'bapp_PIPE_PACKAGE_PATH'
     
-    ## Name of the root package that contains all of the core code
-    root_package_name = 'bapp'
+    ## Name of the root package that contains all of the process controller code
+    root_package_name = 'bprocess'
     
     ## module path to wrapper engine interface
     engine_interface_module_name = 'processcontrol'
@@ -72,7 +72,7 @@ class Bootstrapper(object):
     
     
     ## Process controller interface name
-    process_controller_interface_name = 'ProcessController'
+    process_controller_type_name = 'ProcessController'
     
     ## -- End Configuration -- @}
 
@@ -137,9 +137,9 @@ class Bootstrapper(object):
         module = self._init_root_package_from_path(root_package_path)
         
         try:
-            return getattr(module, self.process_controller_interface_name)
+            return getattr(module, self.process_controller_type_name)
         except AttributeError:
-            raise AssertionError("Didn't find %s interface in module %s" % (self.process_controller_interface_name, str(module)))
+            raise AssertionError("Didn't find %s interface in module %s" % (self.process_controller_type_name, str(module)))
         # end handle envrionment error
        
     def _root_package_path(self, executable):
@@ -168,10 +168,6 @@ class Bootstrapper(object):
 implementation: %s" % (module_for_import, root_package_path, str(err)))
         # end handle import
         
-        # assertion
-        import __builtin__
-        assert 'new_service' in __builtin__.__dict__, "Expected to receive component framework when importing %s" % module_for_import
-        
         return imported_module
     ## -- End Utiltiies -- @}
     
@@ -184,16 +180,16 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         Initialize this instance
         @param executable file we are running (never /bin/python)
         @param args all arguments the program received"""
-        interface = self._process_controller_class(executable)
+        process_controller_type = self._process_controller_class(executable)
 
         # allow extensions to be used transparently to help starting the right interpreter on windows.
         # No special handling though to assure similar operation on all platforms
         executable = os.path.splitext(executable)[0]
 
         try:
-            controller = new_service(interface).init(executable, args)
+            controller = process_controller_type().init(executable, args)
         except Exception, err:
-            if interface._is_debug_mode():
+            if process_controller_type._is_debug_mode():
                 raise
             else:
                 sys.stderr.write("%s\n" % str(err))

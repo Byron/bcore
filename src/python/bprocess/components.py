@@ -120,7 +120,7 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
         @throws Exception if converted to string, it describes the issues precisely
         """
         if current_process_kvstore is None:
-            current_process_kvstore = new_service(PostLaunchProcessInformation).as_kvstore()
+            current_process_kvstore = PostLaunchProcessInformation().as_kvstore()
             if current_process_kvstore is None:
                 log.debug('skipping process compatability check as we were not launched using process control')
                 return

@@ -7,6 +7,7 @@
 """
 __all__ = ['PackageWidget', 'PackageViewerWidget']
 
+import logging
 from PySide import (
                         QtCore, 
                         QtGui
@@ -20,7 +21,7 @@ from .ui import (
 from bapp.gui import remove_widget_children
 from butility import capitalize
 
-log = service(bapp.ILog).new('bprocess.gui.viewer')
+log = logging.getLogger('bprocess.gui.viewer')
 
 
 class PackageWidget(QtGui.QFrame):

@@ -6,15 +6,18 @@
 @copyright 2013 Sebastian Thiel
 """
 __all__ = ['PackageViewerWindow']
+import logging
+
 from PySide import QtGui
 
 import bapp
+
 from bapp.gui.hub.interfaces import IHubPanel
 from ..utility import PackageMetaDataChangeTracker
 
 from .controller_ui import Ui_PackageViewerWindow
 
-log = service(bapp.ILog).new('bprocess.gui.controller')
+log = logging.getLogger('bprocess.gui.controller')
 
 
 class PackageViewerWindow(QtGui.QWidget, IHubPanel):

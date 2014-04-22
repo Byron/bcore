@@ -7,6 +7,7 @@
 """
 __all__ = ['CommandBase', 'SubCommandBase']
 
+import logging
 import sys
 
 import bapp
@@ -123,7 +124,7 @@ class CommandBase(ICommand, LazyMixin):
             if self._is_subcommand():
                 lid = '%s %s' % (self.main_command_name, self.name)
             # end handle subcommands
-            self._log = new_service(bapp.ILog).new(lid)
+            self._log = logging.getLogger(lid)
         elif name == '_info':
             assert self.name and self.version and self.description
             log_id = self.log_id or self.name
@@ -178,7 +179,7 @@ class CommandBase(ICommand, LazyMixin):
     def _find_compatible_subcommands(self):
         """@return a list or tuple of compatible ISubCommand instances. Must contain at least one subcommand instance
         @note the base implementation searches the current environment stack for it"""
-        return [scmd for scmd in new_services(ISubCommand) if scmd.is_compatible(self)]
+        return [scmd for scmd in bapp.main().context().new_instances(ISubCommand) if scmd.is_compatible(self)]
         
     def _add_version_argument(self, parser, version):
         """Set the given version as argument to the argparser.

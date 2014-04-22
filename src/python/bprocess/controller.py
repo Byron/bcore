@@ -93,14 +93,14 @@ class _ProcessControllerContext(Context):
         """Store the bootstrap directory in our context"""
         super(_ProcessControllerContext, self).__init__("ProcessController")
         
-        process = self._context().value(self._schema.key(), self._schema)
+        process = self.settings().value(self._schema.key(), self._schema)
         process.id = program
         if not process.executable_directory:
             process.executable_directory = str(bootstrap_dir)
         # end allow bootstap dir override
         process.executable_path = str(executable)
         process.bcore_directory = str(Path(__file__).dirname().dirname())
-        self._context().set_value(self._schema.key(), process)
+        self.settings().set_value(self._schema.key(), process)
         
 # end class _ProcessControllerContext
         
@@ -149,7 +149,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
         return self._name
     
     def root_path(self):
-        """@return bapp.path instance pointing at the *existing* root of the package
+        """@return butility.Path instance pointing at the *existing* root of the package
         or None if there is no such path or if the configured path doesn't exist"""
         return self._root_path
         
@@ -160,8 +160,8 @@ class ProcessControllerPackageSpecification(LazyMixin):
     def to_abs_path(self, path):
         """Convert the given possibly relative path to an absolute path, if necessary
         @note it is not checked for existence
-        @param path string or bapp.path
-        @return absolute version of the path, as bapp.path
+        @param path string or butility.Path
+        @return absolute version of the path, as butility.Path
         @throws ValueError if the path is relative and there is no valid root path"""
         path = Path(path)
         if path.isabs():
@@ -172,7 +172,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
         return self.root_path() / path
         
     def executable(self):
-        """@return bapp.path to executable - its not verified to be existing
+        """@return butility.Path to executable - its not verified to be existing
         @note for now this is uncached, but its okay for our use
         """
         executable_path = self.to_abs_path(self.data().executable)
@@ -236,7 +236,7 @@ class PackageDataIteratorMixin(object):
             except (KeyError, NoSuchKeyError):
                 raise KeyError("A package named '%s' wasn't configured. It should be located at '%s.%s'."
                                                     % (name, controller_schema.key(), name))
-            # end provide nice exceptions                                ))
+            # end provide nice exceptions
             requires = pdata.requires   # cache it !
             yield pdata, name
             del(pdata)
@@ -393,7 +393,7 @@ class ExecutableContext(StackAwareHierarchicalContext):
         
         
         if pinfo.has_data():
-            self._context().set_value_by_schema(process_schema, pinfo.process_data())
+            self.settings().set_value_by_schema(process_schema, pinfo.process_data())
         else:
             # Make sure we will never configure anything. Subclass would take the name we provide, 
             # and convert it to an absolute path based on the cwd, which would possibly pick up configuration
@@ -464,7 +464,7 @@ class CommandlineOverridesContext(Context):
             # Can't set it using the root-key, as it will overwrite everything else
             # have to set each key individually
             for pname, vspec in vspec_store.data().items():
-                self._context().set_value('%s.%s' % (controller_schema.key(), pname), vspec)
+                self.settings().set_value('%s.%s' % (controller_schema.key(), pname), vspec)
         # end merge vspecs into our own store
 
         # finally, import modules based on a rather complete configuration
@@ -630,7 +630,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
     def delegate(self):
         # Always create a new delegate if we have none set to respond better to 
         if self._delegate is None:
-            return new_service(IProcessControllerDelegate)
+            return bapp.main().new_instance(IProcessControllerDelegate)
         # end delay delegate instantiation
         return self._delegate
         
@@ -814,7 +814,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         
         # Evaluate Program Database
         ############################
-        platform = service(IPlatformService)
+        platform = bapp.main().instance(IPlatformService)
         ld_env_var = platform.search_path_variable(platform.SEARCH_DYNLOAD)
         exec_env_var = platform.search_path_variable(platform.SEARCH_EXECUTABLES)
         plugin_paths = list()
