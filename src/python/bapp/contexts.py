@@ -58,6 +58,7 @@ class OSContext(Context, ApplicationSettingsClient):
             value.host.fqname = socket.gethostname()
             value.host.name = value.host.fqname.split('.')[0]
 
+
             self.settings().set_value_by_schema(self.settings_schema(), value)
         except KeyError:
             raise EnvironmentError("Unknown platform %s" % sys.platform)
@@ -71,7 +72,7 @@ class ApplicationContext(StackAwareHierarchicalContext, ApplicationSettingsClien
        we were started in.
        We will also load most fundamental pipeline configuration, located in directories at our location,
        moving upwards"""
-    _category = 'pipeline base'
+    _category = 'application'
     __slots__ = ()
     
     # -------------------------
@@ -83,22 +84,25 @@ class ApplicationContext(StackAwareHierarchicalContext, ApplicationSettingsClien
     
     ## -- End Configuration -- @}
 
-    def __init__(self, name):
+    def __init__(self, name, user_settings = True):
         """puts this base paths and python paths into the context and the
-           environment. It also creates some basic components"""
+           environment. It also creates some basic components
+           @param user_settings if True, we will load user specfic settings, by default searched in ~/etc
+           """
         super(ApplicationContext, self).__init__(self._root_path(),
                                                  traverse_settings_hierarchy=False)
 
-        user_dir = self.user_config_directory()
-        if user_dir.isdir():
-            # We expect the configuration directories to be pre-parsed
-            assert self._config_dirs
-            self._config_dirs.append(user_dir)
-        # user dir needs to exist - for now we don't create it
+        if user_settings:
+            user_dir = self.user_config_directory()
+            if user_dir.isdir():
+                # We expect the configuration directories to be pre-parsed
+                assert self._config_dirs
+                self._config_dirs.append(user_dir)
+            # user dir needs to exist - for now we don't create it
+        # end handle user settings
 
     def _filter_directories(self, directories):
         """amend the user's private configuration directory - people can just drop files there"""
-        
         return super(ApplicationContext, self)._filter_directories(directories)
         
     def _load_configuration(self):
@@ -130,9 +134,9 @@ class ApplicationContext(StackAwareHierarchicalContext, ApplicationSettingsClien
     
     @classmethod
     def user_config_directory(cls):
-        """@return the directory in which the user configuration is to be found"""
+        """@return the directory in which the user configuration is to be found """
         return Path('~').expanduser() / cls.config_dir_name
-        
+
     ## -- End Interface -- @}
 
 # end class ApplicationContext

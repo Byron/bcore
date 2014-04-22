@@ -186,6 +186,7 @@ class Application(object):
     @classmethod
     def new(cls, settings_paths=tuple(), settings_hierarchy=False, 
                  load_plugins = False, recursive_plugin_loading = False, plugins_subdirectory='plug-ins',
+                 user_settings = True,
                  setup_logging = True,
                  with_default_contexts = True ):
         """Create a new Application instance, configured with all items an application needs to function.
@@ -207,6 +208,7 @@ class Application(object):
         @param recursive_plugin_loading if True, plugins may reside in sub-folders and will be loaded anyway
         @param plugins_subdirectory the directory within each configuration directory which should be searched
         for plug-ins. That way, you can separate plug-ins from other code
+        @param user_settings if True, user settings will be loaded from directory at user.config (within application settings)
         @param setup_logging if True, logging will be configured using the LogConfigurator, which in turn
         is setup using our context
         @param with_default_contexts if True, we will initialize an OSContext and an ApplicationContext
@@ -225,7 +227,7 @@ class Application(object):
             inst.context().push(typ('os'))
 
             typ = cls.ApplicationContextType or ApplicationContext
-            inst.context().push(typ('app'))
+            inst.context().push(typ('app', user_settings=user_settings))
         # end handle ApplicationContext
 
         for path in settings_paths:

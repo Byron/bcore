@@ -12,8 +12,7 @@ from bkvstore import (RootKey,
                       KeyValueStoreSchema )
 
 
-app_schema = KeyValueStoreSchema('app',   {'id' :  str,      # name of the site
-                                            'paths' :     { 
+app_schema = KeyValueStoreSchema('app',   { 'paths' :     {
                                                             # path at which the bootstrapper lives, which is required
                                                             # to startup any application
                                                             'bcore' : Path,
@@ -29,7 +28,7 @@ platform_schema = KeyValueStoreSchema(RootKey, dict(
                                                             # login name
                                                            'login' : str,
                                                            # home path
-                                                           'home' : Path
+                                                           'home' : Path,
                                                     }
                                                 ))
 
