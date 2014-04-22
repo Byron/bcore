@@ -12,14 +12,6 @@ from bkvstore import (RootKey,
                       KeyValueStoreSchema )
 
 
-app_schema = KeyValueStoreSchema('app',   { 'paths' :     {
-                                                            # path at which the bootstrapper lives, which is required
-                                                            # to startup any application
-                                                            'bcore' : Path,
-                                                           }
-                                          }
-                                  )
-
 platform_schema = KeyValueStoreSchema(RootKey, dict(
                                                     platform = { 'id' : 'unknown-platform' },
                                                     host = {'name' : str,

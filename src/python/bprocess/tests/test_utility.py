@@ -54,7 +54,7 @@ class TestUtilities(TestCaseBase):
         # This will changes the current state
         packages.nosetests.version = '5.0'
         packages.nosetests.url = 'foo.bar'
-        tracker.kvstore.set_value_by_schema(tracker.schema(), packages)
+        tracker.kvstore.set_value_by_schema(tracker.settings_schema(), packages)
         
         # This will be the previous state
         changes = tracker.changes()

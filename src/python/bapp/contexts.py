@@ -14,8 +14,7 @@ import bapp
 from bcontext import Context
 
 from . import services
-from .schema import (app_schema,
-                     platform_schema)
+from .schema import platform_schema
 from .utility import (ApplicationSettingsClient,
                       StackAwareHierarchicalContext)
 
@@ -67,7 +66,7 @@ class OSContext(Context, ApplicationSettingsClient):
 # end class OSContext
         
         
-class ApplicationContext(StackAwareHierarchicalContext, ApplicationSettingsClient):
+class ApplicationContext(StackAwareHierarchicalContext):
     """Environment containing basic information about the pipelne context
        we were started in.
        We will also load most fundamental pipeline configuration, located in directories at our location,
@@ -75,22 +74,14 @@ class ApplicationContext(StackAwareHierarchicalContext, ApplicationSettingsClien
     _category = 'application'
     __slots__ = ()
     
-    # -------------------------
-    ## @name Configuration
-    # @{
-    
-    ## schema for our particular context
-    _schema = app_schema
-    
-    ## -- End Configuration -- @}
 
-    def __init__(self, name, user_settings = True):
-        """puts this base paths and python paths into the context and the
-           environment. It also creates some basic components
+    def __init__(self, name, user_settings = True, traverse_settings_hierarchy = True):
+        """Assure that we load all configuration at bcore and above.
+           It also creates some basic services to obtain information about some paths.
            @param user_settings if True, we will load user specfic settings, by default searched in ~/etc
            """
         super(ApplicationContext, self).__init__(self._root_path(),
-                                                 traverse_settings_hierarchy=False)
+                                                 traverse_settings_hierarchy=traverse_settings_hierarchy)
 
         if user_settings:
             user_dir = self.user_config_directory()
@@ -101,26 +92,15 @@ class ApplicationContext(StackAwareHierarchicalContext, ApplicationSettingsClien
             # user dir needs to exist - for now we don't create it
         # end handle user settings
 
-    def _filter_directories(self, directories):
-        """amend the user's private configuration directory - people can just drop files there"""
-        return super(ApplicationContext, self)._filter_directories(directories)
-        
     def _load_configuration(self):
         """Modify the repository_root value to what we determined at runtime 
         """
         super(ApplicationContext, self)._load_configuration()
-        value = self.settings_value(self._kvstore, resolve=False)
-
-        if not value.paths.bcore:
-            value.paths.bcore = Path(__file__).dirname().dirname()
-        # end handle auto-configuration
-        self.settings().set_value_by_schema(self.settings_schema(), value)
-
         # Basic directory information
         # Those will need the ApplicationContext to have acted already (when used)
         # Order matters, as we go from general to granular
         services.ProjectInformation()
-        
+
     def _root_path(self):
         """@return location at which we are placed.
         @note The application being self contained, we should be in the application directory hierarchy,

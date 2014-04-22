@@ -25,6 +25,8 @@ from butility import ( Version,
                        GraphIteratorBase,
                        DictObject )
 
+from bkvstore import NoSuchKeyError
+
 from bkvstore import ( KeyValueStoreModifier,
                        KeyValueStoreSchema,
                        RootKey )
@@ -93,10 +95,11 @@ class _ProcessControllerContext(Context):
         
         process = self._context().value(self._schema.key(), self._schema)
         process.id = program
-        if not process.bootstrap_dir:
-            process.bootstrap_dir = str(bootstrap_dir)
+        if not process.executable_directory:
+            process.executable_directory = str(bootstrap_dir)
         # end allow bootstap dir override
-        process.executable = str(executable)
+        process.executable_path = str(executable)
+        process.bcore_directory = str(Path(__file__).dirname().dirname())
         self._context().set_value(self._schema.key(), process)
         
 # end class _ProcessControllerContext
@@ -215,20 +218,25 @@ class PackageDataIteratorMixin(object):
                                             }
                                             )
     
-    def _internal_iter_package_data(self, settings_value_or_kvstore, package_name, package_schema = None):
+    def _internal_iter_package_data(self, settings_value_or_kvstore, package_name, schema = None):
         """If schema is None, we use the settings_value mode, otherwise we access a kvstore directly"""
-        if package_schema:
-            data_by_name = lambda n: settings_value_or_kvstore.value('%s.%s' % (controller_schema.key(), n), package_schema)
+        if schema:
+            data_by_name = lambda n: settings_value_or_kvstore.value('%s.%s' % (controller_schema.key(), n), schema)
         else:
             data_by_name = lambda n: settings_value_or_kvstore[n]
         # end handle query function
-        
+
         seen = set()
         def recurse_packages(name):
             if name in seen:
                 raise StopIteration
             seen.add(name)
-            pdata = data_by_name(name)
+            try:
+                pdata = data_by_name(name)
+            except (KeyError, NoSuchKeyError):
+                raise KeyError("A package named '%s' wasn't configured. It should be located at '%s.%s'."
+                                                    % (name, controller_schema.key(), name))
+            # end provide nice exceptions                                ))
             requires = pdata.requires   # cache it !
             yield pdata, name
             del(pdata)
