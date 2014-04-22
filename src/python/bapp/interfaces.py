@@ -7,7 +7,7 @@
 """
 
 __all__ = ['IPlatformService', 'IContextController', 
-           'IProjectService', 'IDirectoryService', 'ISiteService']
+           'IProjectService', 'IDirectoryService']
 
 from butility import (InterfaceBase,
                       abstractmethod,
@@ -168,24 +168,6 @@ class IProjectService(IDirectoryService):
     place_into_root_package = True
 
     # -------------------------
-    ## @name Constants
-    # Constants for use some of our interface functions
-    # @{
-    
-    ## A directory with all executable paths
-    PATH_EXECUTABLES = 'executables'
-    ## Path for all project configuration files
-    PATH_CONFIGURATION = 'configuration'
-    ## A directory with all project-specific generated files, like renderings, caches, etc. It can be useful
-    ## to do that as it allows different filesystem and backup policies to be implemented
-    PATH_OUTPUT = 'output'
-    ## Directory with all source files, basically the root of it all
-    PATH_SOURCE = 'source'
-    
-    ## -- End Constants -- @}
-    
-    
-    # -------------------------
     ## @name Interface
     # @{
     
@@ -196,42 +178,4 @@ class IProjectService(IDirectoryService):
     ## -- End Interface -- @}
         
 # end class IProjectService
-
-
-class ISiteService(IDirectoryService):
-    """Provides information about the current site and usable paths"""
-    __slots__ = ()
-    
-    place_into_root_package = True
-    
-    # -------------------------
-    ## @name Constants
-    # @{
-    
-    PATH_EXECUTABLES = IProjectService.PATH_EXECUTABLES
-    PATH_CONFIGURATION = IProjectService.PATH_CONFIGURATION
-    ## Root of our repository, usually the root of all custom and packaged software
-    PATH_REPOSITORY = 'repository'
-    ## Root for software packages
-    PATH_SOFTWARE = 'software'
-    ## Base path containing the bapp
-    PATH_CORE = 'core'
-    ## Root path containing all projects
-    PATH_PROJECTS = 'projects'
-    
-    ## -- End Constants -- @}
-    
-    # -------------------------
-    ## @name Interface
-    # @{
-    
-    @abstractmethod
-    def id(self):
-        """@return the name of the site"""
-    
-    ## -- End Interface -- @}
-    
-
-# end class ISiteService
-
 

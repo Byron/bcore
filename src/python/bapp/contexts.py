@@ -11,14 +11,13 @@ import sys
 import socket
 
 import bapp
-from bcontext import (HierarchicalContext,
-                      Context)
+from bcontext import Context
 
 from . import services
-from .schema import (site_schema,
+from .schema import (app_schema,
                      platform_schema)
-from .utility import ApplicationSettingsClient
-
+from .utility import (ApplicationSettingsClient,
+                      StackAwareHierarchicalContext)
 
 from .interfaces import IPlatformService
 
@@ -67,7 +66,7 @@ class OSContext(Context, ApplicationSettingsClient):
 # end class OSContext
         
         
-class ApplicationContext(HierarchicalContext, ApplicationSettingsClient):
+class ApplicationContext(StackAwareHierarchicalContext, ApplicationSettingsClient):
     """Environment containing basic information about the pipelne context
        we were started in.
        We will also load most fundamental pipeline configuration, located in directories at our location,
@@ -80,7 +79,7 @@ class ApplicationContext(HierarchicalContext, ApplicationSettingsClient):
     # @{
     
     ## schema for our particular context
-    _schema = site_schema
+    _schema = app_schema
     
     ## -- End Configuration -- @}
 
@@ -89,13 +88,17 @@ class ApplicationContext(HierarchicalContext, ApplicationSettingsClient):
            environment. It also creates some basic components"""
         super(ApplicationContext, self).__init__(self._root_path(),
                                                  traverse_settings_hierarchy=False)
-        
-    def _filter_directories(self, directories):
-        """amend the user's private configuration directory - people can just drop files there"""
+
         user_dir = self.user_config_directory()
         if user_dir.isdir():
-            directories.append(user_dir)
+            # We expect the configuration directories to be pre-parsed
+            assert self._config_dirs
+            self._config_dirs.append(user_dir)
         # user dir needs to exist - for now we don't create it
+
+    def _filter_directories(self, directories):
+        """amend the user's private configuration directory - people can just drop files there"""
+        
         return super(ApplicationContext, self)._filter_directories(directories)
         
     def _load_configuration(self):
@@ -103,29 +106,22 @@ class ApplicationContext(HierarchicalContext, ApplicationSettingsClient):
         """
         super(ApplicationContext, self)._load_configuration()
         value = self.settings_value(self._kvstore, resolve=False)
-        if not value.root_path.repository:
-            value.root_path.repository = self._root_path()
-        if not value.root_path.software:
-            value.root_path.software = self._root_path() / 'software'
-        if not value.root_path.executables:
-            value.root_path.executables = self._root_path() / 'bin' / bapp.main().instance(IPlatformService).id(IPlatformService.ID_FULL)
-        if not value.root_path.configuration:
-            value.root_path.configuration = Path(value.root_path.repository) / self.config_dir_name
-        if not value.root_path.core:
-            value.root_path.core = Path(__file__).dirname().dirname().dirname().dirname()
+
+        if not value.paths.bcore:
+            value.paths.bcore = Path(__file__).dirname().dirname()
+        # end handle auto-configuration
         self.settings().set_value_by_schema(self.settings_schema(), value)
 
         # Basic directory information
         # Those will need the ApplicationContext to have acted already (when used)
         # Order matters, as we go from general to granular
-        services.SiteInformation()
         services.ProjectInformation()
         
     def _root_path(self):
-        """@return the assumed application root path
+        """@return location at which we are placed.
         @note The application being self contained, we should be in the application directory hierarchy,
-        wherefore if we go up the directory hierarchy, we must be able to find the config dir,
-        which is located in what we take to be the pipeline base directory"""
+        therefore if we go up the directory hierarchy, we must be able to find a config dir,
+        which is located in what we take to the application's assembly"""
         return Path(__file__).dirname()
         
     # -------------------------

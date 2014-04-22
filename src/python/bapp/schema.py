@@ -12,17 +12,14 @@ from bkvstore import (RootKey,
                       KeyValueStoreSchema )
 
 
-site_schema = KeyValueStoreSchema('site', { 'id' :  str,      # name of the site
-                                            'root_path' : { 
-                                                            'repository' : Path,
-                                                            'configuration' : Path,
-                                                            'software' : Path,
-                                                            'executables' : Path,
-                                                            'core' : Path,
-                                                            'projects' : Path 
-                                                          }
+app_schema = KeyValueStoreSchema('app',   {'id' :  str,      # name of the site
+                                            'paths' :     { 
+                                                            # path at which the bootstrapper lives, which is required
+                                                            # to startup any application
+                                                            'bcore' : Path,
+                                                           }
                                           }
-                                )
+                                  )
 
 platform_schema = KeyValueStoreSchema(RootKey, dict(
                                                     platform = { 'id' : 'unknown-platform' },
@@ -37,7 +34,7 @@ platform_schema = KeyValueStoreSchema(RootKey, dict(
                                                 ))
 
 project_schema = KeyValueStoreSchema('project', { 'id' : str,
-                                                  'directory' : dict(
+                                                  'paths' :    dict(
                                                                         source = Path,
                                                                         executables = Path,
                                                                         configuration = Path,

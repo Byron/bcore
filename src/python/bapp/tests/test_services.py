@@ -7,13 +7,11 @@
 """
 __all__ = []
 
+from butility.tests import TestInterfaceBase
 from .test_interfaces import (TestIPlatformService,
-                              TestISiteService,
-                              TestIProjectService)
+                              TestDirectoryServicesMixin)
 from bapp.services import ( LinuxPlatformService,
-                            ProjectInformation,
-                            SiteInformation)
-
+                            ProjectInformation )
 
 
 class TestPlatformServices(TestIPlatformService):
@@ -26,21 +24,10 @@ class TestPlatformServices(TestIPlatformService):
 # end class TestPlatformServices
 
 
-class TestProjectServices(TestISiteService):
+class TestProjectServices(TestDirectoryServicesMixin, TestInterfaceBase):
     """Tests for the default project-instances implemntation """
     __slots__ = ()
     
     subclass_type = ProjectInformation
 
 # end class TestProjectServices
-
-
-class TestSiteServices(TestIProjectService):
-    """Tests for the default site-instances implemntation """
-    __slots__ = ()
-    
-    subclass_type = SiteInformation
-
-# end class TestSiteServices
-
-

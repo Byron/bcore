@@ -6,7 +6,7 @@
 @copyright 2012 Sebastian Thiel
 """
 
-__all__ = ['LinuxPlatformService', 'MacPlatformService', 'ProjectInformation', 'WindowsPlatformService']
+__all__ = ['LinuxPlatformService', 'MacPlatformService', 'WindowsPlatformService', 'ProjectInformation']
 
 import sys
 
@@ -17,8 +17,7 @@ from bcontext import HierarchicalContext
 from .utility import ApplicationSettingsClient
 
 from .interfaces import (IPlatformService,
-                         IProjectService,
-                         ISiteService)
+                         IProjectService)
 
 from . import schema
 
@@ -140,10 +139,11 @@ class DirectoryServicesMixin(object):
     # Methods for implementation or overrides by subclass
     # @{
     
-    @abstractmethod
     def _directory_data(self):
         """@return a dictionary whose values are behind keys with names matching PATH_(.*)
-        @note Used by the default path() implementation"""
+        @note Used by the default path() implementation.
+        @note base implementation uses the 'paths' key"""
+        return self.settings_value().paths
         
     
     ## -- End Subclass Interface -- @}
@@ -161,8 +161,8 @@ class DirectoryServicesMixin(object):
         return path
 
     def path_types(self):
-        """@return all path ids matching our type's PATH_ constants"""
-        return [getattr(self, name) for name in dir(type(self)) if name.startswith('PATH_')]
+        """@return all path ids for values currently available for us"""
+        return self._directory_data().keys()
         
 
 # end class DirectoryServicesMixin
@@ -174,20 +174,4 @@ class ProjectInformation(DirectoryServicesMixin, IProjectService, ApplicationSet
 
     _schema = schema.project_schema
     
-    def _directory_data(self):
-        return self.settings_value().directory
-    
 # end class ProjectInformation
-
-
-class SiteInformation(DirectoryServicesMixin, ISiteService, ApplicationSettingsClient):
-    """Implements the site information interface, using the kvstore exclusively"""
-    __slots__ = ()
-
-    _schema = schema.site_schema
-    
-    def _directory_data(self):
-        return self.settings_value().root_path
-    
-# end class SiteInformation
-

@@ -55,7 +55,7 @@ def with_application(fun=None, **dkwargs):
         assert bapp.Application.main is None, "Should have no application yet"
         from_file = dkwargs.pop('from_file', None)
         if from_file:
-            settings_paths = dkwargs.get('settings_paths', list())
+            settings_paths = dkwargs.setdefault('settings_paths', list())
             settings_paths.append(Path(from_file).dirname())
         # end handle arguments
         bapp.Application.new(**dkwargs)

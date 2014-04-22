@@ -125,8 +125,6 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsClient,
     + description
     + name (suitable for GUI purposes)
     
-    @todo what we really want is the code to get a path on disk in the user directory, and access to a 
-    kvstore with changes applied. Everything else we inherit is adjusted to work for us.
     """
     __slots__ = ('_package_name')
     
@@ -152,9 +150,9 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsClient,
     
     def settings_id(self):
         """@return our settings id
-        @note this type is already 'asset' aware, which might not be the right spot for it. Should be 
-        in derivd type"""
-        return self.settings_prefix + '%s.%s' % (service(bapp.IProjectService).id(), self._package_name)
+        @note this implementation is project-aware, which is why it is recommended to set a project 
+        accordingly."""
+        return self.settings_prefix + '%s.%s' % (bapp.main().new_instance(bapp.IProjectService).id(), self._package_name)
     
     # -------------------------
     ## @name Interface

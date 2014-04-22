@@ -108,10 +108,3 @@ class TestIProjectService(TestDirectoryServicesMixin, TestInterfaceBase):
 
 
 # end class TestIProjectService
-
-
-class TestISiteService(TestDirectoryServicesMixin, TestInterfaceBase):
-    __slots__ = ()
-
-
-# end class TestISiteService
