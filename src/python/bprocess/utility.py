@@ -435,10 +435,23 @@ class PythonPackageIterator(ApplicationSettingsClient, PackageDataIteratorMixin)
     # @{
     
     @classmethod
-    def _import_module(cls, module):
-        """Import the given module, and return its name if it was imported, or None otherwise"""
+    def import_module(cls, module, force_reimport = False):
+        """Import the given module, and return its name if it was imported, or None otherwise
+        @param force_reimport if True, we will not use any cached module. This can be useful if 
+        plugins are to be reloaded every time, just to be sure we have the latest version.
+        This is what would be expected if new Application instance is created, which shouldn't keep 
+        state in the python interpreter currently running, but which will at least leave loaded 
+        modules behind"""
         try:
-            if module not in sys.modules: 
+            if force_reimport:
+                try:
+                    sys.modules.pop(module)
+                except KeyError:
+                    pass
+                # end ignore exceptions
+            # end handle force_reimport
+
+            if module not in sys.modules:
                 __import__(module)
             # end be less verbose
         except Exception:
@@ -463,7 +476,7 @@ class PythonPackageIterator(ApplicationSettingsClient, PackageDataIteratorMixin)
         # end handle no wrapped process
         for pdata, pname in self._iter_package_data_by_schema(store, info.process_data().id, python_package_schema):
             for module in getattr(pdata.python, 'import'):
-                imp_module = self._import_module(module)
+                imp_module = self.import_module(module, force_reimport=True)
                 if imp_module:
                     log.info("Imported module '%s' for package '%s'", module, pname)
                     imported_modules.append(module)

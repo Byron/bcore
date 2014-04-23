@@ -401,6 +401,8 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     
     ## adjustable wrap-time logging levels
     _wrapper_logging_levels = ('trace', 'debug')
+
+    ## just a constant for handling the context debugging
     
     ## Help for how to use the custom wrapper args
     _wrapper_arg_help = \
@@ -413,9 +415,11 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     ---debug-context
         Print the entire context to stderr and abort program execution. Useful to learn about the contet at 
         wrap time.
+    ---dry-run
+        If set, we will only pretend to run the command, and not actually do it
     ---help
         Prints this help and exits.
-        
+
     Set the BAPP_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
     framework.
     """
@@ -494,6 +498,21 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         if they exist. We will not override existing values either.
         Additionally it will apply the transaction to prepare the process launch.
         @note also removed custom wrapper arguments, which are identified by their '---' prefix"""
+        new_args = list()
+        for arg in args:
+            if not arg.startswith(self._wrapper_arg_prefix):
+                new_args.append(arg)
+                continue
+            # end handle non-wrapper argument
+            arg = arg[len(self._wrapper_arg_prefix):]
+
+            # Note: there is no reason to handle unknown args, as they were handled beforehand already
+            if arg == 'debug-context':
+                # We assume environment stack is printed to stderr
+                raise DisplayContextException("Stopping program to debug context")
+            # end handle argument
+        # end for each arg to check
+        
         self.update_from_os_environment(self._inherit_those_variables, env)
         # remove wrapper args
         new_args = [arg for arg in args if not arg.startswith(self._wrapper_arg_prefix)]
@@ -608,11 +627,9 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             assert len(key_value) > 2 and self._wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
             kvstore.set_value(*key_value.split(self._wrapper_arg_kvsep))
             log.debug("CONTEXT VALUE OVERRIDE: %s", key_value)
-        elif arg == 'debug-context':
-            # We assume environment stack is printed to stderr
-            log.info('commandline override kvstore so far:')
-            log.info('%s', kvstore)
-            raise DisplayContextException("Stopping program to debug context")
+        elif arg in ('dry-run', 'debug-context'):
+            # Just ignore these, they are handled elsewhere
+            pass
         else:
             raise AssertionError("Argument named '%s' unknown to wrapping engine" % arg)
         # end handle arg

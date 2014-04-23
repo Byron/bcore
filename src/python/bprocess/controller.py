@@ -97,15 +97,13 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
                     '_executable_path', # path to executable of process we should create
                     '_spawn_override', # See set_should_spawn_process_override
                     '_help_string', # if set, no matter what, just display this help string and exit
-                    '_app'          # the Application we are using to obtain information about our environment
+                    '_app',         # the Application we are using to obtain information about our environment
+                    '_dry_run'      # if True, we will not actually spawn the application
                 )
     
     # -------------------------
     ## @name Configuration
     # @{
-    
-    ## don't actually launch a process, causing exec to return None in any case. Useful for testing
-    dry_run = False
     
     ## A schema containing all possible values we expect for a process
     _schema = controller_schema
@@ -113,6 +111,9 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
     ## if True, we will resolve package data when iterating
     # We need this flag as we can't pass arguments while iterating
     _package_data_schema = package_schema
+
+    ## The only argument we parse ourselves
+    OPT_DRY_RUN = '---dry-run'
     
     ## -- End Configuration -- @}
     
@@ -121,7 +122,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         """@return True if we are in debug mode"""
         return log.getEffectiveLevel() <= logging.DEBUG
     
-    def __init__(self, executable, args = list(), delegate = None, cwd = None):
+    def __init__(self, executable, args = list(), delegate = None, cwd = None, dry_run = False):
         """
         Initialize this instance to make it operational
         Our executable does not have to actually exist, as we will look it up in the kvstore of our environment.
@@ -139,7 +140,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         If the envrionment stack is altered by the IProcessControllerDelegate.prepare_context() method, 
         the delegate may be overwritten.
         @param cwd current working directory to be used as additional context. If None, the actual cwd will be used.
-        @return self
+        @param dry_run if True, we will not actually spawn any process, but make preparations as usual
         @note must call _setup_execution_environment, as this instance is assumed to be ready for execute()
         """
         # NOTE: it is valid to provide a relative path (or a path which just contains the basename of the executable)
@@ -148,6 +149,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         # and use the direname accordingly
         # For using the process controller from within existing applications, guys usually just specify the name of the 
         # package to start, like 'nuke' or 'rvio'
+        self._dry_run = dry_run
         executable = Path(executable)
         if not executable.isabs():
             if PostLaunchProcessInformation.has_data():
@@ -170,13 +172,10 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
             self._setup_execution_environment()
         except DisplayHelpException, err:
             self._help_string = err.help_string
-        except DisplayContextException:
-            sys.stderr.write(str(bapp.main().context()._contents_str()))
-            # just cause us to exit elegantly
-            self._help_string = "Context displayed\n"
         except Exception, err:
             if self._is_debug_mode():
-                sys.stderr.write(str(bapp.main().context()._contents_str()))
+                assert self._app, "should have managed to create an application at least"
+                sys.stderr.write(str(self._app.context()._contents_str()))
             # end handle debug mode
             raise
         #end assure context is written
@@ -329,7 +328,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         # end for each sorted plug-in to load
         
         for module in import_modules:
-            PythonPackageIterator._import_module(module)
+            PythonPackageIterator.import_module(module, force_reimport=True)
         # end for each module to import
         
         return self
@@ -590,13 +589,25 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         # Its not required to have a valid root unless the executable or one of the  is relative
         delegate = self.delegate()
         
-        executable, env, args, cwd = delegate.pre_start(self._executable_path, self._environ, self._args, self._cwd)
+        try:
+            executable, env, args, cwd = delegate.pre_start(self._executable_path, self._environ, self._args, self._cwd)
+        except DisplayContextException:
+            sys.stderr.write(str(self._app.context()._contents_str()))
+            # just cause us to exit elegantly
+            self._help_string = "Context displayed\n"
+            return DictObject(dict(returncode = 0))
+        # end handle 
         # play it safe, implementations could change type
         executable = Path(executable)
         if not executable.isfile():
             raise EnvironmentError("executable for package '%s' could not be found at '%s'" % (self._name(), executable))
         # end handle executable
-        
+
+        # Parse the only argument the delegate can't help us with: dry_run
+        if self.OPT_DRY_RUN in self._args:
+            self._dry_run = True
+        # end dry run handling
+
         # Fill post-launch interface
         ############################
         # Allow others to override our particular implementation
@@ -610,14 +621,17 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
             should_spawn = self._spawn_override
         # end handle spawn override
 
-        log.log(TRACE, "%s %s (%s)", executable, ' '.join(args), should_spawn and 'child process' or 'replace process')
+        log.log(TRACE, "%s%s %s (%s)", self._dry_run and "WOULD LAUNCH " or "",
+                                       executable,
+                                       ' '.join(args), 
+                                       should_spawn and 'child process' or 'replace process')
         
         # Make sure arg[0] is always an executable
         # And be sure we have a list, in case people return tuples
         args = list(args)
         args.insert(0, str(executable))
         
-        if not self.dry_run:
+        if not self._dry_run:
             
             if os.name == 'nt' and not should_spawn:
                 # TODO: recheck this - only tested on a VM with python 2.7 ! Could work on our image
