@@ -178,7 +178,7 @@ class LogConfigurator(ApplicationSettingsClient):
         # See #6239
         # NOTE: at least the environment variable can probably be removed once the actual culprit is found
         # Why does our configuration kill pythons logging entirely in case of katana at least ?
-        if value.disable or 'bapp_LOGGING_INITIALIZATION_DISABLE' in os.environ:
+        if value.disable or 'BAPP_LOGGING_INITIALIZATION_DISABLE' in os.environ:
             return
         # end no init if disabled
     

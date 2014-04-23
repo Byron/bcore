@@ -112,19 +112,19 @@ class IPostLaunchProcessInformation(InterfaceBase):
     
     ## Environment variable to hold formatted datastructure with information about the running process.
     # The actual format is an implementation detail.
-    storage_environment_variable = 'bapp_PROCESS_POST_LAUNCH_INFORMATION'
+    storage_environment_variable = 'BPROCESS_POST_LAUNCH_INFORMATION'
     
     
     ## A yaml-formatted data structure to provide information matching the process_schema
-    process_information_environment_variable = 'bapp_PROCESS_INFORMATION_YAML'
+    process_information_environment_variable = 'BPROCESS_INFORMATION_YAML'
     
     
     ## A yaml-formatted structure keeping commandline overrides.
-    commandline_overrides_environment_variable = 'bapp_PROCESS_COMMANDLINE_OVERRIDES_YAML'
+    commandline_overrides_environment_variable = 'BPROCESS_COMMANDLINE_OVERRIDES_YAML'
 
     ## An encoded storage for all yaml files which are part of our configuration which is stored 
-    ## in bapp_PROCESS_POST_LAUNCH_INFORMATION
-    config_file_hash_map_environment_variable = 'bapp_PROCESS_CONFIG_FILE_HASHMAP'
+    ## in BPROCESS_POST_LAUNCH_INFORMATION
+    config_file_hash_map_environment_variable = 'BPROCESS_CONFIG_FILE_HASHMAP'
     
     ## -- End Configuration -- @}
     

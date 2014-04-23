@@ -414,7 +414,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     ---help
         Prints this help and exits.
         
-    Set the bapp_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
+    Set the BAPP_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
     framework.
     """
     # -------------------------

@@ -23,14 +23,11 @@ from itertools import chain
 basename = os.path.basename
 dirname = os.path.dirname
 
-
-# Make sure bapp doesn't initialize the environment as the wrapper logic takes care of that
-os.environ['bapp_INIT_ENVIRONMENT_DISABLE'] = '1'
-
 # BASIC LOGGING SETUP
 #####################
 logging.basicConfig()
-# default stream output will be to stderr, which is good to separate output of program and wrapper
+
+# default stream output will be to stderr, which is good to separate output of program and bootstrapper
 # in case there really is something to say
 # Set lowest logging verbosity for a start
 for item in chain([logging.root], logging.root.handlers):
@@ -43,9 +40,9 @@ class Bootstrapper(object):
     """Contains for logic required to import bapp and launch the actual implementation from our root package.
     It implements the following algorithm
     
-    * Find the wrapper's original, non-symlinked location and see if it is within its source tree. The following 
+    * Find the bootstraps original, non-symlinked location and see if it is within its source tree. The following 
       locations are tried in order
-    ** read bapp_PIPE_PACKAGE_PATH variable to the location from which root_package_name can be imported
+    ** read BPROCESS_PACKAGE_PATH variable to the location from which root_package_name can be imported
     ** follow symlink of this file
     ** On windows, a side-by-side file will be read for the path to follow.
     * finally, adjust the path to initialize the root package and pass control to its implementation
@@ -58,18 +55,11 @@ class Bootstrapper(object):
     ## @name Configuration
     # @{
     
-    ## A variable we can use to override the pipeline root package location, useful for testing
-    pipe_package_env_var = 'bapp_PIPE_PACKAGE_PATH'
+    ## A variable we can use to override the path which contains the bprocess package, useful for testing
+    package_path_env_var = 'BPROCESS_PACKAGE_PATH'
     
     ## Name of the root package that contains all of the process controller code
     root_package_name = 'bprocess'
-    
-    ## module path to wrapper engine interface
-    engine_interface_module_name = 'processcontrol'
-    
-    ## module path to the core implementation
-    engine_module_name = 'processcontrol'
-    
     
     ## Process controller interface name
     process_controller_type_name = 'ProcessController'
@@ -84,7 +74,7 @@ class Bootstrapper(object):
         """Read a path from a side-by-side file and resolve it like a symlink"""
         symlink_file = os.path.join(os.path.dirname(executable), '.' + os.path.basename(executable))
         if not os.path.isfile(symlink_file):
-            msg = "Side-by-side symlink file '%s' symlink file did not exist - first line should be the location of the wrapper implementation"
+            msg = "Side-by-side symlink file at '%s' did not exist - first line should be the location of the bootstrapper implementation"
             raise EnvironmentError(msg % symlink_file)
         # end handle missing ifle
         
@@ -106,10 +96,9 @@ class Bootstrapper(object):
         to do that actual woractual_executablek for us
         Raise an error if that didn't work
         @return controller clas"""
-        
         # If we have an override, use it
-        if self.pipe_package_env_var in os.environ:
-            root_package_path = os.environ[self.pipe_package_env_var]
+        if self.package_path_env_var in os.environ:
+            root_package_path = os.environ[self.package_path_env_var]
         else:
             
             # on windows, we read the link from a side-by-side file
@@ -118,7 +107,7 @@ class Bootstrapper(object):
             else:
                 actual_executable = os.path.realpath(executable)
             # end handle windows
-            
+
             # Currently we need this. We could overcome the issue with environment variables or a config file 
             # being read here, but it would just complicate matters - we can always have symlinks
             # NOTE: this wouldn't work on windows, as read-link doesn't work there - its all done by samba underneath
@@ -128,8 +117,8 @@ class Bootstrapper(object):
             
             root_package_path = self._root_package_path(executable)
             if root_package_path is None:
-                msg = "Unable to find our root-package from wrapper location at %s"
-                msg += " - please make sure you symlink it from its source to the destination"
+                msg = "Unable to find our 'bprocess' package from bootstrapper location at %s"
+                msg += " - please make sure your executable is a symbolic link to the bootstrapper"
                 raise AssertionError(msg % executable)
             # end handle root_package not found
         # end allow environment override of rootpackage 
@@ -146,7 +135,7 @@ class Bootstrapper(object):
         """@return a string to the folder containing the bapp.package or None if it wasn't found.
         We try to guesstimage it just by name
         @param executable possibly the original executable"""
-        root_path = dirname(dirname(executable))
+        root_path = dirname(executable)
         if basename(root_path) == self.root_package_name:
             return dirname(root_path)
         return None
@@ -155,13 +144,9 @@ class Bootstrapper(object):
         """Initialize the given root package to make component instances available
         @return module containing main interfaces"""
         sys.path.append(root_package_path)
-        fmt = '%s.%s'
-        module_for_import = fmt % (self.root_package_name, self.engine_interface_module_name)
+        module_for_import = self.root_package_name
         try:
             imported_module = __import__(module_for_import, globals(), locals(), [module_for_import])
-            # get implementation 
-            core_module = fmt % (self.root_package_name, self.engine_module_name)
-            __import__(core_module, globals(), locals(), [core_module])
         except ImportError, err:
             traceback.print_exc()
             raise ImportError("Failed to import root package %s from path %s - cannot proceed without main \
@@ -193,7 +178,7 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
                 raise
             else:
                 sys.stderr.write("%s\n" % str(err))
-                sys.stderr.write("(Add ---debug flag for more information)\n")
+                sys.stderr.write("(Add ---debug flag or set BAPP_STARTUP_LOG_LEVEL=DEBUG environment variable for more information)\n")
             # end handle debugging
             sys.exit(2)
         #end 

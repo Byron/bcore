@@ -50,7 +50,7 @@ __version__ = Version('0.1.0')
 
 ## Used to set the logging up very early to see everything. Useful for debugging usually, log-levels will 
 ## be set at later points as well
-log_env_var = 'bapp_STARTUP_LOG_LEVEL'
+log_env_var = 'BAPP_STARTUP_LOG_LEVEL'
 
 ## -- End Constants -- @}
 

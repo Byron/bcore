@@ -550,6 +550,22 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         @return self
         @note must call _setup_execution_environment, as this instance is assumed to be ready for execute()
         """
+        # NOTE: it is valid to provide a relative path (or a path which just contains the basename of the executable)
+        # However, the bootstrap_dir will still be relevant to configuration (possibly), which is why it should 
+        # be as sane as possible. The only way to do this is to check if we are already in a bootstapped process,
+        # and use the direname accordingly
+        # For using the process controller from within existing applications, guys usually just specify the name of the 
+        # package to start, like 'nuke' or 'rvio'
+        executable = Path(executable)
+        if not executable.isabs():
+            pi = PostLaunchProcessInformation()
+            if pi.has_data():
+                executable = pi.process_data().bootstrap_dir / executable
+            else:
+                # otherwise, just take what we have ... but as absolute path.
+                executable = Path(executable).abspath()
+            # end assure executable is absolute
+        # end check
         self._boot_executable = Path(executable).abspath()
         self._args = list(args)
         # we will always use delegates that where explicitly set, but get it as service on first access
