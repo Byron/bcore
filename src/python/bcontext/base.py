@@ -111,7 +111,7 @@ class Context(object):
             otp += "\t%s\n" % item
             # Could list supported interfaces here
         otp += "\t* store:\n"
-        otp += re.sub(r"(^|\n)", r"\1\t", str(self._kvstore)) + '\n'
+        otp += re.sub(r"(^|\n)", r"\1\t", str(self.settings())) + '\n'
         return otp
 
     ## -- End Utilities -- @}

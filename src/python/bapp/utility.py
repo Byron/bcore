@@ -71,15 +71,19 @@ class StackAwareHierarchicalContext(HierarchicalContext):
     To prevent duplicate loads, which in turn may yield somewhat unexpected application settings, this implementation 
     uses the current applications stack to find other Contexts of our type.
     """
-    __slots__ = ('_hash_map')
+    __slots__ = ('_hash_map',
+                 '_app')
 
-    def __init__(self, directory, **kwargs):
+    def __init__(self, directory, application=None, **kwargs):
+        """Initialize this instance. Additionally, you may specify the application to use.
+        If unspecified, the global one will be used instead"""
         super(StackAwareHierarchicalContext, self).__init__(directory, **kwargs)
         self._hash_map = OrderedDict()
+        self._app = application
 
     def _iter_application_contexts(self):
         """@return iterator yielding environments of our type on the stack, which are not us"""
-        for ctx in bapp.main().context().stack():
+        for ctx in (self._app or bapp.main()).context().stack():
             # we should be last, but lets not assume that
             if ctx is self or not isinstance(ctx, StackAwareHierarchicalContext):
                 continue

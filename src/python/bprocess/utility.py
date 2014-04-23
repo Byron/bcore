@@ -5,24 +5,45 @@
 
 @copyright 2013 Sebastian Thiel
 """
-__all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment']
+__all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment'
+           'ProcessControllerPackageSpecification', 'PackageDataIteratorMixin',
+           'ExecutableContext', 'PythonPackageIterator', 'CommandlineOverridesContext', 
+           'ControlledProcessContext']
+
+import sys
+import os
+
 
 from contextlib import contextmanager
 import logging
 
 import bapp
-from .controller import PackageDataIteratorMixin
 from .schema import (package_meta_data_schema,
                      controller_schema)
 from bapp import PersistentApplicationSettingsClient
 from bkvstore import (KeyValueStoreModifier,
+                      KeyValueStoreSchema,
+                      NoSuchKeyError,
                       PathList)
-from butility import OrderedDict
+from butility import ( OrderedDict,
+                       Path,
+                       LazyMixin )
+
+
+from bcontext import Context
+from bapp import         ( StackAwareHierarchicalContext,
+                           ApplicationSettingsClient )
+from .delegates import PostLaunchProcessInformation
+from .schema import ( controller_schema,
+                      package_schema,
+                      process_schema,
+                      python_package_schema )
+
+
 
 log = logging.getLogger('bprocess.utility')
 
 from bapp import StackAwareHierarchicalContext
-from .controller import ControlledProcessContext
 
 
 
@@ -85,6 +106,92 @@ def file_environment(*paths, **kwargs):
 
 ## -- End Context Managers -- @}
 
+
+class PackageDataIteratorMixin(object):
+    """A mixin to provide functionality to iterate the process controller's package database.
+    
+    To do that, it will just follow the 'requires' field of each package.
+    
+    Subclasses should use its schema as a default and merge their own schema in as to allow to access
+    their own data with each package data block the iterator returns.
+    """
+    __slots__ = ()
+    
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
+    
+    @classmethod
+    def new_controller_schema(cls, schema):
+        """Called during type instantiation to put your own schema onto package level. This allows 
+        your data to be returned upon query by placing it into a KeyValueStoreSchema whose hierarchy fits
+        to the one of the package controller
+        @param cls
+        @param schema KeyValueStoreSchema or any dict representing the data you wish to associate with
+        a package. The schema must have the 'requires' key 
+        @return KeyValueStoreSchema suitable for use in iteration. Assign it to your _schema class variable
+        if you are an ApplicationSettingsClient subclass"""
+        return KeyValueStoreSchema(controller_schema.key(), 
+                                            {   
+                                                package_schema.key() : schema
+                                            }
+                                            )
+    
+    def _internal_iter_package_data(self, settings_value_or_kvstore, package_name, schema = None):
+        """If schema is None, we use the settings_value mode, otherwise we access a kvstore directly"""
+        if schema:
+            data_by_name = lambda n: settings_value_or_kvstore.value('%s.%s' % (controller_schema.key(), n), schema)
+        else:
+            data_by_name = lambda n: settings_value_or_kvstore[n]
+        # end handle query function
+
+        seen = set()
+        def recurse_packages(name):
+            if name in seen:
+                raise StopIteration
+            seen.add(name)
+            try:
+                pdata = data_by_name(name)
+            except (KeyError, NoSuchKeyError):
+                raise KeyError("A package named '%s' wasn't configured. It should be located at '%s.%s'."
+                                                    % (name, controller_schema.key(), name))
+            # end provide nice exceptions
+            requires = pdata.requires   # cache it !
+            yield pdata, name
+            del(pdata)
+            for child in requires:
+                for item in recurse_packages(child):
+                    yield item
+            # end for each child iterate
+        # end utility
+        
+        return recurse_packages(package_name)
+
+    def _iter_package_data(self, settings_value, package_name):
+        """@return iterator yielding tuples (data, package_name) from your given settings_value, matching your package schema
+        @param settings_value top-level data structure containing everything below the 'packages' key of the 
+        corresponding kvstore. If you are an ApplicationSettingsClient, this value is the settings_value()
+        @param package_name name of the package at which to start the iteration - it will be returned as well."""
+        return self._internal_iter_package_data(settings_value, package_name)
+
+    def _iter_package_data_by_schema(self, kvstore, package_name, package_schema):
+        """As _iter_package_data(), but more efficient as it will pick the packages individually. This 
+        method should be preferred due to increased efficiency"""
+        return self._internal_iter_package_data(kvstore, package_name, package_schema)
+        
+    def _to_package(self, name, data):
+        """@return A ProcessControllerPackageSpecification instance allowing you to query the root path of 
+        the package, among other things
+        @param name package name
+        @param data data you retrieved for the packge.
+        @note in order to work properly, your data must have the root_paths member"""
+        assert hasattr(data, 'root_paths'), "Data requrires 'root_paths' attribute for package to be functional"
+        return ProcessControllerPackageSpecification(name, data)
+        
+        
+    ## -- End Subclass Interface -- @}
+        
+# end class PackageIteratorMixin
 
 
 class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
@@ -222,3 +329,247 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsClient,
     
 
 # end class PackageMetaDataChangeTracker
+
+
+class ProcessControllerPackageSpecification(LazyMixin):
+    """A utility interface to provide information about the process to be launched."""
+    __slots__ = (
+                '_name', 
+                '_data',
+                '_root_path',    # cache for the root_path
+                '_quiet'         # don't warn about an invalid root-path (used internally)
+                )
+    
+    def __init__(self, name, data, quiet=False):
+        """initialize the instance from pacakge data compatible to the ProcessController schema
+        @param name of package this instance represents
+        @param data block of data as extracted from a kvstore
+        @param quiet if True, we will not log warnings"""
+        self._name = name
+        self._data = data
+        self._quiet = quiet
+        
+    def _set_cache_(self, name):
+        if name == '_root_path':
+            self._root_path = None          # default
+            roots = self._data.root_paths
+            for path in roots:
+                if path.isdir():
+                    self._root_path = path
+                    break
+                # end check is directory
+            # end for each path
+            if not self._quiet and self._root_path is None:
+                log.warn("None of the given root paths of package '%s' was accessible: [%s]", self.name(), ', '.join(roots))
+            # end handle roots
+        else:
+            super(ProcessControllerPackageSpecification, self)._set_cache_(name)
+        #end handle cache name
+        
+    # -------------------------
+    ## @name Interface
+    # @{
+    
+    def name(self):
+        """@return name of this package"""
+        return self._name
+    
+    def root_path(self):
+        """@return butility.Path instance pointing at the *existing* root of the package
+        or None if there is no such path or if the configured path doesn't exist"""
+        return self._root_path
+        
+    def data(self):
+        """@return our data package"""
+        return self._data
+        
+    def to_abs_path(self, path):
+        """Convert the given possibly relative path to an absolute path, if necessary
+        @note it is not checked for existence
+        @param path string or butility.Path
+        @return absolute version of the path, as butility.Path
+        @throws ValueError if the path is relative and there is no valid root path"""
+        path = Path(path)
+        if path.isabs():
+            return path
+        if self.root_path() is None:
+            raise EnvironmentError("Cannot convert '%s' to absolute path in package '%s' without a single valid root path, tried: [%s]" % (path, self.name(), ', '.join(self._data.root_paths)))
+        # end handle root path
+        return self.root_path() / path
+        
+    def executable(self):
+        """@return butility.Path to executable - its not verified to be existing
+        @note for now this is uncached, but its okay for our use
+        """
+        executable_path = self.to_abs_path(self.data().executable)
+        if os.name == 'nt':
+            win_ext = '.exe'
+            if not executable_path.ext():
+                executable_path += win_ext
+            # handle extension
+        # end handle windows
+        return executable_path
+    ## -- End Interface -- @}
+
+# end class ProcessControllerPackageSpecification
+
+
+class PythonPackageIterator(ApplicationSettingsClient, PackageDataIteratorMixin):
+    """A utility type allowing to deal with additional python information
+    
+    Currently it is able to import any of the given modules, per package
+    """
+    __slots__ = ()
+    
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    _schema = PackageDataIteratorMixin.new_controller_schema(python_package_schema)
+    
+    ## -- End Configuration -- @}
+
+
+    # -------------------------
+    ## @name Interface
+    # @{
+    
+    @classmethod
+    def _import_module(cls, module):
+        """Import the given module, and return its name if it was imported, or None otherwise"""
+        try:
+            if module not in sys.modules: 
+                __import__(module)
+            # end be less verbose
+        except Exception:
+            log.error("Failed to import module", exc_info=True)
+        else:
+            return module
+        # end ignore exceptions
+        return None
+    
+    def import_modules(self):
+        """Imports all additional modules as specified in the configuration of our loaded packages
+        @return a list of import-paths to modules that were loaded successfully.
+        @note import errors will be logged, but ignored. We do not reload !
+        @note only works if this process is wrapped
+        @note this is a way to load plug-ins"""
+        info = PostLaunchProcessInformation()
+        store = info.as_kvstore()
+        imported_modules = list()
+        
+        if store is None:
+            return imported_modules
+        # end handle no wrapped process
+        for pdata, pname in self._iter_package_data_by_schema(store, info.process_data().id, python_package_schema):
+            for module in getattr(pdata.python, 'import'):
+                imp_module = self._import_module(module)
+                if imp_module:
+                    log.info("Imported module '%s' for package '%s'", module, pname)
+                    imported_modules.append(module)
+                # end ignore exceptions
+            # end for each module to laod
+            plugin_paths = pdata.python.plugin_paths
+            if plugin_paths:
+                package = self._to_package(pname, pdata)
+                for plugin_path in plugin_paths:
+                    if not plugin_path.isabs():
+                        plugin_path = package.root_path() / plugin_path
+                    # end make plugin path absolute
+                    PythonFileLoader(plugin_path).load()
+                #end for each plugin path
+            # end handle plugin paths
+        #end for each package
+        return imported_modules
+    
+    ## -- End Interface -- @}    
+
+# end class PythonPackageIterator
+
+
+class ExecutableContext(StackAwareHierarchicalContext):
+    """An environment automatically adding process information if this process was launched 
+    through process control
+    Additionally it will load python modules as defined in the respective schema
+    @note we will only read the post-launch information, which is the configuration the wrapper used
+    @note only effective in a controlled process"""
+    __slots__ = ()
+
+    def __init__(self):
+        """Initialize this instance with the path of our executable, and add process information 
+        to the kvstore"""
+        pinfo = PostLaunchProcessInformation()
+        executable = pinfo.executable()
+        super(ExecutableContext, self).__init__(executable or "Executable Environment (uncontrolled process)", 
+                                                    load_config = executable is not None)
+        
+        
+        if pinfo.has_data():
+            self.settings().set_value_by_schema(process_schema, pinfo.process_data())
+        else:
+            # Make sure we will never configure anything. Subclass would take the name we provide, 
+            # and convert it to an absolute path based on the cwd, which would possibly pick up configuration
+            # we want in other environments, and load it !
+            self._config_dirs = list()
+        # end handle data
+# end class ExecutableContext
+
+
+class ControlledProcessContext(StackAwareHierarchicalContext):
+    """An environment which may only be created in processes started by ProcessControll to restore the exact 
+    environment used when the wrapper was invoked.
+
+    We are also a HierarchicalContext to assure that future environments will not load the 
+    same yaml files again.
+
+    @note useful for assuring the wrapped process behaves exactly like the wrapper itself
+    """
+    __slots__ = ()
+
+    def __init__(self):
+        """Set ourselves to all data provided by the wrapper
+        @note does nothing if we are not wrapped"""
+        super(ControlledProcessContext, self).__init__("Wrapped Environment", load_config = False)
+
+        ppi = PostLaunchProcessInformation()
+        store = ppi.as_kvstore()
+        if store:
+            self._kvstore = store
+        # end handle store
+
+        self._hash_map = ppi.config_hashmap()
+
+    # -------------------------
+    ## @name Interface
+    # documentation
+    # @{
+    
+    def has_data(self):
+        """@return True if we have data"""
+        return PostLaunchProcessInformation.has_data()
+        
+    ## -- End Interface -- @}
+
+# end class ControlledProcessContext
+
+
+class CommandlineOverridesContext(Context):
+    """An environment to re-apply commandline overrides. It should usually be added last
+    @todo this would better be part of the executable environment, just MERGING the overrides into 
+    the kvstore would do just fine"""
+    __slots__ = ()
+
+    def __init__(self, name='commandline overrides'):
+        """Setup our commandline overrides, if there are some"""
+        super(CommandlineOverridesContext, self).__init__(name)
+        
+        overrides = PostLaunchProcessInformation().commandline_overrides()
+        if overrides:
+            self._kvstore = KeyValueStoreModifier(overrides)
+        # end handle overrides
+
+        # finally, import modules based on a rather complete configuration
+        iterator.import_modules()
+        
+# end class CommandlineOverridesContext
+

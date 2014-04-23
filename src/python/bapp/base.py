@@ -172,7 +172,10 @@ class Application(object):
         inst = cls(stack)
 
         if cls.main is None:
-            cls.main = inst
+            # NOTE: In case someone overrides our base Application, cls.main would assign not to our 
+            # Application.main, but to a new class member in our derived class. This in turn 
+            # Would break anyone relying on Application.main, which is not intended
+            Application.main = inst
         # end set main only if we are the first
 
         return inst
@@ -231,8 +234,9 @@ class Application(object):
         # end handle ApplicationContext
 
         for path in settings_paths:
-            ctx = inst.context().push(cls.HierarchicalContextType(path, 
-                                                            traverse_settings_hierarchy=settings_hierarchy))
+            ctx = inst.context().push(cls.HierarchicalContextType(path,
+                                                            traverse_settings_hierarchy=settings_hierarchy,
+                                                            application=inst))
             if load_plugins:
                 ctx.load_plugins(recurse = recursive_plugin_loading,
                                  subdirectory = plugins_subdirectory)

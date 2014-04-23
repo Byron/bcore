@@ -92,11 +92,6 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           # This will not affect the current working dir set for 
                                                           # setting up the configuration
                                                           'cwd' : Path,
-                                                          'vspec' : {
-                                                              'major' : str,
-                                                              'minor' : str,
-                                                              'patch' : str,
-                                                          },
                                                           # We are explicit about our delegate type, so this needs to be overridden
                                                           'delegate' : NamedServiceProcessControllerDelegate('ProcessControllerDelegate'),
                                                           'requires' : StringList,
@@ -132,7 +127,6 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
 python_package_schema = {
                                'requires' : package_schema.requires,
                                'version' : package_schema.version,
-                               'vspec' : package_schema.vspec,
                                'root_paths': package_schema.root_paths,
                                'python' : {
                                     'import' : StringList,
@@ -149,13 +143,6 @@ package_meta_data_schema = {
                                 'description' : str,
                                 'version': package_schema.version
                            }
-
-package_vspec_schema = {
-    'requires' : package_schema.requires,
-    'name' : str,
-    'vspec' : package_schema.vspec,
-    'version': package_schema.version
-}
 
 controller_schema = KeyValueStoreSchema('packages', {  package_schema.key() : package_schema })
 

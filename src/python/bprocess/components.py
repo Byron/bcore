@@ -8,15 +8,13 @@
 __all__ = ['ProcessControlContextControllerBase', 'ProcessConfigurationIncompatibleError']
 
 import bapp
-from .controller import ( ProcessController,
-                          PackageDataIteratorMixin,
-                          PythonPackageIterator,
-                          CommandlineOverridesContext )
 from .delegates import PostLaunchProcessInformation
 from .schema import ( process_schema,
                       package_schema )
 
-from .utility import FlatteningPackageDataIteratorMixin
+from .utility import (FlatteningPackageDataIteratorMixin,
+                      PythonPackageIterator,
+                      CommandlineOverridesContext)
 from bapp import ( ApplicationSettingsClient,
                    IContextController,
                    StackAwareHierarchicalContext )
@@ -58,7 +56,7 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
     
     
     ## Describes the data we want to compare within the package data. Add more fields here if required
-    _schema = PackageDataIteratorMixin.new_controller_schema({
+    _schema = FlatteningPackageDataIteratorMixin.new_controller_schema({
                                                                         'version' : package_schema.version,
                                                                         'requires' : package_schema.requires
                                                                         }) 

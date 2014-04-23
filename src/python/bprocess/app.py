@@ -9,7 +9,7 @@ __all__ = ['ProcessAwareApplication']
 
 import bapp
 
-from bprocess import (ControlledProcessContext,
+from .utility import (ControlledProcessContext,
                       PythonPackageIterator )
 
 
