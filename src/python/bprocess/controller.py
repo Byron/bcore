@@ -19,6 +19,7 @@ from butility import ( Path,
                        TRACE,
                        update_env_path,
                        GraphIteratorBase,
+                       LazyMixin,
                        DictObject )
 
 from bcontext import Context
@@ -26,9 +27,7 @@ from .interfaces import IProcessControllerDelegate
 from bapp import         ( ApplicationSettingsClient,
                            OSContext)
 from .delegates import ( PostLaunchProcessInformation,
-                         ProcessControllerDelegateProxy,
-                         DisplayHelpException,
-                         DisplayContextException )
+                         ProcessControllerDelegateProxy )
 from .schema import ( controller_schema,
                       package_schema,
                       process_schema )
@@ -71,7 +70,7 @@ class _ProcessControllerContext(Context):
 ## -- End Utilities -- @}
 
 
-class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugin_type()):
+class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient, bapp.plugin_type()):
     """The main interface to deal with \ref processcontrol "Process Control" .
     
     It allows to control the environment in which processes are executed, as well as to alter their input 
@@ -96,7 +95,6 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
                     '_environ',     # environment dictionary
                     '_executable_path', # path to executable of process we should create
                     '_spawn_override', # See set_should_spawn_process_override
-                    '_help_string', # if set, no matter what, just display this help string and exit
                     '_app',         # the Application we are using to obtain information about our environment
                     '_dry_run'      # if True, we will not actually spawn the application
                 )
@@ -141,7 +139,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         the delegate may be overwritten.
         @param cwd current working directory to be used as additional context. If None, the actual cwd will be used.
         @param dry_run if True, we will not actually spawn any process, but make preparations as usual
-        @note must call _setup_execution_environment, as this instance is assumed to be ready for execute()
+        @note must call _setup_execution_context, as this instance is assumed to be ready for execute()
         """
         # NOTE: it is valid to provide a relative path (or a path which just contains the basename of the executable)
         # However, the bootstrap_dir will still be relevant to configuration (possibly), which is why it should 
@@ -166,20 +164,14 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         self._cwd = cwd or os.getcwd()
         self._environ = dict()
         self._spawn_override = None
-        self._help_string = False
-        
-        try:
-            self._setup_execution_environment()
-        except DisplayHelpException, err:
-            self._help_string = err.help_string
-        except Exception, err:
-            if self._is_debug_mode():
-                assert self._app, "should have managed to create an application at least"
-                sys.stderr.write(str(self._app.context()._contents_str()))
-            # end handle debug mode
-            raise
-        #end assure context is written
-        
+
+    def _set_cache_(self, name):
+        if name in ('_app', '_executable_path'):
+            self._setup_execution_context()
+        else:
+            return super(ProcessController, self)._set_cache_(name)
+        # end handle name
+
     def _predecessors(self, program):
         """@return names for programs we depend on"""
         return self._package_data(program).requires
@@ -253,7 +245,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
                 yield item
             # end for each recursive item
         # end for each child to recurse
-        
+
     def execute_in_current_context(self, stdin=None, stdout=None, stderr=None):
         """Use this method if you would like execute any configured program within your current context, which 
         can be useful if you want to spawn a process from a running application.
@@ -333,7 +325,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         
         return self
         
-    def _setup_execution_environment(self):
+    def _setup_execution_context(self):
         """Initialize the context in which the process will be executed to the point right before it will actually
         be launched. This is called automaticlaly by during __init__() and must be called exactly once.
         
@@ -578,25 +570,12 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         @throws EnvironmentError if the executable cannot be found, or if program configuration could not be
         determined.
         """
-        if self._help_string:
-            # This allows the bootstrapper to work
-            sys.stderr.write(self._help_string)
-            return DictObject(dict(returncode = 0))
-        # end handle display help
-        
         # Prepare EXECUTABLE
         #####################
         # Its not required to have a valid root unless the executable or one of the  is relative
         delegate = self.delegate()
         
-        try:
-            executable, env, args, cwd = delegate.pre_start(self._executable_path, self._environ, self._args, self._cwd)
-        except DisplayContextException:
-            sys.stderr.write(str(self._app.context()._contents_str()))
-            # just cause us to exit elegantly
-            self._help_string = "Context displayed\n"
-            return DictObject(dict(returncode = 0))
-        # end handle 
+        executable, env, args, cwd = delegate.pre_start(self._executable_path, self._environ, self._args, self._cwd)
         # play it safe, implementations could change type
         executable = Path(executable)
         if not executable.isfile():
@@ -621,7 +600,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
             should_spawn = self._spawn_override
         # end handle spawn override
 
-        log.log(TRACE, "%s%s %s (%s)", self._dry_run and "WOULD LAUNCH " or "",
+        log.log(TRACE, "%s%s %s (%s)", self._dry_run and "WOULD RUN " or "",
                                        executable,
                                        ' '.join(args), 
                                        should_spawn and 'child process' or 'replace process')
@@ -665,6 +644,12 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         """@return Path instance to executable that will actually be instantiated when execute() is called
         @note may only be called after a call to init()"""
         return self._executable_path
+
+    def application(self):
+        """@return application object which keeps the context of the to-be-started program"""
+        assert self._app
+        return self._app
+        
         
     ## -- End Interface -- @}
 

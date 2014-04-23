@@ -498,21 +498,6 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         if they exist. We will not override existing values either.
         Additionally it will apply the transaction to prepare the process launch.
         @note also removed custom wrapper arguments, which are identified by their '---' prefix"""
-        new_args = list()
-        for arg in args:
-            if not arg.startswith(self._wrapper_arg_prefix):
-                new_args.append(arg)
-                continue
-            # end handle non-wrapper argument
-            arg = arg[len(self._wrapper_arg_prefix):]
-
-            # Note: there is no reason to handle unknown args, as they were handled beforehand already
-            if arg == 'debug-context':
-                # We assume environment stack is printed to stderr
-                raise DisplayContextException("Stopping program to debug context")
-            # end handle argument
-        # end for each arg to check
-        
         self.update_from_os_environment(self._inherit_those_variables, env)
         # remove wrapper args
         new_args = [arg for arg in args if not arg.startswith(self._wrapper_arg_prefix)]
@@ -612,7 +597,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             if arg == 'debug':
                 # print out all files participating in environment stack
                 log.debug("CONFIGURATION FILES IN LOADING ORDER")
-                for ctx in application.stack():
+                for ctx in application.context().stack():
                     if not isinstance(ctx, StackAwareHierarchicalContext):
                         continue
                     #end ignore non configuration items
@@ -621,6 +606,10 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                     # end for each path
                 # end for each environment
             # end print loaded files
+        elif arg == 'debug-context':
+                # We assume environment stack is printed to stderr
+                raise DisplayContextException("Stopping program to debug context")
+            # end handle argument
         elif self._wrapper_arg_kvsep in arg:
             # interpret argument as key in context
             key_value = arg

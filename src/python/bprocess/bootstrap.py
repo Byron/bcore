@@ -95,7 +95,7 @@ class Bootstrapper(object):
         """Try to make our root-package available which should include the components framework
         to do that actual woractual_executablek for us
         Raise an error if that didn't work
-        @return controller clas"""
+        @return root module, controller type"""
         # If we have an override, use it
         if self.package_path_env_var in os.environ:
             root_package_path = os.environ[self.package_path_env_var]
@@ -126,7 +126,7 @@ class Bootstrapper(object):
         module = self._init_root_package_from_path(root_package_path)
         
         try:
-            return getattr(module, self.process_controller_type_name)
+            return module, getattr(module, self.process_controller_type_name)
         except AttributeError:
             raise AssertionError("Didn't find %s interface in module %s" % (self.process_controller_type_name, str(module)))
         # end handle envrionment error
@@ -165,26 +165,35 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         Initialize this instance
         @param executable file we are running (never /bin/python)
         @param args all arguments the program received"""
-        process_controller_type = self._process_controller_class(executable)
+        root_module, process_controller_type = self._process_controller_class(executable)
 
         # allow extensions to be used transparently to help starting the right interpreter on windows.
         # No special handling though to assure similar operation on all platforms
         executable = os.path.splitext(executable)[0]
+        controller = process_controller_type(executable, args)
 
         try:
-            controller = process_controller_type(executable, args)
+            # if we are spawned, we return with whatever the spawned process says. Otherwise, this 
+            # will not return
+            sys.exit(controller.execute().returncode)    
+        except root_module.DisplayHelpException, err:
+            sys.stderr.write(err.help_string)
+        except root_module.DisplayContextException:
+            sys.stderr.write(controller.application().context()._contents_str())
         except Exception, err:
             if process_controller_type._is_debug_mode():
+                sys.stderr.write(controller.application().context()._contents_str())
                 raise
             else:
                 sys.stderr.write("%s\n" % str(err))
                 sys.stderr.write("(Add ---debug flag or set BAPP_STARTUP_LOG_LEVEL=DEBUG environment variable for more information)\n")
             # end handle debugging
-            sys.exit(2)
+            
         #end 
-        # if we are spawned, we return with whatever the spawned process says. Otherwise, this 
-        # will not return
-        sys.exit(controller.execute().returncode)
+
+        # If we end up here, there was an exceptional condition
+        sys.exit(2)
+        
         
     ## -- End Interface -- @}
 # end class Bootstrapper
