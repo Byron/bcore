@@ -115,11 +115,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
     
     ## -- End Configuration -- @}
     
-    @classmethod
-    def _is_debug_mode(cls):
-        """@return True if we are in debug mode"""
-        return log.getEffectiveLevel() <= logging.DEBUG
-    
     def __init__(self, executable, args = list(), delegate = None, cwd = None, dry_run = False):
         """
         Initialize this instance to make it operational
@@ -216,10 +211,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
     # @{
     
     def delegate(self):
-        # Always create a new delegate if we have none set to respond better to 
-        if self._delegate is None:
-            return self._app.new_instance(IProcessControllerDelegate)
-        # end delay delegate instantiation
+        """@return our delegate, which may be None in case  """
         return self._delegate
         
     def set_delegate(self, delegate):
@@ -399,7 +391,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             
             # delegate could be set in constructor - keep this one as long as possible
             if self._delegate is None:
-                self._delegate = root_package.data().delegate.instance
+                self.set_delegate(root_package.data().delegate.instance(app.context()))
             # end use delegate overrides
             
             self._executable_path = executable_provider_package.executable()
@@ -418,7 +410,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                 self._load_plugins("process-controller-stage-2")
                 # delgate from context can be None, but future access will be delegate() only, which deals 
                 # with that
-                self._delegate = root_package.data().delegate.instance
+                self.set_delegate(root_package.data().delegate.instance(app.context()))
             # end update data
             
             # TODO: remove this flag
@@ -545,11 +537,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             raise EnvironmentError(msg) 
         # end handle unknown dependencies
         
-        if self._is_debug_mode():
+        if self.is_debug_mode():
             log.debug("EFFECTIVE WRAPPER ENVIRONMENT VARIABLES")
             pprint(debug, stream=sys.stderr)
         # end show debug information
-        
+
     def set_should_spawn_process_override(self, override):
         """This override to let the controller's caller decide if spawning is desired or not, independently of what the delgate 
         might decide. By default, the delegate will be asked.
@@ -573,8 +565,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         # Prepare EXECUTABLE
         #####################
         # Its not required to have a valid root unless the executable or one of the  is relative
+        # NOTE: it's important to query this path in order to trigger our setup to be run. That way, we
+        # will get the right delegate as well, if unset
+        executable = self._executable_path
         delegate = self.delegate()
-        
         executable, env, args, cwd = delegate.pre_start(self._executable_path, self._environ, self._args, self._cwd)
         # play it safe, implementations could change type
         executable = Path(executable)
@@ -650,7 +644,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         assert self._app
         return self._app
         
-        
+    @classmethod
+    def is_debug_mode(cls):
+        """@return True if we are in debug mode"""
+        return log.getEffectiveLevel() <= logging.DEBUG
+
     ## -- End Interface -- @}
 
 # end class ProcessController

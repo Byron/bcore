@@ -49,10 +49,8 @@ class TestOverridesDelegate(TestCommunicatorDelegate):
     
     def _assert_has_overridden_args(self, args, expected_result):
         """value is Boolean that should match the result"""
-        result = False
-        for arg in args:
-            result |= arg.startswith('---')
-        assert result == expected_result
+        has_bootstrapper_arg = any(arg for arg in args if arg.startswith('---'))
+        assert has_bootstrapper_arg == expected_result
             
     def prepare_context(self, application, executable, env, args, cwd):
         """Custom args will remain here, but are interpreted"""

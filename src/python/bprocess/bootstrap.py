@@ -181,11 +181,13 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         except root_module.DisplayContextException:
             sys.stderr.write(controller.application().context()._contents_str())
         except Exception, err:
-            if process_controller_type._is_debug_mode():
-                sys.stderr.write(controller.application().context()._contents_str())
+            if process_controller_type.is_debug_mode():
+                # sys.stderr.write(controller.application().context()._contents_str())
+                sys.stderr.write("AN UNHANDLED EXCEPTION OCCURRED WHEN TRYING TO LAUNCH PROGRAM\n")
+                print "Controller-Delegate: ", controller.delegate()
                 raise
             else:
-                sys.stderr.write("%s\n" % str(err))
+                sys.stderr.write("ERROR: %s\n" % str(err))
                 sys.stderr.write("(Add ---debug flag or set BAPP_STARTUP_LOG_LEVEL=DEBUG environment variable for more information)\n")
             # end handle debugging
             

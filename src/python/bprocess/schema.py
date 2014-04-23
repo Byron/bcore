@@ -10,14 +10,12 @@ __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_pack
 
 import logging
 
-import bapp
 from bkvstore import (KeyValueStoreSchema,
                       AnyKey,
                       StringList,
                       PathList )
 from .interfaces import IProcessControllerDelegate
 from butility import (Version,
-                      LazyMixin,
                       Path )
 
 log = logging.getLogger('bprocess.schema')
@@ -27,33 +25,32 @@ log = logging.getLogger('bprocess.schema')
 # ------------------------------------------------------------------------------
 ## @{
 
-class NamedServiceProcessControllerDelegate(LazyMixin):
+class NamedServiceProcessControllerDelegate(object):
     """Utility type to create a delegate as a service from the given name.
     We use it as dynamic constructor"""
-    __slots__ = ('instance', '_delegate_name')
+    __slots__ = ('_delegate_name')
     
     def __init__(self, delegate_name = None):
         """Fill our instance"""
         self._delegate_name = delegate_name
         
-    def _set_cache_(self, name):
-        if name == 'instance':
-            self.instance = None
-            if not self._delegate_name:
-                return
-            # end handle value unset
-            
-            delegates = bapp.main().context().new_instances(IProcessControllerDelegate, 
-                            maycreate = lambda cls, instances: not instances and cls.__name__ == self._delegate_name)
-            if not delegates:
-                raise AssertionError("Delegate named '%s' could not be found in service registry" % self._delegate_name)
-            # handle delegate instantiation
-            
-            self.instance = delegates[0]
-        else:
-            super(NamedServiceProcessControllerDelegate, self)._set_cache_(name)
-        # end handle cache
-    
+    def instance(self, context_stack, *args, **kwargs):
+        """@return a new instance of a type which matches our stored name, or None if our name was None
+        @param context_stack the context to use when trying to find the named type
+        @param args
+        @param kwargs given to new instance"""
+        if not self._delegate_name:
+            return
+        # end handle value unset
+        
+        delegates = context_stack.new_instances(IProcessControllerDelegate, 
+                        maycreate = lambda cls, instances: not instances and cls.__name__ == self._delegate_name,
+                        args = args, kwargs = kwargs)
+        if not delegates:
+            raise AssertionError("Delegate named '%s' could not be found in service registry" % self._delegate_name)
+        # handle delegate instantiation
+        
+        return delegates[0]
 
 # end class NamedServiceProcessControllerDelegate
 
