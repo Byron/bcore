@@ -112,7 +112,7 @@ class Bootstrapper(object):
             # being read here, but it would just complicate matters - we can always have symlinks
             # NOTE: this wouldn't work on windows, as read-link doesn't work there - its all done by samba underneath
             # Therefore we would need some configuration/pseudo-link there
-            assert actual_executable != executable, "The executable %s must be as symlink to the bootstrapper implementation"
+            assert actual_executable != executable, "The executable %s must be as symlink to the bootstrapper implementation" % executable
             executable = actual_executable
             
             root_package_path = self._root_package_path(executable)
