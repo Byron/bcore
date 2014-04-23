@@ -19,7 +19,7 @@ class IProcessControllerDelegate(InterfaceBase):
     ## @name Delegate Interface
     # Interface used by IProcessController
     # @{
-    
+
     @abstractmethod
     def prepare_context(self, application, executable, environ, args, cwd):
         """A call to allow changing configuration based on other context that the controller may not know.
@@ -146,9 +146,11 @@ class IPostLaunchProcessInformation(InterfaceBase):
         @note The implementation assures that this information is only available for the launched process, and
         not for its children"""
         
+    @classmethod
     @abstractmethod
-    def has_data(self):
-        """@return True if we have data, as we are launched through process control"""
+    def has_data(cls, environ = None):
+        """@return True if we have data, as we are launched through process control
+        @param environ may be a dictionary with environment variables. Defaults to os.environ otherwise"""
         
         
     @abstractmethod

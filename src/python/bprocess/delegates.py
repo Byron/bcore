@@ -189,7 +189,7 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
                      '_kvstore',     
                      '_procdata',
                      '_cmdline_overrides',
-                     '_hash_map'
+                     '_hash_map',
                 )
 
     key_sep = ','
@@ -226,8 +226,9 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
         else:
             return super(PostLaunchProcessInformation, self)._set_cache_(name)
         # end handle cached attributes
-        
-    def _yaml_data(self, evar):
+
+    @classmethod        
+    def _yaml_data(cls, evar):
         """@return object as loaded from the yaml string retrieved from the given environment variable,
         or None if it was unset
         @note sibling of _store_yaml_data()"""
@@ -236,8 +237,9 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
             return None
         # end handle uncontrolled process
         return yaml.load(yaml_string)
-        
-    def _store_yaml_data(self, evar, env, data):
+    
+    @classmethod    
+    def _store_yaml_data(cls, evar, env, data):
         """Store the given piece of yaml data in the given environment dictionary
         @param evar environment variable
         @param env environment dict
@@ -262,8 +264,9 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
     def data(self):
         return self._data
         
-    def has_data(self):
-        return self.storage_environment_variable in os.environ
+    @classmethod
+    def has_data(cls, environ = None):
+        return cls.storage_environment_variable in (environ or os.environ)
 
     def process_data(self):
         return self._procdata
@@ -286,11 +289,12 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
         process wasn't launched using process control"""
         return self._kvstore
         
-    def store(self, env):
-        """Store the data within the environment for later retrieval
+    @classmethod
+    def store(cls, env, context_stack):
+        """Store the data within the given application context within the environment dict for later retrieval
         @param env the environment dict to be used for the soon-to-be-started process
-        @return self"""
-        source = self._encode(bapp.main().context().settings().data())
+        @param context_stack a ContextStack instance from which to store all data"""
+        source = cls._encode(context_stack.settings().data())
 
         if source:
             # Linux max-chunk size is actually not set, but now we chunk everything
@@ -298,34 +302,32 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
             sc = StringChunker()
 
             keys = sc.split(source, chunk_size, env)
-            env[self.storage_environment_variable] = self.key_sep.join(keys)
+            env[cls.storage_environment_variable] = cls.key_sep.join(keys)
         # end handle source too big to be stored
         
         # store process data as well
-        self._store_yaml_data(self.process_information_environment_variable, env, bapp.main().context().settings().value_by_schema(process_schema))
+        cls._store_yaml_data(cls.process_information_environment_variable, env, context_stack.settings().value_by_schema(process_schema))
 
         # Store ConfigHierarchy hashmap for restoring it later
         # merge and store
         hash_map = dict()
-        for einstance in bapp.main().context().stack():
+        for einstance in context_stack.stack():
             if isinstance(einstance, StackAwareHierarchicalContext):
                 hash_map.update(einstance.hash_map())
             # end update hash_map
         # end for each env on stack
 
         # Always store it, even if empty
-        env[self.config_file_hash_map_environment_variable] = self._encode(hash_map)
-        return self
+        env[cls.config_file_hash_map_environment_variable] = cls._encode(hash_map)
         
-    def store_commandline_overrides(self, env, data):
+    @classmethod
+    def store_commandline_overrides(cls, env, data):
         """Store the information in the given kvstore for the process that is about to be launched. He can 
         retrieve the stored information.
         @param env dict to store the data in
-        @param data a dictionary or data structure with the commandline overrides, compatible to the 
-        main kvstore's schema
-        @return self"""
-        self._store_yaml_data(self.commandline_overrides_environment_variable, env, data)
-        return self
+        @param data a dictionary or data structure with the commandline overrides
+        """
+        cls._store_yaml_data(cls.commandline_overrides_environment_variable, env, data)
         
     def executable(self):
         """@return executable wrapper as Path instance that was originally used to start the 
@@ -447,14 +449,14 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # end handle valid directory
                 continue
             # end ignore non-wrapper args
-            self.handle_argument(arg[len(self._wrapper_arg_prefix):], kvstore_overrides)
+            self.handle_argument(application, arg[len(self._wrapper_arg_prefix):], kvstore_overrides)
         # end for each arg to check
         
         # set overrides
         if kvstore_overrides.keys():
             environment = application.context().push(DelegateCommandlineOverridesContext('wrapper commandline overrides', 
                                                                                       kvstore_overrides))
-            PostLaunchProcessInformation().store_commandline_overrides(env, kvstore_overrides.data())
+            PostLaunchProcessInformation.store_commandline_overrides(env, kvstore_overrides.data())
         #end handle overrides
         return super(ProcessControllerDelegate, self).prepare_context(application, executable, env, args, cwd)
         
@@ -575,10 +577,11 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         @return newly created DelegateContextOverride instance"""
         return self.DelegateContextOverrideType(type(self).__name__ + ' Override').setup(self, controller_schema, *args, **kwargs)
         
-    def handle_argument(self, arg, kvstore):
+    def handle_argument(self, application, arg, kvstore):
         """Method called whenver an argument destined for the wrapper is to be evaluated.
         Subtypes can use it to implement custom argument parsing, based on arguments with the --- prefix.
         The base implementation handles the standard cases
+        @param application our Application instance
         @param arg argument without the wrapper specific prefix
         @param kvstore a kvstore that can be used to store values that are to be used as overrides
         @throws AssertionError if the argument cannot be handled"""
@@ -590,11 +593,11 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             if arg == 'debug':
                 # print out all files participating in environment stack
                 log.debug("CONFIGURATION FILES IN LOADING ORDER")
-                for env in bapp.main().context().stack():
-                    if not isinstance(env, StackAwareHierarchicalContext):
+                for ctx in application.stack():
+                    if not isinstance(ctx, StackAwareHierarchicalContext):
                         continue
                     #end ignore non configuration items
-                    for path in env.config_files():
+                    for path in ctx.config_files():
                         log.debug(path)
                     # end for each path
                 # end for each environment

@@ -35,7 +35,8 @@ from .interfaces import IProcessControllerDelegate
 from bapp import         ( IPlatformService,
                            StackAwareHierarchicalContext,
                            ApplicationContext, 
-                           ApplicationSettingsClient )
+                           ApplicationSettingsClient,
+                           OSContext)
 from .delegates import ( DelegateContextOverride,
                          PostLaunchProcessInformation,
                          ProcessControllerDelegateProxy,
@@ -55,31 +56,6 @@ log = logging.getLogger('bprocess.controller')
 ## @name Utilities
 # ------------------------------------------------------------------------------
 ## @{
-
-
-def package_vspec(package_data):
-    """@return vspec part of the given package data block, as determined by its version"""
-    tokens = package_data.version.tokens(Version.TOKEN_NUMBER)
-    vspec = package_data.vspec
-    for index, name in enumerate(('major', 'minor', 'patch')):
-        try:
-            level = tokens[index]
-        except IndexError:
-            level = 0
-        # end handle different version schemes
-        
-        # MUST overwrite previous value, as we may be executed many times, so a previous value
-        # might already exist !
-        vspec[name] = str(level)
-    # end for each index
-    return vspec
-
-def set_vspec_value(kvstore, package_name, vspec):
-    """Set the vspec of the given package to the given value
-    @param kvstore store to write to
-    @param package_name name of the package the vspec belongs to
-    @param vspec as returned by package_vspec()"""
-    kvstore.set_value('%s.%s.vspec' % (controller_schema.key(), package_name), vspec) 
     
 
 class _ProcessControllerContext(Context):
@@ -348,33 +324,6 @@ class PythonPackageIterator(ApplicationSettingsClient, PackageDataIteratorMixin)
 # end class PythonPackageIterator
 
 
-class VSpecResolvingPythonPackageIterator(PythonPackageIterator):
-    """An iterator which is also able to resolve vspecs"""
-    __slots__ = ()
-
-    def resolve_vspec(self):
-        """Resolve vspecs of all packages that we are working with `
-        @return a kvstore with stored specs using the appropriate schema, or None if we are not controlled
-        by a wrapper
-        @note Duplicates functionality of the vspec resolver, at least when it comes to the traversal which 
-        is done using a different, but equivalent mechanism here"""
-        info = PostLaunchProcessInformation()
-        store = info.as_kvstore()
-        if store is None:
-            return None
-        # end handle no wrapped process
-        
-        kvstore = KeyValueStoreModifier(dict())
-        for pdata, pname in self._iter_package_data(self.settings_value(store, resolve=False), info.process_data().id):
-            set_vspec_value(kvstore, pname, package_vspec(pdata))
-        # end for pdata, pname in self._iter_package_data(self.settings_value(store), info.process_data().id)
-
-        return kvstore
-
-        
-# end class VSpecResolvingPythonPackageIterator
-
-
 class ExecutableContext(StackAwareHierarchicalContext):
     """An environment automatically adding process information if this process was launched 
     through process control
@@ -434,8 +383,7 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
     
     def has_data(self):
         """@return True if we have data"""
-
-        return PostLaunchProcessInformation().has_data()
+        return PostLaunchProcessInformation.has_data()
         
     ## -- End Interface -- @}
 
@@ -456,16 +404,6 @@ class CommandlineOverridesContext(Context):
         if overrides:
             self._kvstore = KeyValueStoreModifier(overrides)
         # end handle overrides
-
-        # Resolve vspecs to allow resolving paths depending on them
-        iterator = VSpecResolvingPythonPackageIterator()
-        vspec_store = iterator.resolve_vspec()
-        if vspec_store:
-            # Can't set it using the root-key, as it will overwrite everything else
-            # have to set each key individually
-            for pname, vspec in vspec_store.data().items():
-                self.settings().set_value('%s.%s' % (controller_schema.key(), pname), vspec)
-        # end merge vspecs into our own store
 
         # finally, import modules based on a rather complete configuration
         iterator.import_modules()
@@ -501,6 +439,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
                     '_executable_path', # path to executable of process we should create
                     '_spawn_override', # See set_should_spawn_process_override
                     '_help_string', # if set, no matter what, just display this help string and exit
+                    '_app'          # the Application we are using to obtain information about our environment
                 )
     
     # -------------------------
@@ -553,9 +492,8 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         # package to start, like 'nuke' or 'rvio'
         executable = Path(executable)
         if not executable.isabs():
-            pi = PostLaunchProcessInformation()
-            if pi.has_data():
-                executable = pi.process_data().bootstrap_dir / executable
+            if PostLaunchProcessInformation.has_data():
+                executable = PostLaunchProcessInformation().process_data().bootstrap_dir / executable
             else:
                 # otherwise, just take what we have ... but as absolute path.
                 executable = Path(executable).abspath()
@@ -585,29 +523,26 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
             raise
         #end assure context is written
         
-    @classmethod
-    def _predecessors(cls, program):
+    def _predecessors(self, program):
         """@return names for programs we depend on"""
-        return cls._package_data(program).requires
+        return self._package_data(program).requires
         
     def _successors(self, program):
         """cannot look into the future"""
         raise NotImplementedError("don't have successors")
         
-    @classmethod
-    def _package_data(cls, name):
+    def _package_data(self, name):
         """@return verified package data for a package of the given name"""
-        key = '%s.%s' % (cls._schema.key(), name)
-        if not bapp.main().context().settings().has_value(key):
-            raise EnvironmentError("A package named '%s' did not exist in the database" % name)
+        key = '%s.%s' % (self._schema.key(), name)
+        if not self._app.context().settings().has_value(key):
+            raise EnvironmentError("A package named '%s' did not exist in the database, searched at '%s'" % (name, key))
         # end graceful key handling
-        return bapp.main().context().settings().value(key, cls._package_data_schema, resolve=True)
+        return self._app.context().settings().value(key, self._package_data_schema, resolve=True)
         
-    @classmethod
-    def _package(cls, name):
+    def _package(self, name):
         """@return _ProcessControllerPackageSpecification instance matching the given name
         @throws KeyError if it doesn't exist"""
-        return ProcessControllerPackageSpecification(name, cls._package_data(name))
+        return ProcessControllerPackageSpecification(name, self._package_data(name))
         
     # -------------------------
     ## @name Subclass Interface
@@ -634,7 +569,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
     def delegate(self):
         # Always create a new delegate if we have none set to respond better to 
         if self._delegate is None:
-            return bapp.main().new_instance(IProcessControllerDelegate)
+            return self._app.new_instance(IProcessControllerDelegate)
         # end delay delegate instantiation
         return self._delegate
         
@@ -697,7 +632,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         """Load all plugins from all our packages into the environment of the given name.
         It will be pushed on the stack automatically.
         @return self"""
-        bapp.main().context().push(env_name)
+        self._app.context().push(env_name)
         
         # First iteration sets the python path
         package_cache = list()
@@ -741,32 +676,6 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         
         return self
         
-    def _resolve_vspec(self, root_package_name):
-        """Vspecs are our way to allow major, minor and patch levels to be used in string substitutions
-        We do a first run and set all the values that are not yet set.
-        This must happen before the first time we query our data
-        The change must be put onto a new environment to merge it correctly
-        Additionally, we resolve the root_path variable
-        @param root_package_name name of the root package from which to start the iteration
-        @return number of environments put onto the stack to keep the change - always 1
-        """
-        # Set a custom environment that contains the changes, but only for the packages we are concerned with
-        kvstore = KeyValueStoreModifier(KeyValueStoreModifier.KeyValueStoreModifierDiffDelegateType.DictType())
-
-        prev_schema = self._package_data_schema
-        type(self)._package_data_schema = package_vspec_schema
-        for package_name, depth in self._iter_(root_package_name, self.upstream, self.breadth_first):
-            # We just set the changes here, explicitly, without diffing it
-            set_vspec_value(kvstore, package_name, package_vspec(self._package_data(package_name)))
-        # end for each package name
-        type(self)._package_data_schema = prev_schema
-
-        env = bapp.main().context().push("Fill VSpec")
-        assert hasattr(env, '_kvstore'), "Expected Environment instance to have kvstore"
-        env._kvstore = kvstore
-        
-        return 1
-        
     def _setup_execution_environment(self):
         """Initialize the context in which the process will be executed to the point right before it will actually
         be launched. This is called automaticlaly by during __init__() and must be called exactly once.
@@ -809,16 +718,16 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
          # end assure we have at least a good initial configuration
 
         # In any case, setup our own App to be absolutely fresh, to not interfere with other implementations
-        app = bapp.Application.new(settings_paths=(bootstrap_dir, self._cwd),
-                                   settings_hierarchy=True,
-                                   user_settings=True)
+        self._app = app = bapp.Application.new(settings_paths=(bootstrap_dir, self._cwd),
+                                               settings_hierarchy=True,
+                                               user_settings=True)
 
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir))
         app.context().push(ApplicationContext('Process Controller Base'))
 
         # Evaluate Program Database
         ############################
-        platform = app.instance(IPlatformService)
+        platform = OSContext.platform_service_type()
         ld_env_var = platform.search_path_variable(platform.SEARCH_DYNLOAD)
         exec_env_var = platform.search_path_variable(platform.SEARCH_EXECUTABLES)
         plugin_paths = list()
@@ -834,16 +743,10 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
             # We have a basic envrionment now, load delegate plugins, before using the delegate the 
             # first time
             self._load_plugins("process-controller-stage-1")
-            
+
              # UPDATE DELEGATE
             ######################
             # note: if program wouldn't have data, we would already know by now.
-            
-            # Vspecs need resolution before we try to get the executable, to allow the root_paths to use
-            # vspecs as well. Otherwise executable can fail
-            # In the next step, data will be cached, so vspecs must be resolved here already
-            self._resolve_vspec(program)
-            
             root_package, executable_provider_package = root_package_and_executable_provider()
             
             # delegate could be set in constructor - keep this one as long as possible
@@ -855,21 +758,13 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
             prev_len = len(app.context())
             self.delegate().prepare_context(app, self._executable_path, self._environ, self._args, self._cwd)
             
-            # RESOLVE VSPEC
-            ###############
-            # The change will be put into a separate environment.
-            # NOTE: We have to resolve here again as prepare_context could have changed the version of 
-            # things, which affects the vspecs too.
-            num_new_environments = self._resolve_vspec(program)
-            
             # If there were changes to the environment, pick them up by clearing our data. This would the delegate 
             # name to be updated as well.
-            if len(app.context()) - num_new_environments != prev_len:
+            if len(app.context()) != prev_len:
                 root_package, executable_provider_package = root_package_and_executable_provider()
                 self._executable_path = executable_provider_package.executable()
                 
                 # If the delegate put on an additional environment, we have to reload everything
-                # At this point, we will always have put an environment to keep the vspec fill-ins
                 log.debug('reloading data after delegate altered environment')
                 # Reload plugins, delegate configuration could have changed
                 self._load_plugins("process-controller-stage-2")
@@ -1050,7 +945,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         # Allow others to override our particular implementation
         # NOTE: This should be part of the delegate, and generally we would need to separate classes more
         # as this file is way too big !!
-        PostLaunchProcessInformation().store(env)
+        PostLaunchProcessInformation.store(env, self._app.context())
         
         
         should_spawn = delegate.should_spawn_process()

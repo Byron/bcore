@@ -35,6 +35,18 @@ class OSContext(Context, ApplicationSettingsClient):
     Provides IPlatformService implementations"""
     _category = 'platform'
     _schema = platform_schema
+
+    # -------------------------
+    ## @name Configuration
+    # @{
+
+    platform_service_type = dict(   linux2 = services.LinuxPlatformService,
+                                    sunos5 = services.LinuxPlatformService,
+                                    darwin = services.MacPlatformService,
+                                    win32 = services.WindowsPlatformService
+                                    )[sys.platform]
+
+    ## -- End Configuration -- @}
     
     def __init__(self, name):
         """make sure platform instances for the current OS are available"""
@@ -42,12 +54,7 @@ class OSContext(Context, ApplicationSettingsClient):
 
         # instantiate platform singleton
         try:
-            inst = dict(
-                    linux2 = services.LinuxPlatformService,
-                    sunos5 = services.LinuxPlatformService,
-                    darwin = services.MacPlatformService,
-                    win32 = services.WindowsPlatformService
-                    )[sys.platform]()
+            inst = self.platform_service_type()
             value = self.settings_value(self._kvstore, resolve=False)
             if not value.platform.id:
                 value.platform.id = inst.id(inst.ID_FULL)
@@ -57,11 +64,18 @@ class OSContext(Context, ApplicationSettingsClient):
             value.host.fqname = socket.gethostname()
             value.host.name = value.host.fqname.split('.')[0]
 
-
             self.settings().set_value_by_schema(self.settings_schema(), value)
         except KeyError:
             raise EnvironmentError("Unknown platform %s" % sys.platform)
         # end handle platform singleton
+
+    # -------------------------
+    ## @name Interface
+    # @{
+
+
+    
+    ## -- End Interface -- @}
         
 # end class OSContext
         

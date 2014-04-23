@@ -54,10 +54,10 @@ class TestOverridesDelegate(TestCommunicatorDelegate):
             result |= arg.startswith('---')
         assert result == expected_result
             
-    def prepare_context(self, executable, env, args, cwd):
+    def prepare_context(self, application, executable, env, args, cwd):
         """Custom args will remain here, but are interpreted"""
         self._assert_has_overridden_args(args, True)
-        super(TestOverridesDelegate, self).prepare_context(executable, env, args, cwd)
+        super(TestOverridesDelegate, self).prepare_context(application, executable, env, args, cwd)
         self._assert_has_overridden_args(args, True)
         
         
