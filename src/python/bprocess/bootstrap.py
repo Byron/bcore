@@ -172,7 +172,7 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         executable = os.path.splitext(executable)[0]
 
         try:
-            controller = process_controller_type().init(executable, args)
+            controller = process_controller_type(executable, args)
         except Exception, err:
             if process_controller_type._is_debug_mode():
                 raise

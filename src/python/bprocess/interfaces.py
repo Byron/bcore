@@ -21,13 +21,18 @@ class IProcessControllerDelegate(InterfaceBase):
     # @{
     
     @abstractmethod
-    def prepare_environment(self, executable, env, args, cwd):
+    def prepare_context(self, application, executable, environ, args, cwd):
         """A call to allow changing configuration based on other context that the controller may not know.
         This method is executed after the initial environment configuration was performed by the controller, 
         based on the current working directory and the executable's location.
-        The delegate should - if adequate - alter the environment stack by pushing a new environment on top to
-        setup overrides, see bapp.main().context() for more information.
+        The delegate should - if adequate - alter the applications context stack by pushing a new contexts on top to
+        setup overrides, see Application.context() for more information.
         It may also change the environment (env), and modify the executable arguments (args).
+        @param application an Application instance, whose context stack may be altered
+        @param executable Path to executable that might be instantiated based on the most recent configuration
+        @param environ dictionary with all environment variables to be used in the new process
+        @param args a list of all process arguments
+        @param cwd a Path instance to the current working directory
         @note for a variable description, see pre_start()
         @note you must not use this method to alter argument lists, see pre_start() for that reason"""
        

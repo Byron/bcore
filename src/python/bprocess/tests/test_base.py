@@ -63,12 +63,12 @@ class TestProcessControl(TestCaseBase):
         # Now we could nicely mock the environment - lets do this once we have a CWD environment
         # For now its not too easy though
         # failure as foo cannot be found
-        self.failUnlessRaises(EnvironmentError, TestProcessController().init, pseudo_executable('foo'), ('hello', 'world'))
+        self.failUnlessRaises(EnvironmentError, TestProcessController, pseudo_executable('foo'), ('hello', 'world'))
 
     @with_application(from_file=__file__)
     def test_forced_spawn(self):
         """Verify that we can easily enforce a process to be spawned, without overwriting any 'natural' configuration"""
-        pctrl = ProcessController().init(pseudo_executable('rvio'), list())
+        pctrl = ProcessController(pseudo_executable('rvio'), list())
         assert type(pctrl) is ProcessController and not pctrl.dry_run
 
         assert pctrl.set_should_spawn_process_override(True) is None
@@ -77,7 +77,7 @@ class TestProcessControl(TestCaseBase):
     @with_application(from_file=__file__)    
     def test_python_execution(self):
         """we should be able to execute any code directly using the delegate, without spawning"""
-        pctrl = ProcessController().init(pseudo_executable('py-program'), list())
+        pctrl = ProcessController(pseudo_executable('py-program'), list())
         
         process = pctrl.execute()
         assert process.returncode == 0
@@ -86,21 +86,20 @@ class TestProcessControl(TestCaseBase):
     def test_custom_args(self):
         """verify we can handle custom arguments"""
         cmd_path = pseudo_executable('py-program-overrides')
-        assert ProcessController().init(cmd_path, '---foo=bar ---help'.split()).execute().returncode == 0
+        assert ProcessController(cmd_path, '---foo=bar ---help'.split()).execute().returncode == 0
         
-        pctrl = ProcessController()
-        self.failUnlessRaises(AssertionError, pctrl.init, cmd_path, ['---foo'])
+        self.failUnlessRaises(AssertionError, ProcessController, cmd_path, ['---foo'])
         
-        pctrl = ProcessController().init(cmd_path, '---foo=bar ---hello.world=42'.split())
+        pctrl = ProcessController(cmd_path, '---foo=bar ---hello.world=42'.split())
         assert pctrl.execute().returncode == 0
         
     @with_application(from_file=__file__)
     def test_execute_in_context(self):
-        process = ProcessController().init(pseudo_executable('py-program'), ['--hello', 'world']).execute_in_current_context()
+        process = ProcessController(pseudo_executable('py-program'), ['--hello', 'world']).execute_in_current_context()
         assert process.returncode == 1, "should not have understood our arguments"
         
         # now with self-driven communication
-        process = ProcessController().init(pseudo_executable('py-program')).execute_in_current_context(stdout=subprocess.PIPE)
+        process = ProcessController(pseudo_executable('py-program')).execute_in_current_context(stdout=subprocess.PIPE)
         assert process.returncode is None
         # delete the file it creates
         os.remove(process.stdout.readlines()[0].strip())

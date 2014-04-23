@@ -497,10 +497,9 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
                     '_args',        # arguments provided to executable
                     '_delegate',    # our delegate
                     '_cwd',         # current working dir to use as context
-                    '_env',         # environment dictionary
+                    '_environ',     # environment dictionary
                     '_executable_path', # path to executable of process we should create
                     '_spawn_override', # See set_should_spawn_process_override
-                    '_stack_len',       # stack length at the begiinning of the setup procedure
                     '_help_string', # if set, no matter what, just display this help string and exit
                 )
     
@@ -514,10 +513,6 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
     ## A schema containing all possible values we expect for a process
     _schema = controller_schema
     
-    ## Internal flag indicating that a ProcessController is active. This value will be bogus in 
-    ## multi-threaded applications
-    _is_active = False
-
     ## if True, we will resolve package data when iterating
     # We need this flag as we can't pass arguments while iterating
     _package_data_schema = package_schema
@@ -529,7 +524,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         """@return True if we are in debug mode"""
         return log.getEffectiveLevel() <= logging.DEBUG
     
-    def init(self, executable, args = list(), delegate = None, cwd = None):
+    def __init__(self, executable, args = list(), delegate = None, cwd = None):
         """
         Initialize this instance to make it operational
         Our executable does not have to actually exist, as we will look it up in the kvstore of our environment.
@@ -544,7 +539,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         @param args all commandline arguments passed to the executable, as list of strings. 
         @param delegate instance of type IProcessControllerDelegate. If None, the component system will be used
         to find one.
-        If the envrionment stack is altered by the IProcessControllerDelegate.prepare_environment() method, 
+        If the envrionment stack is altered by the IProcessControllerDelegate.prepare_context() method, 
         the delegate may be overwritten.
         @param cwd current working directory to be used as additional context. If None, the actual cwd will be used.
         @return self
@@ -571,31 +566,24 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         # we will always use delegates that where explicitly set, but get it as service on first access
         self._delegate = delegate
         self._cwd = cwd or os.getcwd()
-        self._env = dict()
+        self._environ = dict()
         self._spawn_override = None
         self._help_string = False
         
         try:
-            try:
-                type(self)._is_active = True
-                self._setup_execution_environment()
-            except DisplayHelpException, err:
-                self._help_string = err.help_string
-            except DisplayContextException:
+            self._setup_execution_environment()
+        except DisplayHelpException, err:
+            self._help_string = err.help_string
+        except DisplayContextException:
+            sys.stderr.write(str(bapp.main().context()._contents_str()))
+            # just cause us to exit elegantly
+            self._help_string = "Context displayed\n"
+        except Exception, err:
+            if self._is_debug_mode():
                 sys.stderr.write(str(bapp.main().context()._contents_str()))
-                # just cause us to exit elegantly
-                self._help_string = "Context displayed\n"
-            except Exception, err:
-                if self._is_debug_mode():
-                    sys.stderr.write(str(bapp.main().context()._contents_str()))
-                # end handle debug mode
-                raise
-            #end assure context is written
-        finally:
-            type(self)._is_active = False
-        # end handle activity tracking
-        
-        return self
+            # end handle debug mode
+            raise
+        #end assure context is written
         
     @classmethod
     def _predecessors(cls, program):
@@ -790,8 +778,6 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         
         @return self
         """
-        self._stack_len = len(bapp.main().context())
-        
         def root_package_and_executable_provider():
             root_package = executable_provider_package = self._package(program)
             # recursively resolve the alias
@@ -821,16 +807,18 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
             log.warn("Adjusted bootstrap_dir %s to %s as previous one didn't exist", bootstrap_dir, new_bootstrap_dir)
             bootstrap_dir = new_bootstrap_dir
          # end assure we have at least a good initial configuration
-        bapp.main().context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir))
-        
-        bapp.main().context().push(ApplicationContext('Wrapper Pipeline Base'))
-        for path in (bootstrap_dir, self._cwd):
-            bapp.main().context().push(StackAwareHierarchicalContext(path))
-        # end for each path (hierarchy) to check for configurations
-        
+
+        # In any case, setup our own App to be absolutely fresh, to not interfere with other implementations
+        app = bapp.Application.new(settings_paths=(bootstrap_dir, self._cwd),
+                                   settings_hierarchy=True,
+                                   user_settings=True)
+
+        app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir))
+        app.context().push(ApplicationContext('Process Controller Base'))
+
         # Evaluate Program Database
         ############################
-        platform = bapp.main().instance(IPlatformService)
+        platform = app.instance(IPlatformService)
         ld_env_var = platform.search_path_variable(platform.SEARCH_DYNLOAD)
         exec_env_var = platform.search_path_variable(platform.SEARCH_EXECUTABLES)
         plugin_paths = list()
@@ -864,19 +852,19 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
             # end use delegate overrides
             
             self._executable_path = executable_provider_package.executable()
-            prev_len = len(bapp.main().context())
-            self.delegate().prepare_environment(self._executable_path, self._env, self._args, self._cwd)
+            prev_len = len(app.context())
+            self.delegate().prepare_context(app, self._executable_path, self._environ, self._args, self._cwd)
             
             # RESOLVE VSPEC
             ###############
             # The change will be put into a separate environment.
-            # NOTE: We have to resolve here again as prepare_environment could have changed the version of 
+            # NOTE: We have to resolve here again as prepare_context could have changed the version of 
             # things, which affects the vspecs too.
             num_new_environments = self._resolve_vspec(program)
             
             # If there were changes to the environment, pick them up by clearing our data. This would the delegate 
             # name to be updated as well.
-            if len(bapp.main().context()) - num_new_environments != prev_len:
+            if len(app.context()) - num_new_environments != prev_len:
                 root_package, executable_provider_package = root_package_and_executable_provider()
                 self._executable_path = executable_provider_package.executable()
                 
@@ -894,11 +882,11 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
             if root_package.data().legacy_inherit_env:
                 # this is useful if we are started from another wrapper, or if 
                 # Always copy the environment, never write it directly to assure we can do in-process launches
-                self._env.update(os.environ)
+                self._environ.update(os.environ)
 
                 # But be sure we don't inherit this evar - it can be set later through config though
                 if bapp.minimal_init_evar in os.environ:
-                    del(sefl._env[bapp.minimal_init_evar])
+                    del(sefl._environ[bapp.minimal_init_evar])
                 # end cleanup environment
             # end reuse full parent environment
             
@@ -967,7 +955,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
                         path = delegate.verify_path(evar, package.to_abs_path(path))
                         if path is not None:
                             debug.setdefault(evar, list()).append((str(path), package_name))
-                            update_env_path(evar, path, append = True, environment = self._env)
+                            update_env_path(evar, path, append = True, environment = self._environ)
                         # end append path if possible
                     # end for each path
                 # end for each special environment variable
@@ -988,14 +976,14 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
                         
                         if evar_is_path and delegate.variable_is_appendable(evar, value):
                             debug.setdefault(evar, list()).append((str(value), package_name))
-                            update_env_path(evar, value, append = True, environment = self._env)
+                            update_env_path(evar, value, append = True, environment = self._environ)
                         else:
                             # Don't overwrite value with older/other values
-                            if evar not in self._env:
+                            if evar not in self._environ:
                                 debug[evar] = (str(value), package_name)
-                                self._env[evar] = str(value)
+                                self._environ[evar] = str(value)
                             else:
-                                log.debug("%s: can't set variable %s as its already set to %s", package_name, evar, self._env[evar])
+                                log.debug("%s: can't set variable %s as its already set to %s", package_name, evar, self._environ[evar])
                         #end handle path variables
                     # end for each value to set
                 # end for each variable,values tuple
@@ -1050,7 +1038,7 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         # Its not required to have a valid root unless the executable or one of the  is relative
         delegate = self.delegate()
         
-        executable, env, args, cwd = delegate.pre_start(self._executable_path, self._env, self._args, self._cwd)
+        executable, env, args, cwd = delegate.pre_start(self._executable_path, self._environ, self._args, self._cwd)
         # play it safe, implementations could change type
         executable = Path(executable)
         if not executable.isfile():
@@ -1076,10 +1064,6 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         # And be sure we have a list, in case people return tuples
         args = list(args)
         args.insert(0, str(executable))
-        
-        # before doing anything with the process, bring the environment stack back to where it was
-        # This 'cleanup' is required for in-process launches
-        bapp.main().context().pop(until_size = self._stack_len)
         
         if not self.dry_run:
             
@@ -1115,15 +1099,6 @@ class ProcessController(GraphIteratorBase, ApplicationSettingsClient, bapp.plugi
         """@return Path instance to executable that will actually be instantiated when execute() is called
         @note may only be called after a call to init()"""
         return self._executable_path
-        
-    @classmethod
-    def is_active(cls):
-        """@return True if we are currently wrapping a process, which is eventually going to be started
-        @note at wrap time , we are in a boot up mode which has nothing more but bapp core. Modules which 
-        have other dependencies can use this information to handle this time gracefully, and skip their 
-        initialization"""
-        return cls._is_active
-        
         
     ## -- End Interface -- @}
 

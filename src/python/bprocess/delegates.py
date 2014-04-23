@@ -426,7 +426,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     
     ## -- End Configuration -- @}
     
-    def prepare_environment(self, executable, env, args, cwd):
+    def prepare_context(self, application, executable, env, args, cwd):
         """Interprets wrapper arguments as identified by their '---' prefix and if required, sets those overrides
         in a custom environment.
         Additionally we will parse paths from the given commandline and use them in the context we build.
@@ -443,7 +443,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
-                    bapp.main().context().push(StackAwareHierarchicalContext(path.dirname()))
+                    application.context().push(StackAwareHierarchicalContext(path.dirname()))
                 # end handle valid directory
                 continue
             # end ignore non-wrapper args
@@ -452,11 +452,11 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         
         # set overrides
         if kvstore_overrides.keys():
-            environment = bapp.main().context().push(DelegateCommandlineOverridesContext('wrapper commandline overrides', 
+            environment = application.context().push(DelegateCommandlineOverridesContext('wrapper commandline overrides', 
                                                                                       kvstore_overrides))
             PostLaunchProcessInformation().store_commandline_overrides(env, kvstore_overrides.data())
         #end handle overrides
-        return super(ProcessControllerDelegate, self).prepare_environment(executable, env, args, cwd)
+        return super(ProcessControllerDelegate, self).prepare_context(application, executable, env, args, cwd)
         
     def variable_is_path(self, environment_variable):
         """base implementation considers those ending with PATH as path variables, or those ending with TREE.
@@ -526,7 +526,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     
     def _extract_path(self, arg):
         """@return the path this argument seems to refer to, or None if it doesn't contain a path
-        @param arg any argumment provided to the starting process, as parsed during prepare_environment() and
+        @param arg any argumment provided to the starting process, as parsed during prepare_context() and
         after wrapper specific arguments where extracted"""
         if not self.context_from_path_arguments:
             return None
@@ -569,7 +569,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     def new_environment_override(self, *args, **kwargs):
         """Initialize a DelegateContextOverride instance to allow making selective version overrides. The
         schema used is the one of the ProcessController, allowing full access to all package data
-        @note Must be called during prepare_environment() to have an effect
+        @note Must be called during prepare_context() to have an effect
         @param args passed to set_context_override()
         @param kwargs passed to set_context_override()
         @return newly created DelegateContextOverride instance"""

@@ -17,7 +17,6 @@ import inspect
 from butility import (Path,
                       MetaBase,
                       wraps)
-import nose
 
 
 
@@ -99,6 +98,7 @@ def skip_not_implemented(func):
         try:
             return func(self, *args, **kwargs)
         except NotImplementedError:
+            import nose
             raise nose.SkipTest
         # end convert exception
     # end wrapper
@@ -243,6 +243,7 @@ class TestInterfaceBase(TestCaseBase):
         """Assure subclasses can access a fres instance. Will skip subclasses that didn't setup their type.
         Also, make sure that registration of newly created types doesn't affect the global environment stack"""
         if self.subclass_type is None:
+            import nose
             raise nose.SkipTest
         
         self._instance = self.subclass_type()

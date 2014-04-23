@@ -30,6 +30,8 @@ class TestCommunicatorDelegate(ProcessControllerDelegate):
         
         try:
             # output should be marker file
+            err_lines = process.stderr.readlines()
+            assert not err_lines
             lines = process.stdout.readlines()
             assert len(lines) == 1
             tmpfile = Path(lines[0].strip())
@@ -52,10 +54,10 @@ class TestOverridesDelegate(TestCommunicatorDelegate):
             result |= arg.startswith('---')
         assert result == expected_result
             
-    def prepare_environment(self, executable, env, args, cwd):
+    def prepare_context(self, executable, env, args, cwd):
         """Custom args will remain here, but are interpreted"""
         self._assert_has_overridden_args(args, True)
-        super(TestOverridesDelegate, self).prepare_environment(executable, env, args, cwd)
+        super(TestOverridesDelegate, self).prepare_context(executable, env, args, cwd)
         self._assert_has_overridden_args(args, True)
         
         
