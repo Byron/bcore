@@ -124,7 +124,7 @@ class HierarchicalContext(Context, LazyMixin):
         # for now, no writer
         config_paths = self._filter_files(config_paths)
         if config_paths:
-            log.debug("Environment %s initializes its paths", self.name())
+            log.debug("Context '%s' initializes its paths", self.name())
             #end for each path
             self._kvstore = YAMLKeyValueStoreModifier(config_paths)
             self._config_files = tuple(config_paths)

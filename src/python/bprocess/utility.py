@@ -5,7 +5,7 @@
 
 @copyright 2013 Sebastian Thiel
 """
-__all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment'
+__all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment',
            'ProcessControllerPackageSpecification', 'PackageDataIteratorMixin',
            'ExecutableContext', 'PythonPackageIterator', 'CommandlineOverridesContext', 
            'ControlledProcessContext']

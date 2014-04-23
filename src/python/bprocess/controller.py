@@ -12,7 +12,7 @@ import os
 import subprocess
 import logging
 
-from pprint import pprint
+from pprint import pformat
 
 import bapp
 from butility import ( Path,
@@ -23,11 +23,11 @@ from butility import ( Path,
                        DictObject )
 
 from bcontext import Context
-from .interfaces import IProcessControllerDelegate
 from bapp import         ( ApplicationSettingsClient,
                            OSContext)
 from .delegates import ( PostLaunchProcessInformation,
-                         ProcessControllerDelegateProxy )
+                         ProcessControllerDelegateProxy,
+                         ProcessControllerDelegate )
 from .schema import ( controller_schema,
                       package_schema,
                       process_schema )
@@ -211,7 +211,13 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
     # @{
     
     def delegate(self):
-        """@return our delegate, which may be None in case  """
+        """@return our delegate. If none is set, a default-delegate is created for you"""
+        if self._delegate is None:
+            # NOTE: We intentionally don't use the registry here, as we don't just want any delegate.
+            # It's common, in ProcessControl, to specify exactly which delegate to use, in order to get
+            # perfectly determined behaviour
+            return ProcessControllerDelegate()
+        # end create default
         return self._delegate
         
     def set_delegate(self, delegate):
@@ -539,7 +545,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         
         if self.is_debug_mode():
             log.debug("EFFECTIVE WRAPPER ENVIRONMENT VARIABLES")
-            pprint(debug, stream=sys.stderr)
+            log.debug(pformat(debug))
         # end show debug information
 
     def set_should_spawn_process_override(self, override):

@@ -171,11 +171,15 @@ class Application(object):
         stack = cls.ContextStackType()
         inst = cls(stack)
 
-        if cls.main is None:
-            # NOTE: In case someone overrides our base Application, cls.main would assign not to our 
-            # Application.main, but to a new class member in our derived class. This in turn 
-            # Would break anyone relying on Application.main, which is not intended
-            Application.main = inst
+        # We always set the current application to the global one. 
+        # This will fail in multi-threaded application, but that is not supposed to work anyway
+        # There should only be one application per process
+        # NOTE: Doing this also means that someone creating a new application in the middle of a running application
+        # will be default get rid of all registered plugin types.
+        # NOTE: In case someone overrides our base Application, cls.main would assign not to our 
+        # Application.main, but to a new class member in our derived class. This in turn 
+        # Would break anyone relying on Application.main, which is not intended
+        Application.main = inst
         # end set main only if we are the first
 
         return inst

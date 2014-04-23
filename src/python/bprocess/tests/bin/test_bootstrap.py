@@ -7,7 +7,6 @@
 """
 __all__ = []
 
-
 import sys
 import os.path
 
@@ -47,7 +46,6 @@ class TestBootstrap(TestCaseBase):
         except SystemExit:
             pass
         # end handle exception
-
     
 
 # end class TestWrapper

@@ -42,7 +42,6 @@ class TestCommunicatorDelegate(ProcessControllerDelegate):
 
 # end class TestCommunicator
 
-
 class TestOverridesDelegate(TestCommunicatorDelegate):
     """Check for base class override handling"""
     __slots__ = ()

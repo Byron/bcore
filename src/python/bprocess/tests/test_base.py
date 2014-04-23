@@ -5,11 +5,10 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = ['TestProcessController']
+__all__ = []
 
 import sys
 import os
-
 import tempfile
 
 import bapp
@@ -36,17 +35,6 @@ class TestCommand(object):
 
 # end class TestCommand
 
-class TestProcessController(ProcessController):
-    """A utility to prevent it from executing
-    @note this type needs to be here not to end up on the environment stack of all test cases"""
-    __slots__ = ()
-
-    dry_run = True
-    
-    _auto_register_class_ = False
-    _auto_register_instance_ = False
-    
-# end class TestProcessController
 
 def pseudo_executable(bin_name):
     """@return full path to pseudo_executable based on the given executable basename"""
@@ -63,16 +51,14 @@ class TestProcessControl(TestCaseBase):
         # Now we could nicely mock the environment - lets do this once we have a CWD environment
         # For now its not too easy though
         # failure as foo cannot be found
-        self.failUnlessRaises(EnvironmentError, TestProcessController, pseudo_executable('foo'), ('hello', 'world'))
+        self.failUnlessRaises(EnvironmentError, lambda: ProcessController(pseudo_executable('foo'), ('hello', 'world')).application())
 
     @preserve_application
     def test_forced_spawn(self):
         """Verify that we can easily enforce a process to be spawned, without overwriting any 'natural' configuration"""
-        pctrl = ProcessController(pseudo_executable('rvio'), list())
-        assert type(pctrl) is ProcessController and not pctrl.dry_run
-
+        pctrl = ProcessController(pseudo_executable('py-program'), list())
         assert pctrl.set_should_spawn_process_override(True) is None
-        assert pctrl.execute().returncode == 255
+        assert pctrl.execute().returncode == 0
     
     @preserve_application    
     def test_python_execution(self):
@@ -86,9 +72,9 @@ class TestProcessControl(TestCaseBase):
     def test_custom_args(self):
         """verify we can handle custom arguments"""
         cmd_path = pseudo_executable('py-program-overrides')
-        assert ProcessController(cmd_path, '---foo=bar ---help'.split()).execute().returncode == 0
+        self.failUnlessRaises(DisplayHelpException, ProcessController(cmd_path, '---foo=bar ---help'.split()).execute)
         
-        self.failUnlessRaises(AssertionError, ProcessController, cmd_path, ['---foo'])
+        self.failUnlessRaises(AssertionError, ProcessController(cmd_path, ['---foo']).execute)
         
         pctrl = ProcessController(cmd_path, '---foo=bar ---hello.world=42'.split())
         assert pctrl.execute().returncode == 0
@@ -110,18 +96,21 @@ class TestProcessControl(TestCaseBase):
     def test_iteration(self):
         """verify simple package iteration works (for those who want it)"""
         count = 0
-        for package in ProcessController().iter_packages('tractor-maya-batch'):
+        program = 'py-program-overrides'
+        executable = pseudo_executable(program)
+        args = ('---trace',)
+        for package in ProcessController(executable, args).iter_packages(program):
             count += 1
             assert isinstance(package, ProcessControllerPackageSpecification)
         # end for each package
         assert count > 1
         
-        self.failUnlessRaises(EnvironmentError, ProcessController().iter_packages('foobar').next)
+        self.failUnlessRaises(EnvironmentError, ProcessController(executable, args).iter_packages('foobar').next)
         
     @preserve_application
     def test_post_launch_info(self):
         """Just some basic tests"""
-        info = bapp.main().new_instance(IPostLaunchProcessInformation)
+        info = PostLaunchProcessInformation()
         if not info.has_data():
             assert info.data() is None and info.process_data() is None
         else:
@@ -129,6 +118,7 @@ class TestProcessControl(TestCaseBase):
             assert pinfo.executable.isfile()
             assert pinfo.bootstrap_dir.isdir()
             assert pinfo.id
+            app = ProcessAwareApplication.new()
             assert bapp.main().context().settings().value_by_schema(process_schema).executable == pinfo.executable
         # end handle data
         
