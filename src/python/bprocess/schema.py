@@ -13,7 +13,9 @@ import logging
 from bkvstore import (KeyValueStoreSchema,
                       AnyKey,
                       StringList,
-                      PathList, 
+                      PathList,
+                      KVPathList,
+                      KVPath,
                       KVStringFormatter)
 from .interfaces import IProcessControllerDelegate
 from butility import (Version,
@@ -77,12 +79,15 @@ process_schema = KeyValueStoreSchema('process', {
                                                 }
                                     )
 
-KVStringFormatter.set_key_type_by_schema(process_schema, ('executable', 'core_tree'))
+# Importantly, we only want this type within the kvstore resolve, not for ourselves !
+for key in ('executable', 'core_tree'):
+    KVStringFormatter.set_key_type(key, KVPath)
+# end for each key to set
 
 
 package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of the package. All relative paths will be 
                                                         # made absolute with the first valid root path
-                                                        { 'root_trees' : PathList,
+                                                        { 'root_trees' : KVPathList,
                                                          # absolute or relative path to the executable    
                                                           'executable' : Path,
                                                           # If True, the entire environment will be inherited. Otherwise the process will build its environment from scratch.
@@ -98,7 +103,8 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           # as well as the launched process
                                                           'configuration': {
                                                             'trees' : PathList,
-                                                            # Files are loaded after trees
+                                                            # Files are loaded after trees, and may thus override
+                                                            # whatever came in from them
                                                             'files' : PathList,
                                                           },
                                                           # Path to the current working directory of the process
@@ -111,7 +117,7 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           # A list of packages not to consider in our requirements
                                                           # only used when building the process environment
                                                           'exclude' : StringList,
-                                                          # An alias to the package which provides the executable of our program
+                                                          # An alias to the package which provides the executable of our program.
                                                           'alias' : str,
                                                           'arguments' : {
                                                               # Arguments to append

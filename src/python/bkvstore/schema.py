@@ -7,7 +7,7 @@
 """
 __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
             'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',
-            'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath']
+            'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath', 'KVPathList']
 
 import logging
 
@@ -183,7 +183,7 @@ class PathList(TypedList):
     """A list just for Paths - for use in KeyValueStoreSchema instances only"""
     __slots__ = ()
     
-    MemberType = KVPath
+    MemberType = Path
 
 
     # -------------------------
@@ -202,6 +202,15 @@ class PathList(TypedList):
         raise ValueError("Not a single contained path was accessible")
     
     ## -- End Properties -- @}
+
+
+class KVPathList(PathList):
+    """uses KVPaths instead"""
+    __slots__ = ()
+
+    MemberType = KVPath
+
+# end class KVPathList    
 
 ## -- End Utility Structures -- @}
 

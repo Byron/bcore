@@ -392,5 +392,10 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         assert value.worse.three == 5
         assert not hasattr(value.worse, 'five'), 'five was not in schema, so it shouldnt be there'
         assert len(value.worse.multi.keys()) == 0
-        
+
+    def test_kvpath(self):
+        """Assure properties turn out as expected"""
+        path = KVPath()
+        assert isinstance(path.abspath.dirname, KVPath)
+
 # end class TestKeyValueStoreProvider

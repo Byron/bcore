@@ -49,6 +49,16 @@ packages:
     requires: intermediate-package
     alias: python
 
+  py-program-delegate-via-requires-in-remote-config:
+    alias: py-program-delegate-via-requires
+    configuration:
+      # for fun, just the same config again - it won't be loaded as we detect this
+      trees:
+        - '{process.executable.dirname}/etc'
+      files:
+        # this one will override the 
+        - '{process.executable.as_KVPath.dirname}/etc/per-package/some-packages.yaml'
+
   py-program-overrides:
     # A python program to receive overrides of the context before starting the program
     requires: py-program

@@ -36,9 +36,10 @@ class HierarchicalContext(Context, LazyMixin):
     hierarchy.
     """
     __slots__ = (
-                    '_directory',       ## Directory from were to start the search for configuartion directories
+                    '_directories',       ## Directory from were to start the search for configuartion directories
                     '_config_dirs',     ## Cache for all located configuration directories
                     '_config_files',    ## All files we have loaded so far, in loading-order
+                    '_additional_config_files', ## Files provided by the caller, they will be added on top
                 )
     
     # -------------------------
@@ -56,22 +57,36 @@ class HierarchicalContext(Context, LazyMixin):
     
     ## -- End Configuration -- @}
     
-    def __init__(self, directory, load_config = True, traverse_settings_hierarchy = True):
+    def __init__(self, directory, load_config = True, traverse_settings_hierarchy = True, config_files = list()):
         """Initialize the instance with a directory from which it should search for configuration paths 
         and plug-ins.
         @param directory from which to start finding directories to laod values from. It may either be the 
         directory containing the configuration, or the one that yields such a directory by appending our 
-        pre-configured config_dir_name
+        pre-configured config_dir_name.
+        It may also be an iterable of directories, which will be searched in order. Please note that the 
+        directory mentioned last will get to override values in directories mentioned earlier
         @param load_config if True, we will load the configuration from all found configuration directories
         @param traverse_settings_hierarchy if True, we will find all configuration directories above the given 
         one. Otherwise, we will just consider configuration in the given directory.
+        @param config_files an optional list of configuration files which should be loaded on top of all configuration
+        files loaded from our directory or directories.
         @note plugins must be loaded separately with load_plugins(), if desired, to assure they end up in this context, not in 
         the previous one which is already on the stack
         @note settings will be delay-loaded, first time they are actually queried
         """
         super(HierarchicalContext, self).__init__(directory)
-        self._directory = Path(directory)
+        if not isinstance(directory, (list, tuple)) and not hasattr(directory, 'next'):
+            directory = [directory]
+        # end convert to list
+
+        # Make sure we see Paths only
+        self._directories = list(directory)
+        for did, tree in enumerate(self._directories):
+            self._directories[did] = Path(tree)
+        # end assure correct type
+
         self._config_files = tuple()
+        self._additional_config_files = config_files
 
         if traverse_settings_hierarchy:
             self._config_dirs = self._traverse_config_directories()
@@ -118,6 +133,9 @@ class HierarchicalContext(Context, LazyMixin):
         for path in self._filter_directories(self.config_directories()):
             config_paths.extend(tagged_file_paths(path, tags, '*' + YAMLKeyValueStoreModifier.StreamSerializerType.file_extension))
         # end for each path in directories
+
+        # Finally, add additional ones on top to allow them to override everything
+        config_paths.extend(self._additional_config_files)
         
         # We may have no configuration files left here, as the filter could remove them all (in case they
         # are non-unique)
@@ -136,15 +154,18 @@ class HierarchicalContext(Context, LazyMixin):
         """@return a list of configuration directories, based on our pre-configured configuration directory, 
         including the latter"""
         dirs = list()
-        path = self._directory.abspath() 
-        # prevent to reach root, on linux we would get /etc, which we don't search for anything
-        while path.dirname() != path:
-            new_path = path / self.config_dir_name
-            if new_path.isdir():
-                dirs.insert(0, new_path)
-            # end keep existing
-            path = path.dirname()
-        # end less loop
+
+        for path in self._directories:
+            path = path.abspath() 
+            # prevent to reach root, on linux we would get /etc, which we don't search for anything
+            while path.dirname() != path:
+                new_path = path / self.config_dir_name
+                if new_path.isdir():
+                    dirs.insert(0, new_path)
+                # end keep existing
+                path = path.dirname()
+            # end less loop
+        # end for each directory to traverse
         return dirs
         
     # -------------------------

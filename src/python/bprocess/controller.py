@@ -24,6 +24,7 @@ from butility import ( Path,
 
 from bcontext import Context
 from bapp import         ( ApplicationSettingsClient,
+                           StackAwareHierarchicalContext,
                            OSContext)
 from .delegates import ( ControlledProcessInformation,
                          ProcessControllerDelegateProxy,
@@ -332,6 +333,25 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         
         return self
 
+    def _gather_external_configuration(self, program):
+        """@return a new Context filled with a merge of all directories and files we found so far, or None 
+        if there was not a single one."""
+        # aggregate the dirs and files
+        all_dirs = list()
+        all_files = list()
+
+        for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
+            pd = self._package_data(package_name)
+            all_dirs.extend(pd.configuration.trees)
+            all_files.extend(pd.configuration.files)
+        # end for each package
+        
+        if not (all_dirs or all_files):
+            return None
+        # end bailout if there is nothing to do
+
+        return StackAwareHierarchicalContext(all_dirs, config_files=all_files)
+
     def _find_delegate(self, root_package, alias_package):
         """@return a delegate instance which is the most suitable one.
         Look for custom ones in order of: root_package, alias_package, all requirements (breadth-first)"""
@@ -348,8 +368,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             if pd.delegate.name() != default_name:
                 return pd.delegate.instance(self._app.context())
             # end check delegate name
-        # Finally, just return the default one
-        return root_package.data().instance(app.context())
+
+        # Finally, just return the default one. We assume it's just the standard one ProcessController
+        return ProcessControllerDelegate()
         
     def _setup_execution_context(self):
         """Initialize the context in which the process will be executed to the point right before it will actually
@@ -400,8 +421,12 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                                                           settings_hierarchy=True,
                                                           user_settings=True)
         # end initialize application
-
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, self._args))
+
+        external_configuration_context = self._gather_external_configuration(program)
+        if external_configuration_context:
+            app.context().push(external_configuration_context)
+        # end add external configuration
 
         # Evaluate Program Database
         ############################
@@ -441,6 +466,36 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             # name to be updated as well.
             if len(app.context()) != prev_len:
                 root_package, alias_package = root_package_and_executable_provider()
+
+                # Now we have to load exernal dependencies again, as our entire configuration could have changed
+                # We try to prevent needless work though by
+                # * only rebuidling if something changed
+                # * removing the previous context to make rebuilding faster
+                new_external_configuration_context = self._gather_external_configuration(program)
+                def remove_previous_configuration():
+                    app.context().stack().remove(new_external_configuration_context)
+                # end utility
+                if new_external_configuration_context:
+                    if external_configuration_context:
+                        if new_external_configuration_context.data() != external_configuration_context.data():
+                            # the configuration changed, remove previous one, and add this one
+                            # the removal is kind of sneaky, but thanks to the addition, the cache will be 
+                            # invalidated anyway
+                            remove_previous_configuration()
+                            app.context().push(new_external_configuration_context)
+                        else:
+                            # there is no change, don't do anything
+                            pass
+                        # end remove previous on mismatch
+                    else:
+                        # there is just a new one, add it
+                        app.context().push(new_external_configuration_context)
+                    # end handle previous external context
+                elif external_configuration_context:
+                    # there is an old, but no new one. Delete previous one
+                    remove_previous_configuration()
+                # end handle new configuration context
+
                 self._executable_path = alias_package.executable()
                 
                 # If the delegate put on an additional environment, we have to reload everything
