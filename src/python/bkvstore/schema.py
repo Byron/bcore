@@ -7,7 +7,7 @@
 """
 __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
             'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',
-            'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema']
+            'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath']
 
 import logging
 
@@ -75,6 +75,31 @@ class SchemaDiffRecord(DiffRecord):
     ## -- End Interface -- @}
 
 # end class SchemaDiffRecord
+
+
+class KVPath(Path):
+    """The version of the path which allows to access most common path operations as property.
+    That way, it is suitable for substitution within the kvstore."""
+    __slots__ = ()
+
+    # -------------------------
+    ## @name Interface
+    # @{
+    def _mk_property(name):
+        return property(lambda self: getattr(Path, name)(self))
+
+    for method in ('dirname', 'basename', 'parent', 'abspath', 'normpath', 'realpath', 'namebase', 'ext', 
+                   'stripext', 'relpath', 'tonative', 'tolinuxpath', 'listdir', 'dirs', 'files', 'bytes', 
+                   'text', 'lines', 'stat', 'lstat', 'owner'):
+        locals()[method] = _mk_property(method)
+    # end for each method to create
+    del method
+    del _mk_property
+
+    ## -- End Interface -- @}
+
+# end class KVPath
+
 
 class TypedList(list):
     """A list which only allows objects of a specific type, or of a list-subtype.
@@ -158,7 +183,7 @@ class PathList(TypedList):
     """A list just for Paths - for use in KeyValueStoreSchema instances only"""
     __slots__ = ()
     
-    MemberType = Path
+    MemberType = KVPath
 
 ## -- End Utility Structures -- @}
 

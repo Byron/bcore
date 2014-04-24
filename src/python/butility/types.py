@@ -154,7 +154,22 @@ class Version(object):
             # end handle exception
         # end for each token
         return res
+
+    @property
+    def major(self):
+        """@return our major version"""
+        return self[0]
+
+    @property
+    def minor(self):
+        """@return our minor version"""
+        return self[1]
         
+    @property
+    def patch(self):
+        """@return our patch level"""
+        return self[2]
+
     ## -- End Interface -- @}
     
 # end class Version

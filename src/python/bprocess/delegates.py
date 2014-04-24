@@ -180,7 +180,7 @@ class DelegateContextOverride(Context):
 # end class ProcessControllerEnvironment
 
 
-class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, LazyMixin, bapp.plugin_type()):
+class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, LazyMixin):
     """Store the entire kvstore (after cleanup) in a data string in the environment and allow to retrieve it
     @note this class uses a cache to assure we don't get data more often than necessary. It is all static and 
     will not change"""

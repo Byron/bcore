@@ -63,12 +63,14 @@ process_schema = KeyValueStoreSchema('process', {
                                                     # Full path to the executable we were supposed to run
                                                     'executable_path' : Path,
                                                     # Directory containing the executable, i.e. dirname(executable)
-                                                    # Useful for kvstore substitution
+                                                    # Useful for kvstore substitution, and somewhat redundant in code
                                                     'executable_directory' : Path,
                                                     # directory at which bcore can be imported from. This is the
                                                     # location at which the process controller code exists
-                                                    'bcore_directory' : Path
-                                                    ##
+                                                    'bcore_directory' : Path,
+                                                    # The arguments the process was started with.
+                                                    # May contain bootstrapper arguments as well
+                                                    'raw_arguments' : StringList
                                                 }
                                     )
 

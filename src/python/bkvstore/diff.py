@@ -18,6 +18,8 @@ from bdiff import ( NoValue,
 from butility import ( smart_deepcopy,
                        OrderedDict )
 
+from .utility import KVStringFormatter
+
 
 # ==============================================================================
 ## @name Utilities
@@ -304,6 +306,7 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
     def _set_merged_value(self, key, value):
         """try to resolve the value with our data"""
         def resolve_scalar(value):
+            formatter = KVStringFormatter()
             if not hasattr(value, 'format'):
                 return value
             try:
@@ -312,21 +315,22 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
                 while last_value != value:
                     count += 1
                     last_value = value
-                    new_value = value.format(**self._data)
+                    new_value = formatter.vformat(value, [], self._data)
                     # we could have string-like types, and format degenerates them to just strings
                     if type(new_value) is not type(value):
                         new_value = type(value)(new_value)
                     value = new_value
                     if count > MAX_ITERATIONS:
-                        raise AssertionError("Value at '%s' could not be resolved after %i iterations - recursive values detected, last value was '%s', new value was '%s'" % (key, count, last_value, new_value)) 
+                        raise AssertionError("Value at '%s' could not be resolved after %i iterations - recursive values detected, last value was '%s', new value was '%s'" % (key, count, last_value, new_value))
                     # end 
                 # end recursive resolution
                 return value
             except (KeyError, AttributeError, ValueError, TypeError), err:
                 msg = "Failed to resolve value '%s' at key '%s' with error: %s"
                 self._log.warn(msg, value, key, str(err))
-                # use unresolved value ... probably it should fail instead, but we try to indicate the error
-                # by returning a default value
+                # if we can't resolve, we have to resolve substitute to an empty value. Otherwise
+                # the application might continue using a format string, which it can't check for
+                # validity at all. Default values (like empty strings) can though
                 return type(value)()
             # end handle exception
         # end resolver

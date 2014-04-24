@@ -268,6 +268,8 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
     def test_defaults(self):
         schema = KeyValueStoreSchema('site', { 'name' :  str,   # can be type
                                                 'location' : str(),
+                                                'basename_resolver' : str(),
+                                                'version_resolver' : str(),
                                                 'name_recursive' : str,
                                                 'root_path' : { 'repository' : 'default',
                                                                 'base' : str,
@@ -275,7 +277,8 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                                                                 'software' : str,
                                                                 'listed' : StringList,
                                                                 'needs_list' : PathList,
-                                                                'paths' : PathList
+                                                                'paths' : PathList,
+                                                                'executable' : KVPath
                                                                },
                                                'floats' : FloatList,
                                                'ints' : IntList
@@ -288,7 +291,10 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         unresolvable = '{foo.bar}/hi'
         data = OrderedDict({ 'site' : OrderedDict({ 'name' :  site_name_unresolved,
                                         'location' : 'munich',
+                                        'basename_resolver' : '{site.root_path.executable.as_KVPath.abspath.basename}',
+                                        'version_resolver' : '{site.version.as_Version[0]},{site.version.as_Version.minor},{site.version.as_Version.patch}',
                                         'name_recursive' : '{site.name}',
+                                        'version' : '2.5.6',
                                         'root_path' : 
                                             OrderedDict({ 'repository' : None,
                                                         'base' : root,
@@ -296,7 +302,8 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                                                         'software' : unresolved,
                                                         'listed' : [unresolved, unresolved, [unresolved, 5]],
                                                         'needs_list' : 'iterable',
-                                                        'paths' : ['p1', 'p2']}),
+                                                        'paths' : ['p1', 'p2'],
+                                                        'executable' : 'foo'}),
                                         'floats' : ['1.5', '5.5', ['1.25']],
                                         'ints' : ['15', '5.5', ['1']],
                                        })
@@ -325,6 +332,8 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         
         resolved_value = kvstore.value(schema.key(), schema, resolve=True)
         assert resolved_value.name_recursive == 'bapp-munich'
+        assert resolved_value.basename_resolver == 'foo'
+        assert resolved_value.version_resolver == '2,5,6'
         assert resolved_value.root_path.software == resolved_path
         assert resolved_value.root_path.unresolvable == '', 'unresolvable values are not resolved ... for now'
         assert resolved_value.root_path.listed == [resolved_path, resolved_path, [resolved_path, '5']]

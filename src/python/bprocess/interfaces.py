@@ -139,18 +139,17 @@ class IPostLaunchProcessInformation(InterfaceBase):
     
     @abstractmethod
     def data(self):
-        """@return an OrderedDict containing the complete data set known to the wrapper, or None if this process 
-        wasn't started that way.
+        """@return an OrderedDict containing the complete data set as known to the bootstrapper, or None 
+        if this process wasn't started that way.
         Its raw data, and you must know the schema's used to use it properly. Even though this interface doesn't
-        enforce it, the client should use a kvstore + schemas to access it safely.
-        @note The implementation assures that this information is only available for the launched process, and
-        not for its children"""
+        enforce it, the client should use a kvstore + schemas to access it safely."""
         
     @classmethod
     @abstractmethod
     def has_data(cls, environ = None):
         """@return True if we have data, as we are launched through process control
-        @param environ may be a dictionary with environment variables. Defaults to os.environ otherwise"""
+        @param environ may be a dictionary with environment variables, which store information required to determine
+        if we were launched with process control. Defaults to os.environ otherwise"""
         
         
     @abstractmethod

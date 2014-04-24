@@ -52,7 +52,7 @@ class _ProcessControllerContext(Context):
     _category = 'ProcessController'
     _schema = process_schema
     
-    def __init__(self, program, executable, bootstrap_dir):
+    def __init__(self, program, executable, bootstrap_dir, args):
         """Store the bootstrap directory in our context"""
         super(_ProcessControllerContext, self).__init__("ProcessController")
         
@@ -62,6 +62,7 @@ class _ProcessControllerContext(Context):
             process.executable_directory = str(bootstrap_dir)
         # end allow bootstap dir override
         process.executable_path = str(executable)
+        process.raw_arguments = list(args)
         process.bcore_directory = str(Path(__file__).dirname().dirname())
         self.settings().set_value(self._schema.key(), process)
         
@@ -187,7 +188,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         """@return _ProcessControllerPackageSpecification instance matching the given name
         @throws KeyError if it doesn't exist"""
         return ProcessControllerPackageSpecification(name, self._package_data(name))
-        
+
     # -------------------------
     ## @name Subclass Interface
     # @{
@@ -369,7 +370,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                                                       settings_hierarchy=True,
                                                       user_settings=True)
 
-        app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir))
+        app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, self._args))
 
         # Evaluate Program Database
         ############################
