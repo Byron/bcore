@@ -53,6 +53,11 @@ class NamedServiceProcessControllerDelegate(object):
         
         return delegates[0]
 
+    def name(self):
+        """@return the name of the delegate we should instantiate"""
+        return self._delegate_name
+          
+
 # end class NamedServiceProcessControllerDelegate
 
 ## -- End Utilities -- @}
@@ -80,13 +85,22 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                         { 'root_trees' : PathList,
                                                          # absolute or relative path to the executable    
                                                           'executable' : Path,
-                                                          'legacy_inherit_env' : False,
+                                                          # If True, the entire environment will be inherited. Otherwise the process will build its environment from scratch.
+                                                          'inherit_environment' : False,
                                                           # A list of paths to directories and files from which all python files should be loaded
                                                           'plugin_paths' : PathList,
                                                           # The python paths to set at wrap time
                                                           'python_paths' : PathList,
                                                           'import_modules' : StringList,
                                                           'version' : Version(),
+                                                          # Allows to specify additional configuration 
+                                                          # that we have to pull in. It affects the bootstrapper
+                                                          # as well as the launched process
+                                                          'configuration': {
+                                                            'trees' : PathList,
+                                                            # Files are loaded after trees
+                                                            'files' : PathList,
+                                                          },
                                                           # Path to the current working directory of the process
                                                           # This will not affect the current working dir set for 
                                                           # setting up the configuration
@@ -98,7 +112,7 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           # only used when building the process environment
                                                           'exclude' : StringList,
                                                           # An alias to the package which provides the executable of our program
-                                                          'executable_alias' : str,
+                                                          'alias' : str,
                                                           'arguments' : {
                                                               # Arguments to append
                                                               'append' : StringList,

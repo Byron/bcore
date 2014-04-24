@@ -91,6 +91,16 @@ class TestProcessControl(TestCaseBase):
         os.remove(process.stdout.readlines()[0].strip())
         process.communicate()
         assert process.returncode == 0
+
+    @preserve_application
+    def test_delegate_finder(self):
+        from .delegate import TestCommunicatorDelegate
+        pctrl = ProcessController(pseudo_executable('py-program-no-delegate'))
+        tcd_name = TestCommunicatorDelegate.__name__
+        assert type(pctrl.delegate()).__name__ == tcd_name, "The delegate should be looked up from the alias"
+
+        pctrl = ProcessController(pseudo_executable('py-program-delegate-via-requires'))
+        assert type(pctrl.delegate()).__name__ == tcd_name
         
     @preserve_application
     def test_iteration(self):

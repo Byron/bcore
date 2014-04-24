@@ -26,7 +26,7 @@ packages:
   py-program:
     # Use python's executable as ours
     requires: test-environment
-    executable_alias: python
+    alias: python
     python_paths: '{process.core_tree}/bprocess/tests'
     import_modules: delegate
     delegate: TestCommunicatorDelegate
@@ -36,19 +36,31 @@ packages:
         - -c
       append:
         - from bprocess.tests.test_base import TestCommand; TestCommand().execute()
-      
+
+  py-program-no-delegate:
+    # This one is expected to use the communicator delecate
+    requires: py-program
+    alias: py-program
+
+  intermediate-package:
+    requires: py-program
+
+  py-program-delegate-via-requires:
+    requires: intermediate-package
+    alias: python
+
   py-program-overrides:
     # A python program to receive overrides of the context before starting the program
     requires: py-program
     # tests recursive resolution of executable alias
-    executable_alias: py-program
+    alias: py-program
     # tests overrides to be handled correclty
     delegate: TestOverridesDelegate
     # everything else is inherited by the base, the program itself is not interesting
     
   nosetests:
     # default nosetest starter
-    executable_alias: python 
+    alias: python 
     requires:
       # for all the requirements (for testing, remove the following line and list
       # module requirements manually

@@ -2,7 +2,7 @@ packages:
   hello:
     requires:
       - bcore
-    executable_alias: python
+    alias: python
     arguments:
       prepend:
         - -c

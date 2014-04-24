@@ -94,6 +94,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                     '_executable_path', # path to executable of process we should create
                     '_spawn_override', # See set_should_spawn_process_override
                     '_app',         # the Application we are using to obtain information about our environment
+                    '_prebuilt_app', # An Application instance optionally provided by the user
+                    '_delegate_override', # the delegate the caller might have set
                     '_dry_run'      # if True, we will not actually spawn the application
                 )
     
@@ -113,7 +115,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
     
     ## -- End Configuration -- @}
     
-    def __init__(self, executable, args = list(), delegate = None, cwd = None, dry_run = False):
+    def __init__(self, executable, args = list(), delegate = None, cwd = None, dry_run = False, 
+                      application = None):
         """
         Initialize this instance to make it operational
         Our executable does not have to actually exist, as we will look it up in the kvstore of our environment.
@@ -132,6 +135,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         the delegate may be overwritten.
         @param cwd current working directory to be used as additional context. If None, the actual cwd will be used.
         @param dry_run if True, we will not actually spawn any process, but make preparations as usual
+        @param application if not None, this application instance will be used and modified while preparing
+        to start the program in question. This can be useful if you want to control which configuration to load
+        when launching something, as a few semantics are implied otherwise.
+        If None, a default Application is created automatically
         @note must call _setup_execution_context, as this instance is assumed to be ready for execute()
         """
         # NOTE: it is valid to provide a relative path (or a path which just contains the basename of the executable)
@@ -153,13 +160,16 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         self._boot_executable = Path(executable).abspath()
         self._args = list(args)
         # we will always use delegates that where explicitly set, but get it as service on first access
-        self._delegate = delegate
+        self._delegate_override = delegate
         self._cwd = cwd or os.getcwd()
         self._environ = dict()
         self._spawn_override = None
+        # NOTE: We can't set the _app attribute right away, as we rely on lazy mechanisms to initialize ourselves
+        # when needed. The latter wouldn't work if we set the attribute directly
+        self._prebuilt_app = application
 
     def _set_cache_(self, name):
-        if name in ('_app', '_executable_path'):
+        if name in ('_app', '_executable_path', '_delegate'):
             self._setup_execution_context()
         else:
             return super(ProcessController, self)._set_cache_(name)
@@ -226,6 +236,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         """
         assert delegate, 'delegate must not be unset'
         self._delegate = delegate
+        self._delegate_override = None
         return self
         
     def iter_packages(self, package_name):
@@ -320,6 +331,25 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         # end for each module to import
         
         return self
+
+    def _find_delegate(self, root_package, alias_package):
+        """@return a delegate instance which is the most suitable one.
+        Look for custom ones in order of: root_package, alias_package, all requirements (breadth-first)"""
+        default_name = package_schema.delegate.name()
+        for package in (root_package, alias_package):
+            if package.data().delegate.name() != default_name:
+                return package.data().delegate.instance(self._app.context())
+            # end check non-default one
+        # end for each primary package
+
+        # Look for one within our requirement chain
+        for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
+            pd = self._package_data(package_name)
+            if pd.delegate.name() != default_name:
+                return pd.delegate.instance(self._app.context())
+            # end check delegate name
+        # Finally, just return the default one
+        return root_package.data().instance(app.context())
         
     def _setup_execution_context(self):
         """Initialize the context in which the process will be executed to the point right before it will actually
@@ -333,17 +363,17 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         @return self
         """
         def root_package_and_executable_provider():
-            root_package = executable_provider_package = self._package(program)
+            root_package = alias_package = self._package(program)
             # recursively resolve the alias
             seen = set()
-            while executable_provider_package.data().executable_alias:
-                if executable_provider_package.data().executable_alias in seen:
-                    raise AssertionError("hit loop at '%s' when trying to resolve %s" % (executable_provider_package.data().executable_alias, ', '.join(seen)))
+            while alias_package.data().alias:
+                if alias_package.data().alias in seen:
+                    raise AssertionError("hit loop at '%s' when trying to resolve %s" % (alias_package.data().alias, ', '.join(seen)))
                 # end raise assertion
-                seen.add(executable_provider_package.data().executable_alias)
-                executable_provider_package = self._package(executable_provider_package.data().executable_alias)
+                seen.add(alias_package.data().alias)
+                alias_package = self._package(alias_package.data().alias)
             # end handle alias executable
-            return root_package, executable_provider_package
+            return root_package, alias_package
         # end utility
         
         # Setup Environment according to Executable Dir and CWD
@@ -363,9 +393,13 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
          # end assure we have at least a good initial configuration
 
         # In any case, setup our own App to be absolutely fresh, to not interfere with other implementations
-        self._app = app = ProcessAwareApplication.new(settings_paths=(bootstrap_dir, self._cwd),
-                                                      settings_hierarchy=True,
-                                                      user_settings=True)
+        if self._prebuilt_app:
+            self._app = app = self._prebuilt_app
+        else:
+            self._app = app = ProcessAwareApplication.new(settings_paths=(bootstrap_dir, self._cwd),
+                                                          settings_hierarchy=True,
+                                                          user_settings=True)
+        # end initialize application
 
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, self._args))
 
@@ -391,22 +425,23 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
              # UPDATE DELEGATE
             ######################
             # note: if program wouldn't have data, we would already know by now.
-            root_package, executable_provider_package = root_package_and_executable_provider()
+            root_package, alias_package = root_package_and_executable_provider()
             
             # delegate could be set in constructor - keep this one as long as possible
+            self._delegate = self._delegate_override # may be None
             if self._delegate is None:
-                self.set_delegate(root_package.data().delegate.instance(app.context()))
+                self.set_delegate(self._find_delegate(root_package, alias_package))
             # end use delegate overrides
             
-            self._executable_path = executable_provider_package.executable()
+            self._executable_path = alias_package.executable()
             prev_len = len(app.context())
             self.delegate().prepare_context(app, self._executable_path, self._environ, self._args, self._cwd)
             
             # If there were changes to the environment, pick them up by clearing our data. This would the delegate 
             # name to be updated as well.
             if len(app.context()) != prev_len:
-                root_package, executable_provider_package = root_package_and_executable_provider()
-                self._executable_path = executable_provider_package.executable()
+                root_package, alias_package = root_package_and_executable_provider()
+                self._executable_path = alias_package.executable()
                 
                 # If the delegate put on an additional environment, we have to reload everything
                 log.debug('reloading data after delegate altered environment')
@@ -414,11 +449,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                 self._load_plugins("process-controller-stage-2")
                 # delgate from context can be None, but future access will be delegate() only, which deals 
                 # with that
-                self.set_delegate(root_package.data().delegate.instance(app.context()))
+                self.set_delegate(self._find_delegate(root_package, alias_package))
             # end update data
             
-            # TODO: remove this flag
-            if root_package.data().legacy_inherit_env:
+            if root_package.data().inherit_environment:
                 # this is useful if we are started from another wrapper, or if 
                 # Always copy the environment, never write it directly to assure we can do in-process launches
                 self._environ.update(os.environ)
@@ -569,9 +603,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         # Prepare EXECUTABLE
         #####################
         # Its not required to have a valid root unless the executable or one of the  is relative
-        # NOTE: it's important to query this path in order to trigger our setup to be run. That way, we
-        # will get the right delegate as well, if unset
-        executable = self._executable_path
         delegate = self.delegate()
         executable, env, args, cwd = delegate.pre_start(self._executable_path, self._environ, self._args, self._cwd)
         # play it safe, implementations could change type
