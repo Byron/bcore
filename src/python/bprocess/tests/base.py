@@ -13,7 +13,7 @@ import logging
 import bapp
 from bkvstore import KeyValueStoreSchema
 from bprocess import (ProcessControllerDelegate,
-                      PostLaunchProcessInformation)
+                      ControlledProcessInformation)
 from butility import abstractmethod
 
 logging.getLogger('bprocess.tests.base')
@@ -60,7 +60,7 @@ class NosetestDelegate(ProcessControllerDelegate):
     def start_nose(cls):
         """Start nose with the arguments previously specified on the commandline
         @return true if all tests succeeded, false on failure"""
-        kvstore = PostLaunchProcessInformation().as_kvstore()
+        kvstore = ControlledProcessInformation().as_kvstore()
         value = kvstore.value(cls.schema.key(), cls.schema)
 
         import nose        

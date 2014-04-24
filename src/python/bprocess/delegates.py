@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'PostLaunchProcessInformation', 
+__all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'ControlledProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate', 'DisplayHelpException',
            'ProcessControllerDelegateProxy', 'DisplayContextException', 'MariControllerDelegate']
 
@@ -37,7 +37,7 @@ from bdiff import ( NoValue,
 
 from bcontext import Context
 from .interfaces import ( IProcessControllerDelegate,
-                          IPostLaunchProcessInformation )
+                          IControlledProcessInformation )
 
 from butility import ( update_env_path,
                        DictObject,
@@ -180,7 +180,7 @@ class DelegateContextOverride(Context):
 # end class ProcessControllerEnvironment
 
 
-class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, LazyMixin):
+class ControlledProcessInformation(IControlledProcessInformation, Singleton, LazyMixin):
     """Store the entire kvstore (after cleanup) in a data string in the environment and allow to retrieve it
     @note this class uses a cache to assure we don't get data more often than necessary. It is all static and 
     will not change"""
@@ -224,7 +224,7 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
                 self._hash_map = self._decode(os.environ[self.config_file_hash_map_environment_variable])
             # end decode value if present
         else:
-            return super(PostLaunchProcessInformation, self)._set_cache_(name)
+            return super(ControlledProcessInformation, self)._set_cache_(name)
         # end handle cached attributes
 
     @classmethod        
@@ -341,7 +341,7 @@ class PostLaunchProcessInformation(IPostLaunchProcessInformation, Singleton, Laz
     
     ## -- End Custom Interface -- @}
 
-# end class PostLaunchProcessInformation
+# end class ControlledProcessInformation
 
 ## -- End Utilities -- @}
 
@@ -460,7 +460,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         if kvstore_overrides.keys():
             environment = application.context().push(DelegateCommandlineOverridesContext('wrapper commandline overrides', 
                                                                                       kvstore_overrides))
-            PostLaunchProcessInformation.store_commandline_overrides(env, kvstore_overrides.data())
+            ControlledProcessInformation.store_commandline_overrides(env, kvstore_overrides.data())
         #end handle overrides
         return super(ProcessControllerDelegate, self).prepare_context(application, executable, env, args, cwd)
         

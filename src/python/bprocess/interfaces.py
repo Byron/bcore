@@ -5,7 +5,7 @@
 
 @copyright 2012 Sebastian Thiel
 """
-__all__ = ['IProcessControllerDelegate', 'IPostLaunchProcessInformation']
+__all__ = ['IProcessControllerDelegate', 'IControlledProcessInformation']
 
 from butility import (InterfaceBase,
                       abstractmethod)
@@ -101,7 +101,7 @@ class IProcessControllerDelegate(InterfaceBase):
 # end class IProcessControllerDelegate
 
 
-class IPostLaunchProcessInformation(InterfaceBase):
+class IControlledProcessInformation(InterfaceBase):
     """An interface to provide information about the currently running process as launched by the IProcessController.
     It works for spawned as well as for replaced processes (execv).
     

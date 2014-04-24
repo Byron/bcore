@@ -8,7 +8,7 @@
 __all__ = ['ProcessControlContextControllerBase', 'ProcessConfigurationIncompatibleError']
 
 import bapp
-from .delegates import PostLaunchProcessInformation
+from .delegates import ControlledProcessInformation
 from .schema import ( process_schema,
                       package_schema )
 
@@ -52,6 +52,7 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
     _after_scene_save() methods"""
     __slots__ = (
                     '_initial_stack_len',   ## Length of the stack when this instance was initialized
+                    '_context_stack'        ## The context stack we should manipulate
                 )
     
     
@@ -78,11 +79,13 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
     
     ## -- End Configuration -- @}
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, context_stack, *args, **kwargs):
         """Intialize our initial stack len with a default value - its just a marker indicating its not set
-        to something specific"""
+        to something specific
+        @param context_stack usually self._context_stack"""
         super(ProcessControlContextControllerBase, self).__init__()
         self._initial_stack_len = None
+        self._context_stack = context_stack
         
     
     # -------------------------
@@ -94,9 +97,9 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
         """Push all configuration found at the given directory and parent folders, loading plugins on the way.
         @return the newly pushed environment of type HierarchicalContextType
         @note subclasses can override it for special handling"""
-        env = bapp.main().context().push(self.HierarchicalContextType(dirname))
+        env = self._context_stack.push(self.HierarchicalContextType(dirname))
         # Make sure we apply commandline overrides last
-        bapp.main().context().push(CommandlineOverridesContext())
+        self._context_stack.push(CommandlineOverridesContext())
         if self.load_plugins:
             env.load_plugins()
         # end handle plugin loading
@@ -112,17 +115,18 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
         
         @param kvstore representing the context that we are supposed to test against
         @param current_process_kvstore kvstore representing the current process's configuration
-        Mainly useful during testing. If None, the one obtained from our 
+        Mainly useful during testing. If None, the one obtained from our own process, which obviously
+        needs to be wrapped to work
         @param program name of our program, mainly useful for testing. If unset, it will be obtained from the 
         current_process_kvstore
         @throws Exception if converted to string, it describes the issues precisely
         """
         if current_process_kvstore is None:
-            current_process_kvstore = PostLaunchProcessInformation().as_kvstore()
-            if current_process_kvstore is None:
+            if not ControlledProcessInformation.has_data():
                 log.debug('skipping process compatability check as we were not launched using process control')
                 return
             # check for info
+            current_process_kvstore = ControlledProcessInformation().as_kvstore()
         # end handle overrides
         
         program = program or current_process_kvstore.value(process_schema.key(), process_schema, resolve=True).id
@@ -152,7 +156,7 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
         assert self._initial_stack_len is not None, 'call set_static_stack_len at the end of your init()'
         # get rid of previous scene stack
         log.debug("popping scene context")
-        return bapp.main().context().pop(until_size = self._initial_stack_len)
+        return self._context_stack.pop(until_size = self._initial_stack_len)
     
     ## -- End Overridable Methods -- @}
     
@@ -183,7 +187,7 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
         @param length If None, The length set will be the current length of the stack. Otherwise the given
         length will be used
         @note its valid to call it multiple times, to re-adjust the are of the static context accordingly"""
-        self._initial_stack_len = length or len(bapp.main().context())
+        self._initial_stack_len = length or len(self._context_stack)
     
     ## -- End Interface -- @}
     
@@ -216,7 +220,7 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
         res = self.pop_asset_context()
         self._push_configuration(filepath.dirname())
         try:
-            self._check_process_compatibility(bapp.main().context().settings())
+            self._check_process_compatibility(self._context_stack.settings())
             # if this worked, load plugins
             PythonPackageIterator().import_modules()
         except ProcessConfigurationIncompatibleError:
@@ -224,7 +228,7 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
             # in the context of the given file
             if self.restore_stack_if_new_context_is_incompatible:
                 for env in res:
-                    bapp.main().context().push(env)
+                    self._context_stack.push(env)
                 # end for each env to put back
             # end should we restore the stack ?
             raise

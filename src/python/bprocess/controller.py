@@ -25,7 +25,7 @@ from butility import ( Path,
 from bcontext import Context
 from bapp import         ( ApplicationSettingsClient,
                            OSContext)
-from .delegates import ( PostLaunchProcessInformation,
+from .delegates import ( ControlledProcessInformation,
                          ProcessControllerDelegateProxy,
                          ProcessControllerDelegate )
 from .schema import ( controller_schema,
@@ -143,8 +143,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         self._dry_run = dry_run
         executable = Path(executable)
         if not executable.isabs():
-            if PostLaunchProcessInformation.has_data():
-                executable = PostLaunchProcessInformation().process_data().bootstrap_dir / executable
+            if ControlledProcessInformation.has_data():
+                executable = ControlledProcessInformation().process_data().bootstrap_dir / executable
             else:
                 # otherwise, just take what we have ... but as absolute path.
                 executable = Path(executable).abspath()
@@ -590,7 +590,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         # Allow others to override our particular implementation
         # NOTE: This should be part of the delegate, and generally we would need to separate classes more
         # as this file is way too big !!
-        PostLaunchProcessInformation.store(env, self._app.context())
+        ControlledProcessInformation.store(env, self._app.context())
         
         
         should_spawn = delegate.should_spawn_process()

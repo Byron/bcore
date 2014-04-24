@@ -33,7 +33,7 @@ from butility import ( OrderedDict,
 from bcontext import Context
 from bapp import         ( StackAwareHierarchicalContext,
                            ApplicationSettingsClient )
-from .delegates import PostLaunchProcessInformation
+from .delegates import ControlledProcessInformation
 from .schema import ( controller_schema,
                       package_schema,
                       process_schema,
@@ -464,7 +464,8 @@ class PythonPackageIterator(ApplicationSettingsClient, PackageDataIteratorMixin)
         @note import errors will be logged, but ignored. We do not reload !
         @note only works if this process is wrapped
         @note this is a way to load plug-ins"""
-        info = PostLaunchProcessInformation()
+        assert ControlledProcessInformation.has_data()
+        info = ControlledProcessInformation()
         store = info.as_kvstore()
         imported_modules = list()
         
@@ -508,7 +509,7 @@ class ExecutableContext(StackAwareHierarchicalContext):
     def __init__(self):
         """Initialize this instance with the path of our executable, and add process information 
         to the kvstore"""
-        pinfo = PostLaunchProcessInformation()
+        pinfo = ControlledProcessInformation()
         executable = pinfo.executable()
         super(ExecutableContext, self).__init__(executable or "Executable Environment (uncontrolled process)", 
                                                     load_config = executable is not None)
@@ -541,7 +542,7 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
         @note does nothing if we are not wrapped"""
         super(ControlledProcessContext, self).__init__("Wrapped Environment", load_config = False)
 
-        ppi = PostLaunchProcessInformation()
+        ppi = ControlledProcessInformation()
         store = ppi.as_kvstore()
         if store:
             self._kvstore = store
@@ -556,7 +557,7 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
     
     def has_data(self):
         """@return True if we have data"""
-        return PostLaunchProcessInformation.has_data()
+        return ControlledProcessInformation.has_data()
         
     ## -- End Interface -- @}
 
@@ -573,7 +574,7 @@ class CommandlineOverridesContext(Context):
         """Setup our commandline overrides, if there are some"""
         super(CommandlineOverridesContext, self).__init__(name)
         
-        overrides = PostLaunchProcessInformation().commandline_overrides()
+        overrides = ControlledProcessInformation().commandline_overrides()
         if overrides:
             self._kvstore = KeyValueStoreModifier(overrides)
         # end handle overrides

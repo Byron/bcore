@@ -14,7 +14,7 @@ import bapp
 
 from bapp.gui.hub.interfaces import IHubPanel
 from ..utility import PackageMetaDataChangeTracker
-from ..delegates import PostLaunchProcessInformation
+from ..delegates import ControlledProcessInformation
 
 from .controller_ui import Ui_PackageViewerWindow
 
@@ -43,7 +43,7 @@ class PackageViewerWindow(QtGui.QWidget, IHubPanel):
         @param changes_only if False, all package data will be shown
         @return this instance"""
         if package_name_or_tracker is None:
-            svc = PostLaunchProcessInformation()
+            svc = ControlledProcessInformation()
             if not svc.has_data():
                 self.viewer().message.setText("Process is not wrapped, no package information available")
                 return self

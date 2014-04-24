@@ -9,6 +9,7 @@ __all__ = ['ProcessAwareApplication']
 
 import bapp
 
+from .delegates import ControlledProcessInformation
 from .utility import (ControlledProcessContext,
                       PythonPackageIterator )
 
@@ -51,7 +52,14 @@ class ProcessAwareApplication(bapp.Application):
     ## @name Interface
     # @{
 
-    ## @todo provide information about the application, like name, arguments, dependencies
+    @classmethod
+    def process_information(cls):
+        """@return an instance providing the IControlledProcessInformation interface. Use it to learn 
+        about the way you where started.
+        @note just a convenience method, which should help to raise awareness of the different kinds of
+        applications we have.
+        """
+        return ControlledProcessInformation()
     
     ## -- End Interface -- @}
 

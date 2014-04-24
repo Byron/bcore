@@ -110,7 +110,7 @@ class TestProcessControl(TestCaseBase):
     @preserve_application
     def test_post_launch_info(self):
         """Just some basic tests"""
-        info = PostLaunchProcessInformation()
+        info = ControlledProcessInformation()
         if not info.has_data():
             assert info.data() is None and info.process_data() is None
         else:
@@ -121,7 +121,6 @@ class TestProcessControl(TestCaseBase):
             app = ProcessAwareApplication.new()
             assert bapp.main().context().settings().value_by_schema(process_schema).executable == pinfo.executable
         # end handle data
+        assert ProcessAwareApplication.process_information() is info, "process information should be a singleton"
         
-        
-
 # end class TestProcessControl
