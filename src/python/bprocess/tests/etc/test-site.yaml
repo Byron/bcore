@@ -5,7 +5,7 @@ packages:
   ###################
     environment:
       variables:
-        PYTHONPATH: '{process.bcore_directory}'
+        PYTHONPATH: '{process.core_tree}'
         
   maya:
     requires: test-environment
@@ -18,16 +18,16 @@ packages:
 
   python:
     version: '2.6'
-    root_paths:
+    root_trees:
       - '/usr/bin'
       - 'c:\Python{packages.python.version.major}{packages.python.version.minor}'
-    executable: python
+    executable: 'python{packages.python.version}'
     
   py-program:
     # Use python's executable as ours
     requires: test-environment
     executable_alias: python
-    python_paths: '{process.bcore_directory}/bprocess/tests'
+    python_paths: '{process.core_tree}/bprocess/tests'
     import_modules: delegate
     delegate: TestCommunicatorDelegate
     arguments:

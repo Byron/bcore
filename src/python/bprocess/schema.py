@@ -13,7 +13,8 @@ import logging
 from bkvstore import (KeyValueStoreSchema,
                       AnyKey,
                       StringList,
-                      PathList )
+                      PathList, 
+                      KVStringFormatter)
 from .interfaces import IProcessControllerDelegate
 from butility import (Version,
                       Path )
@@ -61,23 +62,22 @@ process_schema = KeyValueStoreSchema('process', {
                                                     # kvstore id of the program to run, usually the basename of the executable
                                                     'id' : str,
                                                     # Full path to the executable we were supposed to run
-                                                    'executable_path' : Path,
-                                                    # Directory containing the executable, i.e. dirname(executable)
-                                                    # Useful for kvstore substitution, and somewhat redundant in code
-                                                    'executable_directory' : Path,
+                                                    'executable' : Path,
                                                     # directory at which bcore can be imported from. This is the
                                                     # location at which the process controller code exists
-                                                    'bcore_directory' : Path,
+                                                    'core_tree' : Path,
                                                     # The arguments the process was started with.
                                                     # May contain bootstrapper arguments as well
                                                     'raw_arguments' : StringList
                                                 }
                                     )
 
+KVStringFormatter.set_key_type_by_schema(process_schema, ('executable', 'core_tree'))
+
 
 package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of the package. All relative paths will be 
                                                         # made absolute with the first valid root path
-                                                        { 'root_paths' : PathList,
+                                                        { 'root_trees' : PathList,
                                                          # absolute or relative path to the executable    
                                                           'executable' : Path,
                                                           'legacy_inherit_env' : False,
@@ -122,11 +122,13 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                         }
                                                     )
 
+KVStringFormatter.set_key_type_by_schema(package_schema, ('root_trees', 'version'))
+
 ## This doesn't need to be a schema, its used as building block to make one
 python_package_schema = {
                                'requires' : package_schema.requires,
                                'version' : package_schema.version,
-                               'root_paths': package_schema.root_paths,
+                               'root_trees': package_schema.root_trees,
                                'python' : {
                                     'import' : StringList,
                                     'plugin_paths' : PathList
@@ -143,5 +145,5 @@ package_meta_data_schema = {
                                 'version': package_schema.version
                            }
 
-controller_schema = KeyValueStoreSchema('packages', {  package_schema.key() : package_schema })
+controller_schema = KeyValueStoreSchema('packages', { package_schema.key() : package_schema })
 

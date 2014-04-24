@@ -58,12 +58,9 @@ class _ProcessControllerContext(Context):
         
         process = self.settings().value(self._schema.key(), self._schema)
         process.id = program
-        if not process.executable_directory:
-            process.executable_directory = str(bootstrap_dir)
-        # end allow bootstap dir override
-        process.executable_path = str(executable)
+        process.executable = str(executable)
         process.raw_arguments = list(args)
-        process.bcore_directory = str(Path(__file__).dirname().dirname())
+        process.core_tree = str(Path(__file__).dirname().dirname())
         self.settings().set_value(self._schema.key(), process)
         
 # end class _ProcessControllerContext

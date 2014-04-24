@@ -184,8 +184,8 @@ class PackageDataIteratorMixin(object):
         the package, among other things
         @param name package name
         @param data data you retrieved for the packge.
-        @note in order to work properly, your data must have the root_paths member"""
-        assert hasattr(data, 'root_paths'), "Data requrires 'root_paths' attribute for package to be functional"
+        @note in order to work properly, your data must have the root_trees member"""
+        assert hasattr(data, 'root_trees'), "Data requrires 'root_trees' attribute for package to be functional"
         return ProcessControllerPackageSpecification(name, data)
         
         
@@ -351,17 +351,14 @@ class ProcessControllerPackageSpecification(LazyMixin):
         
     def _set_cache_(self, name):
         if name == '_root_path':
-            self._root_path = None          # default
-            roots = self._data.root_paths
-            for path in roots:
-                if path.isdir():
-                    self._root_path = path
-                    break
-                # end check is directory
-            # end for each path
-            if not self._quiet and self._root_path is None:
-                log.warn("None of the given root paths of package '%s' was accessible: [%s]", self.name(), ', '.join(roots))
-            # end handle roots
+            try:
+                self._root_path = self._data.root_trees.first_accessible_tree
+            except ValueError:
+                self._root_path = None          # default
+                if not self._quiet:
+                    log.warn("None of the given root paths of package '%s' was accessible: [%s]", self.name(), ', '.join(self._data.root_trees))
+                # end handle warning
+            # end handle inaccessible directory
         else:
             super(ProcessControllerPackageSpecification, self)._set_cache_(name)
         #end handle cache name
@@ -393,7 +390,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
         if path.isabs():
             return path
         if self.root_path() is None:
-            raise EnvironmentError("Cannot convert '%s' to absolute path in package '%s' without a single valid root path, tried: [%s]" % (path, self.name(), ', '.join(self._data.root_paths)))
+            raise EnvironmentError("Cannot convert '%s' to absolute path in package '%s' without a single valid root path, tried: [%s]" % (path, self.name(), ', '.join(self._data.root_trees)))
         # end handle root path
         return self.root_path() / path
         

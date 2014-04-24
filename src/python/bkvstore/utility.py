@@ -126,6 +126,32 @@ class KVStringFormatter(Formatter):
         the desired type, retrying the attribute access"""
         assert '.' not in key_name
         cls._custom_types[key_name] = type
+
+    @classmethod
+    def set_key_type_by_schema(cls, schema, keys, sep='.'):
+        """Similar to set_key_type(), but works with a schema to obtain the desired types
+        @param schema a KeyValueStoreSchema instance
+        @param keys an iterable of keys to obtain from the schema. It is valid to for keys to be contain
+        the key-separator sep, in which case only the last sub-key will be added as key's type.
+        For instance, if the key is foo.bar.baz=Path, it the mapping will be 'baz=Path'.
+        We handle all schema values correctly.
+        @return this type
+        """
+        for key in keys:
+            typ = schema
+            for token in key.split(sep):
+                typ = typ[token]
+            # end for each item
+            # they are expected to have a default constructor
+            if callable(typ):
+                typ = type(typ())
+            else:
+                typ = type(typ)
+            # end 
+            assert isinstance(typ, type), "failed to resolve schema type: %s" % typ
+            cls.set_key_type(token, typ)
+        # end for each key
+        return cls
     
     ## -- End Interface -- @}
 

@@ -185,6 +185,24 @@ class PathList(TypedList):
     
     MemberType = KVPath
 
+
+    # -------------------------
+    ## @name Properties
+    # For use in KVStore substitution
+    # @{
+
+    @property
+    def first_accessible_tree(self):
+        """@return the first accessible KVPath object in our list, if it is a directory as well
+        @throws ValueError if there is no accessible path"""
+        for p in self:
+            if p.isdir():
+                return p
+        # end for each path
+        raise ValueError("Not a single contained path was accessible")
+    
+    ## -- End Properties -- @}
+
 ## -- End Utility Structures -- @}
 
 
