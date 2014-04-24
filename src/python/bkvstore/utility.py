@@ -35,10 +35,22 @@ class KVStringFormatter(Formatter):
 
     When found once, the result is cached for later.
 
+    Customization
+    =============
+
+    It is possible for users to adjust this type 'globally' to provide a fallback mechanism for AttributeErrors.
+    That way, it is possible to say something like: if 'foo.name.attr' doesn't have 'attr', lookup 'name' in our
+    custom mapping to possibly convert it to a given type.
+
+    Doing this will create special cases, as it will miraculously work just for the configured key names.
+
     """
     __slots__ = ()
 
+    ## Mapping from type-name to type
     _type_cache = dict()
+    ## Mapping from key name to type (configured by users)
+    _custom_types = dict()
 
     # -------------------------
     ## @name Utilities
@@ -79,17 +91,43 @@ class KVStringFormatter(Formatter):
 
         # loop through the rest of the field_name, doing
         #  getattr or getitem as needed
-        for is_attr, i in rest:
+        prev_attr = None
+        for is_attr, attr in rest:
             if is_attr:
-                if i.startswith('as_'):
-                    obj = self._type_by_name(i[3:])(obj)
+                if attr.startswith('as_'):
+                    obj = self._type_by_name(attr[3:])(obj)
                 else:
-                    obj = getattr(obj, i)
+                    try:
+                        obj = getattr(obj, attr)
+                    except AttributeError:
+                        if prev_attr not in self._custom_types:
+                            raise
+                        # end re-raise if key is unknown
+                        # this may re-raise, but in that case we don't have to care
+                        obj = getattr(self._custom_types[prev_attr](obj), attr)
+                    # end try special values
                 # end handle attribute
             else:
-                obj = obj[i]
+                obj = obj[attr]
+            # end handle is_attr
+            prev_attr = attr
+        # end for each attribute
 
         return obj, first
+
+    # -------------------------
+    ## @name Interface
+    # @{
+
+    @classmethod
+    def set_key_type(cls, key_name, type):
+        """Associate the given type with the key_name.
+        That way, whenever key_name.attr fails, the mapping will be used to convert the value as key_name to 
+        the desired type, retrying the attribute access"""
+        assert '.' not in key_name
+        cls._custom_types[key_name] = type
+    
+    ## -- End Interface -- @}
 
 
     

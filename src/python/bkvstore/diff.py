@@ -9,6 +9,7 @@ __all__ = [ 'KeyValueStoreProviderDiffDelegate', 'KeyValueStoreModifierDiffDeleg
             'KeyValueStoreModifierBaseSwapDelegate', 'AnyKey', 'RelaxedKeyValueStoreProviderDiffDelegate']
 
 import copy
+from functools import partial
 
 from bdiff import ( NoValue,
                     TreeItem,
@@ -191,6 +192,9 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
     ## If True, values which are not know to the schema will be dropped, Otherwise they will be left
     ## in the returned dataset
     keep_values_not_in_schema = False
+
+    ## The type used for formatting strings
+    StringFormatterType = KVStringFormatter
     
     ## -- End Configuration -- @}
 
@@ -225,18 +229,6 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
 
         if change_type is self.added:
             actual_value = right_value_inst
-
-            # the storage doesn't have the respective value
-            # Some values will be set at runtime, and we assume that clients will always query the 
-            # NOTE: This is useful for debugging, yet it is spamming the log as this happens pretty much 
-            # all the time and for the most part, is not interesting. Namely, the process controller
-            # queries its values a lot and produces a lot of output, that could end up in log files
-            # slowing down program startup
-            #if self.should_resolve_values():
-            #    msg = "Using default value '%s' for key '%s' as a corresponding "
-            #    msg += "stored value could not be found"
-            #    self._log.debug(msg, str(right_value_inst), qkey)
-            # end handle logging
         elif change_type is self.deleted:
             if self.keep_values_not_in_schema:
                 # msg_prefix = 'Using'
@@ -245,21 +237,14 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
                 # msg_prefix = 'Dropped'
                 actual_value = NoValue
             # end handle schema
-
-            # NOTE: Disabled this log as it results in a huge amount of messages depending of the type
-            # of traversal. Even though this shouldn't be happening, it does happen right now
-            # #6239 triggered this
-
-            # the default doesn't have the value given in the value storage
-            # if self.should_resolve_values() and left_value is not NoValue:
-            #     msg = "%s unchecked stored value '%s' at key '%s' as no default was provided"
-            #     self._log.warn(msg, msg_prefix, left_value, qkey)
-            # # end handle NoValue and if we should log at all
         elif change_type is self.modified:
             try:
                 if left_value is NoValue:
                     raise TypeError("NoValue is not a valid value")
                 #end handle missing keys in storage
+                # In case of a type conversion, we must assure the value is already 
+                # 'final' and substituted. Otherwise the type conversion can fail prematurely.
+
                 if right_value is None:
                     actual_value = left_value
                 elif left_value is None:
@@ -267,10 +252,14 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
                 else:
                     # special handling for lists or subclasses, as they are so common ...
                     if isinstance(right_value_inst, list) and not isinstance(left_value, list):
+                        if self.should_resolve_values():
+                            right_value_inst = self._resolve_value(key, right_value_inst)
                         actual_value = type(right_value_inst)()
                         actual_value.append(left_value)
                     elif isinstance(right_value, type):
                         # handle types
+                        if self.should_resolve_values():
+                            left_value = self._resolve_value(key, left_value)
                         actual_value = right_value(left_value)
                     else:
                         # handle instances - only convert the type if this is necesary.
@@ -278,6 +267,8 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
                         if isinstance(left_value, type(right_value)):
                             actual_value = left_value
                         else:
+                            if self.should_resolve_values():
+                                left_value = self._resolve_value(key, left_value)
                             actual_value = type(right_value)(left_value)
                     # end handle list packing
                 # handle value type - special handling for None
@@ -302,42 +293,50 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
         if actual_value is not NoValue:
             self._set_merged_value(key, smart_deepcopy(actual_value))
 
+    def _resolve_scalar_value(self, key, value):
+        """@return a resolved single scalar string value"""
+        # Actually, all of the values we see should be strings
+        # however, the caller is and may be 'stupid', so we handle it here
+        if not isinstance(value, basestring):
+            return value
+        # end ignore non-string types
 
+        formatter = self.StringFormatterType()
+        try:
+            last_value = ''
+            count = 0
+            while last_value != value:
+                count += 1
+                last_value = value
+                new_value = formatter.vformat(value, [], self._data)
+                # we could have string-like types, and format degenerates them to just strings
+                if type(new_value) is not type(value):
+                    new_value = type(value)(new_value)
+                value = new_value
+                if count > MAX_ITERATIONS:
+                    raise AssertionError("Value at '%s' could not be resolved after %i iterations - recursive values detected, last value was '%s', new value was '%s'" % (key, count, last_value, new_value))
+                # end 
+            # end recursive resolution
+            return value
+        except (KeyError, AttributeError, ValueError, TypeError), err:
+            msg = "Failed to resolve value '%s' at key '%s' with error: %s"
+            self._log.warn(msg, value, key, str(err))
+            # if we can't resolve, we have to resolve substitute to an empty value. Otherwise
+            # the application might continue using a format string, which it can't check for
+            # validity at all. Default values (like empty strings) can though
+            return type(value)()
+        # end handle exception
+
+    def _resolve_value(self, key, value):
+        """@return the resolved string value.
+        It is able unpack/pack values to handle lists accordingly"""
+        return transform_value(value, partial(self._resolve_scalar_value, key))
+        
     def _set_merged_value(self, key, value):
         """try to resolve the value with our data"""
-        def resolve_scalar(value):
-            formatter = KVStringFormatter()
-            if not hasattr(value, 'format'):
-                return value
-            try:
-                last_value = ''
-                count = 0
-                while last_value != value:
-                    count += 1
-                    last_value = value
-                    new_value = formatter.vformat(value, [], self._data)
-                    # we could have string-like types, and format degenerates them to just strings
-                    if type(new_value) is not type(value):
-                        new_value = type(value)(new_value)
-                    value = new_value
-                    if count > MAX_ITERATIONS:
-                        raise AssertionError("Value at '%s' could not be resolved after %i iterations - recursive values detected, last value was '%s', new value was '%s'" % (key, count, last_value, new_value))
-                    # end 
-                # end recursive resolution
-                return value
-            except (KeyError, AttributeError, ValueError, TypeError), err:
-                msg = "Failed to resolve value '%s' at key '%s' with error: %s"
-                self._log.warn(msg, value, key, str(err))
-                # if we can't resolve, we have to resolve substitute to an empty value. Otherwise
-                # the application might continue using a format string, which it can't check for
-                # validity at all. Default values (like empty strings) can though
-                return type(value)()
-            # end handle exception
-        # end resolver
-
         if self.should_resolve_values():
-            value = transform_value(value, resolve_scalar)
-        # check for compatibility
+            value = self._resolve_value(key, value)
+        # handle substitution
         
         super(KeyValueStoreProviderDiffDelegate, self)._set_merged_value(key, value)
 

@@ -12,6 +12,7 @@ from copy import deepcopy
 
 from .base import TestConfigurationBase
 from butility import (OrderedDict,
+                      Version,
                       Path)
 
 from bkvstore import *
@@ -266,11 +267,12 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         assert delegate.result() == dict1, 'addition of full dict onto empty one is full dict' 
 
     def test_defaults(self):
-        schema = KeyValueStoreSchema('site', { 'name' :  str,   # can be type
+        schema = KeyValueStoreSchema('site', {  'name' :  str,   # can be type
                                                 'location' : str(),
                                                 'basename_resolver' : str(),
                                                 'version_resolver' : str(),
-                                                'name_recursive' : str,
+                                                'name_recursive' : str(),
+                                                'version_autoresolve' : int(),
                                                 'root_path' : { 'repository' : 'default',
                                                                 'base' : str,
                                                                 'unresolvable' : '',
@@ -280,11 +282,14 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                                                                 'paths' : PathList,
                                                                 'executable' : KVPath
                                                                },
-                                               'floats' : FloatList,
-                                               'ints' : IntList
+                                                'floats' : FloatList,
+                                                'ints' : IntList
                                             }
                             )
         
+        # Setup (global) mapping to auto-convert versions to Version objects
+        KVStringFormatter.set_key_type('version', Version)
+
         root = 'base'
         site_name_unresolved = 'bapp-{site.location}'
         unresolved = '{site.root_path.base}/some/viable/value'
@@ -294,6 +299,9 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                                         'basename_resolver' : '{site.root_path.executable.as_KVPath.abspath.basename}',
                                         'version_resolver' : '{site.version.as_Version[0]},{site.version.as_Version.minor},{site.version.as_Version.patch}',
                                         'name_recursive' : '{site.name}',
+                                        # This value is not in the schema, but can be referenced anyway.
+                                        # It's a key-feature
+                                        'version_autoresolve' : '{site.version.major}',
                                         'version' : '2.5.6',
                                         'root_path' : 
                                             OrderedDict({ 'repository' : None,
@@ -302,7 +310,7 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                                                         'software' : unresolved,
                                                         'listed' : [unresolved, unresolved, [unresolved, 5]],
                                                         'needs_list' : 'iterable',
-                                                        'paths' : ['p1', 'p2'],
+                                                        'paths' : ['p1', '{site.root_path.paths[0]}'],
                                                         'executable' : 'foo'}),
                                         'floats' : ['1.5', '5.5', ['1.25']],
                                         'ints' : ['15', '5.5', ['1']],
@@ -334,12 +342,15 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         assert resolved_value.name_recursive == 'bapp-munich'
         assert resolved_value.basename_resolver == 'foo'
         assert resolved_value.version_resolver == '2,5,6'
+        assert resolved_value.version_autoresolve == 2
         assert resolved_value.root_path.software == resolved_path
         assert resolved_value.root_path.unresolvable == '', 'unresolvable values are not resolved ... for now'
         assert resolved_value.root_path.listed == [resolved_path, resolved_path, [resolved_path, '5']]
         assert isinstance(resolved_value.root_path.needs_list[0], Path)
-        assert isinstance(resolved_value.root_path.paths[0], Path)
-        
+        paths = resolved_value.root_path.paths
+        assert isinstance(paths[0], Path) and isinstance(paths[1], Path)
+        assert paths[1] == paths[0], 'substitution should have happened'
+
         
     def test_globkey(self):
         """validate a variable keys data-structure"""

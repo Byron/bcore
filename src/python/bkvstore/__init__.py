@@ -48,5 +48,5 @@ from .persistence import *
 from .schema import *
 from .diff import *
 from .types import *
-
+from .utility import *
 
