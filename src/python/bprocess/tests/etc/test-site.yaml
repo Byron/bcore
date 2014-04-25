@@ -73,10 +73,10 @@ packages:
         - no-settings
 
   load-from-settings:
-    alias:
+    alias: load-from-directories
     python:
       plugin_paths:
-        - '{delegate_python_path}/etc/plug-ins/test-plugin.py'
+        - '{delegate_python_path}/etc/plug-ins/test_plugin.py'
     arguments:
       prepend:
         - -c

@@ -140,7 +140,7 @@ class TestProcessControl(TestCaseBase):
         """Assure plugins are loaded from trees and using the settings"""
         for program in ('load-from-directories', 'load-from-settings'):
             pctrl = ProcessController(pseudo_executable(program))
-            assert pctrl.execute().returncode == 0
+            assert pctrl.execute_in_current_context().returncode == 0
         # end for each program to test
 
     @preserve_application

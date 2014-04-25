@@ -27,6 +27,7 @@ from bkvstore import (KeyValueStoreModifier,
                       PathList)
 from butility import ( OrderedDict,
                        Path,
+                       PythonFileLoader,
                        LazyMixin )
 
 
@@ -140,7 +141,7 @@ class PackageDataIteratorMixin(object):
     def _internal_iter_package_data(self, settings_value_or_kvstore, package_name, schema = None):
         """If schema is None, we use the settings_value mode, otherwise we access a kvstore directly"""
         if schema:
-            data_by_name = lambda n: settings_value_or_kvstore.value('%s.%s' % (controller_schema.key(), n), schema)
+            data_by_name = lambda n: settings_value_or_kvstore.value('%s.%s' % (controller_schema.key(), n), schema, resolve=True)
         else:
             data_by_name = lambda n: settings_value_or_kvstore[n]
         # end handle query function

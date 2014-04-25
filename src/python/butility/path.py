@@ -55,15 +55,9 @@ else:
     except ImportError:
         pwd = None
 
-# Pre-2.3 support.  Are unicode filenames supported?
-_base = str
-_getcwd = os.getcwd
-try:
-    if os.path.supports_unicode_filenames:
-        _base = unicode
-        _getcwd = os.getcwdu
-except AttributeError:
-    pass
+# We just assume it supports unicode, as pre-python 2.4 support isn't needed
+_base = unicode
+_getcwd = os.getcwdu
 
 # Pre-2.3 workaround for booleans
 try:
