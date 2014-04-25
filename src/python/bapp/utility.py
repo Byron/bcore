@@ -90,7 +90,7 @@ class StackAwareHierarchicalContext(HierarchicalContext):
             yield ctx
         # end for each environment
         
-    def _filter_directories(self, directories):
+    def _filter_trees(self, directories):
         """@note default implementation will ignore directories that have already been loaded by other environments
         on the stack
         """
@@ -99,7 +99,7 @@ class StackAwareHierarchicalContext(HierarchicalContext):
         # We keep file ordering
         current_dirs = set()
         for ctx in self._iter_application_contexts():
-            current_dirs |= set(ctx.config_directories())
+            current_dirs |= set(ctx.config_trees())
         # end for each stack environment
         return filter(lambda dir: dir not in current_dirs, directories)
 

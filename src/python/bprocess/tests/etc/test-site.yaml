@@ -1,3 +1,4 @@
+delegate_python_path: '{process.core_tree}/bprocess/tests'
 
 packages:
   #####################
@@ -27,7 +28,7 @@ packages:
     # Use python's executable as ours
     requires: test-environment
     alias: python
-    python_paths: '{process.core_tree}/bprocess/tests'
+    python_paths: '{delegate_python_path}'
     import_modules: delegate
     delegate: TestCommunicatorDelegate
     arguments:
@@ -51,6 +52,8 @@ packages:
 
   py-program-delegate-via-requires-in-remote-config:
     alias: py-program-delegate-via-requires
+    python_paths: '{delegate_python_path}'
+    import_modules: delegate
     configuration:
       # for fun, just the same config again - it won't be loaded as we detect this
       trees:
@@ -64,7 +67,7 @@ packages:
     requires: py-program
     # tests recursive resolution of executable alias
     alias: py-program
-    # tests overrides to be handled correclty
+    # tests overrides to be handled correctly
     delegate: TestOverridesDelegate
     # everything else is inherited by the base, the program itself is not interesting
     

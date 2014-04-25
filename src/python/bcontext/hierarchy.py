@@ -36,7 +36,7 @@ class HierarchicalContext(Context, LazyMixin):
     hierarchy.
     """
     __slots__ = (
-                    '_directories',       ## Directory from were to start the search for configuartion directories
+                    '_trees',       ## Directory from were to start the search for configuartion directories
                     '_config_dirs',     ## Cache for all located configuration directories
                     '_config_files',    ## All files we have loaded so far, in loading-order
                     '_additional_config_files', ## Files provided by the caller, they will be added on top
@@ -57,10 +57,10 @@ class HierarchicalContext(Context, LazyMixin):
     
     ## -- End Configuration -- @}
     
-    def __init__(self, directory, load_config = True, traverse_settings_hierarchy = True, config_files = list()):
+    def __init__(self, tree, load_config = True, traverse_settings_hierarchy = True, config_files = list()):
         """Initialize the instance with a directory from which it should search for configuration paths 
         and plug-ins.
-        @param directory from which to start finding directories to laod values from. It may either be the 
+        @param tree from which to start finding directories to laod values from. It may either be the 
         directory containing the configuration, or the one that yields such a directory by appending our 
         pre-configured config_dir_name.
         It may also be an iterable of directories, which will be searched in order. Please note that the 
@@ -74,30 +74,33 @@ class HierarchicalContext(Context, LazyMixin):
         the previous one which is already on the stack
         @note settings will be delay-loaded, first time they are actually queried
         """
-        super(HierarchicalContext, self).__init__(directory)
-        if not isinstance(directory, (list, tuple)) and not hasattr(directory, 'next'):
-            directory = [directory]
+        super(HierarchicalContext, self).__init__(tree)
+        if not isinstance(tree, (list, tuple)) and not hasattr(tree, 'next'):
+            tree = [tree]
         # end convert to list
 
         # Make sure we see Paths only
-        self._directories = list(directory)
-        for did, tree in enumerate(self._directories):
-            self._directories[did] = Path(tree)
+        self._trees = list(tree)
+        for did, tree in enumerate(self._trees):
+            self._trees[did] = Path(tree)
         # end assure correct type
 
         self._config_files = tuple()
         self._additional_config_files = config_files
 
         if traverse_settings_hierarchy:
-            self._config_dirs = self._traverse_config_directories()
+            self._config_dirs = self._traverse_config_trees()
         else:
             self._config_dirs = list()
-            if not directory.endswith(self.config_dir_name):
-                directory /= self.config_dir_name
-            # end normalize
-            if directory.isdir():
-                self._config_dirs.append(directory)
-            # end obtain valid configuration directory
+
+            for tree in self._trees:
+                if not tree.endswith(self.config_dir_name):
+                    tree /= self.config_dir_name
+                # end normalize
+                if tree.isdir():
+                    self._config_dirs.append(tree)
+                # end obtain valid configuration directory
+            # end for each tree
         # end handle traversal
 
         if load_config:
@@ -130,7 +133,7 @@ class HierarchicalContext(Context, LazyMixin):
         tags = (self._platform_id_short(), str(int_bits()))
         config_paths = list()
         
-        for path in self._filter_directories(self.config_directories()):
+        for path in self._filter_trees(self.config_trees()):
             config_paths.extend(tagged_file_paths(path, tags, '*' + YAMLKeyValueStoreModifier.StreamSerializerType.file_extension))
         # end for each path in directories
 
@@ -150,12 +153,12 @@ class HierarchicalContext(Context, LazyMixin):
             self._kvstore = self.KeyValueStoreModifierType(OrderedDict())
         # end handle yaml store
 
-    def _traverse_config_directories(self):
+    def _traverse_config_trees(self):
         """@return a list of configuration directories, based on our pre-configured configuration directory, 
         including the latter"""
         dirs = list()
 
-        for path in self._directories:
+        for path in self._trees:
             path = path.abspath() 
             # prevent to reach root, on linux we would get /etc, which we don't search for anything
             while path.dirname() != path:
@@ -172,7 +175,7 @@ class HierarchicalContext(Context, LazyMixin):
     ## @name Subclass Interface
     # @{
 
-    def _filter_directories(self, directories):
+    def _filter_trees(self, directories):
         """@return a list of directories that we should actually use to obtain configuration from
         @param directories a list of input-directories that should be filtered
         @note base implementation does nothing
@@ -191,7 +194,7 @@ class HierarchicalContext(Context, LazyMixin):
     ## @name Interface
     # @{
     
-    def config_directories(self):
+    def config_trees(self):
         """@return a list of directories, least significant, highest-level directory first, directories 
         deeper down the hierarchy follow, i.e. [/foo, /foo/bar, /foo/bar/baz/feps] that will be used to load 
         configuration and plugins
@@ -214,7 +217,7 @@ class HierarchicalContext(Context, LazyMixin):
         is supposed to contain plugin files. If None, the configuration directory itself is used.
         @note plugins should be loaded only AFTER this environment was pushed onto the stack. Otherwise
         loaded plugins will end up in the previous environment, not in this one"""
-        for path in self._filter_directories(self.config_directories()):
+        for path in self._filter_trees(self.config_trees()):
             if subdirectory is not None:
                 path /= subdirectory
             # end amend plugin dir

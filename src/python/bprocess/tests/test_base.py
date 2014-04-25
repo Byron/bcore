@@ -103,8 +103,8 @@ class TestProcessControl(TestCaseBase):
         assert type(pctrl.delegate()).__name__ == tcd_name
 
         # This one really tests remote configuration
-        pctrl = ProcessController(pseudo_executable('py-program-delegate-via-requires-in-remote-config'))
-        assert type(pctrl.delegate()).__name__ == tcd_name
+        pctrl = ProcessController(pseudo_executable('py-program-delegate-via-requires-in-remote-config'), ('---trace', ))
+        assert type(pctrl.delegate()).__name__ == 'TestOverridesDelegate'
 
     @preserve_application
     def test_iteration(self):

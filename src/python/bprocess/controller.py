@@ -345,7 +345,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             all_dirs.extend(pd.configuration.trees)
             all_files.extend(pd.configuration.files)
         # end for each package
-        
+
         if not (all_dirs or all_files):
             return None
         # end bailout if there is nothing to do
