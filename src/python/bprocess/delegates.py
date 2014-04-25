@@ -7,7 +7,7 @@
 """
 __all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'ControlledProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate', 'DisplayHelpException',
-           'ProcessControllerDelegateProxy', 'DisplayContextException', 'MariControllerDelegate']
+           'ProcessControllerDelegateProxy', 'MariControllerDelegate']
 
 import os
 import sys
@@ -110,13 +110,6 @@ class DisplayHelpException(Exception):
         self.help_string = help
         
 # end class DisplayHelpException
-
-
-class DisplayContextException(Exception):
-    """A marker to indicate we want the context displayed"""
-    __slots__ = ()
-
-# end class DisplayContextException
 
 
 class DelegateCommandlineOverridesContext(Context):
@@ -463,8 +456,8 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         
         # set overrides
         if kvstore_overrides.keys():
-            environment = application.context().push(DelegateCommandlineOverridesContext('commandline overrides', 
-                                                                                      kvstore_overrides))
+            application.context().push(DelegateCommandlineOverridesContext('commandline overrides', 
+                                                                           kvstore_overrides))
             ControlledProcessInformation.store_commandline_overrides(env, kvstore_overrides.data())
         #end handle overrides
         return super(ProcessControllerDelegate, self).prepare_context(application, executable, env, args, cwd)
@@ -611,10 +604,6 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                     # end for each path
                 # end for each environment
             # end print loaded files
-        elif arg == 'debug-context':
-                # We assume environment stack is printed to stderr
-                raise DisplayContextException("Stopping program to debug context")
-            # end handle argument
         elif self.wrapper_arg_kvsep in arg:
             # interpret argument as key in context
             key_value = arg
