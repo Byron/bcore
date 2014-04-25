@@ -1,0 +1,12 @@
+packages:
+  dummy-package:
+    # This one doesn't do anything really
+    environment:
+      variables:
+        FOO: BAR
+
+  py-program-delegate-via-requires-in-remote-config:
+    delegate: TestOverridesDelegate
+    requires:
+      - dummy-package
+

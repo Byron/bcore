@@ -7,6 +7,9 @@
 """
 __all__ = []
 
+if __name__ == '__main__':
+    print sys.argv
+
 import sys
 import os
 import tempfile
@@ -34,6 +37,31 @@ class TestCommand(object):
         print self.marker
 
 # end class TestCommand
+
+
+class ITestMarkerInterface(object):
+    """Just a marker to find something in the registry"""
+    __slots__ = ()
+
+    
+
+# end class CustomTestInterface
+
+
+class TestPluginLoading(object):
+    """Setup an application and try to use a very specific plugin"""
+    __slots__ = ()
+
+    def execute(self):
+        assert len(sys.argv) == 2
+        use_settings = sys.argv[1] == 'settings'
+
+        app = ProcessAwareApplication.new(load_plugins_from_settings = use_settings,
+                                          load_plugins_from_trees = not use_settings)
+        # that would only work if the plugin was loaded
+        app.new_instance(ITestMarkerInterface)
+
+# end class TestPluginLoading
 
 
 def pseudo_executable(bin_name):
@@ -106,6 +134,14 @@ class TestProcessControl(TestCaseBase):
         pctrl = ProcessController(pseudo_executable('py-program-delegate-via-requires-in-remote-config'), ('---trace', 
             '---foo=bar'))
         assert type(pctrl.delegate()).__name__ == 'TestOverridesDelegate'
+
+    @preserve_application
+    def test_process_plugin_loading(self):
+        """Assure plugins are loaded from trees and using the settings"""
+        for program in ('load-from-directories', 'load-from-settings'):
+            pctrl = ProcessController(pseudo_executable(program))
+            assert pctrl.execute().returncode == 0
+        # end for each program to test
 
     @preserve_application
     def test_iteration(self):

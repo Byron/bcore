@@ -1,4 +1,5 @@
 delegate_python_path: '{process.core_tree}/bprocess/tests'
+plugin_load_command: from bprocess.tests.test_base import TestPluginLoading; TestPluginLoading().execute()
 
 packages:
   #####################
@@ -8,15 +9,6 @@ packages:
       variables:
         PYTHONPATH: '{process.core_tree}'
         
-  maya:
-    requires: test-environment
-    
-  nuke:
-    requires: test-environment
-    
-  katana:
-    requires: test-environment
-
   python:
     version: '2.6'
     trees:
@@ -71,7 +63,26 @@ packages:
     # tests overrides to be handled correctly
     delegate: TestOverridesDelegate
     # everything else is inherited by the base, the program itself is not interesting
-    
+
+  load-from-directories:
+    alias: python
+    arguments:
+      prepend:
+        - -c
+        - '{plugin_load_command}'
+        - no-settings
+
+  load-from-settings:
+    alias:
+    python:
+      plugin_paths:
+        - '{delegate_python_path}/etc/plug-ins/test-plugin.py'
+    arguments:
+      prepend:
+        - -c
+        - '{plugin_load_command}'
+        - settings
+
   nosetests:
     # default nosetest starter
     alias: python 

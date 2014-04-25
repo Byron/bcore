@@ -78,7 +78,7 @@ class TestCore(TestCoreCaseBase):
         """See the hierarchical yaml loader in action"""
         assert bapp.Application.main is None
         app = bapp.Application.new(setup_logging=False, 
-                                    settings_paths=(self.fixture_path(''),),
+                                    settings_trees=(self.fixture_path(''),),
                                     settings_hierarchy=True)
 
         assert len(app.settings().data())

@@ -84,7 +84,7 @@ class Application(object):
 
     ## The name of the sub-directory to consider when loading plugins from all settings directories
     # May be None to load plugins from the settings directories directly
-    plugins_subdirectory = 'plug-ins'
+    plugins_subtree = 'plug-ins'
 
     ## The kind of Plugin we use
     PluginType = bcontext.Plugin
@@ -191,8 +191,8 @@ class Application(object):
     # @{
 
     @classmethod
-    def new(cls, settings_paths=tuple(), settings_hierarchy=False, 
-                 load_plugins = False, recursive_plugin_loading = False, plugins_subdirectory='plug-ins',
+    def new(cls, settings_trees=tuple(), settings_hierarchy=False, 
+                 load_plugins_from_trees = False, recursive_plugin_loading = False, plugins_subtree='plug-ins',
                  user_settings = True,
                  setup_logging = True,
                  with_default_contexts = True ):
@@ -203,7 +203,7 @@ class Application(object):
         purpose is to serve as central stable point for general purpose code, which allows Application aware
         code to keep record of new types.
 
-        @param settings_paths an iterable of butility.Path instances pointing to directories which should
+        @param settings_trees an iterable of butility.Path instances pointing to directories which should
         be searched for application settings.
         Settings are supposed to be stored in yaml files, which may have any name. As the search is non-recursive,
         settings must be located directly within the directory. This implies that yaml files unrelated to 
@@ -211,12 +211,12 @@ class Application(object):
         @param settings_hierarchy if True, default False, the entire parent hierarchy of each
         settings_search_path will be searched for configuration files too. By default, 'etc' directories will
         be considered a source for settings files.
-        @param load_plugins if True, plugins will be loaded from all plugins subdirectories. Each of them
-        is expected in one of the valid configuration directory we are effectively using.
-        This shouldn't be confused with configuring plugin load paths in the kvstore, which is another means 
-        of doing that. The difference is that the latter can't know the configuration files
+        @param load_plugins_from_trees if True, plugins will be loaded from all plugin subdirectories. Each of them
+        is expected in one of the valid configuration directories we are effectively using.
+        This shouldn't be confused with configuring plugin load paths in the application settings, which is 
+        another means of doing that. The difference is that the latter can't know the configuration files
         @param recursive_plugin_loading if True, plugins may reside in sub-folders and will be loaded anyway
-        @param plugins_subdirectory the directory within each configuration directory which should be searched
+        @param plugins_subtree the directory within each configuration directory which should be searched
         for plug-ins. That way, you can separate plug-ins from other code
         @param user_settings if True, user settings will be loaded from directory at user.config (within application settings)
         @param setup_logging if True, logging will be configured using the LogConfigurator, which in turn
@@ -240,13 +240,13 @@ class Application(object):
             inst.context().push(typ('app', user_settings=user_settings))
         # end handle ApplicationContext
 
-        for path in settings_paths:
+        for path in settings_trees:
             ctx = inst.context().push(cls.HierarchicalContextType(path,
                                                             traverse_settings_hierarchy=settings_hierarchy,
                                                             application=inst))
-            if load_plugins:
+            if load_plugins_from_trees:
                 ctx.load_plugins(recurse = recursive_plugin_loading,
-                                 subdirectory = plugins_subdirectory)
+                                 subdirectory = plugins_subtree)
         # end for each path to push
 
         if setup_logging:

@@ -221,7 +221,7 @@ class HierarchicalContext(Context, LazyMixin):
             if subdirectory is not None:
                 path /= subdirectory
             # end amend plugin dir
-            PythonFileLoader(path, recurse=recurse).load()
+            PythonFileLoader.load_files(path, recurse=recurse)
         # end load all plugins
     
     ## -- End Interface -- @}

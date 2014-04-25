@@ -420,7 +420,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         if self._prebuilt_app:
             self._app = app = self._prebuilt_app
         else:
-            self._app = app = ProcessAwareApplication.new(settings_paths=(bootstrap_dir, self._cwd),
+            self._app = app = ProcessAwareApplication.new(settings_trees=(bootstrap_dir, self._cwd),
                                                           settings_hierarchy=True,
                                                           user_settings=True)
         # end initialize application

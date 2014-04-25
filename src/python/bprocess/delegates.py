@@ -52,7 +52,8 @@ from .schema import ( controller_schema,
                       process_schema,
                       NamedServiceProcessControllerDelegate )
 
-from butility import Path
+from butility import ( Path,
+                       OrderedDict )
 
 log = logging.getLogger('bprocess.delegate')
 
@@ -310,7 +311,7 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
 
         # Store ConfigHierarchy hashmap for restoring it later
         # merge and store
-        hash_map = dict()
+        hash_map = OrderedDict()
         for einstance in context_stack.stack():
             if isinstance(einstance, StackAwareHierarchicalContext):
                 hash_map.update(einstance.hash_map())

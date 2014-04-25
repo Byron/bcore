@@ -1,52 +1,47 @@
-This repository is a core library of commonly used python facilities.
+The bcore project is designed to help writing powerful and maintainable application rapidly.
 
-Those include 
+## Features
+
+These are the top-three features
 
 - bootstrapper for dependency handling and pre-runtime configuration of programs
-- file based, cascading key-value store with strong schema 
 - service registry for plugins and configuration
+- file based, cascading key-value store with schema support
+
+Among the additional features are
+
 - Path type for object oriented path handling
 - small utility types too numerous to mention
 - a simple framework for writing and running quality checks
 - a simple framework to write transaction based operations of any kind
 - a framework for building powerful commandline tools
-- a framework for generating names in a rule based fashion, and infering meaning from them
+- [a framework](https://github.com/Byron/bcore/blob/master/src/md/bsemantic.md) for generating names in a rule based fashion, and infering meaning from them
 
-As such, core provides everything a basic program needs to run, as it helps to take care about handling of program dependencies, program configuration 
+## License
 
+This open source software is licensed under [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 
-## Semantic
+## Requirements
 
-A framework to translate meaning into symbols, and infer meaning from symbols, using a customizable ruleset.
+The requirements are kept minimal, which is why you need nothing more than:
 
-### Preamble
+* a python 2.6 or 2.7 interpreter running on Linux, OSX, Solaris or Windows
 
-"What's in a name ?" - one could say, and answer everything and nothing. A name itself is just a *sequence of characters*, and what makes it useful is the meaning we assign to those as a whole. If you take many of those sequences, lets call them *symbol* from now on, and place them in a specific order, they gain context which further defines their meaning - its a *sentence*.
+Optionally, you may need the following
 
-For pipeline tool development, names used to playing a major roles, as they contain a lot of information and meaning that can be used to perform tasks. Meaning may be transformed as well, which generates a new name.
+* nosetests
+    -  Developers use it to run unit tests to verify the program works as expected
 
-If code interacts with names, it usually has to either build those *symbols* that it believes belong to a meaning that it wants to express, or it tries to analyze the its characters to figure out its meaning, or the *symbols* in sentences to find out even more.
+## Development Status
 
-Doing so will of course make it very dependent on the actual character values, or the context of multiple concatenated *symbols*. This tends to be very problematic as they are prone to change, and sometimes they are required to change to adapt to changed requirements. 
+The code base was initiated 1.5 years ago, and was created to faciliate development in the company I was working for. Thanks to a code-buyback deal I am able to open-source it.
 
-In the end, what code is interested in is not the *symbol* itself, but the meaning that it bears, and we seek a way to decouple those so that the symbol can change, as long as the meaning doesn't.
+Currently I am fixing long-standing issues and clean up the entire code-base. This makes the code highly-instable, in the sense of it changing a lot and at will.
 
-### Semantic Name Handling
+Once the first release is out of the door, the API will stabilize though, yet I don't feel like being too careful about it as long as there are no strong dependencies on the code.
 
-The solution to the inherent inflexibility of using *symbols* directly is to not actually do it. The only thing we want to and can keep static is the semantic aspect of a symbol, i.e. the meaning.
-
-Code will not directly interact with names as strings, or with *symbols* in *sentences*, instead it will interact with the meaning only, and later have someone generate the corresponding *symbol* or sentence.
-
-This can be thought of as having the pure meaning of something, which is then by some set of rule converted into *symbols* that can represent it. In natural language, this would be something like a translator, who analyzes sentences in one language to obtain the meaning, allowing him to translate it to any other language he knows. 
-
-The example shows that once you have the pure meaning, you can essentially transform it into *symbols* using any rule set you like, and knowing the *rule set* that generated the *symbols*, you are able to infer the meaning once again.
-
-Such a *rule-set* in terms of more natural language would be comparable to *grammar* which defines in which order *words* from a *vocabulary* may be put.
-
-**Please see the documentation of the bsemantic package for more details**.
+![under construction](https://raw.githubusercontent.com/Byron/bcore/master/src/images/under_construction.png)
 
 ## Credits / External Packages
 
 * ``yaml``, see http://yaml.org
-
-![alt tag](https://raw.githubusercontent.com/Byron/bcore/master/src/images/under_construction.png)

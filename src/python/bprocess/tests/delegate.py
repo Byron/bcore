@@ -38,6 +38,7 @@ class TestCommunicatorDelegate(ProcessControllerDelegate):
             tmpfile.remove()
         finally:
             res = super(TestCommunicatorDelegate, self).communicate(process) 
+        assert res.returncode == 0, "There should have been no error"
         return res
 
 # end class TestCommunicator

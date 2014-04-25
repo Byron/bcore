@@ -42,7 +42,7 @@ def with_application(fun=None, **dkwargs):
     be discarded once the decorated function completes.
     It's useful if there is ApplictionSettingsClient code that tries to access the central information database
     @param dkwargs are given to bapp.Application.new()
-    @note you can use the custom parameter from_file=__file__ to append the given file to the settings_paths of
+    @note you can use the custom parameter from_file=__file__ to append the given file to the settings_trees of
     the new application"""
     if fun is None:
         p = partial(with_application, **dkwargs)
@@ -55,8 +55,8 @@ def with_application(fun=None, **dkwargs):
         assert bapp.Application.main is None, "Should have no application yet"
         from_file = dkwargs.pop('from_file', None)
         if from_file:
-            settings_paths = dkwargs.setdefault('settings_paths', list())
-            settings_paths.append(Path(from_file).dirname())
+            settings_trees = dkwargs.setdefault('settings_trees', list())
+            settings_trees.append(Path(from_file).dirname())
         # end handle arguments
         bapp.Application.new(**dkwargs)
         return fun(*args, **kwargs)

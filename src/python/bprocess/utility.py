@@ -537,10 +537,10 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
     """
     __slots__ = ()
 
-    def __init__(self):
+    def __init__(self, application):
         """Set ourselves to all data provided by the wrapper
         @note does nothing if we are not wrapped"""
-        super(ControlledProcessContext, self).__init__("Wrapped Environment", load_config = False)
+        super(ControlledProcessContext, self).__init__("Wrapped Environment", load_config = False, application=application)
 
         ppi = ControlledProcessInformation()
         store = ppi.as_kvstore()
@@ -550,6 +550,18 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
 
         self._hash_map = ppi.config_hashmap()
 
+        seen_dirs = set()
+        self._config_files = self._hash_map.values()
+        self._config_dirs = list()
+
+        # Be a good citizen, and rebuild the internal structure
+        for config_file in self._config_files:
+            cdir = config_file.dirname()
+            if cdir not in seen_dirs:
+                self._config_dirs.append(cdir)
+            # end if this is an unseen directory
+        # end for each configuration file to obtain directory from
+
     # -------------------------
     ## @name Interface
     # documentation
@@ -558,7 +570,7 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
     def has_data(self):
         """@return True if we have data"""
         return ControlledProcessInformation.has_data()
-        
+
     ## -- End Interface -- @}
 
 # end class ControlledProcessContext

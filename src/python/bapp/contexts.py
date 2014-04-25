@@ -60,7 +60,7 @@ class OSContext(Context, ApplicationSettingsClient):
                 value.platform.id = inst.id(inst.ID_FULL)
             # Enforce the actual system user
             value.user.login = login_name()
-            value.user.home = Path('~').expanduser()
+            value.user.home = str(Path('~').expanduser())
             value.host.fqname = socket.gethostname()
             value.host.name = value.host.fqname.split('.')[0]
 
