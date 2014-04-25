@@ -82,7 +82,7 @@ class Context(object):
         self.reset()
         
     def __repr__(self):
-        return "Context('%s')" % (self._name)
+        return "%s('%s')" % (type(self).__name__, self._name)
 
     # -------------------------
     ## @name Utilities

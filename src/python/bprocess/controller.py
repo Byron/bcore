@@ -438,7 +438,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                                                           user_settings=True)
         # end initialize application
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, self._args))
-
         external_configuration_context = self._gather_external_configuration(program)
         if external_configuration_context and external_configuration_context.settings().data():
             app.context().push(external_configuration_context)

@@ -247,6 +247,7 @@ class Application(object):
             if load_plugins_from_trees:
                 ctx.load_plugins(recurse = recursive_plugin_loading,
                                  subdirectory = plugins_subtree)
+
         # end for each path to push
 
         if setup_logging:

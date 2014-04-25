@@ -85,7 +85,6 @@ class HierarchicalContext(Context, LazyMixin):
             self._trees[did] = Path(tree)
         # end assure correct type
 
-        self._config_files = tuple()
         self._additional_config_files = config_files
 
         if traverse_settings_hierarchy:
@@ -111,6 +110,8 @@ class HierarchicalContext(Context, LazyMixin):
     def _set_cache_(self, name):
         if name == '_kvstore':
             self._load_configuration()
+        elif name == '_config_files':
+            self._config_files = self._find_config_files()
         else:
             return super(HierarchicalContext, self)._set_cache_(name)
         #end handle name
@@ -124,12 +125,9 @@ class HierarchicalContext(Context, LazyMixin):
         except KeyError:
             raise EnvironmentError("Please add the key '%s' to the HierarchicalContext.platform_names_map" % sys.platform)
         # end handle unknown platforms
-        
-    def _load_configuration(self):
-        """Load all configuration files from our directories.
-        Right now we implement it using tagged configuration files
-        @todo at some point, support writing to the user directory. However, its non-trivial and we 
-        have to do it at some later point"""
+
+    def _find_config_files(self):
+        """Traverse our configuration directories and obtain all yaml files, which are returned as list"""
         tags = (self._platform_id_short(), str(int_bits()))
         config_paths = list()
         
@@ -143,12 +141,17 @@ class HierarchicalContext(Context, LazyMixin):
         # We may have no configuration files left here, as the filter could remove them all (in case they
         # are non-unique)
         # for now, no writer
-        config_paths = self._filter_files(config_paths)
-        if config_paths:
+        return tuple(self._filter_files(config_paths))
+        
+    def _load_configuration(self):
+        """Load all configuration files from our directories.
+        Right now we implement it using tagged configuration files
+        @todo at some point, support writing to the user directory. However, its non-trivial and we 
+        have to do it at some later point"""
+        if self._config_files:
             log.debug("Context '%s' initializes its paths", self.name())
             #end for each path
-            self._kvstore = YAMLKeyValueStoreModifier(config_paths)
-            self._config_files = tuple(config_paths)
+            self._kvstore = YAMLKeyValueStoreModifier(self._config_files)
         else:
             self._kvstore = self.KeyValueStoreModifierType(OrderedDict())
         # end handle yaml store
