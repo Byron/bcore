@@ -20,6 +20,7 @@ from butility import ( Path,
                        update_env_path,
                        GraphIteratorBase,
                        LazyMixin,
+                       PythonFileLoader,
                        DictObject )
 
 from bcontext import Context
@@ -298,7 +299,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             pdata = package.data()
             package_cache.append((package, pdata))
             
-            for path in pdata.python_paths:
+            for path in pdata.boot.python_paths:
                 if path not in sys.path:
                     if not path.isdir():
                         log.error("Wrapper python path at '%s' wasn't accessible - might not be able to load delegate", path) 
@@ -316,15 +317,15 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             # Plugin Paths
             ##############
             # Insert all plugin paths in front to make sure overrides are in the right order
-            for path in pdata.plugin_paths:
+            for path in pdata.boot.plugin_paths:
                 plugin_paths.insert(0, package.to_abs_path(path))
             # end for each plugin path to absoludify
-            for module in pdata.import_modules:
+            for module in getattr(pdata.boot, 'import'):
                 import_modules.insert(0, module)
         # end for each package
         
         for path in plugin_paths:
-            PythonFileLoader(path).load()
+            PythonFileLoader.load_files(path)
         # end for each sorted plug-in to load
         
         for module in import_modules:
@@ -438,7 +439,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         platform = OSContext.platform_service_type()
         ld_env_var = platform.search_path_variable(platform.SEARCH_DYNLOAD)
         exec_env_var = platform.search_path_variable(platform.SEARCH_EXECUTABLES)
-        plugin_paths = list()
         
         # our program's package
         try:

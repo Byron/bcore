@@ -87,16 +87,22 @@ for key in ('executable', 'core_tree'):
 
 package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of the package. All relative paths will be 
                                                         # made absolute with the first valid root path
-                                                        { 'root_trees' : KVPathList,
+                                                        { 'trees' : KVPathList,
                                                          # absolute or relative path to the executable    
                                                           'executable' : Path,
                                                           # If True, the entire environment will be inherited. Otherwise the process will build its environment from scratch.
                                                           'inherit_environment' : False,
-                                                          # A list of paths to directories and files from which all python files should be loaded
-                                                          'plugin_paths' : PathList,
-                                                          # The python paths to set at wrap time
-                                                          'python_paths' : PathList,
-                                                          'import_modules' : StringList,
+                                                          
+                                                          # The python configuration only at boot time (using the bootstrapper)
+                                                          'boot' : {
+                                                            # The sys.paths to set in order to allow imports
+                                                            'python_paths' : PathList,
+                                                            # A list of modules which are to be imported
+                                                            'import' : StringList,
+                                                            # A list of paths to directories and files from which all python files should be loaded non-recursively
+                                                            # May also be a python file to be executed
+                                                            'plugin_paths' : PathList,
+                                                          },
                                                           'version' : Version(),
                                                           # Allows to specify additional configuration 
                                                           # that we have to pull in. It affects the bootstrapper
@@ -118,6 +124,8 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           # only used when building the process environment
                                                           'exclude' : StringList,
                                                           # An alias to the package which provides the executable of our program.
+                                                          # The delegate may be overridden here, and all 
+                                                          # all environment variables
                                                           'alias' : str,
                                                           'arguments' : {
                                                               # Arguments to append
@@ -142,15 +150,20 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                         }
                                                     )
 
-KVStringFormatter.set_key_type_by_schema(package_schema, ('root_trees', 'version'))
+KVStringFormatter.set_key_type_by_schema(package_schema, ('trees', 'version'))
 
 ## This doesn't need to be a schema, its used as building block to make one
 python_package_schema = {
                                'requires' : package_schema.requires,
                                'version' : package_schema.version,
-                               'root_trees': package_schema.root_trees,
+                               'trees': package_schema.trees,
                                'python' : {
+                                    # A list of modules that is to be imported
                                     'import' : StringList,
+                                    # A list of python files to be executed. This will also make their code
+                                    # in available, or register plugins
+                                    # May contain directories, from which all python files will be loaded
+                                    # non-recursively
                                     'plugin_paths' : PathList
                                }
                          }

@@ -211,7 +211,10 @@ class Application(object):
         @param settings_hierarchy if True, default False, the entire parent hierarchy of each
         settings_search_path will be searched for configuration files too. By default, 'etc' directories will
         be considered a source for settings files.
-        @param load_plugins if True, plugins will be loaded from all plugins subdirectories
+        @param load_plugins if True, plugins will be loaded from all plugins subdirectories. Each of them
+        is expected in one of the valid configuration directory we are effectively using.
+        This shouldn't be confused with configuring plugin load paths in the kvstore, which is another means 
+        of doing that. The difference is that the latter can't know the configuration files
         @param recursive_plugin_loading if True, plugins may reside in sub-folders and will be loaded anyway
         @param plugins_subdirectory the directory within each configuration directory which should be searched
         for plug-ins. That way, you can separate plug-ins from other code

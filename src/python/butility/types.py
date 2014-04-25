@@ -771,9 +771,6 @@ class PythonFileLoader(object):
             try:
                 cls.load_file(py_file, mod_name)
             except Exception:
-                # TODO: fix the logger issue, traceback shouldn't be required
-                import traceback
-                traceback.print_exc()
                 log.error("Failed to load %s from %s", mod_name, py_file, exc_info=True)
             else:
                 log.info("loaded %s into module %s", py_file, mod_name)

@@ -19,7 +19,7 @@ packages:
 
   python:
     version: '2.6'
-    root_trees:
+    trees:
       - '/usr/bin'
       - 'c:\Python{packages.python.version.major}{packages.python.version.minor}'
     executable: 'python{packages.python.version}'
@@ -28,8 +28,9 @@ packages:
     # Use python's executable as ours
     requires: test-environment
     alias: python
-    python_paths: '{delegate_python_path}'
-    import_modules: delegate
+    boot:
+      python_paths: '{delegate_python_path}'
+      import: delegate
     delegate: TestCommunicatorDelegate
     arguments:
       # Just for testing ...
@@ -52,8 +53,8 @@ packages:
 
   py-program-delegate-via-requires-in-remote-config:
     alias: py-program-delegate-via-requires
-    python_paths: '{delegate_python_path}'
-    import_modules: delegate
+    boot:
+      plugin_paths: '{delegate_python_path}/delegate.py'
     configuration:
       # for fun, just the same config again - it won't be loaded as we detect this
       trees:
