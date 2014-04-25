@@ -88,17 +88,18 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
     @see __init__()
     """
     __slots__ = ( 
-                    '_boot_executable',  # our bootstrapper's executable's name
-                    '_args',        # arguments provided to executable
-                    '_delegate',    # our delegate
-                    '_cwd',         # current working dir to use as context
-                    '_environ',     # environment dictionary
-                    '_executable_path', # path to executable of process we should create
-                    '_spawn_override', # See set_should_spawn_process_override
-                    '_app',         # the Application we are using to obtain information about our environment
-                    '_prebuilt_app', # An Application instance optionally provided by the user
+                    '_boot_executable',   # our bootstrapper's executable's name
+                    '_args',              # arguments provided to executable
+                    '_delegate',          # our delegate
+                    '_cwd',               # current working dir to use as context
+                    '_environ',           # environment dictionary
+                    '_executable_path',   # path to executable of process we should create
+                    '_spawn_override',    # See set_should_spawn_process_override
+                    '_app',               # the Application we are using to obtain information about our environment
+                    '_prebuilt_app',      # An Application instance optionally provided by the user
                     '_delegate_override', # the delegate the caller might have set
-                    '_dry_run'      # if True, we will not actually spawn the application
+                    '_dry_run',           # if True, we will not actually spawn the application,
+                    '_package_data_cache' # intermediate data cache, to reduce overhead during iteration
                 )
     
     # -------------------------
@@ -169,6 +170,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         # NOTE: We can't set the _app attribute right away, as we rely on lazy mechanisms to initialize ourselves
         # when needed. The latter wouldn't work if we set the attribute directly
         self._prebuilt_app = application
+        self._package_data_cache = dict()
 
     def _set_cache_(self, name):
         if name in ('_app', '_executable_path', '_delegate'):
@@ -188,10 +190,17 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
     def _package_data(self, name):
         """@return verified package data for a package of the given name"""
         key = '%s.%s' % (self._schema.key(), name)
+        try:
+            return self._package_data_cache[key]
+        except KeyError:
+            pass
+        # end ignore cache miss
         if not self._app.context().settings().has_value(key):
             raise EnvironmentError("A package named '%s' did not exist in the database, searched at '%s'" % (name, key))
         # end graceful key handling
-        return self._app.context().settings().value(key, self._package_data_schema, resolve=True)
+        pd = self._app.context().settings().value(key, self._package_data_schema, resolve=True)
+        self._package_data_cache[key] = pd
+        return pd
         
     def _package(self, name):
         """@return _ProcessControllerPackageSpecification instance matching the given name
@@ -281,6 +290,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
     # -------------------------
     ## @name Interface
     # @{
+
+    def _clear_package_data_cache(self):
+        """Clear our package cache"""
+        self._package_data_cache = dict()
     
     def _name(self):
         """Name of the process we should control"""
@@ -469,6 +482,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             
             # If there were changes to the environment, which means we have to refresh all our data so far
             if len(app.context()) != prev_len:
+                # As the settings changed, our cache needs update too
+                self._clear_package_data_cache()
+
                 root_package, alias_package = root_package_and_executable_provider()
 
                 # Now we have to load exernal dependencies again, as our entire configuration could have changed

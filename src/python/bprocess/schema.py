@@ -90,9 +90,24 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                         { 'trees' : KVPathList,
                                                          # absolute or relative path to the executable    
                                                           'executable' : Path,
+                                                          # Path to the current working directory of the process
+                                                          # This will not affect the current working dir set for 
+                                                          # setting up the configuration
+                                                          'cwd' : Path,
+                                                          # We are explicit about our delegate type, so this needs to be overridden
+                                                          'delegate' : NamedServiceProcessControllerDelegate('ProcessControllerDelegate'),
+                                                          # A list of packages that we depend on, and whose 
+                                                          # configuration we will need
+                                                          'requires' : StringList,
+                                                          # A list of packages not to consider in our requirements
+                                                          # only used when building the process environment
+                                                          'exclude' : StringList,
+                                                          # An alias to the package which provides the executable of our program.
+                                                          # The delegate may be overridden here, and all 
+                                                          # all environment variables
+                                                          'alias' : str,
                                                           # If True, the entire environment will be inherited. Otherwise the process will build its environment from scratch.
                                                           'inherit_environment' : False,
-                                                          
                                                           # The python configuration only at boot time (using the bootstrapper)
                                                           'boot' : {
                                                             # The sys.paths to set in order to allow imports
@@ -113,20 +128,6 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                             # whatever came in from them
                                                             'files' : PathList,
                                                           },
-                                                          # Path to the current working directory of the process
-                                                          # This will not affect the current working dir set for 
-                                                          # setting up the configuration
-                                                          'cwd' : Path,
-                                                          # We are explicit about our delegate type, so this needs to be overridden
-                                                          'delegate' : NamedServiceProcessControllerDelegate('ProcessControllerDelegate'),
-                                                          'requires' : StringList,
-                                                          # A list of packages not to consider in our requirements
-                                                          # only used when building the process environment
-                                                          'exclude' : StringList,
-                                                          # An alias to the package which provides the executable of our program.
-                                                          # The delegate may be overridden here, and all 
-                                                          # all environment variables
-                                                          'alias' : str,
                                                           'arguments' : {
                                                               # Arguments to append
                                                               'append' : StringList,
