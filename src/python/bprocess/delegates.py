@@ -392,17 +392,21 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     
     ## A regular expression to check if we have a path
     re_find_path = re.compile(r"^.+[/\\][^/\\]+$")
+
+    # -------------------------
+    ## @name Constants
+    # @{
     
     ## A prefex we use to determine if the argument is destined to be used for the wrapper
-    _wrapper_arg_prefix = '---'
+    wrapper_arg_prefix = '---'
     
     ## Separator for key-value pairs
-    _wrapper_arg_kvsep = '='
+    wrapper_arg_kvsep = '='
     
     ## adjustable wrap-time logging levels
-    _wrapper_logging_levels = ('trace', 'debug')
+    wrapper_logging_levels = ('trace', 'debug')
 
-    ## just a constant for handling the context debugging
+    ## -- End Constants -- @}
     
     ## Help for how to use the custom wrapper args
     _wrapper_arg_help = \
@@ -441,7 +445,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         # Will be a kvstore if there have been overrides
         kvstore_overrides = KeyValueStoreModifier(dict())
         for arg in args:
-            if not arg.startswith(self._wrapper_arg_prefix):
+            if not arg.startswith(self.wrapper_arg_prefix):
                 # For now only find direct, single argument paths.
                 path = self._extract_path(arg)
                 if not path:
@@ -453,12 +457,12 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # end handle valid directory
                 continue
             # end ignore non-wrapper args
-            self.handle_argument(application, arg[len(self._wrapper_arg_prefix):], kvstore_overrides)
+            self.handle_argument(application, arg[len(self.wrapper_arg_prefix):], kvstore_overrides)
         # end for each arg to check
         
         # set overrides
         if kvstore_overrides.keys():
-            environment = application.context().push(DelegateCommandlineOverridesContext('wrapper commandline overrides', 
+            environment = application.context().push(DelegateCommandlineOverridesContext('commandline overrides', 
                                                                                       kvstore_overrides))
             ControlledProcessInformation.store_commandline_overrides(env, kvstore_overrides.data())
         #end handle overrides
@@ -500,7 +504,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         @note also removed custom wrapper arguments, which are identified by their '---' prefix"""
         self.update_from_os_environment(self._inherit_those_variables, env)
         # remove wrapper args
-        new_args = [arg for arg in args if not arg.startswith(self._wrapper_arg_prefix)]
+        new_args = [arg for arg in args if not arg.startswith(self.wrapper_arg_prefix)]
 
         if self.has_transaction():
             if self.transaction().apply().failed():
@@ -591,7 +595,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         @throws AssertionError if the argument cannot be handled"""
         if arg == 'help':
             raise DisplayHelpException(self._wrapper_arg_help)
-        elif arg in self._wrapper_logging_levels:
+        elif arg in self.wrapper_logging_levels:
             set_log_level(logging.root, getattr(logging, arg.upper()))
             
             if arg == 'debug':
@@ -610,11 +614,11 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # We assume environment stack is printed to stderr
                 raise DisplayContextException("Stopping program to debug context")
             # end handle argument
-        elif self._wrapper_arg_kvsep in arg:
+        elif self.wrapper_arg_kvsep in arg:
             # interpret argument as key in context
             key_value = arg
-            assert len(key_value) > 2 and self._wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
-            kvstore.set_value(*key_value.split(self._wrapper_arg_kvsep))
+            assert len(key_value) > 2 and self.wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
+            kvstore.set_value(*key_value.split(self.wrapper_arg_kvsep))
             log.debug("CONTEXT VALUE OVERRIDE: %s", key_value)
         elif arg in ('dry-run', 'debug-context'):
             # Just ignore these, they are handled elsewhere

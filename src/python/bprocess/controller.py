@@ -335,7 +335,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
 
     def _gather_external_configuration(self, program):
         """@return a new Context filled with a merge of all directories and files we found so far, or None 
-        if there was not a single one."""
+        if there was not a single one.
+        @note As we return stack-aware context, it might end up loading nothing if the respective files
+        # have been loaded already. The caller should not push it onto the stack if it's kvstore is empty"""
         # aggregate the dirs and files
         all_dirs = list()
         all_files = list()
@@ -424,8 +426,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, self._args))
 
         external_configuration_context = self._gather_external_configuration(program)
-        if external_configuration_context:
+        if external_configuration_context and external_configuration_context.settings().data():
             app.context().push(external_configuration_context)
+        else:
+            # Mark it as unset so we don't try to remove it later, possibly
+            external_configuration_context = None
         # end add external configuration
 
         # Evaluate Program Database
@@ -462,8 +467,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             prev_len = len(app.context())
             self.delegate().prepare_context(app, self._executable_path, self._environ, self._args, self._cwd)
             
-            # If there were changes to the environment, pick them up by clearing our data. This would the delegate 
-            # name to be updated as well.
+            # If there were changes to the environment, which means we have to refresh all our data so far
             if len(app.context()) != prev_len:
                 root_package, alias_package = root_package_and_executable_provider()
 
@@ -471,13 +475,20 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                 # We try to prevent needless work though by
                 # * only rebuidling if something changed
                 # * removing the previous context to make rebuilding faster
-                new_external_configuration_context = self._gather_external_configuration(program)
                 def remove_previous_configuration():
-                    app.context().stack().remove(new_external_configuration_context)
-                # end utility
+                    assert external_configuration_context
+                    app.context().stack().remove(external_configuration_context)
+                # end
+                    
+                # NOTE: all the following code tries hard not to push or pop a context without having 
+                # the need for it. The latter will invalidate our cache, which is expensive to redo
+                new_external_configuration_context = self._gather_external_configuration(program)
                 if new_external_configuration_context:
+                    new_data = new_external_configuration_context.settings().data()
                     if external_configuration_context:
-                        if new_external_configuration_context.data() != external_configuration_context.data():
+                        # As the stack-aware context won't have any contents if there are no new files, 
+                        # it might end up empty. In that case, there is no need to do anything
+                        if new_data and new_data != external_configuration_context.settings().data():
                             # the configuration changed, remove previous one, and add this one
                             # the removal is kind of sneaky, but thanks to the addition, the cache will be 
                             # invalidated anyway
@@ -489,7 +500,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                         # end remove previous on mismatch
                     else:
                         # there is just a new one, add it
-                        app.context().push(new_external_configuration_context)
+                        if new_data:
+                            app.context().push(new_external_configuration_context)
+                        # end
                     # end handle previous external context
                 elif external_configuration_context:
                     # there is an old, but no new one. Delete previous one
