@@ -106,6 +106,12 @@ class TestProcessControl(TestCaseBase):
         
         pctrl = ProcessController(cmd_path, '---foo=bar ---hello.world=42'.split())
         assert pctrl.execute().returncode == 0
+
+        # Override the python version, to something that doesn't exist
+        version = '0.2.3'
+        assert pctrl.executable().endswith('2.6'), 'default is to be 2.6'
+        pctrl = ProcessController(cmd_path, ('---packages.python.version=%s' % version).split())
+        assert pctrl.executable().endswith(version), 'cmd line override should have worked'
         
     @preserve_application
     def test_execute_in_context(self):

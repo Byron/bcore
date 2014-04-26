@@ -250,16 +250,19 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
                 elif left_value is None:
                     actual_value = right_value_inst
                 else:
-                    # special handling for lists or subclasses, as they are so common ...
+
                     if isinstance(right_value_inst, list) and not isinstance(left_value, list):
                         if self.should_resolve_values():
-                            right_value_inst = self._resolve_value(key, right_value_inst)
+                            # have to assure we copy the nested value, otherwise the resolved value
+                            # shows up in our source date-structure. We do this here, just to prevent
+                            # unnecessary work in the resolver
+                            right_value_inst = self._resolve_value(key, smart_deepcopy(right_value_inst))
                         actual_value = type(right_value_inst)()
                         actual_value.append(left_value)
                     elif isinstance(right_value, type):
                         # handle types
                         if self.should_resolve_values():
-                            left_value = self._resolve_value(key, left_value)
+                            left_value = self._resolve_value(key, smart_deepcopy(left_value))
                         actual_value = right_value(left_value)
                     else:
                         # handle instances - only convert the type if this is necesary.
