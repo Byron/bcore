@@ -15,6 +15,11 @@ A delegate should be implemented in case you want more feedback and control.
 
 @copyright 2012 Sebastian Thiel
 """
+from __future__ import absolute_import
+
+from butility import Version
+__version__ = Version("0.1.0")
+
 from .interfaces import *
 from .base import *
 

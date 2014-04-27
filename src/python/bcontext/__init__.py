@@ -11,6 +11,9 @@
 """
 from __future__ import absolute_import
 
+from butility import Version
+__version__ = Version("0.1.0")
+
 # make sure people can get the most fundamental implementation in this package
 from .base import *
 from .hierarchy import *

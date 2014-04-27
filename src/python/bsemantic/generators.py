@@ -23,7 +23,7 @@ from bkvstore import (
                                 UnorderedKeyValueStoreModifier,
                                 KeyValueStoreProvider
                             )
-from bapp.utility import DictObject
+from butility import DictObject
 
 import bapp.core.logging
 

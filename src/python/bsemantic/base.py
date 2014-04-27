@@ -9,7 +9,7 @@ __all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElemen
 
 
 from bapp import MetaBase
-from bapp.utility import  (
+from butility import  (
                             DictObject, 
                             LazyMixin,
                         )

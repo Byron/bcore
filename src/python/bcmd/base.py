@@ -7,12 +7,13 @@
 """
 __all__ = ['CommandBase', 'SubCommandBase']
 
-import logging
 import sys
+import logging
+
 
 import bapp
 from bkvstore import KeyValueStoreProvider
-from bapp.utility import LazyMixin
+from butility import LazyMixin
 
 from .argparse import (
                         ArgumentError,
@@ -46,6 +47,7 @@ class CommandBase(ICommand, LazyMixin):
     __slots__ = (
                     '_log',         # our logging instance, lazy
                     '_info',        # info kv store, lazy
+                    '_app',         # the application to use when querying the registry, or settings
                 )
     
     ArgumentParserType = CommandArgumentParser 
@@ -117,6 +119,13 @@ class CommandBase(ICommand, LazyMixin):
     UNHANDLED_ERROR = 255
     
     ## -- End Constants -- @}
+
+    def __init__(self, application=None):
+        """Initialize this instance
+        @param application instance of type Application, which is used to query the plugin registry. 
+        If None, the global instance will be used automatically"""
+        super(ICommand, self).__init__()
+        self._app = application
     
     def _set_cache_(self, name):
         if name == '_log':
@@ -179,7 +188,8 @@ class CommandBase(ICommand, LazyMixin):
     def _find_compatible_subcommands(self):
         """@return a list or tuple of compatible ISubCommand instances. Must contain at least one subcommand instance
         @note the base implementation searches the current environment stack for it"""
-        return [scmd for scmd in bapp.main().context().new_instances(ISubCommand) if scmd.is_compatible(self)]
+        return [scmd for scmd in (self._app or bapp.main()).context().new_instances(ISubCommand) 
+                                                                    if scmd.is_compatible(self)]
         
     def _add_version_argument(self, parser, version):
         """Set the given version as argument to the argparser.
@@ -278,6 +288,11 @@ class CommandBase(ICommand, LazyMixin):
         """Convenience method to instantiate this type and run its parse_and_execute().
         It will also perform a system-exit with the exit code of the exit code of the aforementioned method"""
         sys.exit(cls().parse_and_execute())
+
+    def application(self):
+        """@return the Application instance we should use for plugin queries, or None if it is unset
+        and the global one will be used"""
+        return self._app
         
             
     ## -- End Interface -- @}

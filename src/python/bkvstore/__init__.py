@@ -10,6 +10,9 @@
 # Allow better imports !
 from __future__ import absolute_import
 
+from butility import Version
+__version__ = Version("0.1.0")
+
 import sys
 import os
 

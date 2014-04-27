@@ -13,7 +13,7 @@ import bapp
 from butility.tests import (TestCaseBase,
                             with_rw_directory)
 
-import bapp.cmd
+import bcmd
 
 
 
@@ -24,7 +24,7 @@ import bapp.cmd
 ## \{
 
 ## [ExampleCommand]
-class ExampleCommand(bapp.cmd.CommandBase):
+class ExampleCommand(bcmd.CommandBase):
     """A command with verbosity argument"""
     __slots__ = ()
     
@@ -57,7 +57,7 @@ class ExampleCommand(bapp.cmd.CommandBase):
 ## [ExampleCommand] 
         
 ## [ExampleCommandWithSubcommands]
-class MasterCommand(bapp.cmd.CommandBase):
+class MasterCommand(bcmd.CommandBase):
     """Allows for subcommands"""
     
     name = 'master'
@@ -71,11 +71,11 @@ class MasterCommand(bapp.cmd.CommandBase):
 
 # end class MasterCommand
 
-class ExampleSubCommand(ExampleCommand, bapp.cmd.SubCommandBase, Plugin):
+class ExampleSubCommand(ExampleCommand, bcmd.SubCommandBase, bapp.plugin_type()):
     """Shows how to use an existing command as mode of a master command.
     @note we make ourselves a plugin to allow the CommandBase implementation to find our command.
     This can also be overridden if no plugin system is required, using the 
-    bapp.cmd.CommandBase._find_compatible_subcommands() method"""
+    bcmd.CommandBase._find_compatible_subcommands() method"""
     
     # this associates us with the main command
     main_command_name = MasterCommand.name

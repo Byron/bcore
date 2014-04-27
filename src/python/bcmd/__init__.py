@@ -89,9 +89,10 @@ And the actual implementation looks like this:
 
 @copyright 2013 Sebastian Thiel
 """
-from bapp import Version
-__version__ = Version("0.1.0")
+from __future__ import absolute_import
 
+from butility import Version
+__version__ = Version("0.1.0")
 
 from .interfaces import *
 from .base import *

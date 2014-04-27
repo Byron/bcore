@@ -20,6 +20,9 @@ Then we perform a two-way diff on them using the pre-defined DiffIndexDelegate
 # Allow better imports !
 from __future__ import absolute_import
 
+from butility import Version
+__version__ = Version("0.1.0")
+
 from .base import *
 from .delegates import *
 from .algorithms import *

@@ -8,7 +8,7 @@
 __all__ = ['TestBase']
 
 from butility.tests import TestCaseBase
-from bapp.utility import DictObject
+from butility import DictObject
 
 import yaml
 try:

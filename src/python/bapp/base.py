@@ -71,7 +71,7 @@ class Application(object):
     ## A variable to keep the first created Application instance, see Application.new()
     ## The very same instance will be placed in bapp.app
     main = None
-    
+
     ## -- End Constants -- @}
 
     # -------------------------
@@ -106,6 +106,9 @@ class Application(object):
     
     ## -- End Subclass Configuration -- @}
 
+    # Just a marker for the context which exists while there is no official Application instance
+    PRE_APPLICATION_CONTEXT_NAME = "early-startup-intermediary"
+
     # -------------------------
     ## @name Types
     # @{
@@ -128,7 +131,7 @@ class Application(object):
             # Each Application instance will just set a respective instance variable with the custom type
             if Application.main is None:
                 if len(cls.default_stack) == 1:
-                    cls.default_stack.push("early-startup-intermediary")
+                    cls.default_stack.push(Application.PRE_APPLICATION_CONTEXT_NAME)
                 # end create first user-controlled context
                 return cls.default_stack
             # end handle default stack

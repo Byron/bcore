@@ -8,6 +8,7 @@
 __all__ = []
 
 import bapp
+from bapp.tests import with_application
 from butility.tests import TestCaseBase
 
 # Test * import
@@ -78,15 +79,17 @@ class TestCommands(TestCaseBase):
     """Basic command framework tests"""
     __slots__ = ()
 
+    @with_application
     def test_simple_command(self):
         """Standard command features test"""
         cmd = SimpleCommand()
-        assert cmd.parse_and_execute(list()) == 255, 'cannot execute without -x'
+        assert cmd.parse_and_execute(list()) == cmd.ARGUMENT_ERROR, 'cannot execute without -x'
         assert cmd.parse_and_execute(['-h']) == cmd.ARGUMENT_HANDLED, 'can show help without error code'
         assert cmd.parse_and_execute(['--version']) == cmd.ARGUMENT_HANDLED, 'can show version'
         assert cmd.parse_and_execute(['-x', 'foo']) == 3, 'cannot use foo as int'
         assert cmd.parse_and_execute(['-x', '5']) == 0, 'first valid call'
         
+    @with_application
     def test_master_command(self):
         """Simple subcommand testing"""
         cmd = MainCommand()
