@@ -6,23 +6,24 @@
 @copyright 2012 Sebastian Thiel
 """
 
-__all__ = [ 'QualityCheckCategory', 'NoCategory', 'QualityCheckBase', 'QualityCheckRunner', 'QualityCheckRunnerDelegate',
-            'StreamingQualityCheckRunnerDelegate']
+__all__ = [ 'QualityCheckCategory', 'NoCategory', 'QualityCheckBase', 'QualityCheckRunner', 
+            'QualityCheckRunnerDelegate', 'StreamingQualityCheckRunnerDelegate']
 
 import sys
 import traceback
+import logging
 
-from bapp import abstractmethod
-from bapp import InterfaceBase
-from .interfaces import (
-                         IQualityCheck,
-                         IQualityCheckRunner,
-                         IQualityCheckRunnerDelegate,
-                         QualityCheckCategory
-                        )
+import bapp
 
-from butility import wraps
-import bapp.log
+from butility import ( abstractmethod,
+                      InterfaceBase,
+                      wraps )
+
+from .interfaces import ( IQualityCheck,
+                          IQualityCheckRunner,
+                          IQualityCheckRunnerDelegate,
+                          QualityCheckCategory )
+
 
 # ==============================================================================
 ## @name Decorators
@@ -72,7 +73,7 @@ class QualityCheckRunnerDelegate(IQualityCheckRunnerDelegate):
 
     __slots__ = tuple()
     
-    log = bapp.log.module_logger('bqc.base.QualityCheckRunnerDelegate')
+    log = logging.getLogger('bqc.base.QualityCheckRunnerDelegate')
     
     # -------------------------
     ## @name Interface
@@ -248,7 +249,7 @@ class QualityCheckRunner(IQualityCheckRunner, bapp.plugin_type()):
     stop_run = 'stop_run'
     
     ## default logger we will use
-    log = bapp.log.module_logger('bqc.base.QualityCheckRunnerDelegate')
+    log = logging.getLogger('bqc.base.QualityCheckRunnerDelegate')
     
     ## -- End Configuration -- @}
     

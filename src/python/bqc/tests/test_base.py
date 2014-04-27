@@ -97,7 +97,7 @@ class QualityCheckMockup(QualityCheckBase, bapp.plugin_type()):
     ## -- End Test Interface -- @}
 
 
-class QualityCheckRunnerDelegateMockup(QualityCheckRunnerDelegate, Plugin):
+class QualityCheckRunnerDelegateMockup(QualityCheckRunnerDelegate, bapp.plugin_type()):
     """Implements a simple delegate for testing purposes, to help assuring the runner works within its bounds."""
     __slots__ = (
                     # user configuration

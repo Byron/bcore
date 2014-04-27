@@ -8,8 +8,8 @@
 __all__ = ['IQualityCheck', 'IQualityCheckProvider', 'IQualityCheckRunnerDelegate', 'IQualityCheckRunner', 
             'QualityCheckCategory']
 
-import bapp
-from bapp import abstractmethod
+from butility import ( abstractmethod,
+                       InterfaceBase )
 
 # -------------------------
 ## @name Utility
@@ -46,7 +46,7 @@ class QualityCheckCategory(object):
 ## -- End Utility -- @}
 
 
-class IQualityCheckProvider(bapp.InterfaceBase):
+class IQualityCheckProvider(InterfaceBase):
     """A simple interface implementing an algorithm to select checks for the current context"""
     __slots__ = ()
     
@@ -57,7 +57,7 @@ class IQualityCheckProvider(bapp.InterfaceBase):
 # end class IQualityCheckProvider
 
 
-class IQualityCheck(bapp.InterfaceBase):
+class IQualityCheck(InterfaceBase):
     """A base class providing the foundation for all actual QualityCheck implementations."""
     __slots__ = ()      
    
@@ -144,7 +144,7 @@ class IQualityCheck(bapp.InterfaceBase):
 # end class IQualityCheck    
 
 
-class IQualityCheckRunner(list, bapp.InterfaceBase):
+class IQualityCheckRunner(list, InterfaceBase):
     """Is a list of `QualityCheckBase` compatible instances which can be run safely, providing just-in-time information
     about the results of this run.
     
@@ -198,7 +198,7 @@ class IQualityCheckRunner(list, bapp.InterfaceBase):
 # end class IQualityCheckRunner
 
 
-class IQualityCheckRunnerDelegate(bapp.InterfaceBase):
+class IQualityCheckRunnerDelegate(InterfaceBase):
     """Defines a callback interface to be used by `QualityCheckRunner` instances
     
     The delegate may control the runner by returning codes for the runner to interpret.
