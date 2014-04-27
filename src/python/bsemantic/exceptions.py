@@ -7,11 +7,14 @@
 """
 __all__ = ['Error', 'InvalidValueError', 'MissingFormatResultError']
 
-import bapp
+import butility
 
-class Error(bapp.Error):
+class Error(butility.Error):
     """Base exception for all exceptions thrown by bsemantic"""
     __slots__ = ()
+
+# end class Error
+
 
 class InvalidValueError(Error):
     """Thrown when the VerifiedElementNode cannot assure the validity of a value.
@@ -41,6 +44,3 @@ class MissingFormatResultError(Error):
     
 
 # end class MissingFormatResultError
-    
-
-# end class Error

@@ -10,10 +10,10 @@ sample ruleset.
 """
 __all__ = ['InferenceStringFormatNodeTreeDelegate', 'InferenceStringFormatNodeTree']
 
-import parse
+import logging
 
 
-import bapp.core.logging
+from . import parse
 
 from .generators import StringFormatNodeTree
 from bkvstore import UnorderedKeyValueStoreModifier
@@ -27,7 +27,7 @@ class InferenceStringFormatNodeTreeDelegate(object):
                     '_parsed_data',     # a dictionary of DictObjects with the parsed (nested) data
                 )
     
-    log = bapp.core.logging.module_logger('from bsemantic.inference')
+    log = logging.getLogger('bsemantic.inference')
     
     
     def __init__(self, data_sets=list()):

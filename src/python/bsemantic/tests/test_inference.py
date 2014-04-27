@@ -8,18 +8,14 @@
 __all__ = []
 
 # test from x import *
-from bsemantic import (
-                                StringFormatNode,
-                                StringFormatNodeTree
-                              )
+from bsemantic import ( StringFormatNode,
+                        StringFormatNodeTree )
 from bsemantic.inference import *
 from bsemantic.tests.base import TestBase
 from butility import DictObject
-from bkvstore import (
-                                KeyValueStoreProvider,
-                                ValidatedKeyValueStoreSchema, 
-                                KeyValueStoreSchemaValidator
-                            )
+from bkvstore import ( KeyValueStoreProvider,
+                       ValidatedKeyValueStoreSchema, 
+                       KeyValueStoreSchemaValidator )
 
 
 class TestInference(TestBase):
@@ -220,10 +216,5 @@ class TestInference(TestBase):
         assert count
         
         ## [name-handling-extension]
-            
-        
-        
-        
-        
 
 # end class TestInference

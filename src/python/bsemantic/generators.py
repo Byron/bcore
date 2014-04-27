@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bsemanticgenerators
+@package bsemantic.generators
 @brief Module with generators for names of many kinds
 
 Generators are commonly provided as small base implementations which can be used as mixins.
@@ -10,22 +10,19 @@ Generators are commonly provided as small base implementations which can be used
 __all__ = ['StringFormatNode', 'StringFormatNodeTree', 'StringFormatNodeList']
 
 import re
+import logging
 
 
-from .base import (
-                        ValidatedElementNodeBase,
-                        ElementNodeTree,
-                        ElementNodeList,
-                        RelaxedKeyValueStoreProvider
-                   )
+from .base import ( ValidatedElementNodeBase,
+                    ElementNodeTree,
+                    ElementNodeList,
+                    RelaxedKeyValueStoreProvider )
 from .exceptions import MissingFormatResultError
-from bkvstore import (
-                                UnorderedKeyValueStoreModifier,
-                                KeyValueStoreProvider
-                            )
+
+from bkvstore import ( UnorderedKeyValueStoreModifier,
+                       KeyValueStoreProvider )
 from butility import DictObject
 
-import bapp.core.logging
 
 
 # ==============================================================================
@@ -70,7 +67,7 @@ class StringFormatNode(ValidatedElementNodeBase):
     re_compound_fields = re.compile(r'\{(\w+(?:\.\w+)*).*?\}')
     
     ## We use a log just to be sure we don't loose inforation
-    log = bapp.core.logging.module_logger('bsemanticgenerators')
+    log = logging.getLogger('bsemantic.generators')
     
     def __init__(self, *args, **kwargs):
         super(StringFormatNode, self).__init__(*args, **kwargs)

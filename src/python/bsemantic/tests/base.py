@@ -8,16 +8,23 @@
 __all__ = ['TestBase']
 
 from butility.tests import TestCaseBase
-from butility import DictObject
+from butility import ( DictObject,
+                       Path )
 
-import yaml
+# This should make some yaml available, in any way
+import bkvstore
+
+try:
+    import yaml
+except ImportError:
+    raise ImportError("Expected 'yaml' package to be available after import bkvstore")
+# end assure yaml exists
+
 try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader
 #end obtain fast loader if possible
-
-from bapp.path import Path
 
 
 class TestBase(TestCaseBase):
@@ -27,6 +34,7 @@ class TestBase(TestCaseBase):
     ## @name Fixtures
     # @{
     
+    fixture_root = Path(__file__).dirname()
     path_rules_file = 'path_rules.yaml'
     
     # some fundamental data set we use multiple times. Must be copied

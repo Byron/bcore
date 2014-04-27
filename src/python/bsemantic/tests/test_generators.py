@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bsemantic.tests.test_generators
-@brief tests for bsemanticgenerators
+@brief tests for bsemantic.generators
 
 @copyright 2012 Sebastian Thiel
 """
@@ -12,7 +12,7 @@ __all__ = []
 
 # test from x import *
 from bsemantic import ElementNodeTree
-from bsemanticgenerators import *
+from bsemantic.generators import *
 from bsemantic.tests.base import TestBase
 from butility import DictObject
 

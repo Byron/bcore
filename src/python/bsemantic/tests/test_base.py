@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 """
 @package bsemantic.tests.test_base
-@brief tests for bsemanticbase
+@brief tests for bsemantic.base
 
 @copyright 2012 Sebastian Thiel
 """

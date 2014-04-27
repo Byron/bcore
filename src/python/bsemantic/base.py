@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 """
-@package bsemanticbase
+@package bsemantic.base
 @brief Contains base classes specifying and implementing the substitution system.
 
 @copyright 2012 Sebastian Thiel
@@ -8,16 +8,12 @@
 __all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElementNodeBase']
 
 
-from bapp import MetaBase
-from butility import  (
-                            DictObject, 
-                            LazyMixin,
-                        )
+from butility import  ( MetaBase,
+                        DictObject, 
+                        LazyMixin )
 
-from bkvstore import (
-                                RelaxedKeyValueStoreProviderDiffDelegate,
-                                KeyValueStoreProvider
-                            )
+from bkvstore import ( RelaxedKeyValueStoreProviderDiffDelegate,
+                       KeyValueStoreProvider )
 from .exceptions import InvalidValueError
 
 

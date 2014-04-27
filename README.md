@@ -45,3 +45,4 @@ Once the first release is out of the door, the API will stabilize though, yet I 
 ## Credits / External Packages
 
 * ``yaml``, see http://yaml.org
+* ``parse``, see http://www.ekit.com
