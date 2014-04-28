@@ -363,11 +363,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         all_dirs = list()
         all_files = list()
 
-        # Add global settings
-        package_manager = self._app.context().settings().value_by_schema(package_manager_schema)
-        all_dirs.extend(package_manager.configuration.trees)
-        all_files.extend(package_manager.configuration.files)
-
         for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
             pd = self._package_data(package_name)
             all_dirs.extend(pd.configuration.trees)
@@ -450,6 +445,18 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                                                           user_settings=True)
         # end initialize application
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, self._args))
+
+        # Add global package manager settings. We put it onto the stack right away, as this allows others 
+        # to offload their program configuraiton to a seemingly unrelated location
+        # NOTE: We do it just once, which implies behaviour might be undefined if the delegate choses to 
+        # change these particular values.
+        # See issue https://github.com/Byron/bcore/issues/12
+        pm = self._app.context().settings().value_by_schema(package_manager_schema, resolve=True)
+        if pm.configuration.trees or pm.configuration.files:
+            app.context().push(StackAwareHierarchicalContext(pm.configuration.trees,
+                                                             config_files=pm.configuration.files))
+        # end handle package manager configuration
+
         external_configuration_context = self._gather_external_configuration(program)
         if external_configuration_context and external_configuration_context.settings().data():
             app.context().push(external_configuration_context)
