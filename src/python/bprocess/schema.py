@@ -6,7 +6,7 @@
 @copyright 2013 Sebastian Thiel
 """
 __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_package_schema',
-           'package_meta_data_schema']
+           'package_meta_data_schema', 'package_manager_schema']
 
 import logging
 
@@ -84,6 +84,14 @@ for key in ('executable', 'core_tree'):
     KVStringFormatter.set_key_type(key, KVPath)
 # end for each key to set
 
+_config_schema = dict( trees = PathList,
+                       # Files are loaded after trees, and may thus override
+                       # whatever came in from them
+                       files =  PathList )
+
+# A schema to configure the package manager system on a global level. That way, it is more flexible, 
+# helping to reduce the requirement for custom delegates
+package_manager_schema = KeyValueStoreSchema('package-manager', {'configuration' : _config_schema})
 
 package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of the package. All relative paths will be 
                                                         # made absolute with the first valid root path
@@ -122,12 +130,7 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           # Allows to specify additional configuration 
                                                           # that we have to pull in. It affects the bootstrapper
                                                           # as well as the launched process
-                                                          'configuration': {
-                                                            'trees' : PathList,
-                                                            # Files are loaded after trees, and may thus override
-                                                            # whatever came in from them
-                                                            'files' : PathList,
-                                                          },
+                                                          'configuration': _config_schema,
                                                           'arguments' : {
                                                               # Arguments to append
                                                               'append' : StringList,

@@ -32,7 +32,8 @@ from .delegates import ( ControlledProcessInformation,
                          ProcessControllerDelegate )
 from .schema import ( controller_schema,
                       package_schema,
-                      process_schema )
+                      process_schema,
+                      package_manager_schema )
 from .utility import  ( ProcessControllerPackageSpecification, 
                         PythonPackageIterator )
 from .app import ProcessAwareApplication
@@ -361,6 +362,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         # aggregate the dirs and files
         all_dirs = list()
         all_files = list()
+
+        # Add global settings
+        package_manager = self._app.context().settings().value_by_schema(package_manager_schema)
+        all_dirs.extend(package_manager.configuration.trees)
+        all_files.extend(package_manager.configuration.files)
 
         for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
             pd = self._package_data(package_name)
