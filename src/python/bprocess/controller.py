@@ -363,12 +363,15 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         all_dirs = list()
         all_files = list()
 
-        for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
-            pd = self._package_data(package_name)
-            all_dirs.extend(pd.configuration.trees)
-            all_files.extend(pd.configuration.files)
-        # end for each package
+        rel_to_abs = lambda paths, pkg: (pkg.to_abs_path(p) for p in paths)
 
+        for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
+            pkg = self._package(package_name)
+            pd = pkg.data()
+            all_dirs.extend(rel_to_abs(pd.configuration.trees, pkg))
+            all_files.extend(rel_to_abs(pd.configuration.files, pkg))
+        # end for each package
+        
         if not (all_dirs or all_files):
             return None
         # end bailout if there is nothing to do
