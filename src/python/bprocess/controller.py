@@ -463,6 +463,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         external_configuration_context = self._gather_external_configuration(program)
         if external_configuration_context and external_configuration_context.settings().data():
             app.context().push(external_configuration_context)
+            self._clear_package_data_cache()
         else:
             # Mark it as unset so we don't try to remove it later, possibly
             external_configuration_context = None
