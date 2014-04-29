@@ -13,8 +13,6 @@ import sys
 import traceback
 import logging
 
-import bapp
-
 from butility import ( abstractmethod,
                       InterfaceBase,
                       wraps )
@@ -227,7 +225,7 @@ class QualityCheckBase(IQualityCheck):
 # end class QualityCheckBase    
 
 
-class QualityCheckRunner(IQualityCheckRunner, bapp.plugin_type()):
+class QualityCheckRunner(IQualityCheckRunner):
     """Is a list of `QualityCheckBase` compatible instances which can be run safely, providing just-in-time information
     about the results of this run.
     

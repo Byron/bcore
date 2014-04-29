@@ -1,0 +1,11 @@
+packages:
+  bcore:
+    # NOTE: The assembly maintainer will have to set the 'trees' value of this package accordingly.
+    name: BCore
+    description: |
+      An application framework providing a powerful settings and plugin framework.
+    url: https://github.com/Byron/bcore
+    environment:
+      variables:
+        PYTHONPATH: 'src/python'
+
