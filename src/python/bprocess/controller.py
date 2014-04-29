@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ProcessController', 'DisplayContextException']
+__all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsException']
 
 import sys
 import os
@@ -50,6 +50,13 @@ log = logging.getLogger('bprocess.controller')
 
 class DisplayContextException(Exception):
     """A marker to indicate we want the context displayed"""
+    __slots__ = ()
+
+# end class DisplayContextException
+
+
+class DisplaySettingsException(Exception):
+    """A marker to indicate we want the settings"""
     __slots__ = ()
 
 # end class DisplayContextException
@@ -691,6 +698,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         for arg in self._args:
             if arg == delegate.wrapper_arg_prefix + 'debug-context':
                 raise DisplayContextException("Stopping program to debug context")
+            elif arg == delegate.wrapper_arg_prefix + "debug-settings":
+                raise DisplaySettingsException("Stpping program to debug unresolved settings")
+            # end handle settings
         # end for each argument
 
     def set_should_spawn_process_override(self, override):

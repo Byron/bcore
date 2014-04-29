@@ -518,13 +518,20 @@ class OrderedDict(dict, DictMixin):
 
     def __str__(self, indent=1):
         indent_str = '    '*indent
-        ret_str = "Dict\n"
+        ret_str = "\n"
         for key, value in self.iteritems():
             if isinstance(value, OrderedDict):
                 ret_str += "%s%s: %s" % (indent_str, key, value.__str__(indent=indent+1))
+            elif isinstance(value, (tuple, list)):
+                # for now, without recursion, assuming simple scalar values
+                ret_str += "%s%s:\n" % (indent_str, key)
+                for item in value:
+                    ret_str += "%s - %s\n" % (indent_str, item)
+                # end for each item
             else:
                 ret_str += "%s%s: %s\n" % (indent_str, key, str(value))
-
+            # end handle value type
+        # end for each item in dict
         return ret_str
 
     def __repr__(self):

@@ -414,6 +414,8 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     ---debug-context
         Print the entire context to stderr and abort program execution. Useful to learn about the contet at 
         wrap time.
+    ---debug-settings
+        Print the settings, which are a fully merged result of the context
     ---dry-run
         If set, we will only pretend to run the command, and not actually do it
     ---help
@@ -611,7 +613,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             assert len(key_value) > 2 and self.wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
             kvstore.set_value(*key_value.split(self.wrapper_arg_kvsep))
             log.debug("CONTEXT VALUE OVERRIDE: %s", key_value)
-        elif arg in ('dry-run', 'debug-context'):
+        elif arg in ('dry-run', 'debug-context', 'debug-settings'):
             # Just ignore these, they are handled elsewhere
             pass
         else:

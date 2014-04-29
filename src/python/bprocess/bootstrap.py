@@ -17,7 +17,6 @@ __all__ = ['Bootstrapper']
 
 import sys
 import os
-import traceback
 import logging
 from itertools import chain
 
@@ -149,6 +148,7 @@ class Bootstrapper(object):
         try:
             imported_module = __import__(module_for_import, globals(), locals(), [module_for_import])
         except ImportError, err:
+            import traceback
             traceback.print_exc()
             raise ImportError("Failed to import root package %s from path %s - cannot proceed without main \
 implementation: %s" % (module_for_import, root_package_path, str(err)))
@@ -181,6 +181,8 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
             sys.stderr.write(err.help_string)
         except root_module.DisplayContextException:
             sys.stderr.write(controller.application().context()._contents_str())
+        except root_module.DisplaySettingsException:
+            sys.stderr.write(str(controller.application().context().settings().data()))
         except Exception, err:
             if process_controller_type.is_debug_mode():
                 # sys.stderr.write(controller.application().context()._contents_str())
