@@ -3,7 +3,8 @@
 @package bdiff.tests.test_algorithms
 @brief Implements tests for bdiff.algorithms
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

@@ -5,7 +5,8 @@
 
 Generators are commonly provided as small base implementations which can be used as mixins.
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['StringFormatNode', 'StringFormatNodeTree', 'StringFormatNodeList']
 

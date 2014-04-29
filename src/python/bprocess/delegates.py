@@ -3,7 +3,8 @@
 @package bprocess
 @brief implementations of the interfaces related to process control
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'ControlledProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate', 'DisplayHelpException',

@@ -2,7 +2,8 @@
 """
 @brief Make sure our actual implementation is available. This file is laoded as a plugin and thus executed
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

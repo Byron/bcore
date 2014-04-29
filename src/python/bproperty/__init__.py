@@ -59,7 +59,8 @@ the direct property access, as opposed to using property access methods.
 
 @snippet bapp/tests/core/component/test_properties.py ExampleContextClient Usage
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import absolute_import
 

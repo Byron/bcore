@@ -3,7 +3,8 @@
 @package bapp.services
 @brief core services providing basic information
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 
 __all__ = ['LinuxPlatformService', 'MacPlatformService', 'WindowsPlatformService', 'ProjectInformation']

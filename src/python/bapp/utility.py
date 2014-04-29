@@ -3,7 +3,8 @@
 @package bapp.utility
 @brief Contains utilities with minimal dependencies
 
-@copyright 2014 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['ApplicationSettingsClient', 'LogConfigurator', 'StackAwareHierarchicalContext']
 

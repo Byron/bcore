@@ -3,7 +3,8 @@
 @package bprocess.components
 @brief Provides implementations of certain components that benefit from working together with process control
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['ProcessControlContextControllerBase', 'ProcessConfigurationIncompatibleError']
 

@@ -3,7 +3,8 @@
 @package bapp.tests.test_settings
 @brief tests for bapp.settings
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

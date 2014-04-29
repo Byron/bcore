@@ -7,7 +7,8 @@ A transaction consists of zero or more Operations, each of which can be rolled b
 if an error occours. Operations will be recorded and if required, rolled back in reverse
 order.
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['Transaction', 'Operation', 'StoringProgressIndicator']
 

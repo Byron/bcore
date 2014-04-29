@@ -3,7 +3,8 @@
 @package bprocess.tests.test_utility
 @brief tests for bprocess
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from butility.tests import ( TestCaseBase,
                              with_rw_directory )

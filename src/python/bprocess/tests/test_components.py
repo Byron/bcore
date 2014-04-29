@@ -3,7 +3,8 @@
 @package bprocess.tests.test_components
 @brief Tests our component implementations
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

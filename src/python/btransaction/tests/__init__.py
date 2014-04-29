@@ -3,6 +3,7 @@
 @package bapp.tests.processing.transaction
 @brief Tests for btransaction
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []

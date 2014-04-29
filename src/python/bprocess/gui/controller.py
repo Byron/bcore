@@ -3,7 +3,8 @@
 @package bprocess.gui.controller
 @brief Contains package controllers, implementing some logic
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['PackageViewerWindow']
 import logging

@@ -3,7 +3,8 @@
 @package bprocess.tests
 @brief tests for bprocess
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 
 from .base import *

@@ -3,7 +3,8 @@
 @package bcontext.tests.test_base
 @brief Test for bcontext.base
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 @todo get rid of the standard error redirect or maybe solve it differently
 """
 __all__ = []

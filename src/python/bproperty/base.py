@@ -3,7 +3,8 @@
 @package butility.properties.base
 @brief Base implementations for Properties using descriptors
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['PropertyError', 'NotWritableError', 'NoSuchPropertyError', 'NotDeletableError', 
            'PropertyBase', 'CompoundProperty', 

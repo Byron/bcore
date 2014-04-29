@@ -3,7 +3,8 @@
 @package butility.os
 @brief utilities that deal with the operating system
 
-@copyright 2014 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['init_ipython_terminal', 'dylib_extension', 'login_name', 'uname', 'int_bits', 
            'system_user_id', 'update_env_path', 'Thread', 'ConcurrentRun']

@@ -10,7 +10,8 @@ of the core repository.
 
 @note this is an executable which is not meant to be imported. All dependencies are included in the file.
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['Bootstrapper']
 

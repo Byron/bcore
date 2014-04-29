@@ -5,7 +5,8 @@
 
 @page kvstore KeyValue-Store Framework
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 # Allow better imports !
 from __future__ import absolute_import

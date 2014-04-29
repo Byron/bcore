@@ -3,7 +3,8 @@
 @package bsemanticexceptions
 @brief Contains all exceptions used by the bsemantic package
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['Error', 'InvalidValueError', 'MissingFormatResultError']
 

@@ -3,7 +3,8 @@
 @package butility.types
 @brief A module with general purpose utility types
 
-@copyright 2014 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator', 'PythonFileLoader']
 

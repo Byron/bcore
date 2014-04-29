@@ -3,7 +3,8 @@
 @package butility.properties.types
 @brief Implements various types for using the Properties framework
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['PrefixProperty']
 

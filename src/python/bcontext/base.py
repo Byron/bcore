@@ -3,7 +3,8 @@
 @package bcontext.base
 @brief implements an adjustable context, coming with implementation and configuration
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['Context', 'ContextStack',
            'StackAutoResolveAdditiveMergeDelegate']

@@ -59,7 +59,8 @@ Documenation
 
 Key-features are documented in doxygen. Setup a page that links key frameworks and provides an overview. Documentation should be kept brief for now, but it must be there.
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from .interfaces import *
 from .controller import *

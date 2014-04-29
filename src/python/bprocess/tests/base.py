@@ -3,7 +3,8 @@
 @package bprocess.tests.base
 @brief Utilities for all kinds of testing tasks
 
-@copyright 2014 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['NosetestDelegate']
 

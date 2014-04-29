@@ -3,7 +3,8 @@
 @package bcontext.tests.core
 @brief Utilities used for testing the component system
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['TestContextBase']
 

@@ -3,7 +3,8 @@
 @package bapp.tests.bin.test_wrapper
 @brief tests for bapp.bin.wrapper
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

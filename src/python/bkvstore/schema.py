@@ -3,7 +3,8 @@
 @package bkvstore.schema
 @brief A module with implementations to help to show and verify the current storage schema
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
             'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',

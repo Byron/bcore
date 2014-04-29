@@ -3,7 +3,8 @@
 @package bprocess.interfaces
 @brief Interfaces dealing with the startup engine for processes
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['IProcessControllerDelegate', 'IControlledProcessInformation']
 

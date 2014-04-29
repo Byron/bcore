@@ -3,7 +3,8 @@
 @package bapp.interfaces
 @brief Most basic interfaces for general usage, useful in all host applications !
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 
 __all__ = ['IPlatformService', 'IContextController', 

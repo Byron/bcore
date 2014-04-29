@@ -5,7 +5,8 @@
 
 @note I'd like to have named this module 'yaml', but this will prevent any imports
 from the actual yaml package from within this package
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['OrderedDictYAMLLoader']
 

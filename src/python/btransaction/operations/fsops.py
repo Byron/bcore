@@ -3,7 +3,8 @@
 @package bapp.transaction.operations.fsops
 @brief A package for trivial filesystem operations that can be combined within a transaction
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['DeleteOperation', 'CreateFSItemOperation', 'MoveFSItemOperation', ]
 

@@ -3,7 +3,8 @@
 @package bprocess.app
 @brief Contains a Process aware Application implementation
 
-@copyright 2014 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['ProcessAwareApplication']
 

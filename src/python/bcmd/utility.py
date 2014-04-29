@@ -3,7 +3,8 @@
 @package bcmd.utility
 @brief Some utilities for general command use
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['CommandArgumentParser', 'command_info', 'ArgparserHandledCall']
 

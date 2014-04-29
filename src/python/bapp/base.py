@@ -3,7 +3,8 @@
 @package bapp.base
 @brief Implements the Application type
 
-@copyright 2014 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['Application', 'TypeNotFound', 'InstanceNotFound']
 

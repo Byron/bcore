@@ -3,7 +3,8 @@
 @package bdiff.delegates
 @brief a module with different generic delegate implementations
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = [ 'DiffRecord', 'DiffIndex', 'DiffIndexDelegate', 'QualifiedKeyDiffDelegateBase', 'MergeDelegate',
             'AdditiveMergeDelegate', 'ApplyDifferenceMergeDelegate', 'AutoResolveAdditiveMergeDelegate']

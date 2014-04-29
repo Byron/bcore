@@ -87,7 +87,8 @@ And the actual implementation looks like this:
 
 @include hello_program/lib/hello.py
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import absolute_import
 

@@ -3,7 +3,8 @@
 @package bkvstore.types
 @brief Implements a few types based on our base classes
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['YAMLKeyValueStoreModifier', 'ChangeTrackingJSONKeyValueStoreModifier', 
            'JSONStreamSerializer', 'YAMLStreamSerializer', 'JSONKeyValueStoreModifier']

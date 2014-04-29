@@ -3,7 +3,8 @@
 @package butility.base
 @brief Most fundamental base types
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['Error', 'InterfaceBase', 'MetaBase', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIteratorBase',

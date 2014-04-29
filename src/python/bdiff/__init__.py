@@ -15,7 +15,8 @@ Please see an excerpt from the test. First, we define some tree-ish data structu
 Then we perform a two-way diff on them using the pre-defined DiffIndexDelegate
 @snippet bapp/tests/core/diff/test_algorithms.py two way diff
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 # Allow better imports !
 from __future__ import absolute_import

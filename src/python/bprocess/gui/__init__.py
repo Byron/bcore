@@ -3,7 +3,8 @@
 @package bprocess.gui
 @brief A package for all process control related gui elements
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from .viewer import *
 from .controller import *

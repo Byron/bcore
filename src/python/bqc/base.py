@@ -3,7 +3,8 @@
 @package bqc
 @brief a module containing base classes for the quality check framework
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 
 __all__ = [ 'QualityCheckCategory', 'NoCategory', 'QualityCheckBase', 'QualityCheckRunner', 

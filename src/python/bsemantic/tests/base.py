@@ -3,7 +3,8 @@
 @package bsemantic.tests.base
 @brief Contains some base types used by many test cases
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['TestBase']
 

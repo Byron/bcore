@@ -3,7 +3,8 @@
 @package bsemantic.tests.test_inference
 @brief tests for from bsemantic.inference
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

@@ -13,7 +13,8 @@ Now you create a runner, initialize it with your quality checks, and run it.
 
 A delegate should be implemented in case you want more feedback and control.
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import absolute_import
 

@@ -7,7 +7,8 @@ Provides core functionality which will be used by all test cases in one way or a
 
 Imports bapp.tests
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 
 # Import all core features into the main package

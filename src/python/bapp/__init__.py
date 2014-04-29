@@ -26,7 +26,8 @@ See the following example for reference.
 
 @snippet bapp/tests/doc/test_examples.py interface_builtin
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 # Allow better imports !
 from __future__ import absolute_import

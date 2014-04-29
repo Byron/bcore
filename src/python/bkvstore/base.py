@@ -3,7 +3,8 @@
 @package bkvstore.base
 @brief Base classes and most fundamental utilities for key value store handling
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['KeyValueStoreProvider', 'KeyValueStoreModifier', 'Error', 'NoSuchKeyError', 
            'UnorderedKeyValueStoreModifier', 'ChangeTrackingKeyValueStoreModifier']

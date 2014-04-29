@@ -3,7 +3,8 @@
 @package btransaction.operations
 @brief Package for implementations of various operations for use with the Transaction framework
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

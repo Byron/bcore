@@ -3,7 +3,8 @@
 @package bsemantic.base
 @brief Contains base classes specifying and implementing the substitution system.
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElementNodeBase']
 

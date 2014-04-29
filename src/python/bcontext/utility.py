@@ -3,7 +3,8 @@
 @package bcontext.utility
 @brief Implementation of utility types for registering plugins
 
-@copyright 2014 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['PluginMeta', 'Plugin']
 

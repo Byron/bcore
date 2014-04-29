@@ -3,7 +3,8 @@
 @package bapp.contexts
 @brief custom contexts to ingest additional information into the ContextStack
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = [ 'OSContext', 'ApplicationContext']
 

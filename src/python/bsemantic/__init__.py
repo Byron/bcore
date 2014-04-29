@@ -94,7 +94,8 @@ Usage Tips
   just work magically, and code that uses it may still be buggy in one way or another.
 
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from butility import Version
 __version__ = Version("0.1.0")

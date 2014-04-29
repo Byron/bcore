@@ -3,7 +3,8 @@
 @package bprocess.utility
 @brief A collection of utilities to ease the work of controller and delegate
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_package_schema',
            'package_meta_data_schema', 'package_manager_schema']

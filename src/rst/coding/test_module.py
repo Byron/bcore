@@ -6,7 +6,8 @@
 At least one line of free space must be there to prevent the copyright to show
 up in package overviews. More documentation about the test module itself is
 usually not required.
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

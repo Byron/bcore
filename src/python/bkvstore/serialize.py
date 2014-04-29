@@ -5,7 +5,8 @@
 
 @note Read more about
 [the YAML language specification](http://en.wikipedia.org/wiki/YAML#Language_elements)
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['ChangeTrackingSerializingKeyValueStoreModifierBase', 'SerializingKeyValueStoreModifierBase']
 

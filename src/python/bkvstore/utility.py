@@ -3,7 +3,8 @@
 @package bkvstore.utility
 @brief Various utilities for use in the kvstore
 
-@copyright 2014 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['KVStringFormatter']
 

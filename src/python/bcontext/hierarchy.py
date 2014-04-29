@@ -3,7 +3,8 @@
 @package bcontext.hierarchy
 @brief A Context which represents a hierarchy of files
 
-@copyright 2014 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['HierarchicalContext']
 

@@ -3,7 +3,8 @@
 @package bkvstore.tests.base
 @brief base types which are shared among test modules in this package
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['TestConfigurationBase']
 

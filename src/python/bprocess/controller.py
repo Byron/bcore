@@ -3,7 +3,8 @@
 @package bprocess.controller
 @brief Contains the controller implementation
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['ProcessController', 'DisplayContextException']
 

@@ -28,7 +28,8 @@ def myfeature():
     "@snippet bapp/tests/doc/test_examples.py snippet for myfeature"
     pass
 @endcode
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

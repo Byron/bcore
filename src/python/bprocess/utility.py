@@ -3,7 +3,8 @@
 @package bprocess.utility
 @brief Misc utilities for use with the package system of process control
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment',
            'ProcessControllerPackageSpecification', 'PackageDataIteratorMixin',

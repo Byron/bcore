@@ -3,7 +3,8 @@
 @package btransaction.operations.rsync
 @brief An operation that uses rsync to copy or move data
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['RsyncOperation']
 

@@ -3,7 +3,8 @@
 @package bapp.tests.test_base
 @brief tests for bapp.base
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
 

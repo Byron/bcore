@@ -3,7 +3,8 @@
 @package bapp.tests.base
 @brief most fundamental types
 
-@copyright 2012 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 
 import logging

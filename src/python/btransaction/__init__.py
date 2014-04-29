@@ -3,7 +3,8 @@
 @package btransaction
 @brief Toplevel package for transaction implementation and operations using that framework
 
-@copyright 2013 Sebastian Thiel
+@author Sebastian Thiel
+@copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from butility import Version
 __version__ = Version("0.1.0")
