@@ -18,9 +18,8 @@ import tempfile
 import bapp
 
 from butility.tests import TestCaseBase
-from bapp.tests import preserve_application
 from bprocess import *
-
+from bapp.tests import preserve_application
 from butility import Path
 
 import subprocess
@@ -65,6 +64,17 @@ class TestPluginLoading(object):
 # end class TestPluginLoading
 
 
+class TestProcessController(ProcessController):
+    """A controller tuned not to 'break out' of the test-sandbox by traversing up the hierarchy"""
+    __slots__ = ()
+
+    traverse_process_path_hierachy = False
+    traverse_additional_path_hierachies = False
+    load_user_settings = False
+
+# end class TestProcessController
+
+
 def pseudo_executable(bin_name):
     """@return full path to pseudo_executable based on the given executable basename"""
     return Path(__file__).dirname() / bin_name
@@ -89,10 +99,10 @@ class TestProcessControl(TestCaseBase):
         assert pctrl.set_should_spawn_process_override(True) is None
         assert pctrl.execute().returncode == 0
     
-    @preserve_application    
+    @preserve_application
     def test_python_execution(self):
         """we should be able to execute any code directly using the delegate, without spawning"""
-        pctrl = ProcessController(pseudo_executable('py-program'), list())
+        pctrl = TestProcessController(pseudo_executable('py-program'), list())
         
         process = pctrl.execute()
         assert process.returncode == 0
@@ -174,7 +184,7 @@ class TestProcessControl(TestCaseBase):
         else:
             pinfo = info.process_data()
             assert pinfo.executable.isfile()
-            assert pinfo.bootstrap_dir.isdir()
+            assert pinfo.executable.dirname().isdir()
             assert pinfo.id
             app = ProcessAwareApplication.new()
             assert bapp.main().context().settings().value_by_schema(process_schema).executable == pinfo.executable

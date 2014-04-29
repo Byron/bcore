@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['NosetestDelegate']
+__all__ = ['NosetestDelegate', 'with_application']
 
 
 import logging
@@ -15,9 +15,36 @@ import bapp
 from bkvstore import KeyValueStoreSchema
 from bprocess import (ProcessControllerDelegate,
                       ControlledProcessInformation)
-from butility import abstractmethod
+from butility import ( abstractmethod,
+                       wraps,
+                       Path )
+from bapp.tests import preserve_application
+
 
 logging.getLogger('bprocess.tests.base')
+
+
+# ==============================================================================
+## @name Decorators
+# ------------------------------------------------------------------------------
+## @{
+
+def with_application(fun):
+    """A decorator which assures that our particular test configuration is loaded specifically, without
+    traversing the hiararchy in order to not be dependent on whatever assembly we are in"""
+    @wraps(fun)
+    def wrapper(*args, **kwargs):
+        print Path(__file__).dirname() / 'etc'
+        app = bapp.Application.new(settings_trees=Path(__file__).dirname() / 'etc', 
+                                   settings_hierarchy=False,
+                                   user_settings=False)
+        return fun(*args, **kwargs)
+    # end wrapper
+
+    return wrapper
+
+## -- End Decorators -- @}
+
 
 # ==============================================================================
 # @name Base Classes

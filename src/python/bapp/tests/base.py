@@ -61,6 +61,8 @@ def with_application(fun=None, **dkwargs):
             settings_trees = dkwargs.setdefault('settings_trees', list())
             settings_trees.append(Path(from_file).dirname())
         # end handle arguments
+        # never load user settings
+        dkwargs['user_settings'] = False
         app = bapp.Application.new(**dkwargs)
 
         # Make sure the default context is inserted, if it doesn't have it

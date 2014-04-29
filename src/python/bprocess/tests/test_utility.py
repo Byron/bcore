@@ -9,7 +9,7 @@
 from butility.tests import ( TestCaseBase,
                              with_rw_directory )
 from bkvstore import KeyValueStoreModifier
-from bapp.tests import with_application
+from bprocess.tests import with_application
 from bprocess.utility import *
 
 
@@ -18,7 +18,7 @@ class TestUtilities(TestCaseBase):
     __slots__ = ()
     
     
-    @with_application(from_file = __file__)
+    @with_application
     @with_rw_directory
     def test_base(self, rw_dir):
         """test fundamentals"""

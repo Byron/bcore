@@ -118,7 +118,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                 )
     
     # -------------------------
-    ## @name Configuration
+    ## @name Contants
     # @{
     
     ## A schema containing all possible values we expect for a process
@@ -131,7 +131,28 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
     ## The only argument we parse ourselves
     OPT_DRY_RUN = '---dry-run'
     
-    ## -- End Configuration -- @}
+    ## -- End Contants -- @}
+
+    # -------------------------
+    ## @name Subclass Configuration
+    # @{
+
+    ## If True, when initializing the process contexts, additional configuration will be searched 
+    # upwards from the boot directory
+    traverse_process_path_hierachy = True
+
+    ## If True, when initializing Hierarchical contexts for the CWD and possibly parsed paths, these 
+    # will be followed upwards to find more configuration directories
+    traverse_additional_path_hierachies = True
+
+    ## If True, user settings will be loaded
+    load_user_settings = True
+
+    ## The type to use for stack-aware hierarchical contexts
+    StackAwareHierarchicalContextType = StackAwareHierarchicalContext
+    
+    ## -- End Subclass Configuration -- @}
+
     
     def __init__(self, executable, args = list(), delegate = None, cwd = None, dry_run = False, 
                       application = None):
@@ -160,7 +181,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         @note must call _setup_execution_context, as this instance is assumed to be ready for execute()
         """
         # NOTE: it is valid to provide a relative path (or a path which just contains the basename of the executable)
-        # However, the bootstrap_dir will still be relevant to configuration (possibly), which is why it should 
+        # However, the process.executable.dirname will still be relevant to configuration (possibly), which is why it should 
         # be as sane as possible. The only way to do this is to check if we are already in a bootstapped process,
         # and use the direname accordingly
         # For using the process controller from within existing applications, guys usually just specify the name of the 
@@ -169,7 +190,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         executable = Path(executable)
         if not executable.isabs():
             if ControlledProcessInformation.has_data():
-                executable = ControlledProcessInformation().process_data().bootstrap_dir / executable
+                executable = ControlledProcessInformation().process_data().executable.dirname() / executable
             else:
                 # otherwise, just take what we have ... but as absolute path.
                 executable = Path(executable).abspath()
@@ -384,7 +405,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             return None
         # end bailout if there is nothing to do
 
-        return StackAwareHierarchicalContext(all_dirs, config_files=all_files)
+        return self.StackAwareHierarchicalContextType(all_dirs, 
+                                             config_files=all_files,
+                                             traverse_settings_hierarchy=self.traverse_additional_path_hierachies)
 
     def _find_delegate(self, root_package, alias_package):
         """@return a delegate instance which is the most suitable one.
@@ -452,8 +475,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             self._app = app = self._prebuilt_app
         else:
             self._app = app = ProcessAwareApplication.new(settings_trees=(bootstrap_dir, self._cwd),
-                                                          settings_hierarchy=True,
-                                                          user_settings=True)
+                                                          settings_hierarchy=self.traverse_process_path_hierachy,
+                                                          user_settings=self.load_user_settings)
         # end initialize application
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, self._args))
 
@@ -464,8 +487,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         # See issue https://github.com/Byron/bcore/issues/12
         pm = self._app.context().settings().value_by_schema(package_manager_schema, resolve=True)
         if pm.configuration.trees or pm.configuration.files:
-            app.context().push(StackAwareHierarchicalContext(pm.configuration.trees,
-                                                             config_files=pm.configuration.files))
+            app.context().push(self.StackAwareHierarchicalContextType(pm.configuration.trees,
+                                                config_files=pm.configuration.files,
+                                                traverse_settings_hierarchy=self.traverse_additional_path_hierachies))
         # end handle package manager configuration
 
         external_configuration_context = self._gather_external_configuration(program)

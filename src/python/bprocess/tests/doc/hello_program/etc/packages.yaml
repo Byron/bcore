@@ -9,4 +9,4 @@ packages:
         - import hello; hello.HelloWorldCommand.main()
     environment:
       variables:
-        PYTHONPATH: '{process.bootstrap_dir}/../lib'
+        PYTHONPATH: '{process.executable.dirname}/../lib'

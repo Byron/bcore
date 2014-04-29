@@ -241,17 +241,17 @@ class Application(object):
             inst.context().push(typ('os'))
 
             typ = cls.ApplicationContextType or ApplicationContext
-            inst.context().push(typ('app', user_settings=user_settings))
+            inst.context().push(typ('app', user_settings=user_settings,
+                                           traverse_settings_hierarchy=settings_hierarchy))
         # end handle ApplicationContext
 
-        for path in settings_trees:
-            ctx = inst.context().push(cls.HierarchicalContextType(path,
+        if settings_trees:
+            ctx = inst.context().push(cls.HierarchicalContextType(settings_trees,
                                                             traverse_settings_hierarchy=settings_hierarchy,
                                                             application=inst))
             if load_plugins_from_trees:
                 ctx.load_plugins(recurse = recursive_plugin_loading,
                                  subdirectory = plugins_subtree)
-
         # end for each path to push
 
         if setup_logging:
