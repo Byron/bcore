@@ -72,6 +72,9 @@ class TestProcessController(ProcessController):
     traverse_additional_path_hierachies = False
     load_user_settings = False
 
+    def _filter_application_directories(self, dirs):
+        return Path(__file__).dirname() / 'etc'
+
 # end class TestProcessController
 
 
@@ -90,12 +93,12 @@ class TestProcessControl(TestCaseBase):
         # Now we could nicely mock the environment - lets do this once we have a CWD environment
         # For now its not too easy though
         # failure as foo cannot be found
-        self.failUnlessRaises(EnvironmentError, lambda: ProcessController(pseudo_executable('foo'), ('hello', 'world')).application())
+        self.failUnlessRaises(EnvironmentError, lambda: TestProcessController(pseudo_executable('foo'), ('hello', 'world')).application())
 
     @preserve_application
     def test_forced_spawn(self):
         """Verify that we can easily enforce a process to be spawned, without overwriting any 'natural' configuration"""
-        pctrl = ProcessController(pseudo_executable('py-program'), list())
+        pctrl = TestProcessController(pseudo_executable('py-program'), list())
         assert pctrl.set_should_spawn_process_override(True) is None
         assert pctrl.execute().returncode == 0
     
@@ -111,26 +114,26 @@ class TestProcessControl(TestCaseBase):
     def test_custom_args(self):
         """verify we can handle custom arguments"""
         cmd_path = pseudo_executable('py-program-overrides')
-        self.failUnlessRaises(DisplayHelpException, ProcessController(cmd_path, '---foo=bar ---help'.split()).execute)
+        self.failUnlessRaises(DisplayHelpException, TestProcessController(cmd_path, '---foo=bar ---help'.split()).execute)
         
-        self.failUnlessRaises(AssertionError, ProcessController(cmd_path, ['---foo']).execute)
+        self.failUnlessRaises(AssertionError, TestProcessController(cmd_path, ['---foo']).execute)
         
-        pctrl = ProcessController(cmd_path, '---foo=bar ---hello.world=42'.split())
+        pctrl = TestProcessController(cmd_path, '---foo=bar ---hello.world=42'.split())
         assert pctrl.execute().returncode == 0
 
         # Override the python version, to something that doesn't exist
         version = '0.2.3'
         assert pctrl.executable().endswith('2.6'), 'default is to be 2.6'
-        pctrl = ProcessController(cmd_path, ('---packages.python.version=%s' % version).split())
+        pctrl = TestProcessController(cmd_path, ('---packages.python.version=%s' % version).split())
         assert pctrl.executable().endswith(version), 'cmd line override should have worked'
         
     @preserve_application
     def test_execute_in_context(self):
-        process = ProcessController(pseudo_executable('py-program'), ['--hello', 'world']).execute_in_current_context()
+        process = TestProcessController(pseudo_executable('py-program'), ['--hello', 'world']).execute_in_current_context()
         assert process.returncode == 1, "should not have understood our arguments"
         
         # now with self-driven communication
-        process = ProcessController(pseudo_executable('py-program')).execute_in_current_context(stdout=subprocess.PIPE)
+        process = TestProcessController(pseudo_executable('py-program')).execute_in_current_context(stdout=subprocess.PIPE)
         assert process.returncode is None
         # delete the file it creates
         os.remove(process.stdout.readlines()[0].strip())
@@ -140,15 +143,15 @@ class TestProcessControl(TestCaseBase):
     @preserve_application
     def test_delegate_finder(self):
         from .delegate import TestCommunicatorDelegate
-        pctrl = ProcessController(pseudo_executable('py-program-no-delegate'))
+        pctrl = TestProcessController(pseudo_executable('py-program-no-delegate'))
         tcd_name = TestCommunicatorDelegate.__name__
         assert type(pctrl.delegate()).__name__ == tcd_name, "The delegate should be looked up from the alias"
 
-        pctrl = ProcessController(pseudo_executable('py-program-delegate-via-requires'))
+        pctrl = TestProcessController(pseudo_executable('py-program-delegate-via-requires'))
         assert type(pctrl.delegate()).__name__ == tcd_name
 
         # This one really tests remote configuration
-        pctrl = ProcessController(pseudo_executable('py-program-delegate-via-requires-in-remote-config'), ('---trace', 
+        pctrl = TestProcessController(pseudo_executable('py-program-delegate-via-requires-in-remote-config'), ('---trace', 
             '---foo=bar'))
         assert type(pctrl.delegate()).__name__ == 'TestOverridesDelegate'
 
@@ -156,7 +159,7 @@ class TestProcessControl(TestCaseBase):
     def test_process_plugin_loading(self):
         """Assure plugins are loaded from trees and using the settings"""
         for program in ('load-from-directories', 'load-from-settings'):
-            pctrl = ProcessController(pseudo_executable(program))
+            pctrl = TestProcessController(pseudo_executable(program))
             assert pctrl.execute_in_current_context().returncode == 0
         # end for each program to test
 
@@ -167,13 +170,13 @@ class TestProcessControl(TestCaseBase):
         program = 'py-program-overrides'
         executable = pseudo_executable(program)
         args = ('---trace',)
-        for package in ProcessController(executable, args).iter_packages(program):
+        for package in TestProcessController(executable, args).iter_packages(program):
             count += 1
             assert isinstance(package, ProcessControllerPackageSpecification)
         # end for each package
         assert count > 1
         
-        self.failUnlessRaises(EnvironmentError, ProcessController(executable, args).iter_packages('foobar').next)
+        self.failUnlessRaises(EnvironmentError, TestProcessController(executable, args).iter_packages('foobar').next)
         
     @preserve_application
     def test_post_launch_info(self):

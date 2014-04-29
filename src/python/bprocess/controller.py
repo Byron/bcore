@@ -409,6 +409,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                                              config_files=all_files,
                                              traverse_settings_hierarchy=self.traverse_additional_path_hierachies)
 
+    def _filter_application_directories(self, dirs):
+        """@return a list of directories that our about-to-be-initialized Application instance is
+        @param dirs the unfiltered source of the directories"""
+        return dirs
+
     def _find_delegate(self, root_package, alias_package):
         """@return a delegate instance which is the most suitable one.
         Look for custom ones in order of: root_package, alias_package, all requirements (breadth-first)"""
@@ -474,7 +479,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         if self._prebuilt_app:
             self._app = app = self._prebuilt_app
         else:
-            self._app = app = ProcessAwareApplication.new(settings_trees=(bootstrap_dir, self._cwd),
+            self._app = app = ProcessAwareApplication.new(
+                                    settings_trees=self._filter_application_directories((bootstrap_dir, self._cwd)),
                                                           settings_hierarchy=self.traverse_process_path_hierachy,
                                                           user_settings=self.load_user_settings)
         # end initialize application
