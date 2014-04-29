@@ -25,7 +25,8 @@ from butility import ( Path,
                        DictObject )
 
 from bcontext import Context
-from bapp import         ( ApplicationSettingsClient,
+from bapp import         ( Application,
+                           ApplicationSettingsClient,
                            StackAwareHierarchicalContext,
                            OSContext)
 from .delegates import ( ControlledProcessInformation,
@@ -37,7 +38,6 @@ from .schema import ( controller_schema,
                       package_manager_schema )
 from .utility import  ( ProcessControllerPackageSpecification, 
                         PythonPackageIterator )
-from .app import ProcessAwareApplication
 
 
 log = logging.getLogger('bprocess.controller')
@@ -150,6 +150,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
 
     ## The type to use for stack-aware hierarchical contexts
     StackAwareHierarchicalContextType = StackAwareHierarchicalContext
+
+    ## The kind of application we create if not provided during __init__
+    ApplicationType = Application
     
     ## -- End Subclass Configuration -- @}
 
@@ -479,7 +482,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         if self._prebuilt_app:
             self._app = app = self._prebuilt_app
         else:
-            self._app = app = ProcessAwareApplication.new(
+            self._app = app = self.ApplicationType.new(
                                     settings_trees=self._filter_application_directories((bootstrap_dir, self._cwd)),
                                                           settings_hierarchy=self.traverse_process_path_hierachy,
                                                           user_settings=self.load_user_settings)

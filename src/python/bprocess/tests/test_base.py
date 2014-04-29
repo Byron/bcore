@@ -65,7 +65,9 @@ class TestPluginLoading(object):
 
 
 class TestProcessController(ProcessController):
-    """A controller tuned not to 'break out' of the test-sandbox by traversing up the hierarchy"""
+    """A controller tuned not to 'break out' of the test-sandbox by traversing up the hierarchy.
+    Doing it this way seems easier than creating a custom Application instance for each test-case, and passing
+    it to the ProcessController instance"""
     __slots__ = ()
 
     traverse_process_path_hierachy = False
@@ -158,7 +160,7 @@ class TestProcessControl(TestCaseBase):
     @preserve_application
     def test_process_plugin_loading(self):
         """Assure plugins are loaded from trees and using the settings"""
-        for program in ('load-from-directories', 'load-from-settings'):
+        for program in ('load-from-settings', 'load-from-directories'):
             pctrl = TestProcessController(pseudo_executable(program))
             assert pctrl.execute_in_current_context().returncode == 0
         # end for each program to test

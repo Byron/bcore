@@ -542,7 +542,11 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
     def __init__(self, application):
         """Set ourselves to all data provided by the wrapper
         @note does nothing if we are not wrapped"""
-        super(ControlledProcessContext, self).__init__("Wrapped Environment", load_config = False, application=application)
+        # Make sure the based doesn't to any work
+        super(ControlledProcessContext, self).__init__("Boot Environment", 
+                                                        load_config = False, 
+                                                        traverse_settings_hierarchy=False,
+                                                        application=application)
 
         ppi = ControlledProcessInformation()
         store = ppi.as_kvstore()
