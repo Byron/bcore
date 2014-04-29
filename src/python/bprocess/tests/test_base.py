@@ -55,7 +55,6 @@ class TestPluginLoading(object):
     def execute(self):
         assert len(sys.argv) == 2
         use_settings = sys.argv[1] == 'settings'
-
         app = ProcessAwareApplication.new(load_plugins_from_settings = use_settings,
                                           load_plugins_from_trees = not use_settings)
         # that would only work if the plugin was loaded

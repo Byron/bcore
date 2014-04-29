@@ -66,6 +66,7 @@ packages:
 
   load-from-directories:
     alias: python
+    requires: test-environment
     arguments:
       prepend:
         - -c
@@ -74,6 +75,7 @@ packages:
 
   load-from-settings:
     alias: load-from-directories
+    requires: test-environment
     python:
       plugin_paths:
         - '{delegate_python_path}/etc/plug-ins/test_plugin.py'
