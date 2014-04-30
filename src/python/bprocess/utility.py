@@ -354,7 +354,8 @@ class ProcessControllerPackageSpecification(LazyMixin):
     def _set_cache_(self, name):
         if name == '_root_path':
             try:
-                self._root_path = self._data.trees.first_accessible_tree
+                # NOTE: type of this one can actually be a KVPath - we don't want that, ever
+                self._root_path = Path(self._data.trees.first_accessible_tree)
             except ValueError:
                 self._root_path = None          # default
                 if not self._quiet:
