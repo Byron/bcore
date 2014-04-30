@@ -16,20 +16,14 @@ import bapp
 from bkvstore import KeyValueStoreProvider
 from butility import LazyMixin
 
-from .argparse import (
-                        ArgumentError,
+from .argparse import ( ArgumentError,
                         ArgumentTypeError,
-                        ParserError
-                      )
-from .interfaces import (
-                            ICommand,
-                            ISubCommand
-                        )
-from .utility import (
-                        CommandArgumentParser,
-                        ArgparserHandledCall,
-                        command_info
-                    )
+                        ParserError )
+from .interfaces import ( ICommand,
+                          ISubCommand )
+from .utility import ( CommandArgumentParser,
+                       ArgparserHandledCall,
+                       command_info )
 
 
 class InputError(Exception):

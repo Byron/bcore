@@ -14,3 +14,5 @@ from .path import *
 from .system import *
 from .types import *
 
+__version__ = Version('0.1.0')
+

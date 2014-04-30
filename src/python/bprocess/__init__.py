@@ -62,6 +62,12 @@ Key-features are documented in doxygen. Setup a page that links key frameworks a
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+# Allow better imports !
+from __future__ import absolute_import
+
+from butility import Version
+__version__ = Version("0.1.0")
+
 from .interfaces import *
 from .controller import *
 from .delegates import *
