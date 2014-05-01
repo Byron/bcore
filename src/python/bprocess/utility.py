@@ -359,7 +359,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
             except ValueError:
                 self._root_path = None          # default
                 if not self._quiet:
-                    log.warn("None of the given root paths of package '%s' was accessible: [%s]", self.name(), ', '.join(self._data.trees))
+                    log.warn("None of the given trees of package '%s' was accessible: [%s]", self.name(), ', '.join(self._data.trees))
                 # end handle warning
             # end handle inaccessible directory
         else:
@@ -393,7 +393,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
         if path.isabs():
             return path
         if self.root_path() is None:
-            raise EnvironmentError("Cannot convert '%s' to absolute path in package '%s' without a single valid root path, tried: [%s]" % (path, self.name(), ', '.join(self._data.trees)))
+            raise EnvironmentError("Cannot convert '%s' to absolute path in package '%s' without a single valid tree, tried: [%s]" % (path, self.name(), ', '.join(self._data.trees)))
         # end handle root path
         return self.root_path() / path
         

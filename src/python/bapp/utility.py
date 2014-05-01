@@ -153,7 +153,6 @@ class LogConfigurator(ApplicationSettingsClient):
                                                         # which may be provided by the host application
                                                         # NOTE: At some point we should control it precisely
                                                         # enough to never use this flag
-                                                        # NOTE: it is up to the configuration to enable this one
                                               'disable' : True
                                             })
     
@@ -176,10 +175,7 @@ class LogConfigurator(ApplicationSettingsClient):
     
         # initialize fallback defaults if no configuration file was found
         if not log_config_file or not os.path.isfile(log_config_file):
-            if not log_config_file:
-                warnings.warn("logging.inifile is not set, resorting to standard logging setup")
-            else:
-                warnings.warn("log config file '%s' wasn't accessible, resorting to standard logging setup" % log_config_file)
+            # Resort to standard setup if there is no further configuration
             logging.basicConfig()
         else:
             # BUGFIX 3369
