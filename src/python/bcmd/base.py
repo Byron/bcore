@@ -323,6 +323,9 @@ class SubCommandBase(CommandBase, ISubCommand):
     
     ## The name of the main command we should be compatible with
     main_command_name = None
+
+    ## We never want to create an application, and assume it's done in the main command
+    ApplicationType = None
     
     ## -- End Configuration -- @}
     
