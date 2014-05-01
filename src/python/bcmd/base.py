@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['CommandBase', 'SubCommandBase']
+__all__ = ['CommandBase', 'SubCommandBase', 'InputError']
 
 import sys
 import logging

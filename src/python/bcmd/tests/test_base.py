@@ -105,4 +105,6 @@ class TestCommands(TestCaseBase):
         cmd.parse_and_execute('simple -x 42 --extra'.split()) == 0, 'can allow extra args'
         MainCommand.allow_unknown_args = False
 
+        assert InputError, "Let's be sure this makes it into bcmd"
+
 # end class TestCommands
