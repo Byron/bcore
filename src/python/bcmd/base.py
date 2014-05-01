@@ -15,6 +15,7 @@ import logging
 import bapp
 from bkvstore import KeyValueStoreProvider
 from butility import LazyMixin
+from bprocess import ProcessAwareApplication
 
 from .argparse import ( ArgumentError,
                         ArgumentTypeError,
@@ -65,7 +66,7 @@ class CommandBase(ICommand, LazyMixin):
     ## This can be useful for variable argument list parsing.
     ## However, sometimes its just typos which lead to this, causing unexpected behaviour if incought
     allow_unknown_args = False
-    
+
     ## -- End Information -- @}
     
     # -------------------------
@@ -83,12 +84,18 @@ class CommandBase(ICommand, LazyMixin):
     ## Help for all found subcommands
     ## If not None, it will also enable subcommand search 
     subcommands_help = None
+
+    ## If not None, and if no application instance is provided during initialization, we will create a default one
+    # when instantiated.
+    # Set this to the application type you want to intantiate, most commonly
+    # If you want to override arguments, provide your own type and re-implement `new()`
+    ApplicationType = ProcessAwareApplication
+
     
     ## -- End Configuration -- @}
     
     # -------------------------
     ## @name Constants
-    # documentation
     # @{
     
     ## A constant to indicate success of our command. Useful as return value of the execute() method
@@ -121,6 +128,10 @@ class CommandBase(ICommand, LazyMixin):
         If None, the global instance will be used automatically"""
         super(ICommand, self).__init__()
         self._app = application
+
+        if self._app is None and self.ApplicationType:
+            self._app = self.ApplicationType.new()
+        # end 
     
     def _set_cache_(self, name):
         if name == '_log':
@@ -173,9 +184,9 @@ class CommandBase(ICommand, LazyMixin):
             
         
         
-    ## -- End Interface Implementation -- @}
-        
+    ## -- End Interface Implementation -- @}        
     # -------------------------
+
     ## @name Subclass Methods
     # Methods that can be overridden by subclasses
     # @{
@@ -183,7 +194,7 @@ class CommandBase(ICommand, LazyMixin):
     def _find_compatible_subcommands(self):
         """@return a list or tuple of compatible ISubCommand instances. Must contain at least one subcommand instance
         @note the base implementation searches the current environment stack for it"""
-        return [scmd for scmd in (self._app or bapp.main()).context().new_instances(ISubCommand) 
+        return [scmd for scmd in (self.application() or bapp.main()).context().new_instances(ISubCommand) 
                                                                     if scmd.is_compatible(self)]
         
     def _add_version_argument(self, parser, version):
@@ -325,7 +336,5 @@ class SubCommandBase(CommandBase, ISubCommand):
         return command_info(command).name == self.main_command_name
     
     ## -- End Interface Implementation -- @}
-
-    
 
 # end class SubCommandBase

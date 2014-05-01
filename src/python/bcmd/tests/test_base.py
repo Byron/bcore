@@ -83,7 +83,7 @@ class TestCommands(TestCaseBase):
     @with_application
     def test_simple_command(self):
         """Standard command features test"""
-        cmd = SimpleCommand()
+        cmd = SimpleCommand(application=bapp.main())
         assert cmd.parse_and_execute(list()) == cmd.ARGUMENT_ERROR, 'cannot execute without -x'
         assert cmd.parse_and_execute(['-h']) == cmd.ARGUMENT_HANDLED, 'can show help without error code'
         assert cmd.parse_and_execute(['--version']) == cmd.ARGUMENT_HANDLED, 'can show version'
@@ -93,7 +93,7 @@ class TestCommands(TestCaseBase):
     @with_application
     def test_master_command(self):
         """Simple subcommand testing"""
-        cmd = MainCommand()
+        cmd = MainCommand(application=bapp.main())
         cmd.parse_and_execute([]) == 1, 'auto-print usage for subcommands'
         cmd.parse_and_execute(['-h']) == cmd.ARGUMENT_HANDLED, 'can show help'
         cmd.parse_and_execute(['--version']) == cmd.ARGUMENT_HANDLED, 'can show version'
