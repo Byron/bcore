@@ -274,7 +274,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             # NOTE: We intentionally don't use the registry here, as we don't just want any delegate.
             # It's common, in ProcessControl, to specify exactly which delegate to use, in order to get
             # perfectly determined behaviour
-            return ProcessControllerDelegate()
+            return ProcessControllerDelegate(self.application())
         # end create default
         return self._delegate
         
@@ -423,7 +423,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         default_name = package_schema.delegate.name()
         for package in (root_package, alias_package):
             if package.data().delegate.name() != default_name:
-                return package.data().delegate.instance(self._app.context())
+                return package.data().delegate.instance(self._app.context(), self._app)
             # end check non-default one
         # end for each primary package
 
@@ -431,11 +431,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
             pd = self._package_data(package_name)
             if pd.delegate.name() != default_name:
-                return pd.delegate.instance(self._app.context())
+                return pd.delegate.instance(self._app.context(), self._app)
             # end check delegate name
 
         # Finally, just return the default one. We assume it's just the standard one ProcessController
-        return ProcessControllerDelegate()
+        return ProcessControllerDelegate(self._app)
         
     def _setup_execution_context(self):
         """Initialize the context in which the process will be executed to the point right before it will actually
@@ -541,7 +541,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             
             self._executable_path = alias_package.executable()
             prev_len = len(app.context())
-            self.delegate().prepare_context(app, self._executable_path, self._environ, self._args, self._cwd)
+            self.delegate().prepare_context(self._executable_path, self._environ, self._args, self._cwd)
             
             # If there were changes to the environment, which means we have to refresh all our data so far
             if len(app.context()) != prev_len:

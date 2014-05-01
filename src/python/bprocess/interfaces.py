@@ -13,8 +13,16 @@ from butility import (InterfaceBase,
 
 
 class IProcessControllerDelegate(InterfaceBase):
-    """brief docs"""
-    __slots__ = ()
+    """A delegate used by the ProcessController to guide how to build the environment of the application"""
+    # Can't do slots due to layout conflict issues
+    # __slots__ = ('_app')
+
+    def __init__(self, application):
+        """initialize this instance with an Application. It will may be used for querying settings.
+        It's important to never use the global one at bapp.main() to keep everything contained
+        @note our _app must be considered read-only, unless specified otherwise in the respecitve method"""
+        super(IProcessControllerDelegate, self).__init__()
+        self._app = application
 
     # -------------------------
     ## @name Delegate Interface
@@ -22,14 +30,13 @@ class IProcessControllerDelegate(InterfaceBase):
     # @{
 
     @abstractmethod
-    def prepare_context(self, application, executable, environ, args, cwd):
+    def prepare_context(self, executable, environ, args, cwd):
         """A call to allow changing configuration based on other context that the controller may not know.
-        This method is executed after the initial environment configuration was performed by the controller, 
+        This method is executed after the initial context configuration was performed by the controller, 
         based on the current working directory and the executable's location.
         The delegate should - if adequate - alter the applications context stack by pushing a new contexts on top to
         setup overrides, see Application.context() for more information.
         It may also change the environment (env), and modify the executable arguments (args).
-        @param application an Application instance, whose context stack may be altered
         @param executable Path to executable that might be instantiated based on the most recent configuration
         @param environ dictionary with all environment variables to be used in the new process
         @param args a list of all process arguments

@@ -10,6 +10,8 @@ __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_pack
            'package_meta_data_schema', 'package_manager_schema']
 
 import logging
+import sys
+import re
 
 from bkvstore import (KeyValueStoreSchema,
                       AnyKey,
@@ -59,9 +61,38 @@ class NamedServiceProcessControllerDelegate(object):
     def name(self):
         """@return the name of the delegate we should instantiate"""
         return self._delegate_name
-          
+         
 
 # end class NamedServiceProcessControllerDelegate
+
+
+class IgnoreCaseRegex(object):
+  """A type to handle conversions from and to regular expressions.
+  It will handle invalid ones such that it logs the error, and retains one that never matches.
+
+  Instance of this type also act as a proxy for their regex.
+  """
+  __slots__ = ('regex') # a precompiled and valid regular expression object
+
+  flags = re.IGNORECASE
+  never_match = '(?!)'
+  re_never_match = re.compile(never_match)
+
+  def __init__(self, regex=never_match):
+      """Initialize ourselves with a regex, which is compiled right away"""
+      try:
+          self.regex = re.compile(regex, flags=self.flags)
+      except re.error, err:
+          self.log.error("regex compilation failed: %s", err)
+          # This regex is supposed to never match anything
+          self.regex = self.re_never_match
+      # end handle regex conversion
+
+  def __getattr__(self, name):
+      """Proxy for regex"""
+      return getattr(self.regex, name)
+
+# end class Regex
 
 ## -- End Utilities -- @}
 
@@ -90,9 +121,36 @@ _config_schema = dict( trees = PathList,
                        # whatever came in from them
                        files =  PathList )
 
+
+# NOTE: just because without these, the process engine is not usable, we keep them as default
+# for use in the inherit_regex
+_inherit_evars = ['PATH',         # Actually to allow other wrapper scripts to work, i.e. maya
+                  'HOME',         # used by some software to find local configuration
+                           ]
+if sys.platform == 'win32':
+    _inherit_evars.extend(('USERNAME',     # required to have user information (simple)
+                           'SystemRoot'    # required for most APIs to work !
+                            ))
+else:
+    _inherit_evars.extend(('XAUTHORITY',   # just here as a precaution 
+                           'DISPLAY',      # To allow GUIs
+                           'USER',         # Some programs need it, like 3de
+                         ))
+# end handle platforms
+
 # A schema to configure the package manager system on a global level. That way, it is more flexible, 
 # helping to reduce the requirement for custom delegates
-package_manager_schema = KeyValueStoreSchema('package-manager', {'configuration' : _config_schema})
+package_manager_schema = KeyValueStoreSchema('package-manager', 
+                                                    {'configuration' : _config_schema,
+                                                     'environment-variables' : {
+                                                        'inherit' : StringList(_inherit_evars),
+                                                        'regex' : {
+                                                           # all matches are case-insensitive
+                                                           'is_path'            : IgnoreCaseRegex('.*path'),
+                                                           'path_is_appendable' : IgnoreCaseRegex('')
+                                                           }
+                                                       }
+                                                    })
 
 package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of the package. All relative paths will be 
                                                         # made absolute with the first valid root path

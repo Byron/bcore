@@ -51,6 +51,7 @@ from .actions import ActionDelegateMixin
 
 from .schema import ( controller_schema,
                       process_schema,
+                      package_manager_schema,
                       NamedServiceProcessControllerDelegate )
 
 from butility import ( Path,
@@ -355,31 +356,8 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     
     It is possible to provide arguments that are interpreted only by the wrappers delegate. Those arguments
     start with a triple-dash ('---') and can be the following
-    
-    See 
     """
-    __slots__ = ()
-    
-    ## This is just to get less surprises when setting up new wrappers ... even though some of this could 
-    ## really be controlled by inherited delegates
-    _inherit_those_variables = ['PATH',         # Actually to allow other wrapper scripts to work, i.e. maya
-                                'HOME',         # used by some software to find local configuration
-                               ]
-    if sys.platform == 'win32':
-        _inherit_those_variables.extend((
-                                        'USERNAME',	    # required to have user information (simple)
-                                        'SystemRoot'	# required for most APIs to work !
-                                ))
-    else:
-        _inherit_those_variables.extend(('XAUTHORITY',   # just here as a precaution 
-                                         'DISPLAY',      # To allow GUIs
-                                         'USER',         # Some programs need it, like 3de
-                                       ))
-    # end handle platforms
-    
-    ## For the sake of simplicity, we keep a few special cases in the base class implementation, until
-    # those packages have their own delegate, that is
-    _unappendable_variables = ('OCIO', 'RMANTREE')
+    __slots__ = ('_controller_settings')
     
     ## if True, configuration will be parsed from paths given as commandline argument. This is useful
     # to extract context based on passed files (for instance, for rendering)
@@ -424,6 +402,12 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     Set the BAPP_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
     framework.
     """
+
+    def __init__(self, application):
+        super(ProcessControllerDelegate, self).__init__(application)
+        self._controller_settings = \
+            self._app.context().settings().value_by_schema(package_manager_schema, resolve=True)['environment-variables']
+
     # -------------------------
     ## @name Configuration
     # @{
@@ -433,7 +417,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     
     ## -- End Configuration -- @}
     
-    def prepare_context(self, application, executable, env, args, cwd):
+    def prepare_context(self, executable, env, args, cwd):
         """Interprets wrapper arguments as identified by their '---' prefix and if required, sets those overrides
         in a custom environment.
         Additionally we will parse paths from the given commandline and use them in the context we build.
@@ -450,42 +434,31 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
-                    application.context().push(StackAwareHierarchicalContext(path.dirname()))
+                    self._app.context().push(StackAwareHierarchicalContext(path.dirname()))
                 # end handle valid directory
                 continue
             # end ignore non-wrapper args
-            self.handle_argument(application, arg[len(self.wrapper_arg_prefix):], kvstore_overrides)
+            self.handle_argument(arg[len(self.wrapper_arg_prefix):], kvstore_overrides)
         # end for each arg to check
         
         # set overrides
         if kvstore_overrides.keys():
-            application.context().push(DelegateCommandlineOverridesContext('commandline overrides', 
+            self._app.context().push(DelegateCommandlineOverridesContext('commandline overrides', 
                                                                            kvstore_overrides))
             ControlledProcessInformation.store_commandline_overrides(env, kvstore_overrides.data())
         #end handle overrides
-        return super(ProcessControllerDelegate, self).prepare_context(application, executable, env, args, cwd)
+        return super(ProcessControllerDelegate, self).prepare_context(executable, env, args, cwd)
         
     def variable_is_path(self, environment_variable):
-        """base implementation considers those ending with PATH as path variables, or those ending with TREE.
-        Arguably, this is a bit fat for a base implementation, but its okay as long as it doesn't match too many
-        variables
-        Variables ending with home and location are interpreted as paths as well.
+        """Base implementation uses the process manager settings and the regex defined there 
+        to determine what is a considered a path.
         """
-        evar = environment_variable.lower()
-        return  (evar.endswith('path') or 
-                 evar.endswith('paths') or
-                (evar != 'home' and evar.endswith('home')) or
-                 # Should be done in their own delegate !
-                 evar.endswith('tree') or 
-                 evar.endswith('location') or
-                 evar == 'ocio') 
+        return bool(self._controller_settings.regex.is_path.match(environment_variable))
         
     def variable_is_appendable(self, environment_variable, value):
-        """Default implementation always assumes paths are appendable, except for a custom set 
-        of variables we know (until the respective packages implement their own delegate)"""
-        if environment_variable in self._unappendable_variables:
-            return False
-        return True
+        """Default implementation considers paths appendable if they match a regular expression
+        as defined in the package manager settings."""
+        return bool(self._controller_settings.regex.path_is_appendable.match(environment_variable))
         
     def verify_path(self, environment_variable, path):
         """@return allow everything that is an existing path, otherwise drop it, and log the incident"""
@@ -499,7 +472,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         if they exist. We will not override existing values either.
         Additionally it will apply the transaction to prepare the process launch.
         @note also removed custom wrapper arguments, which are identified by their '---' prefix"""
-        self.update_from_os_environment(self._inherit_those_variables, env)
+        self.update_from_os_environment(env)
         # remove wrapper args
         new_args = [arg for arg in args if not arg.startswith(self.wrapper_arg_prefix)]
 
@@ -543,25 +516,25 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             return None
         return match.group(0)
     
-    def update_from_os_environment(self, variables, env, append = False):
+    def update_from_os_environment(self, env, append = False):
         """Update all variables in the given env from their counterpart in os.environ.
         This allows to selectively inherit from your parent environment
-        @param variables iterable of environment variables to inherit
         @param env the environment to store the values from os.environ in
         @param append if True, and if the environment variable is a path, it will be appended.
         Otherwise it will be prepended.
         @note this is just a utility, you could easily implement it yourself"""
-        for evar in variables:
-            if evar in os.environ:
-                value = os.environ[evar]
-                if self.variable_is_path(evar):
-                    update_env_path(evar, value, append = append, environment = env)
-                    log.debug("Setting %s = %s, append = %i", evar, value, append) 
-                else:
-                    log.debug('Setting %s = %s', evar, value)
-                    env[evar] = value
-                #end handle path variables
-            # end if evar is in envrionment
+        for evar in self._controller_settings.inherit:
+            if evar not in env:
+                continue
+            # end ignore un-inheritable ones
+            value = env[evar]
+            if self.variable_is_path(evar):
+                update_env_path(evar, value, append = append, environment = env)
+                log.debug("Setting %s = %s, append = %i", evar, value, append) 
+            else:
+                log.debug('Setting %s = %s', evar, value)
+                env[evar] = value
+            # end handle path variables
         # end for each xvar
         
     def set_context_override(self, schema, value, *args, **kwargs):
@@ -582,7 +555,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         @return newly created DelegateContextOverride instance"""
         return self.DelegateContextOverrideType(type(self).__name__ + ' Override').setup(self, controller_schema, *args, **kwargs)
         
-    def handle_argument(self, application, arg, kvstore):
+    def handle_argument(self, arg, kvstore):
         """Method called whenver an argument destined for the wrapper is to be evaluated.
         Subtypes can use it to implement custom argument parsing, based on arguments with the --- prefix.
         The base implementation handles the standard cases
@@ -598,7 +571,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             if arg == 'debug':
                 # print out all files participating in environment stack
                 log.debug("CONFIGURATION FILES IN LOADING ORDER")
-                for ctx in application.context().stack():
+                for ctx in self._app.context().stack():
                     if not isinstance(ctx, StackAwareHierarchicalContext):
                         continue
                     #end ignore non configuration items
@@ -630,8 +603,6 @@ class MayaProcessControllerDelegate(ProcessControllerDelegate):
     
     context_from_path_arguments = True
 
-    _unappendable_variables = ProcessControllerDelegate._unappendable_variables + ('bapp_PIPELINE_BASE_PATH', )
-    
     def verify_path(self, environment_variable, path):
         """Deals properly with icon-paths, those are only relevant on linux"""
         if not path.endswith('%B'):
