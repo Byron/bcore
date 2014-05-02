@@ -467,14 +467,24 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             return None
         return path
 
-    def pre_start(self, executable, env, args, cwd):
+    def pre_start(self, executable, env, args, cwd, resolve):
         """@return env unchanged, but assure that X-Specific variables are copied from our current environment
         if they exist. We will not override existing values either.
         Additionally it will apply the transaction to prepare the process launch.
+        We will resolve environment variables, if desired
         @note also removed custom wrapper arguments, which are identified by their '---' prefix"""
         self.update_from_os_environment(env)
         # remove wrapper args
-        new_args = [arg for arg in args if not arg.startswith(self.wrapper_arg_prefix)]
+        new_args = list()
+        for arg in args:
+            if arg.startswith(self.wrapper_arg_prefix):
+                continue
+            if resolve and '$' in arg:
+                # we really just want the resolver engine
+                arg = str(Path._expandvars_deep(arg, env))
+            # end handle argument substitution
+            new_args.append(arg)
+        # end for arg in args
 
         if self.has_transaction():
             if self.transaction().apply().failed():
@@ -536,6 +546,9 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 env[evar] = value
             # end handle path variables
         # end for each xvar
+
+    def resolve_arguments(self, args):
+        """Resolve all environment variables, recursively"""
         
     def set_context_override(self, schema, value, *args, **kwargs):
         """Use the given ProcessController schema to safely alter the given context value.
@@ -640,10 +653,10 @@ class MariControllerDelegate(ProcessControllerDelegate):
     """A controller to ease starting Mari with all it's peculiarities"""
     __slots__ = ()
 
-    def pre_start(self, executable, env, args, cwd):
+    def pre_start(self, executable, env, args, cwd, resolve):
         """Prevent the browser to be shown"""
         args.insert(0, '--nobrowser')
-        return super(MariControllerDelegate, self).pre_start(executable, env, args, cwd)
+        return super(MariControllerDelegate, self).pre_start(executable, env, args, cwd, resolve)
 
 # end class MariControllerDelegate
 

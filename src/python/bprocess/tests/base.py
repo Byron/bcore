@@ -64,7 +64,7 @@ class NosetestDelegate(ProcessControllerDelegate):
         """Store noseargs in our value"""
         value.args.extend(noseargs)
 
-    def pre_start(self, executable, env, args, cwd):
+    def pre_start(self, executable, env, args, cwd, resolve):
         """Parse out all arguments until '--' and place them into extra process information.
         @note will place a new environment to assure we get those arguments over into the launched application"""
         try:
@@ -78,7 +78,7 @@ class NosetestDelegate(ProcessControllerDelegate):
             log.info('No nosetests arguments found - specify them using <nosetest flags> -- <hostapplication flags>')
         # end handle no special nosetests args
         
-        return super(NosetestDelegate, self).pre_start(executable, env, args, cwd)
+        return super(NosetestDelegate, self).pre_start(executable, env, args, cwd, resolve)
         
     # -------------------------
     ## @name Interface
@@ -113,8 +113,8 @@ class NoseStartScriptDelegate(NosetestDelegate):
         @param script_path path to the script that is to be injected so that the program will execute it
         @note called from pre_start"""
 
-    def pre_start(self, executable, env, args, cwd):
-        executable, env, args, cwd = super(NoseStartScriptDelegate , self).pre_start(executable, env, args, cwd)
+    def pre_start(self, executable, env, args, cwd, resolve):
+        executable, env, args, cwd = super(NoseStartScriptDelegate , self).pre_start(executable, env, args, cwd, resolve)
         args = self.modify_args(args, self.entry_script_path())
         assert isinstance(args, (list, tuple))
         return (executable, env, args, cwd)

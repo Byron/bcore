@@ -189,7 +189,7 @@ class Path( _base ):
     #{ Operations on path strings.
     
     @classmethod
-    def _expandvars(cls, path):
+    def _expandvars(cls, path, env=os.environ):
         """Internal version returning a string only representing the non-recursively
         expanded variable
         
@@ -208,9 +208,9 @@ class Path( _base ):
             name = m.group(1)
             if name.startswith('{') and name.endswith('}'):
                 name = name[1:-1]
-            if name in os.environ:
+            if name in env:
                 tail = path[j:]
-                path = path[:i] + os.environ[name]
+                path = path[:i] + env[name]
                 i = len(path)
                 path += tail
             else:
@@ -220,9 +220,9 @@ class Path( _base ):
         return path 
 
     @classmethod
-    def _expandvars_deep(cls, path):
+    def _expandvars_deep(cls, path, env=os.environ):
         """As above, but recursively expands as many variables as possible"""
-        rval = cls._expandvars(path)
+        rval = cls._expandvars(path, env)
         while str(rval) != str(path):
             path = rval
             rval = cls._expandvars(path)

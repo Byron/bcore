@@ -194,7 +194,10 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                               # Arguments to append
                                                               'append' : StringList,
                                                               # arguments to prepend
-                                                              'prepend' : StringList
+                                                              'prepend' : StringList,
+                                                              # if True, we will substitute environment variables
+                                                              # The first encountered True value will enable it
+                                                              'resolve' : False
                                                           },
                                                           # tractor specific information
                                                           'environment' : {

@@ -43,7 +43,7 @@ class IProcessControllerDelegate(InterfaceBase):
         @param cwd a Path instance to the current working directory
         @note for a variable description, see pre_start()
         @note you must not use this method to alter argument lists, see pre_start() for that reason"""
-       
+
     @abstractmethod
     def variable_is_path(self, environment_variable):
         """@return True if the given environment variable is describing a path. If this is the case, 
@@ -68,7 +68,7 @@ class IProcessControllerDelegate(InterfaceBase):
         @note its up to the implementor to log this incident"""
     
     @abstractmethod
-    def pre_start(self, executable, env, args, cwd):
+    def pre_start(self, executable, env, args, cwd, resolve):
         """Called right before starting the process, and is meant to allow the delegate to see everything influencing 
         the soon-to-be-created process.
         The delegate can modify any of the arguments, or return them unchanged.
@@ -77,6 +77,8 @@ class IProcessControllerDelegate(InterfaceBase):
         @param args argument list as provided initially to the bootstrapper. You can parse them or adjust them
         to your liking. It does not contain the executable itself.
         @param cwd path representing the current working directory
+        @param resolve we will look for arguments that need substitution.
+        This resolution could be any kind of transformation, like substiting commandline arguments
         @return (executable, env, args, cwd) containing possibly altered versions of the given variables
         @note even though it would be possible, the delegate must not attempt to start the program himself"""
     

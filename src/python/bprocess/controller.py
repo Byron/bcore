@@ -114,7 +114,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                     '_prebuilt_app',      # An Application instance optionally provided by the user
                     '_delegate_override', # the delegate the caller might have set
                     '_dry_run',           # if True, we will not actually spawn the application,
-                    '_package_data_cache' # intermediate data cache, to reduce overhead during iteration
+                    '_package_data_cache',# intermediate data cache, to reduce overhead during iteration
+                    '_resolve_args'       # if True, we will resolve arguments in some way
                 )
     
     # -------------------------
@@ -206,6 +207,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         self._cwd = cwd or os.getcwd()
         self._environ = dict()
         self._spawn_override = None
+        self._resolve_args = False
         # NOTE: We can't set the _app attribute right away, as we rely on lazy mechanisms to initialize ourselves
         # when needed. The latter wouldn't work if we set the attribute directly
         self._prebuilt_app = application
@@ -646,8 +648,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                 
                 # Adjust arguments
                 ####################
-                self._args = package.data().arguments.prepend + self._args
-                self._args.extend(package.data().arguments.append)
+                pargs = package.data().arguments
+                self._args = pargs.prepend + self._args
+                self._args.extend(pargs.append)
+                self._resolve_args |= pargs.resolve
 
                 # CWD Adjustment
                 if not cwd_handled and package.data().cwd:
@@ -760,7 +764,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         #####################
         # Its not required to have a valid root unless the executable or one of the  is relative
         delegate = self.delegate()
-        executable, env, args, cwd = delegate.pre_start(self._executable_path, self._environ, self._args, self._cwd)
+        executable, env, args, cwd = delegate.pre_start(self._executable_path, self._environ, self._args, self._cwd, self._resolve_args)
         # play it safe, implementations could change type
         executable = Path(executable)
         if not executable.isfile():
