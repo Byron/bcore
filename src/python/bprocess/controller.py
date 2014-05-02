@@ -636,7 +636,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             delegate = self.delegate()
             log.log(TRACE, "Using delegate of type '%s'", type(delegate).__name__)
 
-            # In order to allow skipping particular packages, we keep an exclude list
+            # In order to allow skipping particular packages, we keep an ignore list
             # It is just implemented here as this is the only place where it should be required
             exclude_packages = set()
 
@@ -660,9 +660,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                 # end ignore excluded packages
 
                 # update ex
-                exclude_packages |= set(package.data().exclude)
-                if package.data().exclude:
-                    log.debug('%s: added exclude packages %s', package_name, ', '.join(package.data().exclude))
+                exclude_packages |= set(package.data().ignore)
+                if package.data().ignore:
+                    log.debug('%s: added exclude packages %s', package_name, ', '.join(package.data().ignore))
                 # end handle logging
                 
                 # Adjust arguments

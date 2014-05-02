@@ -162,7 +162,7 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           'requires' : StringList,
                                                           # A list of packages not to consider in our requirements
                                                           # only used when building the process environment
-                                                          'exclude' : StringList,
+                                                          'ignore' : StringList,
                                                           # An alias to the package which provides the executable of our program.
                                                           # The delegate may be overridden here, and all 
                                                           # all environment variables
