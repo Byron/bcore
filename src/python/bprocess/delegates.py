@@ -467,6 +467,15 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             return None
         return path
 
+    def resolve_arg(self, arg, env):
+        """@return the argument without any environment variables
+        @note this method exists primarly for interception by subclasses"""
+        return str(Path._expandvars_deep(arg, env))
+
+    def resolve_value(self, value, env):
+        """Our base implementation just substitutes environment variables"""
+        return self.resolve_arg(value, env)
+
     def pre_start(self, executable, env, args, cwd, resolve):
         """@return env unchanged, but assure that X-Specific variables are copied from our current environment
         if they exist. We will not override existing values either.
@@ -481,7 +490,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 continue
             if resolve and '$' in arg:
                 # we really just want the resolver engine
-                arg = str(Path._expandvars_deep(arg, env))
+                arg = self.resolve_arg(arg, env)
             # end handle argument substitution
             new_args.append(arg)
         # end for arg in args

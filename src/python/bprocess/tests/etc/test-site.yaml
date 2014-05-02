@@ -6,6 +6,7 @@ packages:
   test-environment: ##
   ###################
     environment:
+      resolve: True
       variables:
         PYTHONPATH: '{process.core_tree}'
         
@@ -80,6 +81,7 @@ packages:
       plugin_paths:
         - '{delegate_python_path}/etc/plug-ins/test_plugin.py'
     arguments:
+      resolve: True
       prepend:
         - -c
         - '{plugin_load_command}'

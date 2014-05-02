@@ -173,8 +173,6 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           # The delegate may be overridden here, and all 
                                                           # all environment variables
                                                           'alias' : str,
-                                                          # If True, the entire environment will be inherited. Otherwise the process will build its environment from scratch.
-                                                          'inherit_environment' : False,
                                                           # The python configuration only at boot time (using the bootstrapper)
                                                           'boot' : {
                                                             # The sys.paths to set in order to allow imports
@@ -201,6 +199,13 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           },
                                                           # tractor specific information
                                                           'environment' : {
+                                                              # If True, the entire environment will be inherited. 
+                                                              # Otherwise the process will build its environment from 
+                                                              # scratch.
+                                                              'inherit' : False,
+                                                              # if True, environment variables specified here
+                                                              # will be substituted automatically
+                                                              'resolve' : False,
                                                               'linker_search_paths' : PathList,
                                                               'executable_search_paths' : PathList,
                                                               # Environment Variables we are to set

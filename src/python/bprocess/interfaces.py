@@ -66,6 +66,15 @@ class IProcessControllerDelegate(InterfaceBase):
         @param path Path instance with the resolved path that would be set
         @return the path that is to be set, or None if the path should be dropped
         @note its up to the implementor to log this incident"""
+
+    @abstractmethod
+    def resolve_value(self, value, env):
+        """Using the environment `env`, the value at an environment variable will be substituted recursively.
+        This allows packages to communicate all kinds of information, using environment variables only, and 
+        do so in a portable way.
+        @param value a single string
+        @param env a dict with variable:value pairs
+        @return the substituted value"""
     
     @abstractmethod
     def pre_start(self, executable, env, args, cwd, resolve):

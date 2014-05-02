@@ -601,7 +601,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                 self.set_delegate(self._find_delegate(root_package, alias_package))
             # end update data
             
-            if root_package.data().inherit_environment:
+            if root_package.data().environment.inherit:
                 # this is useful if we are started from another wrapper, or if 
                 # Always copy the environment, never write it directly to assure we can do in-process launches
                 self._environ.update(os.environ)
@@ -673,9 +673,13 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                 
                 # Special Search Paths
                 #######################
+                resolve_evars = package.data().environment.resolve
                 for evar, paths in ((ld_env_var, package.data().environment.linker_search_paths),
                                     (exec_env_var, package.data().environment.executable_search_paths)):
                     for path in paths:
+                        if resolve_evars:
+                            path = delegate.resolve_value(path, self._environ)
+                        # end 
                         path = delegate.verify_path(evar, package.to_abs_path(path))
                         if path is not None:
                             debug.setdefault(evar, list()).append((str(path), package_name))
@@ -691,6 +695,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                     for value in values:
                         # for now we append, as we walk dependencies breadth-first and items coming later
                         # should be effective later
+                        if resolve_evars:
+                            value = delegate.resolve_value(value, self._environ)
+                        # end
                         if evar_is_path:
                             value = delegate.verify_path(evar, package.to_abs_path(value))
                             if value is None:
