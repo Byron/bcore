@@ -461,7 +461,10 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         return bool(self._controller_settings.regex.path_is_appendable.match(environment_variable))
         
     def verify_path(self, environment_variable, path):
-        """@return allow everything that is an existing path, otherwise drop it, and log the incident"""
+        """@return allow everything that is an existing path, otherwise drop it, and log the incident
+        @note we assume that variables will be substituted later, and must let it pass"""
+        if path.containsvars():
+            return path
         if not path.exists():
             log.warn("%s: '%s' dropped as it could not be read", environment_variable, path)
             return None

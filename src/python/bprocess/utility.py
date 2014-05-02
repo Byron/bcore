@@ -388,9 +388,13 @@ class ProcessControllerPackageSpecification(LazyMixin):
         @note it is not checked for existence
         @param path string or butility.Path
         @return absolute version of the path, as butility.Path
-        @throws ValueError if the path is relative and there is no valid root path"""
+        @throws ValueError if the path is relative and there is no valid root path
+        @note assumes the best when an environment variable is found, which never be made absolute.
+        Will only appliy to paths like '$FOO/bar', not to 'foo/$BAR'"""
         path = Path(path)
         if path.isabs():
+            return path
+        if path.containsvars():
             return path
         if self.root_path() is None:
             raise EnvironmentError("Cannot convert '%s' to absolute path in package '%s' without a single valid tree, tried: [%s]" % (path, self.name(), ', '.join(self._data.trees)))

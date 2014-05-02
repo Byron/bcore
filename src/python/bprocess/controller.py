@@ -100,7 +100,7 @@ def by_existing_dirs_and_files(fs_items):
 ## -- End Utilities -- @}
 
 
-class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient, bapp.plugin_type()):
+class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient):
     """The main interface to deal with \ref processcontrol "Process Control" .
     
     It allows to control the environment in which processes are executed, as well as to alter their input 
@@ -755,10 +755,20 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         # Obtain the executable path one more time, after all, it may be dependent on environment 
         # variables that want to be resolved now
         self._executable_path = alias_package.executable(self._environ)
+
+        # We also have to resolve all values, unconditionally.
+        for evar, value in self._environ.iteritems():
+            if '$' not in value:
+                continue
+            self._environ[evar] = delegate.resolve_value(value, self._environ)
+        # end for each variable to subsitiute
         
         if self.is_debug_mode():
-            log.debug("EFFECTIVE WRAPPER ENVIRONMENT VARIABLES")
+            log.debug("EFFECTIVE WRAPPER ENVIRONMENT VARIABLES (with possibly unresolved $VARIABLE_SUBSTITUTIONS)")
             log.debug(pformat(debug))
+            log.debug("ENTIRE ENVIRONMENT (INCLUDING $VARIABLE_SUBSTITUTIONS)")
+            from butility import OrderedDict
+            log.debug(OrderedDict(self._environ))
         # end show debug information
 
         # Finally, check if we should debug the context. The flag will be removed later
