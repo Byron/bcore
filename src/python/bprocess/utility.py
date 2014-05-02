@@ -397,11 +397,22 @@ class ProcessControllerPackageSpecification(LazyMixin):
         # end handle root path
         return self.root_path() / path
         
-    def executable(self):
+    def executable(self, env):
         """@return butility.Path to executable - its not verified to be existing
         @note for now this is uncached, but its okay for our use
+        @note we always resolve environment variables
         """
-        executable_path = self.to_abs_path(self.data().executable)
+        executable_path = Path._expandvars_deep(self.data().executable, env)
+        try:
+            executable_path = self.to_abs_path(executable_path)
+        except EnvironmentError:
+            if '$' in executable_path:
+                # give it more time, let them work with it until something breaks
+                # Don't have another choice
+                executable_path = Path(executable_path)
+            else:
+                raise
+        # end handle conversion
         if os.name == 'nt':
             win_ext = '.exe'
             if not executable_path.ext():

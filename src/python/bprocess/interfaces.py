@@ -37,7 +37,10 @@ class IProcessControllerDelegate(InterfaceBase):
         The delegate should - if adequate - alter the applications context stack by pushing a new contexts on top to
         setup overrides, see Application.context() for more information.
         It may also change the environment (env), and modify the executable arguments (args).
-        @param executable Path to executable that might be instantiated based on the most recent configuration
+        @param executable Path to executable that might be instantiated based on the most recent configuration.
+        The path may still contain environment variables, but should be existing.
+        If in doubt, don't make assumptions about a path which appears to exist on disk, but work with it on
+        string level.
         @param environ dictionary with all environment variables to be used in the new process
         @param args a list of all process arguments
         @param cwd a Path instance to the current working directory
@@ -81,7 +84,8 @@ class IProcessControllerDelegate(InterfaceBase):
         """Called right before starting the process, and is meant to allow the delegate to see everything influencing 
         the soon-to-be-created process.
         The delegate can modify any of the arguments, or return them unchanged.
-        @param executable an unverified bapp.path object to the executable the controller would try to launch
+        @param executable an unverified bapp.path object to the executable the controller would try to launch.
+        It does not contain environment variables anymore.
         @param env process environment as created from scratch by the controller
         @param args argument list as provided initially to the bootstrapper. You can parse them or adjust them
         to your liking. It does not contain the executable itself.

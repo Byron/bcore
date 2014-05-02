@@ -541,7 +541,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                 self.set_delegate(self._find_delegate(root_package, alias_package))
             # end use delegate overrides
             
-            self._executable_path = alias_package.executable()
+            self._executable_path = alias_package.executable(self._environ)
             prev_len = len(app.context())
             self.delegate().prepare_context(self._executable_path, self._environ, self._args, self._cwd)
             
@@ -590,7 +590,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
                     remove_previous_configuration()
                 # end handle new configuration context
 
-                self._executable_path = alias_package.executable()
+                self._executable_path = alias_package.executable(self._environ)
                 
                 # If the delegate put on an additional environment, we have to reload everything
                 log.debug('reloading data after delegate altered environment')
@@ -732,6 +732,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
             msg = "Configuration for program '%s' not found - error was: %s" % (package_name, str(err))
             raise EnvironmentError(msg) 
         # end handle unknown dependencies
+
+        # Obtain the executable path one more time, after all, it may be dependent on environment 
+        # variables that want to be resolved now
+        self._executable_path = alias_package.executable(self._environ)
         
         if self.is_debug_mode():
             log.debug("EFFECTIVE WRAPPER ENVIRONMENT VARIABLES")
