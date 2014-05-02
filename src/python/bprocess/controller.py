@@ -79,7 +79,22 @@ class _ProcessControllerContext(Context):
         process.raw_arguments = list(args)
         process.core_tree = str(Path(__file__).dirname().dirname())
         self.settings().set_value(self._schema.key(), process)
-        
+
+def by_existing_dirs_and_files(fs_items):
+    """@return tuple(dirs, files) sort filesystem items by their type, ignore inaaccessible ones
+    @param fs_items iterable of Path objects"""
+    dirs = list()
+    files = list()
+    for item in fs_items:
+        if not item.exists():
+            continue
+        if item.isdir():
+            dirs.append(item)
+        else:
+            files.append(item)
+        # end sort by type
+    return dirs, files
+    
 # end class _ProcessControllerContext
         
 ## -- End Utilities -- @}
@@ -402,8 +417,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
             pkg = self._package(package_name)
             pd = pkg.data()
-            all_dirs.extend(rel_to_abs(pd.configuration.trees, pkg))
-            all_files.extend(rel_to_abs(pd.configuration.files, pkg))
+            if pd.include:
+                dirs, files = by_existing_dirs_and_files(pd.include)
+                all_dirs.extend(rel_to_abs(dirs, pkg))
+                all_files.extend(rel_to_abs(files, pkg))
+            # end sort includes
         # end for each package
         
         if not (all_dirs or all_files):
@@ -497,9 +515,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient,
         # change these particular values.
         # See issue https://github.com/Byron/bcore/issues/12
         pm = self._app.context().settings().value_by_schema(package_manager_schema, resolve=True)
-        if pm.configuration.trees or pm.configuration.files:
-            app.context().push(self.StackAwareHierarchicalContextType(pm.configuration.trees,
-                                                config_files=pm.configuration.files,
+        if pm.include:
+            dirs, files = by_existing_dirs_and_files(pm.include)
+            app.context().push(self.StackAwareHierarchicalContextType(dirs,
+                                                config_files=files,
                                                 traverse_settings_hierarchy=self.traverse_additional_path_hierachies))
         # end handle package manager configuration
 

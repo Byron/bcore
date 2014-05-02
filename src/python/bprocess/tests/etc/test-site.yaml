@@ -48,13 +48,13 @@ packages:
     alias: py-program-delegate-via-requires
     boot:
       plugin_paths: '{delegate_python_path}/delegate.py'
-    configuration:
+    include:
       # for fun, just the same config again - it won't be loaded as we detect this
-      trees:
-        - '{process.executable.dirname}/etc'
-      files:
-        # this one will override the 
-        - '{process.executable.as_KVPath.dirname}/etc/per-package/some-packages.yaml'
+      - '{process.executable.dirname}/etc'
+      # this one will override the 
+      - '{process.executable.as_KVPath.dirname}/etc/per-package/some-packages.yaml'
+      # non-existing
+      - 'foobar'
 
   py-program-overrides:
     # A python program to receive overrides of the context before starting the program

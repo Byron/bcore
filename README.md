@@ -46,3 +46,7 @@ Once the first release is out of the door, the API will stabilize though, yet I 
 
 * ``yaml``, see http://yaml.org
 * ``parse``, see http://www.ekit.com
+
+### LICENSE
+
+GNU LESSER GENERAL PUBLIC LICENSE, see LICENSE file for details.

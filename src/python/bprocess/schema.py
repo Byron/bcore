@@ -116,12 +116,6 @@ for key in ('executable', 'core_tree'):
     KVStringFormatter.set_key_type(key, KVPath)
 # end for each key to set
 
-_config_schema = dict( trees = PathList,
-                       # Files are loaded after trees, and may thus override
-                       # whatever came in from them
-                       files =  PathList )
-
-
 # NOTE: just because without these, the process engine is not usable, we keep them as default
 # for use in the inherit_regex
 _inherit_evars = ['PATH',         # Actually to allow other wrapper scripts to work, i.e. maya
@@ -141,7 +135,7 @@ else:
 # A schema to configure the package manager system on a global level. That way, it is more flexible, 
 # helping to reduce the requirement for custom delegates
 package_manager_schema = KeyValueStoreSchema('package-manager', 
-                                                    {'configuration' : _config_schema,
+                                                    {'include' : PathList,
                                                      'environment-variables' : {
                                                         'inherit' : StringList(_inherit_evars),
                                                         'regex' : {
@@ -187,7 +181,7 @@ package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of th
                                                           # Allows to specify additional configuration 
                                                           # that we have to pull in. It affects the bootstrapper
                                                           # as well as the launched process
-                                                          'configuration': _config_schema,
+                                                          'include': PathList,
                                                           'arguments' : {
                                                               # Arguments to append
                                                               'append' : StringList,
