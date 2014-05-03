@@ -418,9 +418,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             pkg = self._package(package_name)
             pd = pkg.data()
             if pd.include:
-                dirs, files = by_existing_dirs_and_files(pd.include)
-                all_dirs.extend(rel_to_abs(dirs, pkg))
-                all_files.extend(rel_to_abs(files, pkg))
+                dirs, files = by_existing_dirs_and_files(rel_to_abs(pd.include, pkg))
+                all_dirs.extend(dirs)
+                all_files.extend(files)
             # end sort includes
         # end for each package
         
@@ -624,11 +624,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                 # this is useful if we are started from another wrapper, or if 
                 # Always copy the environment, never write it directly to assure we can do in-process launches
                 self._environ.update(os.environ)
-
-                # But be sure we don't inherit this evar - it can be set later through config though
-                if bapp.minimal_init_evar in os.environ:
-                    del(sefl._environ[bapp.minimal_init_evar])
-                # end cleanup environment
             # end reuse full parent environment
             
             # PREPARE PROCESS ENVIRONMENT

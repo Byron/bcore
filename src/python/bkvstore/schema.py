@@ -10,6 +10,7 @@ __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStor
             'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',
             'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath', 'KVPathList']
 
+import os
 import logging
 
 from bdiff import ( DiffRecord,
@@ -20,6 +21,7 @@ from bdiff import ( DiffRecord,
                     RootKey )
 
 from butility import (Path,
+                      NativePath,
                       DictObject)
 
 from .diff import transform_value
@@ -78,7 +80,7 @@ class SchemaDiffRecord(DiffRecord):
 # end class SchemaDiffRecord
 
 
-class KVPath(Path):
+class KVPath(NativePath):
     """The version of the path which allows to access most common path operations as property.
     That way, it is suitable for substitution within the kvstore."""
     __slots__ = ()
@@ -184,7 +186,7 @@ class PathList(TypedList):
     """A list just for Paths - for use in KeyValueStoreSchema instances only"""
     __slots__ = ()
     
-    MemberType = Path
+    MemberType = NativePath
 
 
     # -------------------------

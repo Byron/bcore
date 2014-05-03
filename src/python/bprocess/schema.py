@@ -136,14 +136,16 @@ else:
 # helping to reduce the requirement for custom delegates
 package_manager_schema = KeyValueStoreSchema('package-manager', 
                                                     {'include' : PathList,
-                                                     'environment-variables' : {
-                                                        'inherit' : StringList(_inherit_evars),
-                                                        'regex' : {
-                                                           # all matches are case-insensitive
-                                                           'is_path'            : IgnoreCaseRegex('.*path'),
-                                                           'path_is_appendable' : IgnoreCaseRegex('')
-                                                           }
-                                                       }
+                                                     'environment' : {
+                                                        'variables' : {
+                                                          'inherit' : StringList(_inherit_evars),
+                                                          'regex' : {
+                                                             # all matches are case-insensitive
+                                                             'is_path'            : IgnoreCaseRegex('.*path'),
+                                                             'path_is_appendable' : IgnoreCaseRegex('')
+                                                             }
+                                                          } # end variables
+                                                       }# end environment
                                                     })
 
 package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of the package. All relative paths will be 

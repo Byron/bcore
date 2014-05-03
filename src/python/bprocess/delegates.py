@@ -406,7 +406,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     def __init__(self, application):
         super(ProcessControllerDelegate, self).__init__(application)
         self._controller_settings = \
-            self._app.context().settings().value_by_schema(package_manager_schema, resolve=True)['environment-variables']
+            self._app.context().settings().value_by_schema(package_manager_schema, resolve=True).environment.variables
 
     # -------------------------
     ## @name Configuration
@@ -546,10 +546,10 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         Otherwise it will be prepended.
         @note this is just a utility, you could easily implement it yourself"""
         for evar in self._controller_settings.inherit:
-            if evar not in env:
+            if evar not in os.environ:
                 continue
             # end ignore un-inheritable ones
-            value = env[evar]
+            value = os.environ[evar]
             if self.variable_is_path(evar):
                 update_env_path(evar, value, append = append, environment = env)
                 log.debug("Setting %s = %s, append = %i", evar, value, append) 
@@ -685,7 +685,5 @@ class ThreeDEqualizerControllerDelegate(ProcessControllerDelegate):
         return 'python_custom' in evar or evar.endswith('_dir')
 
 # end class ThreeDEqualizerControllerDelegate
-
-
 
 ## -- End Interface Implementation -- @}
