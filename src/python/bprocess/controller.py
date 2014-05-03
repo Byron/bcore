@@ -418,9 +418,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             pkg = self._package(package_name)
             pd = pkg.data()
             if pd.include:
-                dirs, files = by_existing_dirs_and_files(pd.include)
-                all_dirs.extend(rel_to_abs(dirs, pkg))
-                all_files.extend(rel_to_abs(files, pkg))
+                dirs, files = by_existing_dirs_and_files(rel_to_abs(pd.include, pkg))
+                all_dirs.extend(dirs)
+                all_files.extend(files)
             # end sort includes
         # end for each package
         

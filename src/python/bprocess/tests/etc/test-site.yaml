@@ -54,7 +54,7 @@ packages:
       # this one will override the 
       - '{process.executable.as_KVPath.dirname}/etc/per-package/some-packages.yaml'
       # non-existing
-      - 'foobar'
+      - '/foobar'
 
   py-program-overrides:
     # A python program to receive overrides of the context before starting the program
