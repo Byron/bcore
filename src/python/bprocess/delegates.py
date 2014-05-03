@@ -406,7 +406,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     def __init__(self, application):
         super(ProcessControllerDelegate, self).__init__(application)
         self._controller_settings = \
-            self._app.context().settings().value_by_schema(package_manager_schema, resolve=True)['environment-variables']
+            self._app.context().settings().value_by_schema(package_manager_schema, resolve=True).environment.variables
 
     # -------------------------
     ## @name Configuration

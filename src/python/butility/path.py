@@ -41,7 +41,7 @@ import re
 log = logging.getLogger("bapp.path")
 
 __version__ = '3.0'
-__all__ = ['Path', 'BasePath']
+__all__ = ['Path', 'BasePath', 'NativePath']
 
 # Platform-specific support for path.owner
 if os.name == 'nt':
@@ -1213,8 +1213,22 @@ class ConversionPath(BasePath):
         def isunshared(self):
             return super(ConversionPath, self).isunshared()
     # } END special methods
-    
-# END handle backslashes
+
+# END class ConversionPath
+
+
+class NativePath(Path):
+    """Any input will be converted to the native version on spot, which means backslashes on windows, and 
+    slashes on a proper OS"""
+    __slots__ = ()
+
+    def __new__(cls, *args):
+        """convert incoming paths right away"""
+        if args:
+            return Path.__new__(cls, args[0].replace(_oossep, _ossep))
+        return Path.__new__(cls, *args)
+
+# end class NativePath
 
 # assure separator is set
 ################################

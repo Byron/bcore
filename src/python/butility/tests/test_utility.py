@@ -10,6 +10,7 @@ __all__ = []
 
 from .base import TestCaseBase
 import sys
+import os
 
 # test from * import
 from butility import *
@@ -170,5 +171,12 @@ class TestUtility(TestCaseBase):
 
         del sys.modules[mod_name]
         del sys.modules['submodule']
+
+    def test_native_path(self):
+        if os.name == 'nt':
+            assert NativePath('/foo/bar') == r'\foo\bar'
+        else:
+            assert NativePath(r'\foo\bar') == '/foo/bar'
+        # end 
 
 # end class TestUtility
