@@ -624,11 +624,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                 # this is useful if we are started from another wrapper, or if 
                 # Always copy the environment, never write it directly to assure we can do in-process launches
                 self._environ.update(os.environ)
-
-                # But be sure we don't inherit this evar - it can be set later through config though
-                if bapp.minimal_init_evar in os.environ:
-                    del(sefl._environ[bapp.minimal_init_evar])
-                # end cleanup environment
             # end reuse full parent environment
             
             # PREPARE PROCESS ENVIRONMENT

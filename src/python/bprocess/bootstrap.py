@@ -63,26 +63,36 @@ class Bootstrapper(object):
     
     ## Process controller interface name
     process_controller_type_name = 'ProcessController'
-    
+
+    ## a per-directory file carrying information on where to find the bootstrapper
+    boot_info_file = '.bprocess_path'
+
     ## -- End Configuration -- @}
 
     # -------------------------
     ## @name Utiltiies
     # @{
-    
-    def _resolve_winlink(self, executable):
+
+    def _resolve_win_link(self, executable):
         """Read a path from a side-by-side file and resolve it like a symlink"""
         symlink_file = os.path.join(os.path.dirname(executable), '.' + os.path.basename(executable))
-        if not os.path.isfile(symlink_file):
-            msg = "Side-by-side symlink file at '%s' did not exist - first line should be the location of the bootstrapper implementation"
-            raise EnvironmentError(msg % symlink_file)
-        # end handle missing ifle
-        
-        try:
-            link = open(symlink_file, 'rt').readline()
-        except (OSError, IOError), err:
-            raise EnvironmentError("Could not access symlink file '%s' for reading: %s" % (symlink_file, str(err)))
-        # end handle exception
+        dirlink_file = os.path.join(os.path.dirname(executable), self.boot_info_file)
+        msg = ''
+        for iteration, link_file in enumerate((symlink_file, dirlink_file)):
+            try:
+                link = open(link_file, 'rt').readline()
+                msg = None
+            except (OSError, IOError), err:
+                msg += "Couldn't read side-by-side file at '%s'  - first line should be like ../bcore/bprocess/bootstrap.py" % link_file
+                if iteration == 0:
+                    msg += '\n'
+            # end handle exception
+        # end for each link-level to try
+
+        # if there was an error, abort
+        if msg:
+            raise EnvironmentError(msg)
+        # end handle bootstrapper not found
         
         if os.path.isabs(link):
             return link
@@ -103,19 +113,15 @@ class Bootstrapper(object):
             
             # on windows, we read the link from a side-by-side file
             if os.name == 'nt':
-                actual_executable = self._resolve_winlink(executable)
+                actual_executable = self._resolve_win_link(executable)
             else:
                 actual_executable = os.path.realpath(executable)
+                if actual_executable == executable:
+                    msg = "The executable %s must be a symlink to the bootstrapper implementation" % executable
+                    raise AssertionError(msg)
+                # end assertion
             # end handle windows
 
-            # Currently we need this. We could overcome the issue with environment variables or a config file 
-            # being read here, but it would just complicate matters - we can always have symlinks
-            # NOTE: this wouldn't work on windows, as read-link doesn't work there - its all done by samba underneath
-            # Therefore we would need some configuration/pseudo-link there
-            if actual_executable == executable:
-                msg = "The executable %s must be a symlink to the bootstrapper implementation" % executable
-                raise AssertionError(msg)
-            # end assertion
             executable = actual_executable
             
             root_package_path = self._root_package_path(executable)
