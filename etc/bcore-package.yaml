@@ -9,3 +9,12 @@ packages:
       variables:
         PYTHONPATH: 'src/python'
 
+  be-exec:
+    # A package just for providing information on how to start the 'be' command framework
+    # To use it, create your own, and require this one.
+    # Just must set an alias to whichever python interpreter you want
+    requires: bcore
+    arguments:
+      prepend:
+        - -m
+        - be.cmd
