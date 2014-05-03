@@ -517,9 +517,15 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         pm = self._app.context().settings().value_by_schema(package_manager_schema, resolve=True)
         if pm.include:
             dirs, files = by_existing_dirs_and_files(pm.include)
-            app.context().push(self.StackAwareHierarchicalContextType(dirs,
+            # we do something very special here, after all, this should be the foundation of everything we do
+            pre_ctx = self.StackAwareHierarchicalContextType(dirs,
                                                 config_files=files,
-                                                traverse_settings_hierarchy=self.traverse_additional_path_hierachies))
+                                                traverse_settings_hierarchy=self.traverse_additional_path_hierachies)
+            # TODO: we use intrensic knowledge about the stack, which is somewhat dangerous
+            # have to make this more public in kvstore, I think it's valid to do that, sometimes
+            # NOTE: this flexibility needs a full rebuild !
+            app.context().stack().insert(0, pre_ctx)
+            app.context()._mark_rebuild_changed_context()
         # end handle package manager configuration
 
         external_configuration_context = self._gather_external_configuration(program)
