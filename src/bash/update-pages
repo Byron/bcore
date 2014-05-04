@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# expects to be called in a CWD with directories like so
+# 
+# foo
+# foo-pages
+#
+# And will build mkdocs pages in foo and put them into foo-pages properly, pushing the result
+
+base=${1:?specify the path at which the repo;repo-pages side-by-side directories exist}
+cd $base || exit $?
+
+MKDOCS_YAML=etc/doc/mkdocs.yml
+
+for dir in `ls`; do
+	if [ "${dir##*-}" = pages ]; then continue; fi
+
+	page_dir=$dir-pages
+	if [ ! -d $page_dir ]; then continue; fi
+
+
+	if [ ! -f $dir/$MKDOCS_YAML ]; then 
+		echo "Skipping $dir as there is no $MKDOCS_YAML file"
+		continue; 
+	fi
+
+	echo "BUILDING DOCS ... "
+	(
+		cd $dir
+		(cd `dirname $MKDOCS_YAML` && mkdocs build)
+	) || continue
+
+	echo "UPDATING GH-PAGES ... "
+	(
+		cd $page_dir
+		rm -Rf *
+		rm .git/index
+		cp -Rv ../$dir/doc/mkdocs/html/* .
+		if [ `git branch | awk '/^\*/{print $2}'` != gh-pages ]; then
+			echo "gh-pages not checked out in $PWD" >&2
+			exit 3
+		fi
+		git add . && git commit -m "bot: auto-updating docs" && git push origin gh-pages
+	) || continue
+
+
+	echo "SUCCESSFULLY UPDATED $dir"
+done
