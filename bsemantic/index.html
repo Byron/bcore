@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://github.com/Byron/bcore/bsemantic/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>bSemantic - bcore</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">bcore</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Packages <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li class="active">
+                                <a href="./">bSemantic</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../license/">License</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                <li >
+                    <a rel="next" href="..">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../license/">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                
+                <li>
+                    <a href="https://github.com/Byron/bcore">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#semantic">Semantic</a></li>
+        
+            <li><a href="#preamble">Preamble</a></li>
+        
+            <li><a href="#semantic-name-handling">Semantic Name Handling</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h2 id="semantic">Semantic</h2>
+<p>A framework to translate meaning into symbols, and infer meaning from symbols, using a customizable ruleset.</p>
+<h3 id="preamble">Preamble</h3>
+<p>"What's in a name ?" - one could say, and answer everything and nothing. A name itself is just a <em>sequence of characters</em>, and what makes it useful is the meaning we assign to those as a whole. If you take many of those sequences, lets call them <em>symbol</em> from now on, and place them in a specific order, they gain context which further defines their meaning - its a <em>sentence</em>.</p>
+<p>For pipeline tool development, names used to playing a major roles, as they contain a lot of information and meaning that can be used to perform tasks. Meaning may be transformed as well, which generates a new name.</p>
+<p>If code interacts with names, it usually has to either build those <em>symbols</em> that it believes belong to a meaning that it wants to express, or it tries to analyze the its characters to figure out its meaning, or the <em>symbols</em> in sentences to find out even more.</p>
+<p>Doing so will of course make it very dependent on the actual character values, or the context of multiple concatenated <em>symbols</em>. This tends to be very problematic as they are prone to change, and sometimes they are required to change to adapt to changed requirements. </p>
+<p>In the end, what code is interested in is not the <em>symbol</em> itself, but the meaning that it bears, and we seek a way to decouple those so that the symbol can change, as long as the meaning doesn't.</p>
+<h3 id="semantic-name-handling">Semantic Name Handling</h3>
+<p>The solution to the inherent inflexibility of using <em>symbols</em> directly is to not actually do it. The only thing we want to and can keep static is the semantic aspect of a symbol, i.e. the meaning.</p>
+<p>Code will not directly interact with names as strings, or with <em>symbols</em> in <em>sentences</em>, instead it will interact with the meaning only, and later have someone generate the corresponding <em>symbol</em> or sentence.</p>
+<p>This can be thought of as having the pure meaning of something, which is then by some set of rule converted into <em>symbols</em> that can represent it. In natural language, this would be something like a translator, who analyzes sentences in one language to obtain the meaning, allowing him to translate it to any other language he knows. </p>
+<p>The example shows that once you have the pure meaning, you can essentially transform it into <em>symbols</em> using any rule set you like, and knowing the <em>rule set</em> that generated the <em>symbols</em>, you are able to infer the meaning once again.</p>
+<p>Such a <em>rule-set</em> in terms of more natural language would be comparable to <em>grammar</em> which defines in which order <em>words</em> from a <em>vocabulary</em> may be put.</p>
+<p><strong>Please see the documentation of the bsemantic package for more details</strong>.</p>
+</div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Copyright &copy; 2014, <a href="https://www.linkedin.com/in/sebastianthiel">Sebastian Thiel & Contributors</a>.</p>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+        
+    </body>
+</html>

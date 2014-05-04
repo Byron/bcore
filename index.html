@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Write integrating applications with bcore">
+        
+        <link rel="canonical" href="https://github.com/Byron/bcore/">
+        <link rel="shortcut icon" href="./img/favicon.ico">
+
+        <title>bcore</title>
+
+        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="./css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="./css/prettify-1.0.css" rel="stylesheet">
+        <link href="./css/base.css" rel="stylesheet">
+        
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body class="homepage">
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href=".">bcore</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li class="active">
+                        <a href=".">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Packages <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="bsemantic/">bSemantic</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="license/">License</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                <li class="disabled">
+                    <a rel="next" >
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="bsemantic/">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                
+                <li>
+                    <a href="https://github.com/Byron/bcore">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#features">Features</a></li>
+        
+    
+        <li class="main "><a href="#license">License</a></li>
+        
+    
+        <li class="main "><a href="#requirements">Requirements</a></li>
+        
+    
+        <li class="main "><a href="#development-status">Development Status</a></li>
+        
+    
+        <li class="main "><a href="#credits-external-packages">Credits / External Packages</a></li>
+        
+            <li><a href="#license_1">LICENSE</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<p>The bcore project is designed to help writing powerful and maintainable application rapidly.</p>
+<h2 id="features">Features</h2>
+<p>These are the top-three features</p>
+<ul>
+<li>bootstrapper for dependency handling and pre-runtime configuration of programs</li>
+<li>service registry for plugins and configuration</li>
+<li>file based, cascading key-value store with schema support</li>
+</ul>
+<p>Among the additional features are</p>
+<ul>
+<li>Path type for object oriented path handling</li>
+<li>small utility types too numerous to mention</li>
+<li>a simple framework for writing and running quality checks</li>
+<li>a simple framework to write transaction based operations of any kind</li>
+<li>a framework for building powerful commandline tools</li>
+<li><a href="https://github.com/Byron/bcore/blob/master/src/md/bsemantic.md">a framework</a> for generating names in a rule based fashion, and infering meaning from them</li>
+</ul>
+<h2 id="license">License</h2>
+<p>This open source software is licensed under <a href="https://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License</a></p>
+<h2 id="requirements">Requirements</h2>
+<p>The requirements are kept minimal, which is why you need nothing more than:</p>
+<ul>
+<li>a python 2.6 or 2.7 interpreter running on Linux, OSX, Solaris or Windows</li>
+</ul>
+<p>Optionally, you may need the following</p>
+<ul>
+<li>nosetests<ul>
+<li>Developers use it to run unit tests to verify the program works as expected</li>
+</ul>
+</li>
+</ul>
+<h2 id="development-status">Development Status</h2>
+<p>The code base was initiated 1.5 years ago, and was created to faciliate development in the company I was working for. Thanks to a code-buyback deal I am able to open-source it.</p>
+<p>Currently I am fixing long-standing issues and clean up the entire code-base. This makes the code highly-instable, in the sense of it changing a lot and at will.</p>
+<p>Once the first release is out of the door, the API will stabilize though, yet I don't feel like being too careful about it as long as there are no strong dependencies on the code.</p>
+<p><img alt="under construction" src="https://raw.githubusercontent.com/Byron/bcore/master/src/images/under_construction.png" /></p>
+<h2 id="credits-external-packages">Credits / External Packages</h2>
+<ul>
+<li><code>yaml</code>, see http://yaml.org</li>
+<li><code>parse</code>, see http://www.ekit.com</li>
+</ul>
+<h3 id="license_1">LICENSE</h3>
+<p>GNU LESSER GENERAL PUBLIC LICENSE, see LICENSE file for details.</p>
+</div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Copyright &copy; 2014, <a href="https://www.linkedin.com/in/sebastianthiel">Sebastian Thiel & Contributors</a>.</p>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="./js/bootstrap-3.0.3.min.js"></script>
+        <script src="./js/prettify-1.0.min.js"></script>
+        <script src="./js/base.js"></script>
+        
+    </body>
+</html>
