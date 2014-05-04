@@ -13,7 +13,8 @@ import os
 import logging
 
 from butility.tests import (TestCaseBase,
-                            with_rw_directory)
+                            with_rw_directory,
+                            skip_on_travis_ci)
 
 from butility import (ConcurrentRun,
                       Path)
@@ -40,6 +41,7 @@ class TestOperations(TestCaseBase):
             assert ro._num_files_transferred == ro._total_num_files_transferred, "Should have copied as many files as we gathered"
         #END handle dryrun
     
+    @skip_on_travis_ci
     @with_rw_directory
     def test_rsync(self, dest_dir):
         # Need to copy a bigger amount of files ... however it's dependent on time anyway, so this one

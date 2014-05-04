@@ -5,9 +5,10 @@
 
 """
 __all__ = ['unittest', 'with_rw_directory', 'TestCaseBase', 'TestInterfaceBase',
-            'TempRWDirProvider', 'skip_not_implemented']
+            'TempRWDirProvider', 'skip_not_implemented', 'skip_on_travis_ci']
 
 import unittest
+import os
 import gc
 import sys
 import shutil
@@ -99,11 +100,23 @@ def skip_not_implemented(func):
             return func(self, *args, **kwargs)
         except NotImplementedError:
             import nose
-            raise nose.SkipTest
+            raise nose.SkipTest("NotImplemented")
         # end convert exception
     # end wrapper
     return wrapper
-    
+
+def skip_on_travis_ci(func):
+    """All tests decorated with this one will raise SkipTest when run on travis ci.
+    Use it to workaround difficult to solve issues"""
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if 'TRAVIS_CI' in os.environ:
+            import nose
+            raise nose.SkipTest("Cannot run on travis-ci")
+        # end check for travis ci
+        return func(self, *args, **kwargs)
+    # end wrapper
+    return wrapper
 
 ## -- End Decorators -- @}
 

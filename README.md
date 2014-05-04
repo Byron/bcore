@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Byron/bcore.svg?branch=master)](https://travis-ci.org/Byron/bcore)
+
 The bcore project is designed to help writing powerful and maintainable application rapidly.
 
 ## Features

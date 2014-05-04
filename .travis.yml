@@ -2,5 +2,8 @@ language: python
 python:
   - "2.6"
   - "2.7"
+env:
+  # some async tests might have to know that, until they are actually fixed
+  - TRAVIS_CI=on
 
 script: nosetests src/python
