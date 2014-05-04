@@ -2,6 +2,7 @@ language: python
 python:
   - "2.6"
   - "2.7"
+  - "pypy"
 env:
   # some async tests might have to know that, until they are actually fixed
   - TRAVIS_CI=on

@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/Byron/bcore.svg?branch=master)](https://travis-ci.org/Byron/bcore)
-
 The bcore project is designed to help writing powerful and maintainable application rapidly.
 
 ## Features
@@ -31,6 +29,8 @@ Optionally, you may need the following
     -  Developers use it to run unit tests to verify the program works as expected
 
 ## Development Status
+
+[![Build Status](https://travis-ci.org/Byron/bcore.svg?branch=master)](https://travis-ci.org/Byron/bcore)
 
 The code base was initiated 1.5 years ago, and was created to faciliate development in the company I was working for. Thanks to a code-buyback deal I am able to open-source it.
 
