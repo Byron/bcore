@@ -77,6 +77,7 @@ class _ProcessControllerContext(Context):
         process.id = program
         process.executable = str(executable)
         process.raw_arguments = list(args)
+        process.python_executable = sys.executable
         process.core_tree = str(Path(__file__).dirname().dirname())
         self.settings().set_value(self._schema.key(), process)
 

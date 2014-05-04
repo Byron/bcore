@@ -11,11 +11,7 @@ packages:
         PYTHONPATH: '{process.core_tree}'
         
   python:
-    version: '2.6'
-    trees:
-      - '/usr/bin'
-      - 'c:\Python{packages.python.version.major}{packages.python.version.minor}'
-    executable: 'python{packages.python.version}'
+    executable: '{process.python_executable}'
     
   py-program:
     # Use python's executable as ours

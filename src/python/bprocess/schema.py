@@ -105,6 +105,9 @@ process_schema = KeyValueStoreSchema('process', {
                                                     # directory at which bcore can be imported from. This is the
                                                     # location at which the process controller code exists
                                                     'core_tree' : Path,
+                                                    # The executable of the python interpreter we are currently
+                                                    # running in, sys.executable
+                                                    'python_executable' : Path,
                                                     # The arguments the process was started with.
                                                     # May contain bootstrapper arguments as well
                                                     'raw_arguments' : StringList
