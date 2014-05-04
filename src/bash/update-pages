@@ -6,48 +6,77 @@
 #
 # And will build mkdocs pages in foo and put them into pages properly, pushing the result.
 # it expects pages to be a checkout of your repos gh-pages branch
+# Will initialize the required branch as needed
 
-base=${1:?specify the path at which the repo;repo-pages side-by-side directories exist}
-cd $base || exit $?
+echo "reading repositories paths, like ./bcore from stdin ..."
 
 MKDOCS_YAML=etc/doc/mkdocs.yml
 PAGE_DIR=pages
+PAGE_BRANCH=gh-pages
+trust_pages=off
 
-for dir in `ls`; do
-	(
-		cd $dir
-		if [ $dir = $PAGE_DIR ]; then continue; fi
-		if [ ! -d $PAGE_DIR ]; then continue; fi
+while read dir; do
+(
+	cd $dir
+	if [ ! -f $MKDOCS_YAML ]; then 
+		echo "Skipping $dir as there is no $MKDOCS_YAML file" >&2
+		continue;
+	fi
 
-		(
-			cd $PAGE_DIR
-			if [ `git branch | awk '/^\*/{print $2}'` != gh-pages ]; then
-				echo "gh-pages not checked out in $PWD - it should be a checkout of your project's gh-pages branch" >&2
-				exit 3
-			fi
-		) || continue
-		# end check page dir
-
-		if [ ! -f $MKDOCS_YAML ]; then 
-			echo "Skipping $dir as there is no $MKDOCS_YAML file" >&2
-			continue;
+	if [ ! -d $PAGE_DIR ]; then
+		echo "CHECKING OUT pages repository on branch '$PAGES'"
+		url=`git remote -v | grep origin | head -n 1 | while read _ url _; do echo $url; done`
+		if [ -z "$url" ]; then
+			echo "Couldn't find push url in $dir" >&2
+			continue
 		fi
 
-		echo "BUILDING DOCS ... "
-		(
-			(cd `dirname $MKDOCS_YAML` && mkdocs build)
-		) || continue
+		if git branch -r | grep origin/gh-pages -q; then
+			# clone right into gh-pages
+			git clone -b gh-pages $url $PAGE_DIR || continue
+			had_pages=yes
+		fi
 
-		echo "UPDATING GH-PAGES ... "
+		# preare branch and push ?
+		if [ -z "$had_pages" ]; then
 		(
+			mkdir $PAGE_DIR
 			cd $PAGE_DIR
-			rm -Rf *
-			rm .git/index
-			cp -Rv ../$dir/doc/mkdocs/html/* .
-			git add . && git commit -m "bot: auto-updating docs" && git push origin gh-pages
+			git init
+			git checkout --orphan gh-pages
+			git remote add origin $url
+			# make sure the branch will be detected in the parent repo
+			touch $dir/.git/refs/remotes/origin/gh-pages
 		) || continue
+		fi
+	fi # end create initial pages dir
 
-		echo "SUCCESSFULLY UPDATED $dir"
-	)
-	# end in $dir
+	(
+		cd $PAGE_DIR || exit $?
+		if ! cat .git/HEAD | grep -q gh-pages; then
+			echo "gh-pages not checked out in $PWD - it should be a checkout of your project's gh-pages branch" >&2
+			exit 3
+		fi
+	) || continue
+	# end check page dir
+
+	
+
+	echo "BUILDING DOCS ... "
+	(
+		cd `dirname $MKDOCS_YAML` && mkdocs build
+	) || continue
+
+	echo "UPDATING gh-pages ... "
+	(
+		cd $PAGE_DIR || exit $?
+		rm -Rf *
+		rm .git/index
+		cp -Rv $dir/doc/mkdocs/html/* .
+		git add . && git commit -m "bot: auto-updating docs" && git push origin gh-pages
+	) || continue
+
+	echo "SUCCESSFULLY UPDATED $dir"
+)
+# end in $dir
 done
