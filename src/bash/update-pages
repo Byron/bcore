@@ -1,48 +1,53 @@
 #!/bin/bash
 
-# expects to be called in a CWD with directories like so
+# expects to be called with a directory with directories that are setup like this
 # 
-# foo
-# foo-pages
+# foo/pages
 #
-# And will build mkdocs pages in foo and put them into foo-pages properly, pushing the result
+# And will build mkdocs pages in foo and put them into pages properly, pushing the result.
+# it expects pages to be a checkout of your repos gh-pages branch
 
 base=${1:?specify the path at which the repo;repo-pages side-by-side directories exist}
 cd $base || exit $?
 
 MKDOCS_YAML=etc/doc/mkdocs.yml
+PAGE_DIR=pages
 
 for dir in `ls`; do
-	if [ "${dir##*-}" = pages ]; then continue; fi
-
-	page_dir=$dir-pages
-	if [ ! -d $page_dir ]; then continue; fi
-
-
-	if [ ! -f $dir/$MKDOCS_YAML ]; then 
-		echo "Skipping $dir as there is no $MKDOCS_YAML file"
-		continue; 
-	fi
-
-	echo "BUILDING DOCS ... "
 	(
 		cd $dir
-		(cd `dirname $MKDOCS_YAML` && mkdocs build)
-	) || continue
+		if [ $dir = $PAGE_DIR ]; then continue; fi
+		if [ ! -d $PAGE_DIR ]; then continue; fi
 
-	echo "UPDATING GH-PAGES ... "
-	(
-		cd $page_dir
-		rm -Rf *
-		rm .git/index
-		cp -Rv ../$dir/doc/mkdocs/html/* .
-		if [ `git branch | awk '/^\*/{print $2}'` != gh-pages ]; then
-			echo "gh-pages not checked out in $PWD" >&2
-			exit 3
+		(
+			cd $PAGE_DIR
+			if [ `git branch | awk '/^\*/{print $2}'` != gh-pages ]; then
+				echo "gh-pages not checked out in $PWD - it should be a checkout of your project's gh-pages branch" >&2
+				exit 3
+			fi
+		) || continue
+		# end check page dir
+
+		if [ ! -f $MKDOCS_YAML ]; then 
+			echo "Skipping $dir as there is no $MKDOCS_YAML file" >&2
+			continue;
 		fi
-		git add . && git commit -m "bot: auto-updating docs" && git push origin gh-pages
-	) || continue
 
+		echo "BUILDING DOCS ... "
+		(
+			(cd `dirname $MKDOCS_YAML` && mkdocs build)
+		) || continue
 
-	echo "SUCCESSFULLY UPDATED $dir"
+		echo "UPDATING GH-PAGES ... "
+		(
+			cd $PAGE_DIR
+			rm -Rf *
+			rm .git/index
+			cp -Rv ../$dir/doc/mkdocs/html/* .
+			git add . && git commit -m "bot: auto-updating docs" && git push origin gh-pages
+		) || continue
+
+		echo "SUCCESSFULLY UPDATED $dir"
+	)
+	# end in $dir
 done
