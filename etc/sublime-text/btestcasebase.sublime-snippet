@@ -1,0 +1,21 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+from butility.tests import TestCaseBase
+from butility import Path
+
+
+class ${1:Package}TestCase(TestCaseBase):
+    """Base for all ${2:package} test cases"""
+    __slots__ = ()
+
+    fixture_root = Path(__file__).dirname()
+
+# end class ${1}TestCase
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>btestcasebase</tabTrigger>
+  <description>a Package TestCaseBase</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.python</scope>
+</snippet>

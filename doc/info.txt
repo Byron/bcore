@@ -1,2 +1,4 @@
-Will contain built and ready-for-use documentation of the project.
-Documentation sources can be found in sources/rst
+This is an intermediate storage location for built documentation in various format.
+We never check anything into this directory.
+
+Have a look at the contents of the gh-pages branch, which contains all documentation, ready for hosting.
