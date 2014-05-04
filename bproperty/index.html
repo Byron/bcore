@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://byron.github.io/bcore/bproperty/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>PROPERTY - metadata for attributes - bcore</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">bcore</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Features <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../be/">BE - universal commandline tool</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bcmd/">CMD - flexible commandline tools done quickly</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bsemantic/">SEMANTIC - decouples meaning from grammar</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bprocess/">PROCESS - control program launches</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bkvstore/">SETTINGS - for flexible apps only</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="./">PROPERTY - metadata for attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bqc/">QUALITY ASSURANCE - find problems and fix them</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../license/">License</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../bkvstore/">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../bqc/">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/Byron/bcore">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#components">Components</a></li>
+        
+            <li><a href="#components-summary">Components Summary</a></li>
+        
+    
+        <li class="main "><a href="#examples">Examples</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<p><img alt="under construction" src="https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png" /></p>
+<p>This framework helps to build arbitrarily complex property definitions and automate their handling. Properties can be nested arbitrarily.</p>
+<p>It is extremely simple and nothing more than a wrap around standard python descriptors, adding a stronger (and more extensible) interface and some convenience.</p>
+<h1 id="components">Components</h1>
+<p>Properties are implemented using <a href="http://nbviewer.ipython.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb">python descriptors</a>,
+which in turn return instance of type <a href="@ref%20butility.properties.base.PropertyBase">PropertyBase</a>. The latter
+implement a basic get/set interface, which can also respond to deletion (e.g. <code>del(self.property)</code>).</p>
+<p>As an additional (and optional) layer, there are MetaClasses which facilitate using properties.</p>
+<h2 id="components-summary">Components Summary</h2>
+<ul>
+<li><strong>Descriptors</strong><ul>
+<li>\ref butility.properties.base.PropertyDescriptor "PropertyDescriptor"<ul>
+<li>A basic property with meta-data support</li>
+</ul>
+</li>
+<li>\ref butility.properties.base.CompoundPropertyDescriptor "CompoundPropertyDescriptor"<ul>
+<li>A Descriptor that can contain other descriptors, useful for nesting of properties</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Properties</strong><ul>
+<li>\ref butility.properties.base.PropertyBase "PropertyBase"<ul>
+<li>A simple utility type returned when the descriptor is accessed. It is meant to be subclassed for an actual implementation of how to retrieve or set a value.</li>
+</ul>
+</li>
+<li>\ref butility.properties.base.CompoundProperty "CompoundProperty"<ul>
+<li>Utility returned by CompoundPropertyDescriptor to return child properties accordingly</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Meta Classes</strong><ul>
+<li>\ref butility.properties.base.PropertyMeta "PropertyMeta"<ul>
+<li>Basic meta-class to auto-name PropertyDescriptor instances based on their field in the class dict</li>
+</ul>
+</li>
+<li>\ref butility.properties.base.PropertySchemaMeta "PropertySchemaMeta"<ul>
+<li>A MetaClass with similar functionality as PropertyMeta, which additionally gathers all Descriptors into a separate dictionary which serves as easily parseable schema.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="examples">Examples</h1>
+<p>In the first example, a \ref butility.properties.types.PrefixProperty "PrefixProperty" is used to formalize accessing the classes member variables. For safety and efficiency, they are put into slots. However, technique works similarly without slots as well.</p>
+<p>@snippet bapp/tests/core/test_properties.py PrefixPropertyClass</p>
+<p>This is how properties can be accessed.</p>
+<p>@snippet bapp/tests/core/test_properties.py PrefixPropertyClass Usage</p>
+<p>The next example uses the specialization for EnvironmentContextClients.</p>
+<p>@snippet bapp/tests/core/component/test_properties.py ExampleContextClient</p>
+<p>When using the properties, access was simplified to be more the way the kvstore is supposed to be used. Also note the direct property access, as opposed to using property access methods.</p>
+<p>@snippet bapp/tests/core/component/test_properties.py ExampleContextClient Usage</p>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://byron.github.io/bcore/bqc/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>QUALITY ASSURANCE - find problems and fix them - bcore</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">bcore</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Features <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../be/">BE - universal commandline tool</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bcmd/">CMD - flexible commandline tools done quickly</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bsemantic/">SEMANTIC - decouples meaning from grammar</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bprocess/">PROCESS - control program launches</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bkvstore/">SETTINGS - for flexible apps only</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bproperty/">PROPERTY - metadata for attributes</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="./">QUALITY ASSURANCE - find problems and fix them</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../license/">License</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../bproperty/">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../license/">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/Byron/bcore">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#core-quality-check-module">Core Quality Check Module</a></li>
+        
+    
+        <li class="main "><a href="#implementing-quality-checks">Implementing Quality Checks</a></li>
+        
+    
+        <li class="main "><a href="#quality-check-gui">Quality Check GUI</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<p><img alt="under construction" src="https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png" /></p>
+<p>The Quality Check Framework provides tools to ensure that data passes through departments and projects without obvious technical defects. At the same time it can help artists and TDs troubleshoot problems in their scenes.</p>
+<p>The framework consists of three major parts, explained in detail below. These are the core quality check module, all the implemented quality checks themselves and the quality check GUI.</p>
+<h2 id="core-quality-check-module">Core Quality Check Module</h2>
+<h2 id="implementing-quality-checks">Implementing Quality Checks</h2>
+<h2 id="quality-check-gui">Quality Check GUI</h2>
+<p>Each level of grouping of the quality check core module has its own class and ui resource which wraps it in GUI functionality. </p>
+<p>The main GUI instantiantes a quality check runner (using the Component Architecture :ref:<code>_bcore_ca_main</code>) and acts as its delegate. The quality check runner in turn uses the CA to load and instantiate all the instances relevant to the current context. It then tells the UI to process these quality checks and create their UI elements.</p>
+<p>For each category encountered during the processing a quality check group UI element is created, which groups together all the UI elements created for the quality checks themselves.</p>
+<p>Since the quality check runner responsible for running the checks uses the GUI as a delegate and reports results to it, the flow between runner, main UI and actual quality checks is a bit roundabout. The runner runs the check, calls the appropriate function in its delegate (the main UI), which in turn must pass it down to the quality check UI (through the group UI).</p>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>

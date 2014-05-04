@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://byron.github.io/bcore/bcmd/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>CMD - flexible commandline tools done quickly - bcore</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">bcore</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Features <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../be/">BE - universal commandline tool</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="./">CMD - flexible commandline tools done quickly</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bsemantic/">SEMANTIC - decouples meaning from grammar</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bprocess/">PROCESS - control program launches</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bkvstore/">SETTINGS - for flexible apps only</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bproperty/">PROPERTY - metadata for attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bqc/">QUALITY ASSURANCE - find problems and fix them</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../license/">License</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../be/">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../bsemantic/">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/Byron/bcore">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#command-framework">Command Framework</a></li>
+        
+    
+        <li class="main "><a href="#a-simple-command">A simple command</a></li>
+        
+    
+        <li class="main "><a href="#a-simple-subcommand">A simple SubCommand</a></li>
+        
+    
+        <li class="main "><a href="#integration-with-process-control">Integration with Process Control</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h2 id="command-framework">Command Framework</h2>
+<p><img alt="under construction" src="https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png" /></p>
+<ul>
+<li>WHY<ul>
+<li>With <code>bcmd</code> it is already easy to create complex, plugin-based commands whose parsers can form arbitrary trees, and who are truly decoupled from each other thanks to <a href="https://docs.python.org/2/howto/argparse.html">argparse's</a> awsomeness.</li>
+<li>facilitate building plugin-based sub-commands with arbitrary hierarchies</li>
+</ul>
+</li>
+</ul>
+<p>The command framework allows you to build commandline tools easily and in a unified way. </p>
+<h2 id="a-simple-command">A simple command</h2>
+<p>This is how you define a simple command:</p>
+<p>@snippet test_examples.py ExampleCommand</p>
+<p>Provided you have wrapped your command using the \ref integration "Process Control Framework", you can
+make calls like so:</p>
+<pre class="prettyprint well"><code class="bash">./example
+# prints nothing
+
+./example -v
+# prints something
+
+./example -vvv
+# prints a lot more
+
+./example --version
+# displays the version
+
+./example -h
+# displays usage information and detailed help
+</code></pre>
+
+<h2 id="a-simple-subcommand">A simple SubCommand</h2>
+<p>SubCommands allow you to create complex commands yet modularize that functionality nicely.
+If we wanted to upgrade our example command with subcommands, we would just have to adjust it as follows</p>
+<p>@snippet test_examples.py ExampleCommandWithSubcommands</p>
+<p>Now you can call your master command as follows:</p>
+<pre class="prettyprint well"><code class="bash">./master 
+# prints usage
+
+./master example --help
+# displays 'example' mode specific help
+
+./master example
+# runs the example command, similarly to the standalone tool above
+
+./master example -vvv
+# run example in verbose mode
+</code></pre>
+
+<p>You can imagine that it is very easy to extend your command at runtime with plugins using the plugin system
+inherent to the framework.</p>
+<h2 id="integration-with-process-control">Integration with Process Control</h2>
+<p>To make any command usable with the process control framework, all you have to do is to</p>
+<ul>
+<li>Symlink your command to the wrapper.py bootstrapper</li>
+<li>place a configuration yaml file in an ./etc folder to setup your process</li>
+</ul>
+<p>In this example, we have a structure as follows:</p>
+<pre class="prettyprint well"><code class="bash">hello_program/
+├── bin
+│   └── hello -&gt; ../../../../bin/wrapper.py
+├── etc
+│   └── packages.yaml
+└── lib
+    └── hello.py
+</code></pre>
+
+<p>The file etc/packages.yaml would contain the following</p>
+<p>@include hello_program/etc/packages.yaml</p>
+<p>And the actual implementation looks like this:</p>
+<p>@include hello_program/lib/hello.py</p>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://byron.github.io/bcore/bprocess/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>PROCESS - control program launches - bcore</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">bcore</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Features <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../be/">BE - universal commandline tool</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bcmd/">CMD - flexible commandline tools done quickly</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bsemantic/">SEMANTIC - decouples meaning from grammar</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="./">PROCESS - control program launches</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bkvstore/">SETTINGS - for flexible apps only</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bproperty/">PROPERTY - metadata for attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bqc/">QUALITY ASSURANCE - find problems and fix them</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../license/">License</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../bsemantic/">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../bkvstore/">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/Byron/bcore">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#requirements">Requirements</a></li>
+        
+            <li><a href="#declarative-operations">Declarative operations</a></li>
+        
+            <li><a href="#imperative-operations">Imperative operations</a></li>
+        
+            <li><a href="#optional-post-launch-inspection-of-the-launched-program">(optional) Post-launch inspection of the launched program</a></li>
+        
+            <li><a href="#debugging-friendliness">Debugging-Friendliness</a></li>
+        
+            <li><a href="#execv-and-spawn">Execv and Spawn</a></li>
+        
+            <li><a href="#multi-platform-support">Multi-platform support</a></li>
+        
+            <li><a href="#documenation">Documenation</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<p><img alt="under construction" src="https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png" /></p>
+<h1 id="requirements">Requirements</h1>
+<h2 id="declarative-operations">Declarative operations</h2>
+<p>Using a standard KV store, a configuration tree is build providing all values the framework needs to perform specific operations. Those include setting environment variables in various ways, possibly filling in templates and copying the result to specific places. This can be used to prepare configuration files for example.</p>
+<p>Ingesting and/or removing args should be possible as well.</p>
+<p>It should be possible (or not be impossible) to start the same program with different configurations, just based on the name of the executable (i.e. maya and maya-dbg)</p>
+<h2 id="imperative-operations">Imperative operations</h2>
+<p>It should be possible to override the implementation based on the program you want to start, using pipeline plugins. framework can be used by anyone</p>
+<p>It must be possible to easily use the framework to launch other programs. This functionality would be required to implement a launcher properly. Therefore there is no need to use the bootstrapper to get it started. Instead one can just use the same entry point the bootstrapper eventually uses.</p>
+<h2 id="optional-post-launch-inspection-of-the-launched-program">(optional) Post-launch inspection of the launched program</h2>
+<p>It should be possible (or not be impossible) for the launched program to learn how exactly it was started, which plugins it uses, which args were used to launch it. That information can be used to spawn other programs with similar configurations.</p>
+<h2 id="debugging-friendliness">Debugging-Friendliness</h2>
+<p>Use our logger and assure we can set its verbosity using environment variables or context-configuration. Unit-tests for all of that are a must.</p>
+<h2 id="execv-and-spawn">Execv and Spawn</h2>
+<p>Provide a mode that replaces its own process with the new one, or which keeps the sub-process as a child. This allows for post-process calls, e.g. for doing cleanup, logging, notifications, and other extras like output filtering and exit code mutations (probably done by derived implementations)</p>
+<h2 id="multi-platform-support">Multi-platform support</h2>
+<p>Especially windows. Same holds for the tests.</p>
+<h2 id="documenation">Documenation</h2>
+<p>Key-features are documented in doxygen. Setup a page that links key frameworks and provides an overview. Documentation should be kept brief for now, but it must be there.</p>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>

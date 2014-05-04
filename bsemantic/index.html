@@ -6,16 +6,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         
-        <link rel="canonical" href="https://github.com/Byron/bcore/bsemantic/">
+        <link rel="canonical" href="https://byron.github.io/bcore/bsemantic/">
         <link rel="shortcut icon" href="../img/favicon.ico">
 
-        <title>bSemantic - bcore</title>
+        <title>SEMANTIC - decouples meaning from grammar - bcore</title>
 
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
         <link href="../css/prettify-1.0.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
-        
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
@@ -33,7 +32,6 @@
 
         <!-- Collapsed navigation -->
         <div class="navbar-header">
-            
             <!-- Expander button -->
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
@@ -41,7 +39,6 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            
 
             <!-- Main title -->
             <a class="navbar-brand" href="..">bcore</a>
@@ -49,61 +46,80 @@
 
         <!-- Expanded navigation -->
         <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
             
-                <!-- Main navigation -->
-                <ul class="nav navbar-nav">
-                
-                
-                    <li >
-                        <a href="..">Home</a>
-                    </li>
-                
-                
-                
-                    <li class="dropdown active">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Packages <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                        
-                            <li class="active">
-                                <a href="./">bSemantic</a>
-                            </li>
-                        
-                        </ul>
-                    </li>
-                
-                
-                
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                        
-                            <li >
-                                <a href="../license/">License</a>
-                            </li>
-                        
-                        </ul>
-                    </li>
-                
-                
-                </ul>
             
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Features <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../be/">BE - universal commandline tool</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bcmd/">CMD - flexible commandline tools done quickly</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="./">SEMANTIC - decouples meaning from grammar</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bprocess/">PROCESS - control program launches</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bkvstore/">SETTINGS - for flexible apps only</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bproperty/">PROPERTY - metadata for attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bqc/">QUALITY ASSURANCE - find problems and fix them</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../license/">License</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
 
-            
             <!-- Search, Navigation and Repo links -->
             <ul class="nav navbar-nav navbar-right">
                 
-                
                 <li >
-                    <a rel="next" href="..">
+                    <a rel="next" href="../bcmd/">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
                 <li >
-                    <a rel="prev" href="../license/">
+                    <a rel="prev" href="../bprocess/">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
-                
                 
                 <li>
                     <a href="https://github.com/Byron/bcore">
@@ -115,7 +131,6 @@
                 </li>
                 
             </ul>
-            
         </div>
     </div>
 </div>
@@ -124,42 +139,95 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#semantic">Semantic</a></li>
+        <li class="main active"><a href="#preamble">Preamble</a></li>
         
-            <li><a href="#preamble">Preamble</a></li>
+    
+        <li class="main "><a href="#semantic-name-handling">Semantic Name Handling</a></li>
         
-            <li><a href="#semantic-name-handling">Semantic Name Handling</a></li>
+    
+        <li class="main "><a href="#the-semantics-framework">The Semantics Framework</a></li>
+        
+            <li><a href="#encoding-of-meaning">Encoding of Meaning</a></li>
+        
+            <li><a href="#decoding-of-meaning">Decoding of Meaning</a></li>
+        
+            <li><a href="#usage-tips">Usage Tips</a></li>
         
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h2 id="semantic">Semantic</h2>
+<p><img alt="under construction" src="https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png" /></p>
 <p>A framework to translate meaning into symbols, and infer meaning from symbols, using a customizable ruleset.</p>
-<h3 id="preamble">Preamble</h3>
+<h2 id="preamble">Preamble</h2>
 <p>"What's in a name ?" - one could say, and answer everything and nothing. A name itself is just a <em>sequence of characters</em>, and what makes it useful is the meaning we assign to those as a whole. If you take many of those sequences, lets call them <em>symbol</em> from now on, and place them in a specific order, they gain context which further defines their meaning - its a <em>sentence</em>.</p>
 <p>For pipeline tool development, names used to playing a major roles, as they contain a lot of information and meaning that can be used to perform tasks. Meaning may be transformed as well, which generates a new name.</p>
 <p>If code interacts with names, it usually has to either build those <em>symbols</em> that it believes belong to a meaning that it wants to express, or it tries to analyze the its characters to figure out its meaning, or the <em>symbols</em> in sentences to find out even more.</p>
 <p>Doing so will of course make it very dependent on the actual character values, or the context of multiple concatenated <em>symbols</em>. This tends to be very problematic as they are prone to change, and sometimes they are required to change to adapt to changed requirements. </p>
 <p>In the end, what code is interested in is not the <em>symbol</em> itself, but the meaning that it bears, and we seek a way to decouple those so that the symbol can change, as long as the meaning doesn't.</p>
-<h3 id="semantic-name-handling">Semantic Name Handling</h3>
+<h2 id="semantic-name-handling">Semantic Name Handling</h2>
 <p>The solution to the inherent inflexibility of using <em>symbols</em> directly is to not actually do it. The only thing we want to and can keep static is the semantic aspect of a symbol, i.e. the meaning.</p>
 <p>Code will not directly interact with names as strings, or with <em>symbols</em> in <em>sentences</em>, instead it will interact with the meaning only, and later have someone generate the corresponding <em>symbol</em> or sentence.</p>
 <p>This can be thought of as having the pure meaning of something, which is then by some set of rule converted into <em>symbols</em> that can represent it. In natural language, this would be something like a translator, who analyzes sentences in one language to obtain the meaning, allowing him to translate it to any other language he knows. </p>
 <p>The example shows that once you have the pure meaning, you can essentially transform it into <em>symbols</em> using any rule set you like, and knowing the <em>rule set</em> that generated the <em>symbols</em>, you are able to infer the meaning once again.</p>
 <p>Such a <em>rule-set</em> in terms of more natural language would be comparable to <em>grammar</em> which defines in which order <em>words</em> from a <em>vocabulary</em> may be put.</p>
-<p><strong>Please see the documentation of the bsemantic package for more details</strong>.</p>
+<h2 id="the-semantics-framework">The Semantics Framework</h2>
+<p>An implementation of semantic name handling is done in the <em>semantic framework</em> in <em>bsemantic</em>. It provides three major components:</p>
+<ul>
+<li>
+<p>(<em>Semantic</em>)Nodes</p>
+<ul>
+<li>They represent the meaning and carry pure, un-encoded information</li>
+<li>Can be transformed into a single <em>symbol</em> in the sense of a <em>symbolic name</em>, which is compised of a sequence of characters.</li>
+<li>Is called @ref bsemantic.base.ElementNode "ElementNode" in code</li>
+</ul>
+</li>
+<li>
+<p>(<em>Semantic</em>)Node Lists</p>
+<ul>
+<li>They are similar to <em>sentences comprised of symbolic names</em>.</li>
+<li>Can be transformed into a string with multiple symbols.</li>
+<li>Is called @ref bsemantic.base.ElementNodeList "ElementNodeList" in code.</li>
+</ul>
+</li>
+<li>
+<p><em>Rule Sets</em></p>
+<ul>
+<li>They can be compared with a <em>grammar</em> that marries meaning to a <em>vocabulary</em> of words, and defines possible relations of symbols.</li>
+<li>Is called @ref bsemantic.base.ElementNodeTree ElementNodeTree in code</li>
+</ul>
+</li>
+</ul>
+<p>This framework can be used to transform meaning into symbols, or the inverse operation of extracting meaning from symbols.</p>
+<h3 id="encoding-of-meaning">Encoding of Meaning</h3>
+<p>Lets visualize this first using a more natural terminology:</p>
+<ul>
+<li>
+<p>The process of encoding meaning into a symbol or sentence first require you to have information that you would like to encode. The next step is to search the <em>grammar</em> for all <em>sentences</em> which are able to losslessly encode it. Finally, the information is placed into the symbols, which creates the final encoded sentence.
+The same aspect using the technical terms could be phrased as follows:</p>
+</li>
+<li>
+<p>The information you would like to encode is contained in nested key-value dictionaries. Now you iterate the @ref bsemantic.base.ElementNodeTree "ElementNodeTree" to yield all @ref bsemantic.base.ElementNodeList "ElementNodeList" instances which are able to fully embody the information you provided. Each @ref bsemantic.base.ElementNode "ElementNode" in an @ref bsemantic.base.ElementNodeList "ElementNodeList" contains meaning implied by the data it may carry. You may further filter out those @ref bsemantic.base.ElementNodeList "ElementNodeLists"whose @ref bsemantic.base.ElementNode "ElementNodes" don't match your criteria. Finally you configure each @ref bsemantic.base.ElementNode "ElementNode" with the data you want it to represent, and transform it into a symbol string. This makes it some sort of <em>template</em> for the meaning you want it to carry.</p>
+</li>
+</ul>
+<h3 id="decoding-of-meaning">Decoding of Meaning</h3>
+<p>In natural terms, obtaining meaning from an encoded sentence would read as follows:</p>
+<ul>
+<li>Provided that you know the <em>grammar</em> and <em>vocabulary</em> used to create the <em>sentence</em>, you try to find the valid combination of symbols within your grammar and lookup the words used by the symbols in your vocabulary.</li>
+</ul>
+<p>In technical terms, it reads a bit differently:</p>
+<ul>
+<li>Provided that you know the @ref bsemantic.base.ElementNodeTree "ElementNodeTree" used to create the <em>sentence</em>, iterate all @ref bsemantic.base.ElementNodeList "ElementNodeLists in the the tree and try to infer the configuration of each @ref bsemantic.base.ElementNode "ElementNode from left to right, and consume portions of the <em>sentence</em> from left to right. @ref bsemantic.base.ElementNodeList "ElementNodeLists" that could consume the whole <em>sentence</em> will be returned.</li>
+</ul>
+<h3 id="usage-tips">Usage Tips</h3>
+<ul>
+<li>Generally it is possible that a certain meaning is satisfied by multiple <em>sentences</em>, and that one <em>sentence</em> has multiple meanings, all depending on the <em>grammar</em>. This implies that there may always be multiple @ref bsemantic.base.ElementNodeList "ElementNodeLists" to handle, no matter if you are encoding or decoding <em>sentences</em>.</li>
+<li>If the code using this system does not assume a fixed grammar, it cannot assume any specific configuration of @ref bsemantic.base.ElementNode "ElementNodes" in the obtained @ref bsemantic.base.ElementNodeList "ElementNodeLists". All it may and must know about are the properties of the @ref bsemantic.base.ElementNode "ElementNodes" to determine where to apply which part of information.</li>
+<li>Each <em>grammar</em> needs proper testing to verify the code that interacts with it - its not a system that will just work magically, and code that uses it may still be buggy in one way or another.</li>
+</ul>
 </div>
         </div>
-
-        <footer class="col-md-12">
-            <hr>
-            
-            <p>Copyright &copy; 2014, <a href="https://www.linkedin.com/in/sebastianthiel">Sebastian Thiel & Contributors</a>.</p>
-            
-            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
-        </footer>
 
         
 
@@ -167,6 +235,5 @@
         <script src="../js/bootstrap-3.0.3.min.js"></script>
         <script src="../js/prettify-1.0.min.js"></script>
         <script src="../js/base.js"></script>
-        
     </body>
 </html>

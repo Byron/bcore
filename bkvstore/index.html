@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://byron.github.io/bcore/bkvstore/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>SETTINGS - for flexible apps only - bcore</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">bcore</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Features <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../be/">BE - universal commandline tool</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bcmd/">CMD - flexible commandline tools done quickly</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bsemantic/">SEMANTIC - decouples meaning from grammar</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bprocess/">PROCESS - control program launches</a>
+                        </li>
+                    
+                        <li class="active">
+                            <a href="./">SETTINGS - for flexible apps only</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bproperty/">PROPERTY - metadata for attributes</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bqc/">QUALITY ASSURANCE - find problems and fix them</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        <li >
+                            <a href="../license/">License</a>
+                        </li>
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../bprocess/">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../bproperty/">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/Byron/bcore">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#configuration-hierarchy">Configuration Hierarchy</a></li>
+        
+    
+        <li class="main "><a href="#tagged-configuration-files">Tagged Configuration Files</a></li>
+        
+    
+        <li class="main "><a href="#nested-configuration-options">Nested Configuration Options</a></li>
+        
+    
+        <li class="main "><a href="#designing-configuration-files">Designing Configuration Files</a></li>
+        
+            <li><a href="#configuration-tree">Configuration Tree</a></li>
+        
+            <li><a href="#configuration-file-names">Configuration File Names</a></li>
+        
+    
+        <li class="main "><a href="#using-the-api">Using the API</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<p><img alt="under construction" src="https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png" /></p>
+<p>The configuration system allows to be comprised of multiple files located in a hierarchical directory tree. Configuration levels further down the tree will overwrite settings specified further up. This way, we may flexibly configure all aspects of the pipeline.</p>
+<p>Additionally, configuration files can be conditional using a tag system, which allows to provide custom configuration based on the platform for instance, or the project's name.</p>
+<p>The most convenient way to use the configuration is by far if you specify your schema in advance. This allows you to access your data safely, knowing that you will obtain value or your schema's default.</p>
+<p>The schemas can also be used to verify the current configuration matches the requirements.</p>
+<p>Configuration is stored in YAML format, which allows it to be nested.</p>
+<p>The upcoming sections will explain the key features in further detail.</p>
+<h1 id="configuration-hierarchy">Configuration Hierarchy</h1>
+<p>All configuration files can be ordered in a hierarchy, which could look like this::</p>
+<pre class="prettyprint well"><code>├── home
+│   └── user
+│       └── .pipeconfig
+│           └── userconfig.yaml
+└── projects
+    ├── etc
+    │   ├── host.maya.yaml
+    │   ├── platform.lnx.yaml
+    │   ├── platform.win.yaml
+    │   ├── site.lnx.yaml
+    │   ├── site.win.yaml
+    │   └── site.yaml
+    └── project
+        ├── etc
+        │   ├── host.maya.project.yaml
+        │   └── site.project.yaml
+        └── seq
+            └── sq01
+                ├── etc
+                │   └── host.maya.yaml
+                └── shot01
+                    └── etc
+                        └── platform.lnx.yaml
+</code></pre>
+<p>The environment which sets up the configuration will do so based on its context, which may involve information about the project and shot used. From that, it can check for the existence of directories which are supposed to contain configuration files.</p>
+<p>Those will be found top-down, having the most basic ones first, and more specific ones later. Those will override settings they have inherited so far by their parent configuration.</p>
+<p>The user's home directory is used for its very own version of the configuration, which may finally override all other values. This is used to store custom settings.</p>
+<p>A typical ordered set of configuration files for <code>shot1</code> could look like this::</p>
+<pre class="prettyprint well"><code>./projects/etc/platform.lnx.yaml
+./projects/etc/site.lnx.yaml
+./projects/etc/host.maya.yaml
+./projects/etc/site.yaml
+./projects/project/etc/site.project.yaml
+./projects/project/etc/host.maya.project.yaml
+./projects/project/seq/sq01/etc/host.maya.yaml
+./projects/project/seq/sq01/shot01/etc/platform.lnx.yaml
+
+./home/user/.pipeconfig/userconfig.yaml
+</code></pre>
+<p>The user configuration is the only one that will receive actually changed values.</p>
+<h1 id="tagged-configuration-files">Tagged Configuration Files</h1>
+<p>Configuration files can be tagged to load them only if they match a given set of tags. This allows to conditionally load parts of the configuration, depending on some context.</p>
+<p>Tags are separated by periods between the prefix and suffix of the file (<strong>prefix.tag1[.tagN...].suffix</strong>), such as in the following example::</p>
+<pre class="prettyprint well"><code>config.1.2.yaml
+config.win.32.yaml
+</code></pre>
+<p>The first file contains tags <code>1</code> and <code>2</code>, whereas the second contains <code>win</code> and <code>32</code>. They will be contained in the list of configuration files to use only if all of their tags match the ones specified by the one setting up the configuration.</p>
+<h1 id="nested-configuration-options">Nested Configuration Options</h1>
+<p>As configuration files are stored in <code>yaml markup format &lt;http://www.yaml.org/&gt;</code>_, you can easily represent complex nested values. This helps you to keep you configuration file very extensible, yet easy to read. No longer are you confined to the constraints of the INI file format, or have to deal with hard-to-read XML files.</p>
+<p>An example yaml configuration file could look as follows - note the structure having more than 2 levels::</p>
+<pre class="prettyprint well"><code class="yaml"># site.yaml
+# site configuration which will always be loaded
+site:                   # Site specific configuration
+  name: klenze7
+  location: munich
+
+db:                     # all database specific configuration 
+  meta:                 # meta database with all kinds of info
+    server_url: metadb.domain.intern
+  ldap:                 # ldap service for additional user information
+    server_url: ldp://ldap.domain.intern
+</code></pre>
+
+<h1 id="designing-configuration-files">Designing Configuration Files</h1>
+<p>As the system will always work with multiple configuration files, its possible and recommended to split up the configuration into related parts, where each part resides in an own configuration file.</p>
+<p>In conjunction with configuration file <code>tagging</code>, you can split up configuration to be even more specific.</p>
+<p>Software using the configuration can be completely platform or context agnostic.</p>
+<p>Your configuration is has to be designed on two levels: first you need to know how to organize the information, and thus its taxonomy. This allows you to setup a tree of values which represents the information.</p>
+<p>This tree can then be split up into segments and distributed in multiple files, which once again allows configuration to be loaded conditionally.</p>
+<h2 id="configuration-tree">Configuration Tree</h2>
+<p>Its worth thinking about this tree in advance, as it is vital to keep your configuration organized. This helps you to easily find what you are looking for, and prevents accidental duplication of options.</p>
+<p>First it would be good to know what kind of information to keep, and place it into nested categories. When navigating the categories, the options which follow as leafs should fit naturally.</p>
+<p>A simple example could be site information, which could look as follows::</p>
+<pre class="prettyprint well"><code class="yaml"># Specifies the trixte munich site
+site:
+  name: klenze7
+  location: 
+    name: munich
+    coord:                      # geographical coordinates
+      longitude: 48.136607
+      latitude: 11.577085
+</code></pre>
+
+<p>Urls into this tree would be <code>site.name</code> for instance, or <code>site.location.coord.longitude</code>. If it feels natural and leaves space for future extension, your tree is on a good way already.</p>
+<h2 id="configuration-file-names">Configuration File Names</h2>
+<p>A possible file naming scheme could easily be dependent on the top-level options in your configuration.</p>
+<ul>
+<li>
+<p><strong>platform</strong>.<name>.yaml</p>
+<ul>
+<li>Contains information about the respective platform, in case it cannot be determined automatically using facilities within the programming language. It is using a tag with the <code>name</code> of the platform to load it only conditionally.</li>
+</ul>
+</li>
+<li>
+<p><strong>site</strong>.yaml</p>
+<ul>
+<li>Contains all information about the site, like its name and location.</li>
+</ul>
+</li>
+<li>
+<p><strong>host</strong>.yaml</p>
+<ul>
+<li>Information about the host-software that is currently running the python interpreter.</li>
+</ul>
+</li>
+</ul>
+<p>Any other scheme will do as well, sometimes it can even be more convenient to store everything in one file.</p>
+<h1 id="using-the-api">Using the API</h1>
+<p>If you like to use the configuration system using an API, please consult the pipeline API docs.</p>
+<p>.. todo:: try to link to the api docs.</p>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>
