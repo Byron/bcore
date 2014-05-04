@@ -1,15 +1,24 @@
 site_name: bcore
-site_url: https://github.com/Byron/bcore
+site_url: https://byron.github.io/bcore
 site_description: Write integrating applications with bcore
 
 repo_url: https://github.com/Byron/bcore
+dev_addr: 127.0.0.1:9990
 
 docs_dir: ../../src/md
 site_dir: ../../doc/mkdocs/html
 
 pages:
 - ['index.md', 'Home']
-- ['bsemantic.md', 'Packages', 'bSemantic']
+- ['be.md', 'Features', 'BE - universal commandline tool']
+- ['bcmd.md', 'Features', 'CMD - flexible commandline tools done quickly']
+- ['bsemantic.md', 'Features', 'SEMANTIC - decouples meaning from grammar']
+- ['bprocess.md', 'Features', 'PROCESS - control program launches']
+- ['bkvstore.md', 'Features', 'SETTINGS - for flexible apps only']
+- ['bproperty.md', 'Features', 'PROPERTY - metadata for attributes']
+- ['bqc.md', 'Features', 'QUALITY ASSURANCE - find problems and fix them']
 - ['license.md', 'About', 'License']
+
+theme: yeti
 
 copyright: Copyright &copy; 2014, <a href="https://www.linkedin.com/in/sebastianthiel">Sebastian Thiel & Contributors</a>.

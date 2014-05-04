@@ -3,10 +3,6 @@
 @package bcontext
 @brief A framework to manage an application context, made of implementation and configuration
 
-@page components Component Framework
-
-@todo DOCS
-
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """

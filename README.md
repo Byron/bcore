@@ -17,10 +17,6 @@ Among the additional features are
 - a framework for building powerful commandline tools
 - [a framework](https://github.com/Byron/bcore/blob/master/src/md/bsemantic.md) for generating names in a rule based fashion, and infering meaning from them
 
-## License
-
-This open source software is licensed under [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
-
 ## Requirements
 
 The requirements are kept minimal, which is why you need nothing more than:
@@ -40,7 +36,7 @@ Currently I am fixing long-standing issues and clean up the entire code-base. Th
 
 Once the first release is out of the door, the API will stabilize though, yet I don't feel like being too careful about it as long as there are no strong dependencies on the code.
 
-![under construction](https://raw.githubusercontent.com/Byron/bcore/master/src/images/under_construction.png)
+![under construction](https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png)
 
 ## Credits / External Packages
 
@@ -49,4 +45,4 @@ Once the first release is out of the door, the API will stabilize though, yet I 
 
 ### LICENSE
 
-GNU LESSER GENERAL PUBLIC LICENSE, see LICENSE file for details.
+This open source software is licensed under [GNU Lesser General Public License](license.md)

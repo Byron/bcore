@@ -1,0 +1,12 @@
+## A universal commandline tool (UTC)
+
+![under construction](https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png)
+
+In order to prevent everyone to be forced to do her *very own thing*™, it's vital to provide an official place into which to hook in functionality. That way, IT will be happy as they just have to put a single command in the executable search PATH, and the user will be happy as all he has to know is a single tool to get started.
+
+**The context** if the command is extremely important, as it defines its startup environment. After all, it is likely to be installed in a central and 'blank' location that doesn't do much by itself. Its context will provide it with the information about which plugins to load, and essentially what its functionality will look like.
+
+As *graphical environments* are fundamental different in requirements from a standard commandline application, a separately configurable variant of the *UCT* exists in the form of the [beg](link to bgui docs).
+
+The default UCT should be launched through the standard python interpreter, yet it must be trivially easy to make it launch through another interpreter.
+

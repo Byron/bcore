@@ -3,8 +3,6 @@
 @package bkvstore
 @brief A package with configuration access for reading and writing
 
-@page kvstore KeyValue-Store Framework
-
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
@@ -53,4 +51,3 @@ from .schema import *
 from .diff import *
 from .types import *
 from .utility import *
-

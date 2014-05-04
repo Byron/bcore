@@ -1,21 +1,17 @@
-.. _bcore_qc:
-.. tags: quality checks
-
-Quality Check Framework
-#######################
+![under construction](https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png)
 
 The Quality Check Framework provides tools to ensure that data passes through departments and projects without obvious technical defects. At the same time it can help artists and TDs troubleshoot problems in their scenes.
 
 The framework consists of three major parts, explained in detail below. These are the core quality check module, all the implemented quality checks themselves and the quality check GUI.
 
 Core Quality Check Module
-*************************
+-------------------------
 
 Implementing Quality Checks
-***************************
+----------------------------
 
 Quality Check GUI
-*****************
+-----------------
 Each level of grouping of the quality check core module has its own class and ui resource which wraps it in GUI functionality. 
 
 The main GUI instantiantes a quality check runner (using the Component Architecture :ref:`_bcore_ca_main`) and acts as its delegate. The quality check runner in turn uses the CA to load and instantiate all the instances relevant to the current context. It then tells the UI to process these quality checks and create their UI elements.

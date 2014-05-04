@@ -1,31 +1,6 @@
 #-*-coding:utf-8-*-
 """
 @package bapp
-
-@mainpage Overview
-
-@section core Core Framework
-
-- @subpage components
-- @subpage diff
-- @subpage kvstore
-- @subpage processcontrol
-
-@section new What's New
-
-## What's new in 0.1.0
-
-- First stable release 
-
-@page interfaces Core Interfaces
-
-Interfaces are the preferred way to obtain functionality from the \ref components "components framework".
-
-As they are so important, all interfaces defined here are automatically available in the bapp package. 
-See the following example for reference.
-
-@snippet bapp/tests/doc/test_examples.py interface_builtin
-
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """

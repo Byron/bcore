@@ -1,4 +1,4 @@
-
+![under construction](https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png)
 
 The configuration system allows to be comprised of multiple files located in a hierarchical directory tree. Configuration levels further down the tree will overwrite settings specified further up. This way, we may flexibly configure all aspects of the pipeline.
 
@@ -12,9 +12,8 @@ Configuration is stored in YAML format, which allows it to be nested.
 
 The upcoming sections will explain the key features in further detail.
 
-##########################
 Configuration Hierarchy
-##########################
+=======================
 
 All configuration files can be ordered in a hierarchy, which could look like this::
     
@@ -64,9 +63,8 @@ A typical ordered set of configuration files for `shot1` could look like this::
 
 The user configuration is the only one that will receive actually changed values.
 
-##########################
 Tagged Configuration Files
-##########################
+==========================
 
 Configuration files can be tagged to load them only if they match a given set of tags. This allows to conditionally load parts of the configuration, depending on some context.
 
@@ -77,30 +75,30 @@ Tags are separated by periods between the prefix and suffix of the file (**prefi
     
 The first file contains tags `1` and `2`, whereas the second contains `win` and `32`. They will be contained in the list of configuration files to use only if all of their tags match the ones specified by the one setting up the configuration.
 
-############################
 Nested Configuration Options
-############################
+============================
 
 As configuration files are stored in `yaml markup format <http://www.yaml.org/>`_, you can easily represent complex nested values. This helps you to keep you configuration file very extensible, yet easy to read. No longer are you confined to the constraints of the INI file format, or have to deal with hard-to-read XML files.
 
 An example yaml configuration file could look as follows - note the structure having more than 2 levels::
-    
-    # site.yaml
-    # site configuration which will always be loaded
-    site:                   # Site specific configuration
-      name: klenze7
-      location: munich
-      
-    db:                     # all database specific configuration 
-      meta:                 # meta database with all kinds of info
-        server_url: metadb.domain.intern
-      ldap:                 # ldap service for additional user information
-        server_url: ldp://ldap.domain.intern
+
+```yaml    
+# site.yaml
+# site configuration which will always be loaded
+site:                   # Site specific configuration
+  name: klenze7
+  location: munich
+  
+db:                     # all database specific configuration 
+  meta:                 # meta database with all kinds of info
+    server_url: metadb.domain.intern
+  ldap:                 # ldap service for additional user information
+    server_url: ldp://ldap.domain.intern
+```
         
     
-###############################
 Designing Configuration Files
-###############################
+=============================
 
 As the system will always work with multiple configuration files, its possible and recommended to split up the configuration into related parts, where each part resides in an own configuration file.
 
@@ -112,50 +110,48 @@ Your configuration is has to be designed on two levels: first you need to know h
 
 This tree can then be split up into segments and distributed in multiple files, which once again allows configuration to be loaded conditionally.
 
-===================
+
 Configuration Tree
-===================
+------------------
 
 Its worth thinking about this tree in advance, as it is vital to keep your configuration organized. This helps you to easily find what you are looking for, and prevents accidental duplication of options.
 
 First it would be good to know what kind of information to keep, and place it into nested categories. When navigating the categories, the options which follow as leafs should fit naturally.
 
 A simple example could be site information, which could look as follows::
-    
-    # Specifies the trixte munich site
-    site:
-      name: klenze7
-      location: 
-        name: munich
-        coord:                      # geographical coordinates
-          longitude: 48.136607
-          latitude: 11.577085
+
+```yaml    
+# Specifies the trixte munich site
+site:
+  name: klenze7
+  location: 
+    name: munich
+    coord:                      # geographical coordinates
+      longitude: 48.136607
+      latitude: 11.577085
+```
           
 Urls into this tree would be `site.name` for instance, or `site.location.coord.longitude`. If it feels natural and leaves space for future extension, your tree is on a good way already.
         
-=========================
+
 Configuration File Names
-=========================
+------------------------
 
 A possible file naming scheme could easily be dependent on the top-level options in your configuration.
     
 * **platform**.<name>.yaml
-
- * Contains information about the respective platform, in case it cannot be determined automatically using facilities within the programming language. It is using a tag with the `name` of the platform to load it only conditionally.
+    * Contains information about the respective platform, in case it cannot be determined automatically using facilities within the programming language. It is using a tag with the `name` of the platform to load it only conditionally.
  
 * **site**.yaml
-
- * Contains all information about the site, like its name and location.
+    * Contains all information about the site, like its name and location.
  
 * **host**.yaml
-
- * Information about the host-software that is currently running the python interpreter.
+    * Information about the host-software that is currently running the python interpreter.
 
 Any other scheme will do as well, sometimes it can even be more convenient to store everything in one file.
 
-###############
 Using the API
-###############
+=============
 
 If you like to use the configuration system using an API, please consult the pipeline API docs.
 
