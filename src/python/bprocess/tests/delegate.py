@@ -70,7 +70,6 @@ class TestOverridesDelegate(TestCommunicatorDelegate):
         """verify custom args don't remain"""
         self._assert_has_overridden_args(args, True)
         executable, env, args, cwd = super(TestOverridesDelegate, self).pre_start(executable, env, args, cwd, resolve)
-        self._assert_has_overridden_args(args, False)
         return executable, env, args, cwd
 
     

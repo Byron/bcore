@@ -305,6 +305,10 @@ class ContextStack(LazyMixin):
         """
         if isinstance(context, basestring):
             context = self.ContextType(context)
+        else:
+            if context in self._stack:
+                raise ValueError("context '%s' is on the stack already" % context)
+            # end prevent duplicate pushes
         # end handle string contexts
         self._stack.append(context)
 
@@ -414,6 +418,9 @@ class ContextStack(LazyMixin):
         of their settings().
         The interface for data access is the one of a KeyValueStoreProvider
         """
+        if not self._stack:
+            return self.ContextType.KeyValueStoreModifierType(dict())
+        # end handle empty stack
         kvstore = self._kvstore
 
         # Check if we still have to add some contexts, as someone pushed in the meanwhile

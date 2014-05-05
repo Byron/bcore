@@ -44,9 +44,8 @@ class TestPlugin(TestContextBase):
         """Verify context stack functionality"""
         stack = ContextStack()
 
-        assert len(stack) == 1, "Should have a default Context"
-        assert len(stack.stack()) == 1
-        assert isinstance(stack.top(), Context)
+        assert len(stack) == 0, "Should have no default Context"
+        assert len(stack.stack()) == 0
 
         # an empty stack should provide nothing
         assert len(stack.instances(object)) == 0
@@ -54,21 +53,21 @@ class TestPlugin(TestContextBase):
         assert len(stack.settings().keys()) == 0
         assert len(stack.new_instances(object)) == 0
 
-        for until_size in (-1, 0):
+        for until_size in (-1, 1):
             self.failUnlessRaises(ValueError, stack.pop, until_size)
         # end check error handling
-        assert len(stack.pop(1)) == 0, "It's possible to pop nothing"
 
         # String is converted to Context
         foo_context = stack.push('foo')
         bar_context = stack.push(Context('bar'))
 
-        assert len(stack) == 1 + 2
+        assert len(stack) == 2
         res = stack.pop(1)
-        assert len(res) == 2
+        assert len(res) == 1
         assert res[0].name() == bar_context.name()
 
-        stack.push(foo_context)
+        # can't push same thing twice
+        self.failUnlessRaises(ValueError, stack.push, foo_context)
         inst = 42
         stack.register(inst)
 
@@ -139,6 +138,7 @@ class TestPlugin(TestContextBase):
     def test_plugin(self):
         """verify plugin type registration works"""
         stack = ContextStack()
+        stack.push('base')
 
         class MyPlugin(Plugin):
             """A plugin, for our stack"""
