@@ -6,7 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsException', 'DisplayHelpException']
+__all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsException', 
+           'DisplayHelpException', 'DisplayLoadedYamlException']
 
 import sys
 import os
@@ -78,7 +79,14 @@ class DisplaySettingsException(Exception):
 # end class DisplayContextException
 
 
-class CommandlineOverridesContext(Context):
+class DisplayLoadedYamlException(Exception):
+    """A marker to indicated we want to see all yaml files"""
+    __slots__ = ()
+
+# end class DisplayLoadedYamlException
+
+
+class _ProcessControlCommandlineOverridesContext(Context):
     """An environment with a custom initializer to allow storing an arbitrary dict as kvstore override"""
     __slots__ = ()
     
@@ -86,10 +94,10 @@ class CommandlineOverridesContext(Context):
         """Intiailize ourselves and set our kvstore to the given data dictionary, if set
         @param name of context
         @param data if set, it may be KeyValueStoreProvider instance."""
-        super(CommandlineOverridesContext, self).__init__(name)
+        super(_ProcessControlCommandlineOverridesContext, self).__init__(name)
         self._kvstore = data
 
-# end class CommandlineOverridesContext
+# end class _ProcessControlCommandlineOverridesContext
 
 
 class _ProcessControllerContext(Context):
@@ -198,6 +206,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         wrap time.
     ---debug-settings
         Print the settings, which are a fully merged result of the context
+    ---debug-yaml
+        Print paths to all yaml files in order of appearance on the context stack
     ---dry-run
         If set, we will only pretend to run the command, and not actually do it
     ---help
@@ -572,6 +582,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                 self._next_exception = DisplayContextException
             elif arg == 'debug-settings':
                 self._next_exception = DisplaySettingsException
+            elif arg == 'debug-yaml':
+                self._next_exception = DisplayLoadedYamlException
             else:
                 raise AssertionError("Argument named '%s' unknown to wrapping engine" % arg)
             # end handle arg
@@ -580,7 +592,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         
         # set overrides
         if kvstore_overrides.keys():
-            ctx = CommandlineOverridesContext('commandline overrides', kvstore_overrides)
+            ctx = _ProcessControlCommandlineOverridesContext('commandline overrides', kvstore_overrides)
             ControlledProcessInformation.store_commandline_overrides(self._environ, kvstore_overrides.data())
         #end handle overrides
 
@@ -629,6 +641,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         # end assure we have at least a good initial configuration
 
         # Have to get our arguments of the list here, to be able to respond to it properly
+        orig_args = self._args
         self._args, overrides_context = self._handle_arguments(self._args)
 
         # In any case, setup our own App to be absolutely fresh, to not interfere with other implementations
@@ -640,7 +653,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                                                           settings_hierarchy=self.traverse_process_path_hierachy,
                                                           user_settings=self.load_user_settings)
         # end initialize application
-        app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, self._args))
+        app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, orig_args))
+
         # place overrides to affect gathering configuration
         if overrides_context:
             app.context().push(overrides_context)
@@ -925,15 +939,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         ############
         if self.is_debug_mode():
             # print out all files participating in environment stack
-            log.debug("CONFIGURATION FILES IN LOADING ORDER")
-            for ctx in self._app.context().stack():
-                if not isinstance(ctx, StackAwareHierarchicalContext):
-                    continue
-                #end ignore non configuration items
-                for path in ctx.config_files():
-                    log.debug(path)
-                # end for each path
-            # end for each environment
             log.debug("EFFECTIVE WRAPPER ENVIRONMENT VARIABLES (with possibly unresolved $VARIABLE_SUBSTITUTIONS)")
             log.debug(pformat(debug))
             log.debug("ENTIRE ENVIRONMENT (INCLUDING $VARIABLE_SUBSTITUTIONS)")

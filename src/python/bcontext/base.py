@@ -360,10 +360,11 @@ class ContextStack(LazyMixin):
         @param position similar to argument in list.insert(position)
         @param context a Context instance
         @return the inserted context"""
-        if position == len(self):
+        if position >= len(self):
             return self.push(context)
         # end optimize cache
         self.stack().insert(position, context)
+        self._mark_rebuild_changed_context
         return context
 
     def reset(self, context = None):
