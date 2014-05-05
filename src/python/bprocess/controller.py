@@ -199,12 +199,15 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
 
     ## Help for how to use the custom wrapper args
     _wrapper_arg_help = \
-    """usage: <wrapper> [---option ...]
+    """usage: <wrapper> [@path/to/context] [---option ...]
     ---<variables>=<value>
         A variable in the kvstore that is to receive the given value, like ---logging.verbosity=DEBUG or
        ---packages.maya.version=2013.2.0
     @/path/to/existing/dir/or_file.ext
-        Shorthand for setting the application context, equivalent to cd /path/to/existing/dir && program
+        Shorthand for setting the application context, equivalent to cd /path/to/existing/dir && program.
+        To pass @so to your program, escape the argument like @@so
+    ---dry-run
+        If set, we will only pretend to run the command, and not actually do it
     ---trace|debug
         Set logging verbosity at wrap time to either TRACE or DEBUG
     ---debug-context
@@ -214,8 +217,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         Print the settings, which are a fully merged result of the context
     ---debug-yaml
         Print paths to all yaml files in order of appearance on the context stack
-    ---dry-run
-        If set, we will only pretend to run the command, and not actually do it
     ---help
         Prints this help and exits.
 
@@ -573,7 +574,22 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                 continue
             # end ignore non-wrapper args
 
-            arg = arg[len(prefix):]
+            narg = arg[len(prefix):]
+            # Allow consuming the entire argument - if so, pass it on
+            if not narg:
+                res.append(arg)
+                continue
+            # end assume empty args are for user, like single @
+
+            # if the next character looks like yet another piece of the prefix, take it as an escape
+            # ----foo -> ---foo
+            # @@bar -> @bar
+            if prefix[0] == narg[0]:
+                res.append(arg[1:])
+                continue
+            # end escape argument
+            
+            arg = narg
             if arg == 'help':
                 raise DisplayHelpException(self._wrapper_arg_help)
             elif arg == 'dry-run':

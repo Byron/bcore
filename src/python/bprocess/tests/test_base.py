@@ -110,6 +110,9 @@ class TestProcessControl(TestCaseBase):
         
         process = pctrl.execute()
         assert process.returncode == 0
+
+        pctrl = TestProcessController(pseudo_executable('py-program'), '---packages.py-program.delegate=ProcessControllerDelegate ----escaped-arg @@ @ ---'.split())
+        pctrl.application()
         
     @preserve_application
     def test_wrapper_args(self):
@@ -130,7 +133,7 @@ class TestProcessControl(TestCaseBase):
 
         # we can't set the custom override to a directory that doesn't exist
         for context in ('foobar', '/path/to/foobar.ext'):
-            self.failUnlessRaises(ValueError, TestProcessController(cmd_path, '@%s' % context).application)
+            self.failUnlessRaises(ValueError, TestProcessController(cmd_path, ['@%s' % context]).application)
         # end for each context to check
         
     @preserve_application
