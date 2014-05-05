@@ -678,8 +678,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                                                 traverse_settings_hierarchy=self.traverse_additional_path_hierachies)
             # have to make this more public in kvstore, I think it's valid to do that, sometimes
             # NOTE: this flexibility needs a full rebuild !
-            app.context().insert(0, pre_ctx)
-
+            app.context().insert(1, pre_ctx)
+            self._clear_package_data_cache()
             # as the context was inserted, the overrides are still last (and will be re-applied)
         # end handle package manager configuration
 
@@ -1051,7 +1051,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         
     def is_debug_mode(self):
         """@return True if we are in debug mode"""
-        return self._debug_mode or log.getEffectiveLevel() <= logging.DEBUG or self._next_exception
+        return self._debug_mode or self._next_exception
 
     ## -- End Interface -- @}
 

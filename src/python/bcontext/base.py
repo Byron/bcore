@@ -215,11 +215,11 @@ class ContextStack(LazyMixin):
     
     ## -- End Configuration -- @}
 
-    def __init__(self, context = None):
+    def __init__(self):
         """Initialize this instance
         @param context if not None, it will be used as default context"""
         self._stack = list() # the stack itself
-        self.reset(context)
+        self.reset()
         
     def _set_cache_(self, name):
         if name == '_kvstore':
@@ -327,17 +327,14 @@ class ContextStack(LazyMixin):
             if until_size > len(self):
                 raise ValueError("can't pop if until_size is larger than our current size")
             # end assure we don't try to 'push'
-            if until_size == 0:
-                raise ValueError("can't pop base context")
-            # end check input
             res = list()
             while until_size != len(self):
                 res.append(self.pop())
             # end while there are contexts to pop
         else:
             # don't count the base Context
-            if len(self._stack) - 1 < 1:
-                raise ValueError("pop attempted on empty stack - base context wasn't counted")
+            if not self._stack:
+                raise ValueError("pop attempted on empty stack")
             # end 
             res = self._stack.pop()
         # end handle pop-until
@@ -367,14 +364,13 @@ class ContextStack(LazyMixin):
         self._mark_rebuild_changed_context
         return context
 
-    def reset(self, context = None):
-        """clears the stack, keeping just a single instance of the given type
+    def reset(self):
+        """clears the stack, so that it is empty
         @param context if not None, the Context instance to use as default base context.
         Otherwise a new default one will be created
         @return self
         """
-        context = context or self.ContextType('default')
-        self._stack = [context]
+        self._stack = list()
         self._mark_rebuild_changed_context()
         return self
 
@@ -522,6 +518,7 @@ class ContextStack(LazyMixin):
         """registers plugin as a service providing all interfaces it derives from
             @param plugin any instance or class  
         """
+        assert self._stack, "Application has to push at least one context"
         self._stack[-1].register(plugin)
         
     ## -- End Edit Interface -- @}
