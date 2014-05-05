@@ -201,7 +201,7 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
                 # end if context compatible
             # end for each environment
         except Exception, err:
-            if process_controller_type.is_debug_mode():
+            if controller.is_debug_mode():
                 # sys.stderr.write(controller.application().context()._contents_str())
                 sys.stderr.write("AN UNHANDLED EXCEPTION OCCURRED WHEN TRYING TO LAUNCH PROGRAM\n")
                 print "Controller-Delegate: ", controller.delegate()

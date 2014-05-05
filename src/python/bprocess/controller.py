@@ -170,7 +170,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                     '_dry_run',           # if True, we will not actually spawn the application,
                     '_package_data_cache',# intermediate data cache, to reduce overhead during iteration
                     '_resolve_args',      # if True, we will resolve arguments in some way
-                    '_next_exception'      # type of exception to throw if something goes wrong during preparation
+                    '_debug_mode',        # a flag to indicate we are in debug mode
+                    '_next_exception'     # type of exception to throw if something goes wrong during preparation
                 )
     
     # -------------------------
@@ -294,6 +295,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         self._spawn_override = None
         self._resolve_args = False
         self._next_exception = None
+        self._debug_mode = False
         # NOTE: We can't set the _app attribute right away, as we rely on lazy mechanisms to initialize ourselves
         # when needed. The latter wouldn't work if we set the attribute directly
         self._prebuilt_app = application
@@ -569,8 +571,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             elif arg == 'dry-run':
                 self._dry_run = True
             elif arg in self.wrapper_logging_levels:
-                logging.basicConfig()
                 set_log_level(logging.root, getattr(logging, arg.upper()))
+                if arg == 'debug':
+                    self._debug_mode = True
+                # end set state
             elif self.wrapper_arg_kvsep in arg:
                 # interpret argument as key in context
                 key_value = arg
@@ -1045,10 +1049,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         assert self._app
         return self._app
         
-    @classmethod
-    def is_debug_mode(cls):
+    def is_debug_mode(self):
         """@return True if we are in debug mode"""
-        return log.getEffectiveLevel() <= logging.DEBUG
+        return self._debug_mode or log.getEffectiveLevel() <= logging.DEBUG or self._next_exception
 
     ## -- End Interface -- @}
 
