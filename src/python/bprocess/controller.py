@@ -678,8 +678,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                                                 traverse_settings_hierarchy=self.traverse_additional_path_hierachies)
             # have to make this more public in kvstore, I think it's valid to do that, sometimes
             # NOTE: this flexibility needs a full rebuild !
-            app.context().insert(1, pre_ctx)
-            self._clear_package_data_cache()
+            app.context().insert(0, pre_ctx)
             # as the context was inserted, the overrides are still last (and will be re-applied)
         # end handle package manager configuration
 

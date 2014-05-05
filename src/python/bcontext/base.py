@@ -361,7 +361,7 @@ class ContextStack(LazyMixin):
             return self.push(context)
         # end optimize cache
         self.stack().insert(position, context)
-        self._mark_rebuild_changed_context
+        self._mark_rebuild_changed_context()
         return context
 
     def reset(self):
