@@ -187,6 +187,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
 
     ## A prefex we use to determine if the argument is destined to be used for the wrapper
     wrapper_arg_prefix = '---'
+
+    ## A prefix indicating what follows is a context location
+    wrapper_context_prefix = '@'
     
     ## Separator for key-value pairs
     wrapper_arg_kvsep = '='
@@ -200,6 +203,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
     ---<variables>=<value>
         A variable in the kvstore that is to receive the given value, like ---logging.verbosity=DEBUG or
        ---packages.maya.version=2013.2.0
+    @/path/to/existing/dir/or_file.ext
+        Shorthand for setting the application context, equivalent to cd /path/to/existing/dir && program
     ---trace|debug
         Set logging verbosity at wrap time to either TRACE or DEBUG
     ---debug-context
@@ -551,21 +556,24 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         * context 
         * kvstore overrides
         * logging and debugging configuration
-        @return possibly pruned arg list, and context with commandline overrides. The latter should be put 
-        later when all of the configuration was already loaded.
+        @return possibly pruned arg list, a possibly change cwd, and context with commandline overrides. 
+        The latter should be put later when all of the configuration was already loaded.
         @note may raise exceptions to stop the program flow and instruct the bootstrapper what to do next
         """
         # Will be a kvstore if there have been overrides
         kvstore_overrides = KeyValueStoreModifier(dict())
         res = list()
         ctx = None
+        cwd = self._cwd
         for arg in args:
-            if not arg.startswith(self.wrapper_arg_prefix):
+            prefix = arg.startswith(self.wrapper_arg_prefix) and self.wrapper_arg_prefix or None
+            prefix = arg.startswith(self.wrapper_context_prefix) and self.wrapper_context_prefix or prefix
+            if prefix is None:
                 res.append(arg)
                 continue
             # end ignore non-wrapper args
 
-            arg = arg[len(self.wrapper_arg_prefix):]
+            arg = arg[len(prefix):]
             if arg == 'help':
                 raise DisplayHelpException(self._wrapper_arg_help)
             elif arg == 'dry-run':
@@ -588,10 +596,22 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                 self._next_exception = DisplaySettingsException
             elif arg == 'debug-yaml':
                 self._next_exception = DisplayLoadedYamlException
+            elif prefix == self.wrapper_arg_prefix:
+                raise ValueError("Argument named '%s' unknown to wrapping engine" % arg)
             else:
-                raise AssertionError("Argument named '%s' unknown to wrapping engine" % arg)
+                # it could be a context
+                new_cwd = Path(arg)
+                # if it looks like a file, make it a directory
+                if new_cwd.ext():
+                    new_cwd = new_cwd.dirname()
+                # end
+
+                if not new_cwd.isdir():
+                    raise ValueError("Context directory at '%s' was inaccessible" % new_cwd)
+                # end set cwd
+
+                cwd = new_cwd
             # end handle arg
-            # end for each arg to check
         # end for each arg
         
         # set overrides
@@ -600,7 +620,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             ControlledProcessInformation.store_commandline_overrides(self._environ, kvstore_overrides.data())
         #end handle overrides
 
-        return res, ctx
+        return res, cwd, ctx
         
         
     def _setup_execution_context(self):
@@ -646,7 +666,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
 
         # Have to get our arguments of the list here, to be able to respond to it properly
         orig_args = self._args
-        self._args, overrides_context = self._handle_arguments(self._args)
+        self._args, self._cwd, overrides_context = self._handle_arguments(self._args)
 
         # In any case, setup our own App to be absolutely fresh, to not interfere with other implementations
         if self._prebuilt_app:
