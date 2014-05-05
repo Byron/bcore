@@ -222,23 +222,25 @@ class CommandBase(ICommand, LazyMixin):
         self.setup_argparser(parser)
         if self._has_subcommands():
             subcommands = self._find_compatible_subcommands()
-            assert subcommands, "Couldn't find a single subcommand"
-            
-            scmds_dict = dict()
-            if self.subcommands_title:
-                scmds_dict['title'] = self.subcommands_title
-            if self.subcommands_description:
-                scmds_dict['description'] = self.subcommands_description
-            if self.subcommands_help:
-                scmds_dict['help'] = self.subcommands_help
-            
-            subparsers = parser.add_subparsers(**scmds_dict)
-            for cmd in subcommands:
-                cmd_info = command_info(cmd)
-                subparser = subparsers.add_parser(cmd_info.name, description=cmd_info.description, help=cmd_info.description)
-                subparser.set_defaults(subcommand=cmd)
-                cmd.setup_argparser(subparser)
-            # end for each subcommand
+            if subcommands:
+                scmds_dict = dict()
+                if self.subcommands_title:
+                    scmds_dict['title'] = self.subcommands_title
+                if self.subcommands_description:
+                    scmds_dict['description'] = self.subcommands_description
+                if self.subcommands_help:
+                    scmds_dict['help'] = self.subcommands_help
+                
+                subparsers = parser.add_subparsers(**scmds_dict)
+                for cmd in subcommands:
+                    cmd_info = command_info(cmd)
+                    subparser = subparsers.add_parser(cmd_info.name, description=cmd_info.description, help=cmd_info.description)
+                    subparser.set_defaults(subcommand=cmd)
+                    cmd.setup_argparser(subparser)
+                # end for each subcommand
+            else:
+                self.log().warn("Couldn't find a single subcommand")
+            # end have subcommands
         # end handle subcommands
         return parser
         
