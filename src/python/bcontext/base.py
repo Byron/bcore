@@ -347,6 +347,25 @@ class ContextStack(LazyMixin):
         # end assure we handle no-pop scenario with until_size == len(self._stack)
         return res
 
+    def remove(self, context):
+        """Remove the given context from our stack. It is an error to try removing contexts that are not 
+        on the stack
+        @return self """
+        self.stack().remove(context)
+        self._mark_rebuild_changed_context()
+        return self
+
+    def insert(self, position, context):
+        """insert the given context at position into our stack.
+        @param position similar to argument in list.insert(position)
+        @param context a Context instance
+        @return the inserted context"""
+        if position == len(self):
+            return self.push(context)
+        # end optimize cache
+        self.stack().insert(position, context)
+        return context
+
     def reset(self, context = None):
         """clears the stack, keeping just a single instance of the given type
         @param context if not None, the Context instance to use as default base context.

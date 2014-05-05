@@ -7,7 +7,7 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'ControlledProcessInformation', 
-           'MayaProcessControllerDelegate', 'KatanaControllerDelegate', 'DisplayHelpException',
+           'MayaProcessControllerDelegate', 'KatanaControllerDelegate',
            'ProcessControllerDelegateProxy', 'MariControllerDelegate']
 
 import os
@@ -44,8 +44,7 @@ from butility import ( update_env_path,
                        DictObject,
                        Singleton,
                        LazyMixin,
-                       StringChunker,
-                       set_log_level )
+                       StringChunker )
 
 from .actions import ActionDelegateMixin
 
@@ -100,38 +99,6 @@ class ProcessControllerDelegateProxy(object):
     
 # end class ProcessControllerDelegateProxy
         
-
-
-class DisplayHelpException(Exception):
-    """A marker exception to indicate help should be displayed"""
-    
-    __slots__ = 'help_string'
-    
-    def __init__(self, help):
-        super(DisplayHelpException, self).__init__()
-        self.help_string = help
-        
-# end class DisplayHelpException
-
-
-class DelegateCommandlineOverridesContext(Context):
-    """An environment with a custom initializer to allow storing an arbitrary dict as kvstore override"""
-    __slots__ = ()
-    
-    def __init__(self, name, data = None):
-        """Intiailize ourselves and set our kvstore to the given data dictionary, if set
-        @param name of environment
-        @param data if set, it may be a dictionary or a KeyValueStoreProvider instance. In the former case,
-        it will be converted accordingly"""
-        super(DelegateCommandlineOverridesContext, self).__init__(name)
-        if isinstance(data, KeyValueStoreProvider):
-            self._kvstore = data
-        elif data:
-            # assume dict
-            self._kvstore = KeyValueStoreProvider(data)
-        # end handle 
-
-# end class DelegateCommandlineOverridesContext
 
 
 class DelegateContextOverride(Context):
@@ -366,43 +333,6 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     ## A regular expression to check if we have a path
     re_find_path = re.compile(r"^.+[/\\][^/\\]+$")
 
-    # -------------------------
-    ## @name Constants
-    # @{
-    
-    ## A prefex we use to determine if the argument is destined to be used for the wrapper
-    wrapper_arg_prefix = '---'
-    
-    ## Separator for key-value pairs
-    wrapper_arg_kvsep = '='
-    
-    ## adjustable wrap-time logging levels
-    wrapper_logging_levels = ('trace', 'debug')
-
-    ## -- End Constants -- @}
-    
-    ## Help for how to use the custom wrapper args
-    _wrapper_arg_help = \
-    """usage: <wrapper> [---option ...]
-    ---<variables>=<value>
-        A variable in the kvstore that is to receive the given value, like ---logging.verbosity=DEBUG or
-       ---packages.maya.version=2013.2.0
-    ---trace|debug
-        Set logging verbosity at wrap time to either TRACE or DEBUG
-    ---debug-context
-        Print the entire context to stderr and abort program execution. Useful to learn about the contet at 
-        wrap time.
-    ---debug-settings
-        Print the settings, which are a fully merged result of the context
-    ---dry-run
-        If set, we will only pretend to run the command, and not actually do it
-    ---help
-        Prints this help and exits.
-
-    Set the BAPP_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
-    framework.
-    """
-
     def __init__(self, application):
         super(ProcessControllerDelegate, self).__init__(application)
         self._controller_settings = \
@@ -418,34 +348,27 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     ## -- End Configuration -- @}
     
     def prepare_context(self, executable, env, args, cwd):
-        """Interprets wrapper arguments as identified by their '---' prefix and if required, sets those overrides
-        in a custom environment.
-        Additionally we will parse paths from the given commandline and use them in the context we build.
-        This assumes that the application will also setup this context once the respective scene was loaded.
+        """We will parse paths from the given commandline and use them in the context we build.
+        Additionaly, we will provide a per-arg handler with the opportunity to inject kvstore overrides
         """
         # Will be a kvstore if there have been overrides
         kvstore_overrides = KeyValueStoreModifier(dict())
         for arg in args:
-            if not arg.startswith(self.wrapper_arg_prefix):
-                # For now only find direct, single argument paths.
-                path = self._extract_path(arg)
-                if not path:
-                    continue
+            # by default, we use paths as as context provider (configurable)
+            path = self._extract_path(arg)
+            if path:
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
                     self._app.context().push(StackAwareHierarchicalContext(path.dirname()))
                 # end handle valid directory
-                continue
-            # end ignore non-wrapper args
-            self.handle_argument(arg[len(self.wrapper_arg_prefix):], kvstore_overrides)
+            # end handle path
+            self.handle_argument(arg, kvstore_overrides)
         # end for each arg to check
         
         # set overrides
         if kvstore_overrides.keys():
-            self._app.context().push(DelegateCommandlineOverridesContext('commandline overrides', 
-                                                                           kvstore_overrides))
-            ControlledProcessInformation.store_commandline_overrides(env, kvstore_overrides.data())
+            self._app.context().push(Context('delegate overrides', kvstore_overrides))
         #end handle overrides
         return super(ProcessControllerDelegate, self).prepare_context(executable, env, args, cwd)
         
@@ -489,8 +412,6 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         # remove wrapper args
         new_args = list()
         for arg in args:
-            if arg.startswith(self.wrapper_arg_prefix):
-                continue
             if resolve and '$' in arg:
                 # we really just want the resolver engine
                 arg = self.resolve_arg(arg, env)
@@ -581,42 +502,13 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         return self.DelegateContextOverrideType(type(self).__name__ + ' Override').setup(self, controller_schema, *args, **kwargs)
         
     def handle_argument(self, arg, kvstore):
-        """Method called whenver an argument destined for the wrapper is to be evaluated.
-        Subtypes can use it to implement custom argument parsing, based on arguments with the --- prefix.
-        The base implementation handles the standard cases
-        @param application our Application instance
-        @param arg argument without the wrapper specific prefix
-        @param kvstore a kvstore that can be used to store values that are to be used as overrides
+        """Method called whenver an argument seen by the delegate is to be evaluated.
+        Subtypes can use it to implement custom argument parsing and interpretation
+        @param arg as seen on the commandline. Might contain unresolved environment variables
+        @param kvstore a kvstore that can be used to store values in an overrride context
+        @note you will have a chance to modify the arguments, and more, in pre_start()
         @throws AssertionError if the argument cannot be handled"""
-        if arg == 'help':
-            raise DisplayHelpException(self._wrapper_arg_help)
-        elif arg in self.wrapper_logging_levels:
-            set_log_level(logging.root, getattr(logging, arg.upper()))
-            
-            if arg == 'debug':
-                # print out all files participating in environment stack
-                log.debug("CONFIGURATION FILES IN LOADING ORDER")
-                for ctx in self._app.context().stack():
-                    if not isinstance(ctx, StackAwareHierarchicalContext):
-                        continue
-                    #end ignore non configuration items
-                    for path in ctx.config_files():
-                        log.debug(path)
-                    # end for each path
-                # end for each environment
-            # end print loaded files
-        elif self.wrapper_arg_kvsep in arg:
-            # interpret argument as key in context
-            key_value = arg
-            assert len(key_value) > 2 and self.wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
-            kvstore.set_value(*key_value.split(self.wrapper_arg_kvsep))
-            log.debug("CONTEXT VALUE OVERRIDE: %s", key_value)
-        elif arg in ('dry-run', 'debug-context', 'debug-settings'):
-            # Just ignore these, they are handled elsewhere
-            pass
-        else:
-            raise AssertionError("Argument named '%s' unknown to wrapping engine" % arg)
-        # end handle arg
+        
     
     ## -- End Subclass Interface -- @}
 # end class ProcessControllerDelegate

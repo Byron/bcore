@@ -36,7 +36,7 @@ class IProcessControllerDelegate(InterfaceBase):
         based on the current working directory and the executable's location.
         The delegate should - if adequate - alter the applications context stack by pushing a new contexts on top to
         setup overrides, see Application.context() for more information.
-        It may also change the environment (env), and modify the executable arguments (args).
+        It may also change the environment variables (env), and modify the executable arguments (args).
         @param executable Path to executable that might be instantiated based on the most recent configuration.
         The path may still contain environment variables, but should be existing.
         If in doubt, don't make assumptions about a path which appears to exist on disk, but work with it on
@@ -89,6 +89,7 @@ class IProcessControllerDelegate(InterfaceBase):
         @param env process environment as created from scratch by the controller
         @param args argument list as provided initially to the bootstrapper. You can parse them or adjust them
         to your liking. It does not contain the executable itself.
+        Please note that the args produced here are handed to the application directly
         @param cwd path representing the current working directory
         @param resolve we will look for arguments that need substitution.
         This resolution could be any kind of transformation, like substiting commandline arguments

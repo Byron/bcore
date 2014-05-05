@@ -6,12 +6,13 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsException']
+__all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsException', 'DisplayHelpException']
 
 import sys
 import os
 import subprocess
 import logging
+import traceback
 
 from pprint import pformat
 
@@ -22,9 +23,11 @@ from butility import ( Path,
                        GraphIteratorBase,
                        LazyMixin,
                        PythonFileLoader,
-                       DictObject )
+                       DictObject,
+                       set_log_level )
 
 from bcontext import Context
+from bkvstore import KeyValueStoreModifier
 from bapp import         ( Application,
                            ApplicationSettingsClient,
                            StackAwareHierarchicalContext,
@@ -48,6 +51,19 @@ log = logging.getLogger('bprocess.controller')
 # ------------------------------------------------------------------------------
 ## @{
 
+
+class DisplayHelpException(Exception):
+    """A marker exception to indicate help should be displayed"""
+    
+    __slots__ = 'help_string'
+    
+    def __init__(self, help):
+        super(DisplayHelpException, self).__init__()
+        self.help_string = help
+        
+# end class DisplayHelpException
+
+
 class DisplayContextException(Exception):
     """A marker to indicate we want the context displayed"""
     __slots__ = ()
@@ -60,6 +76,20 @@ class DisplaySettingsException(Exception):
     __slots__ = ()
 
 # end class DisplayContextException
+
+
+class CommandlineOverridesContext(Context):
+    """An environment with a custom initializer to allow storing an arbitrary dict as kvstore override"""
+    __slots__ = ()
+    
+    def __init__(self, name, data = None):
+        """Intiailize ourselves and set our kvstore to the given data dictionary, if set
+        @param name of context
+        @param data if set, it may be KeyValueStoreProvider instance."""
+        super(CommandlineOverridesContext, self).__init__(name)
+        self._kvstore = data
+
+# end class CommandlineOverridesContext
 
 
 class _ProcessControllerContext(Context):
@@ -131,7 +161,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                     '_delegate_override', # the delegate the caller might have set
                     '_dry_run',           # if True, we will not actually spawn the application,
                     '_package_data_cache',# intermediate data cache, to reduce overhead during iteration
-                    '_resolve_args'       # if True, we will resolve arguments in some way
+                    '_resolve_args',      # if True, we will resolve arguments in some way
+                    '_next_exception'      # type of exception to throw if something goes wrong during preparation
                 )
     
     # -------------------------
@@ -145,8 +176,36 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
     # We need this flag as we can't pass arguments while iterating
     _package_data_schema = package_schema
 
-    ## The only argument we parse ourselves
-    OPT_DRY_RUN = '---dry-run'
+    ## A prefex we use to determine if the argument is destined to be used for the wrapper
+    wrapper_arg_prefix = '---'
+    
+    ## Separator for key-value pairs
+    wrapper_arg_kvsep = '='
+    
+    ## adjustable wrap-time logging levels
+    wrapper_logging_levels = ('trace', 'debug')
+
+    ## Help for how to use the custom wrapper args
+    _wrapper_arg_help = \
+    """usage: <wrapper> [---option ...]
+    ---<variables>=<value>
+        A variable in the kvstore that is to receive the given value, like ---logging.verbosity=DEBUG or
+       ---packages.maya.version=2013.2.0
+    ---trace|debug
+        Set logging verbosity at wrap time to either TRACE or DEBUG
+    ---debug-context
+        Print the entire context to stderr and abort program execution. Useful to learn about the contet at 
+        wrap time.
+    ---debug-settings
+        Print the settings, which are a fully merged result of the context
+    ---dry-run
+        If set, we will only pretend to run the command, and not actually do it
+    ---help
+        Prints this help and exits.
+
+    Set the BAPP_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
+    framework.
+    """
     
     ## -- End Contants -- @}
 
@@ -224,6 +283,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         self._environ = dict()
         self._spawn_override = None
         self._resolve_args = False
+        self._next_exception = None
         # NOTE: We can't set the _app attribute right away, as we rely on lazy mechanisms to initialize ourselves
         # when needed. The latter wouldn't work if we set the attribute directly
         self._prebuilt_app = application
@@ -231,7 +291,21 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
 
     def _set_cache_(self, name):
         if name in ('_app', '_executable_path', '_delegate'):
-            self._setup_execution_context()
+            try:
+                self._setup_execution_context()
+            except Exception, err:
+                # convert to a custom type, in case we got that far, to respect stuff the user wanted
+                # prior to the issue. This makes sure we can show debug information, for instance
+                if self._next_exception is not None:
+                    msg = str(err)
+                    if self.is_debug_mode():
+                        msg = traceback.format_exc() + '\n' + msg
+                    # end prepend the original stacktrace
+                    raise self._next_exception(msg)
+                else:
+                    # otherwise, just let it go
+                    raise
+                # end handle conversion of exception type
         else:
             return super(ProcessController, self)._set_cache_(name)
         # end handle name
@@ -457,6 +531,61 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
 
         # Finally, just return the default one. We assume it's just the standard one ProcessController
         return ProcessControllerDelegate(self._app)
+
+    def _handle_arguments(self, args):
+        """Parse args for those that can be understood by us, and return a new list with all the args 
+        we didn't consume.
+        We parse the following:
+        * context 
+        * kvstore overrides
+        * logging and debugging configuration
+        @return possibly pruned arg list, and context with commandline overrides. The latter should be put 
+        later when all of the configuration was already loaded.
+        @note may raise exceptions to stop the program flow and instruct the bootstrapper what to do next
+        """
+        # Will be a kvstore if there have been overrides
+        kvstore_overrides = KeyValueStoreModifier(dict())
+        res = list()
+        ctx = None
+        for arg in args:
+            if not arg.startswith(self.wrapper_arg_prefix):
+                res.append(arg)
+                continue
+            # end ignore non-wrapper args
+
+            arg = arg[len(self.wrapper_arg_prefix):]
+            if arg == 'help':
+                raise DisplayHelpException(self._wrapper_arg_help)
+            elif arg == 'dry-run':
+                self._dry_run = True
+            elif arg in self.wrapper_logging_levels:
+                logging.basicConfig()
+                set_log_level(logging.root, getattr(logging, arg.upper()))
+            elif self.wrapper_arg_kvsep in arg:
+                # interpret argument as key in context
+                key_value = arg
+                assert len(key_value) > 2 and self.wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
+                kvstore_overrides.set_value(*key_value.split(self.wrapper_arg_kvsep))
+                log.debug("CONTEXT VALUE OVERRIDE: %s", key_value)
+            elif arg == 'debug-context':
+                # Just ignore these, they are handled elsewhere
+                self._next_exception = DisplayContextException
+            elif arg == 'debug-settings':
+                self._next_exception = DisplaySettingsException
+            else:
+                raise AssertionError("Argument named '%s' unknown to wrapping engine" % arg)
+            # end handle arg
+            # end for each arg to check
+        # end for each arg
+        
+        # set overrides
+        if kvstore_overrides.keys():
+            ctx = CommandlineOverridesContext('commandline overrides', kvstore_overrides)
+            ControlledProcessInformation.store_commandline_overrides(self._environ, kvstore_overrides.data())
+        #end handle overrides
+
+        return res, ctx
+        
         
     def _setup_execution_context(self):
         """Initialize the context in which the process will be executed to the point right before it will actually
@@ -497,7 +626,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             new_bootstrap_dir = Path(__file__).dirname()
             log.warn("Adjusted bootstrap_dir %s to %s as previous one didn't exist", bootstrap_dir, new_bootstrap_dir)
             bootstrap_dir = new_bootstrap_dir
-         # end assure we have at least a good initial configuration
+        # end assure we have at least a good initial configuration
+
+        # Have to get our arguments of the list here, to be able to respond to it properly
+        self._args, overrides_context = self._handle_arguments(self._args)
 
         # In any case, setup our own App to be absolutely fresh, to not interfere with other implementations
         if self._prebuilt_app:
@@ -509,6 +641,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                                                           user_settings=self.load_user_settings)
         # end initialize application
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, self._args))
+        # place overrides to affect gathering configuration
+        if overrides_context:
+            app.context().push(overrides_context)
+        # end add context prior to delegate work
 
         # Add global package manager settings. We put it onto the stack right away, as this allows others 
         # to offload their program configuraiton to a seemingly unrelated location
@@ -522,16 +658,20 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             pre_ctx = self.StackAwareHierarchicalContextType(dirs,
                                                 config_files=files,
                                                 traverse_settings_hierarchy=self.traverse_additional_path_hierachies)
-            # TODO: we use intrensic knowledge about the stack, which is somewhat dangerous
             # have to make this more public in kvstore, I think it's valid to do that, sometimes
             # NOTE: this flexibility needs a full rebuild !
-            app.context().stack().insert(0, pre_ctx)
-            app.context()._mark_rebuild_changed_context()
+            app.context().insert(0, pre_ctx)
+
+            # as the context was inserted, the overrides are still last (and will be re-applied)
         # end handle package manager configuration
 
         external_configuration_context = self._gather_external_configuration(program)
         if external_configuration_context and external_configuration_context.settings().data():
+            if overrides_context:
+                app.context().pop()
             app.context().push(external_configuration_context)
+            if overrides_context:
+                app.context().push(overrides_context)
             self._clear_package_data_cache()
         else:
             # Mark it as unset so we don't try to remove it later, possibly
@@ -569,9 +709,12 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             
             self._executable_path = alias_package.executable(self._environ)
             prev_len = len(app.context())
+
+
             self.delegate().prepare_context(self._executable_path, self._environ, self._args, self._cwd)
-            
-            # If there were changes to the environment, which means we have to refresh all our data so far
+
+
+            # If there were changes to the contxt, which means we have to refresh all our data so far
             if len(app.context()) != prev_len:
                 # As the settings changed, our cache needs update too
                 self._clear_package_data_cache()
@@ -584,8 +727,18 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                 # * removing the previous context to make rebuilding faster
                 def remove_previous_configuration():
                     assert external_configuration_context
-                    app.context().stack().remove(external_configuration_context)
+                    app.context().remove(external_configuration_context)
                 # end
+
+                def reapply_commandline_overrides():
+                    if overrides_context:
+                        app.context().remove(overrides_context)
+                        app.context().push(overrides_context)
+                    # end only if there are overrides
+                # end 
+
+                # now commandline overrides have been overidden by the delegate, and we can't have that
+                reapply_commandline_overrides()
                     
                 # NOTE: all the following code tries hard not to push or pop a context without having 
                 # the need for it. The latter will invalidate our cache, which is expensive to redo
@@ -601,6 +754,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                             # invalidated anyway
                             remove_previous_configuration()
                             app.context().push(new_external_configuration_context)
+                            reapply_commandline_overrides()
                         else:
                             # there is no change, don't do anything
                             pass
@@ -609,6 +763,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                         # there is just a new one, add it
                         if new_data:
                             app.context().push(new_external_configuration_context)
+                            reapply_commandline_overrides()
                         # end
                     # end handle previous external context
                 elif external_configuration_context:
@@ -765,7 +920,20 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             self._environ[evar] = delegate.resolve_value(value, self._environ)
         # end for each variable to subsitiute
         
+
+        # DEBUGGING
+        ############
         if self.is_debug_mode():
+            # print out all files participating in environment stack
+            log.debug("CONFIGURATION FILES IN LOADING ORDER")
+            for ctx in self._app.context().stack():
+                if not isinstance(ctx, StackAwareHierarchicalContext):
+                    continue
+                #end ignore non configuration items
+                for path in ctx.config_files():
+                    log.debug(path)
+                # end for each path
+            # end for each environment
             log.debug("EFFECTIVE WRAPPER ENVIRONMENT VARIABLES (with possibly unresolved $VARIABLE_SUBSTITUTIONS)")
             log.debug(pformat(debug))
             log.debug("ENTIRE ENVIRONMENT (INCLUDING $VARIABLE_SUBSTITUTIONS)")
@@ -773,15 +941,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             log.debug(OrderedDict(self._environ))
         # end show debug information
 
-        # Finally, check if we should debug the context. The flag will be removed later
-        for arg in self._args:
-            if arg == delegate.wrapper_arg_prefix + 'debug-context':
-                raise DisplayContextException("Stopping program to debug context")
-            elif arg == delegate.wrapper_arg_prefix + "debug-settings":
-                raise DisplaySettingsException("Stpping program to debug unresolved settings")
-            # end handle settings
-        # end for each argument
-
+        # Check if we shuold stop for debugging
+        if self._next_exception:
+            raise self._next_exception()
+        # end 
+        
     def set_should_spawn_process_override(self, override):
         """This override to let the controller's caller decide if spawning is desired or not, independently of what the delgate 
         might decide. By default, the delegate will be asked.
@@ -812,11 +976,6 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         if not executable.isfile():
             raise EnvironmentError("executable for package '%s' could not be found at '%s'" % (self._name(), executable))
         # end handle executable
-
-        # Parse the only argument the delegate can't help us with: dry_run
-        if self.OPT_DRY_RUN in self._args:
-            self._dry_run = True
-        # end dry run handling
 
         # Fill post-launch interface
         ############################
