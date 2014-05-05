@@ -10,8 +10,11 @@ __all__ = []
 
 import subprocess
 
-from bprocess import ProcessControllerDelegate
+from bprocess import (ProcessControllerDelegate,
+                      ProcessController,
+                      process_schema)
 from butility import Path 
+
 
 class TestCommunicatorDelegate(ProcessControllerDelegate):
     """Communicate with a process and see how that works"""
@@ -50,7 +53,10 @@ class TestOverridesDelegate(TestCommunicatorDelegate):
     
     def _assert_has_overridden_args(self, args, expected_result):
         """value is Boolean that should match the result"""
-        has_bootstrapper_arg = any(arg for arg in args if arg.startswith('---'))
+        prefix = ProcessController.wrapper_arg_prefix
+        raw_args = self._app.context().settings().value_by_schema(process_schema).raw_arguments
+        has_bootstrapper_arg = any(arg for arg in raw_args if arg.startswith(prefix))
+        assert not any(arg for arg in args if arg.startswith(prefix))
         assert has_bootstrapper_arg == expected_result
             
     def prepare_context(self, executable, env, args, cwd):
@@ -64,7 +70,6 @@ class TestOverridesDelegate(TestCommunicatorDelegate):
         """verify custom args don't remain"""
         self._assert_has_overridden_args(args, True)
         executable, env, args, cwd = super(TestOverridesDelegate, self).pre_start(executable, env, args, cwd, resolve)
-        self._assert_has_overridden_args(args, False)
         return executable, env, args, cwd
 
     

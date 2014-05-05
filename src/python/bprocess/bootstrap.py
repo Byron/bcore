@@ -192,8 +192,16 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
             sys.stderr.write(controller.application().context()._contents_str())
         except root_module.DisplaySettingsException:
             sys.stderr.write(str(controller.application().context().settings().data()))
+        except root_module.DisplayLoadedYamlException:
+            for ctx in controller.application().context().stack():
+                if hasattr(ctx, 'config_files'):
+                    for path in ctx.config_files():
+                        sys.stderr.write(path + '\n')
+                    # end for each path
+                # end if context compatible
+            # end for each environment
         except Exception, err:
-            if process_controller_type.is_debug_mode():
+            if controller.is_debug_mode():
                 # sys.stderr.write(controller.application().context()._contents_str())
                 sys.stderr.write("AN UNHANDLED EXCEPTION OCCURRED WHEN TRYING TO LAUNCH PROGRAM\n")
                 print "Controller-Delegate: ", controller.delegate()

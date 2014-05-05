@@ -110,14 +110,17 @@ class TestProcessControl(TestCaseBase):
         
         process = pctrl.execute()
         assert process.returncode == 0
+
+        pctrl = TestProcessController(pseudo_executable('py-program'), '---packages.py-program.delegate=ProcessControllerDelegate ----escaped-arg @@ @ ---'.split())
+        pctrl.application()
         
     @preserve_application
-    def test_custom_args(self):
+    def test_wrapper_args(self):
         """verify we can handle custom arguments"""
         cmd_path = pseudo_executable('py-program-overrides')
         self.failUnlessRaises(DisplayHelpException, TestProcessController(cmd_path, '---foo=bar ---help'.split()).execute)
         
-        self.failUnlessRaises(AssertionError, TestProcessController(cmd_path, ['---foo']).execute)
+        self.failUnlessRaises(ValueError, TestProcessController(cmd_path, ['---foo']).execute)
         
         pctrl = TestProcessController(cmd_path, '---foo=bar ---hello.world=42'.split())
         assert pctrl.execute().returncode == 0
@@ -127,6 +130,11 @@ class TestProcessControl(TestCaseBase):
         new_exec = '/absolute/path/exec'
         pctrl = TestProcessController(cmd_path, ('---packages.python.executable=%s' % new_exec).split())
         assert pctrl.executable() == new_exec, 'cmd line override should have worked'
+
+        # we can't set the custom override to a directory that doesn't exist
+        for context in ('foobar', '/path/to/foobar.ext'):
+            self.failUnlessRaises(ValueError, TestProcessController(cmd_path, ['@%s' % context]).application)
+        # end for each context to check
         
     @preserve_application
     def test_execute_in_context(self):

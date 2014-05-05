@@ -131,7 +131,7 @@ class Application(object):
             # by us if present.
             # Each Application instance will just set a respective instance variable with the custom type
             if Application.main is None:
-                if len(cls.default_stack) == 1:
+                if len(cls.default_stack) == 0:
                     cls.default_stack.push(Application.PRE_APPLICATION_CONTEXT_NAME)
                 # end create first user-controlled context
                 return cls.default_stack
@@ -147,9 +147,9 @@ class Application(object):
         # If our type's Plugin's default stack still has anything in its registry, put it onto our stack.
         # It came first, and should thus be first. 
         def_stack = type(self).Plugin.default_stack
-        if len(def_stack) > 1:
-            prev_contexts = def_stack.pop(until_size=1)
-            cur_contexts = context_stack.pop(until_size=1)
+        if len(def_stack) > 0:
+            prev_contexts = def_stack.pop(until_size=0)
+            cur_contexts = context_stack.pop(until_size=0)
             for ctx in chain(prev_contexts, cur_contexts):
                 assert not ctx.settings().data(), "Settings of context should be unset"
                 context_stack.push(ctx)
@@ -173,6 +173,7 @@ class Application(object):
         Additionally, setup logging
         @return new instance of our type"""
         stack = cls.ContextStackType()
+        stack.push('base')
         inst = cls(stack)
 
         # We always set the current application to the global one. 
