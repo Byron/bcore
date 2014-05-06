@@ -232,31 +232,33 @@ class CommandBase(ICommand, LazyMixin):
         self.setup_argparser(parser)
         if self._has_subcommands():
             subcommands = self._find_compatible_subcommands()
-            assert subcommands, "Couldn't find a single subcommand"
-            
-            scmds_dict = dict()
-            if self.subcommands_title:
-                scmds_dict['title'] = self.subcommands_title
-            if self.subcommands_description:
-                scmds_dict['description'] = self.subcommands_description
-            if self.subcommands_help:
-                scmds_dict['help'] = self.subcommands_help
-            
-            subparsers = parser.add_subparsers(**scmds_dict)
-            for cmd in subcommands:
-                cmd_info = cmd.info_data()
-                subparser = subparsers.add_parser(cmd_info.name, description=cmd_info.description, help=cmd_info.description)
-                subparser.set_defaults(**{self._subcommand_slot_name() : cmd})
-                # Allow recursion - there can be a hierarchy of subcommands
-                assert cmd is not self, 'picked up myself as subcommand - check your name'
-                if cmd._has_subcommands():
-                    # that way, the new subcommand master will be able to 
-                    cmd._level = self._level + 1
-                    cmd.argparser(subparser)
-                else:
-                    cmd.setup_argparser(subparser)
-                # end handle arg initialization
-            # end for each subcommand
+            if subcommands:            
+                scmds_dict = dict()
+                if self.subcommands_title:
+                    scmds_dict['title'] = self.subcommands_title
+                if self.subcommands_description:
+                    scmds_dict['description'] = self.subcommands_description
+                if self.subcommands_help:
+                    scmds_dict['help'] = self.subcommands_help
+                
+                subparsers = parser.add_subparsers(**scmds_dict)
+                for cmd in subcommands:
+                    cmd_info = cmd.info_data()
+                    subparser = subparsers.add_parser(cmd_info.name, description=cmd_info.description, help=cmd_info.description)
+                    subparser.set_defaults(**{self._subcommand_slot_name() : cmd})
+                    # Allow recursion - there can be a hierarchy of subcommands
+                    assert cmd is not self, 'picked up myself as subcommand - check your name'
+                    if cmd._has_subcommands():
+                        # that way, the new subcommand master will be able to 
+                        cmd._level = self._level + 1
+                        cmd.argparser(subparser)
+                    else:
+                        cmd.setup_argparser(subparser)
+                    # end handle arg initialization
+                # end for each subcommand
+            else:
+                self.log().warn("Couldn't find a single subcommand")
+            # end have subcommands
         # end handle subcommands
         return parser
         
