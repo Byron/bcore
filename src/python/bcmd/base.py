@@ -291,7 +291,7 @@ class CommandBase(ICommand, LazyMixin):
                 unknown_allowed = False
                 while cmd and not unknown_allowed:
                     cmd = getattr(parsed_args, self._subcommand_slot_name(level), None)
-                    unknown_allowed |= cmd and cmd.unknown_allowed or False
+                    unknown_allowed |= cmd and cmd.allow_unknown_args or False
                     level += 1
                 # end while there is no one to allow unknowns
 

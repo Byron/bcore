@@ -9,6 +9,7 @@
 __all__ = ['LauncherBeSubCommand']
 
 import os
+import sys
 
 import bapp
 from bapp import ApplicationSettingsClient
@@ -59,24 +60,30 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsClient, PackageDataI
         # end for each package
         return res
         
-    def setup_argparser(self, parser):
-        """Setup your flags using argparse"""
-        choices = self._executable_package_names()
-        if not choices:
+    def execute(self, args, remaining_args):
+        programs = self._executable_package_names()
+        if not remaining_args:
+            sys.stdout.write('... %s program [args]\n\n' % self.name)
+            sys.stdout.write('Please choose one of the following:\n\n')
+            for name in programs:
+                sys.stdout.write(name + '\n')
+            # end 
+            return self.SUCCESS
+        # end handle query mode
+
+        if not programs:
             raise InputError("No program configured for launch")
         # end handle nothing there
 
-        help = "The name of the program to start"
-        parser.add_argument('program', 
-                             choices=choices,
-                             help=help)
-        return self
+        program = remaining_args[0]
+        if program not in programs:
+            raise InputError("unknown program named '%s'" % program)
+        # end handle name
 
-    def execute(self, args, remaining_args):
         # This will never return, spawn is off (unless the delegate overrides it).
         # Also we let it build it's Context from scratch, and won't pass ours
         # It's important to pass the CWD as major context provider to the called program
-        process = ProcessController(args.program, remaining_args, cwd = os.getcwd()).execute()
+        process = ProcessController(program, remaining_args[1:], cwd = os.getcwd()).execute()
 
         # If the delegate wanted something else, we use the return code of the program
         return process.returncode
