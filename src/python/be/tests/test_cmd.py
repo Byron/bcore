@@ -11,11 +11,10 @@ from . import BeTestCase
 
 import bapp
 from bapp.tests import with_application
-from bcmd import SubCommandBase
 from be import *
 
 
-class TestCommand(BeSubCommand, bapp.plugin_type()):
+class TestBeSubCommand(BeSubCommand, bapp.plugin_type()):
     """@todo documentation"""
     __slots__ = ()
 
@@ -27,7 +26,7 @@ class TestCommand(BeSubCommand, bapp.plugin_type()):
         print "hello world"
         return self.SUCCESS
 
-# end class TestCommand
+# end class TestBeSubCommand
 
 
 class TestCmd(BeTestCase):
@@ -37,7 +36,7 @@ class TestCmd(BeTestCase):
     def test_base(self):
         cmd = BeCommand(bapp.main())
         assert cmd.parse_and_execute('foo'.split()) != 0, "command didn't exist"
-        assert cmd.parse_and_execute([TestCommand.name]) == 0, "command did exist"
+        assert cmd.parse_and_execute([TestBeSubCommand.name]) == 0, "command did exist"
 
 
         configured_name = 'new-name'
