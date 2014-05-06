@@ -14,6 +14,15 @@ class ${1:Name}BeSubCommand(BeSubCommand, bapp.plugin_type()):
     version = Version('${4:0.1.0}')
     description = "${5:description}"
 
+    def setup_argparser(self, parser):
+        """Setup your flags using argparse"""
+        # parser.add_argument('-v', '--verbose',
+        #                     action='store_true', 
+        #                     default=False, 
+        #                     dest='verbosity',
+        #                     help='enable verbose mode')
+        return self
+
     def execute(self, args, remaining_args):
         $0raise NotImplementedError('tbd')
         return self.SUCCESS

@@ -124,7 +124,7 @@ class PackageDataIteratorMixin(object):
     # @{
     
     @classmethod
-    def new_controller_schema(cls, schema):
+    def new_controller_schema(cls, schema = package_schema):
         """Called during type instantiation to put your own schema onto package level. This allows 
         your data to be returned upon query by placing it into a KeyValueStoreSchema whose hierarchy fits
         to the one of the package controller
@@ -186,7 +186,9 @@ class PackageDataIteratorMixin(object):
         the package, among other things
         @param name package name
         @param data data you retrieved for the packge.
-        @note in order to work properly, your data must have the trees member"""
+        @note in order to work properly, your data must have the trees member. Ideally, only use this
+        with the default schema, i.e. package_schema, to be sure you have all the information the interface
+        would want to read"""
         assert hasattr(data, 'trees'), "Data requrires 'trees' attribute for package to be functional"
         return ProcessControllerPackageSpecification(name, data)
         
