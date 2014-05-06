@@ -638,6 +638,20 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
 
         return res, cwd, ctx
         
+    @classmethod
+    def _resolve_package_alias(cls, package, fpackage_by_name):
+        """@return alias_package for the given package. alias_package may be package
+        @param fpackage_by_name f(n) -> ProcessControllerPackageSpecification for n"""
+        # recursively resolve the alias
+        seen = set()
+        while package.data().alias:
+            if package.data().alias in seen:
+                raise AssertionError("hit loop at '%s' when trying to resolve %s" % (package.data().alias, ', '.join(seen)))
+            # end raise assertion
+            seen.add(package.data().alias)
+            package = fpackage_by_name(package.data().alias)
+        # end handle alias executable
+        return package
         
     def _setup_execution_context(self):
         """Initialize the context in which the process will be executed to the point right before it will actually
@@ -651,17 +665,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         @return self
         """
         def root_package_and_executable_provider():
-            root_package = alias_package = self._package(program)
-            # recursively resolve the alias
-            seen = set()
-            while alias_package.data().alias:
-                if alias_package.data().alias in seen:
-                    raise AssertionError("hit loop at '%s' when trying to resolve %s" % (alias_package.data().alias, ', '.join(seen)))
-                # end raise assertion
-                seen.add(alias_package.data().alias)
-                alias_package = self._package(alias_package.data().alias)
-            # end handle alias executable
-            return root_package, alias_package
+            root_package = self._package(program)
+            return root_package, self._resolve_package_alias(root_package, self._package)
         # end utility
         
         # Setup Environment according to Executable Dir and CWD

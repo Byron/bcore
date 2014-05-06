@@ -138,11 +138,16 @@ class PackageDataIteratorMixin(object):
                                                 package_schema.key() : schema
                                             }
                                             )
-    
+
+    @classmethod
+    def _package_key(cls, name):
+        """@return kvstore key for package with 'name'"""
+        return '%s.%s' % (controller_schema.key(), name)
+
     def _internal_iter_package_data(self, settings_value_or_kvstore, package_name, schema = None):
         """If schema is None, we use the settings_value mode, otherwise we access a kvstore directly"""
         if schema:
-            data_by_name = lambda n: settings_value_or_kvstore.value('%s.%s' % (controller_schema.key(), n), schema, resolve=True)
+            data_by_name = lambda n: settings_value_or_kvstore.value(self._package_key(n), schema, resolve=True)
         else:
             data_by_name = lambda n: settings_value_or_kvstore[n]
         # end handle query function
@@ -155,8 +160,8 @@ class PackageDataIteratorMixin(object):
             try:
                 pdata = data_by_name(name)
             except (KeyError, NoSuchKeyError):
-                raise KeyError("A package named '%s' wasn't configured. It should be located at '%s.%s'."
-                                                    % (name, controller_schema.key(), name))
+                raise KeyError("A package named '%s' wasn't configured. It should be located at '%s'."
+                                                    % (name, self._package_key(name)))
             # end provide nice exceptions
             requires = pdata.requires   # cache it !
             yield pdata, name
@@ -408,7 +413,10 @@ class ProcessControllerPackageSpecification(LazyMixin):
         @note for now this is uncached, but its okay for our use
         @note we always resolve environment variables
         """
-        executable_path = Path._expandvars_deep(self.data().executable, env)
+        executable = self.data().executable
+        if not executable:
+            raise ValueError("no executable set for package '%s'" % self.name())
+        executable_path = Path._expandvars_deep(executable, env)
         try:
             executable_path = self.to_abs_path(executable_path)
         except EnvironmentError:

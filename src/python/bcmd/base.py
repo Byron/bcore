@@ -154,17 +154,21 @@ class CommandBase(ICommand, LazyMixin):
         # end handle name
         
     def _has_subcommands(self):
-       """@return True if we have subcommands"""
-       return any((self.subcommands_title, self.subcommands_description, self.subcommands_help))
+        """@return True if we have subcommands"""
+        return any((self.subcommands_title, self.subcommands_description, self.subcommands_help))
        
     def _is_subcommand(self):
-       """@return True if we are a subcommand"""
-       return hasattr(self, 'main_command_name') and self.main_command_name
+        """@return True if we are a subcommand"""
+        return hasattr(self, 'main_command_name') and self.main_command_name
 
-    def _subcommand_slot_name(self):
-       """@return a name to access the args namespace, matching our level.
-       That way, arbitrary depth command hierachies can be supported"""
-       return "__subcommand__%i" % self._level
+    def _subcommand_slot_name(self, level = None):
+        """@return a name to access the args namespace, matching our level.
+        That way, arbitrary depth command hierachies can be supported
+        @param level if None, self._level will be used"""
+        if level is None:
+            level = self._level
+        # end 
+        return "__subcommand__%i" % level
         
     # -------------------------
     ## @name Interface Implementation
@@ -280,10 +284,21 @@ class CommandBase(ICommand, LazyMixin):
                 return self.ERROR
             # print usage if nothing was specified
             parsed_args, remaining_args = parser.parse_known_args(args)
-            if not (self.allow_unknown_args|(self._has_subcommands() and 
-                    getattr(parsed_args, self._subcommand_slot_name()).allow_unknown_args)) and remaining_args:
-                sys.stderr.write("The following arguments could not be parsed: '%s'\n" % ' '.join(remaining_args))
-                return self.ERROR
+            if remaining_args:
+                # traverse the subcommand chain and check if the last one actually allows unknown args
+                level = self._level
+                cmd = self
+                unknown_allowed = False
+                while cmd and not unknown_allowed:
+                    cmd = getattr(parsed_args, self._subcommand_slot_name(level), None)
+                    unknown_allowed |= cmd and cmd.unknown_allowed or False
+                    level += 1
+                # end while there is no one to allow unknowns
+
+                if not unknown_allowed:
+                    sys.stderr.write("The following arguments could not be parsed: '%s'\n" % ' '.join(remaining_args))
+                    return self.ERROR
+                # end abort if no one allowed them
             # end handle remaining
             return self.execute(parsed_args, remaining_args)
         except ArgparserHandledCall, info:
@@ -295,7 +310,7 @@ class CommandBase(ICommand, LazyMixin):
             self.log().error(str(err))
             return self.ARGUMENT_ERROR
         except InputError, err:
-            cmd = getattr(parsed_args, self._subcommand_slot_name())
+            cmd = getattr(parsed_args, self._subcommand_slot_name(), None)
             (cmd and cmd.log() or self.log()).error(str(err))
             return self.ARGUMENT_ERROR
         except (ArgumentError, ArgumentTypeError), err:

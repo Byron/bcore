@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['BeCommand', 'BeCommandMixin', 'BeSubCommand']
+__all__ = ['BeCommand', 'BeSubCommand']
 
 from bapp import ApplicationSettingsClient
 from bkvstore import KeyValueStoreSchema
@@ -15,18 +15,26 @@ from bcmd import (CommandBase,
                   SubCommandBase)
 
 
-class BeCommandMixin(object):
-    """A mixin for use in a CommandBase compatible type.
+# ==============================================================================
+## @name Utilities
+# ------------------------------------------------------------------------------
+## @{
 
-    It implements all the functionality of the 'be' command framework.
-    """
-    __slots__ = ()
+def _init_schema(key, clsdict):
+    """Initialize our schema, the given key as root key.
+    In case you derive from BeCommand, you might want to store your configuration elsewhere.
+    @param key name of the root key at which to place settings, like 'be' , or 'foo'.
+    @param clsdict your classes locals, call locals() from the body of your class
+    @return the new schema, usually assigned to _schema class member"""
+    return KeyValueStoreSchema('be', {   'name' : key,
+                                         'version' : clsdict['version'],
+                                         'description' : clsdict['description']})
+
+## -- End Utilities -- @}
 
 
-# end class BeCommandMixin
 
-
-class BeCommand(BeCommandMixin, CommandBase, ApplicationSettingsClient):
+class BeCommand(CommandBase, ApplicationSettingsClient):
     """Marries the 'be' framework with the command framework"""
     __slots__ = ()
 
@@ -46,10 +54,10 @@ class BeCommand(BeCommandMixin, CommandBase, ApplicationSettingsClient):
     
     ## -- End Configuration -- @}
 
-    # NOTE: we must have a fixed entry point into the configuration ! It's always 'be'
-    _schema = KeyValueStoreSchema('be', {'name' : name,
-                                         'version' : version,
-                                         'description' : description})
+
+    # NOTE: If your derived type overrides the name to get a different space in the kvstore, you need an
+    # adjusted SubCommandBase.main_command
+    _schema = _init_schema(name, locals())
 
     # -------------------------
     ## @name Overrides
@@ -73,10 +81,28 @@ class BeSubCommand(SubCommandBase):
     """
     __slots__ = ()
 
+    # -------------------------
+    ## @name Configuration
+    # @{
+
+    main_command = BeCommand
+
+    ## -- End Configuration -- @}
+
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
+
+    @classmethod
+    def _main_command_name(cls):
+        """@return the name of our main command"""
+        return cls.main_command.settings_value().name
+    
+    ## -- End Subclass Interface -- @}
 
     def is_compatible(self, command):
         """@return We will always be compatible to the be-command, based on the configuration"""
-        return command.info_data().name == BeCommand.settings_value().name
+        return command.info_data().name == self._main_command_name()
 
 # end class BeSubCommand
 
