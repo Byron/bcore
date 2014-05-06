@@ -13,12 +13,15 @@ import sys
 
 import bapp
 from bapp import ApplicationSettingsClient
-from butility import Version
+from butility import (Version,
+                      SpellingCorrector)
 from bcmd import InputError
 from be import BeSubCommand
 from bprocess import (PackageDataIteratorMixin,
                       ProcessController,
                       package_schema)
+
+
 
 
 class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsClient, PackageDataIteratorMixin, 
@@ -77,7 +80,8 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsClient, PackageDataI
 
         program = remaining_args[0]
         if program not in programs:
-            raise InputError("unknown program named '%s'" % program)
+            maybe_this_one = SpellingCorrector(programs).correct(program)
+            raise InputError("unknown program named '%s', did you mean '%s'" % (program, maybe_this_one))
         # end handle name
 
         # This will never return, spawn is off (unless the delegate overrides it).

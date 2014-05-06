@@ -6,13 +6,15 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator', 'PythonFileLoader']
+__all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator', 'PythonFileLoader',
+           'SpellingCorrector']
 
 from UserDict import DictMixin
 import imp
 import sys
 import os
 import re
+import collections
 import pprint
 import logging
 from copy import deepcopy
@@ -827,3 +829,47 @@ class PythonFileLoader(object):
     ## -- End Interface -- @}
 # end class PythonFileLoader
 
+
+class SpellingCorrector(object):
+    """A Type based on code by Peter Norvig (http://norvig.com/spell-correct.html)
+
+    I have no clou how it works, but wanted that functionality.
+    The code is trusted, therefore there is no unit-test
+    """
+    __slots__ = ('_model')
+
+    def __init__(self, words):
+        """Initialize ourselves with a list of words in any order
+        @param words iterable returning strings. Will be converted to lower case"""
+        model = collections.defaultdict(lambda: 1)
+        for f in words:
+            model[f.lower()] += 1
+        self._model = model
+
+    # -------------------------
+    ## @name Interface
+    # @{
+
+    def correct(self, word):
+        """@return the corrected word"""
+        alphabet = 'abcdefghijklmnopqrstuvwxyz'
+
+        def edits1(word):
+           splits     = [(word[:i], word[i:]) for i in range(len(word) + 1)]
+           deletes    = [a + b[1:] for a, b in splits if b]
+           transposes = [a + b[1] + b[0] + b[2:] for a, b in splits if len(b)>1]
+           replaces   = [a + c + b[1:] for a, b in splits for c in alphabet if b]
+           inserts    = [a + c + b     for a, b in splits for c in alphabet]
+           return set(deletes + transposes + replaces + inserts)
+
+        def known_edits2(word):
+            return set(e2 for e1 in edits1(word) for e2 in edits1(e1) if e2 in self._model)
+
+        def known(words): return set(w for w in words if w in self._model)
+
+        candidates = known([word]) or known(edits1(word)) or known_edits2(word) or [word]
+        return max(candidates, key=self._model.get)
+    
+    ## -- End Interface -- @}
+
+# end class SpellingCorrector
