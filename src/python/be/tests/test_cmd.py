@@ -13,45 +13,35 @@ import bapp
 from bapp.tests import with_application
 from bcmd import SubCommandBase
 from be import *
-from .be_subcmd import TestCommand
 
 
-class NestedCommand(BeSubCommand, bapp.plugin_type()):
-    """See if it works to have multiple nesting levels"""
-    __slots__ = ()
-
-    name = 'nested'
-    version = '0.0.0'
-    description = 'none'
-    subcommands_title = 'sub-commands'
-
-
-# end class NestedCommand
-
-
-class NestedSubCommand(SubCommandBase, bapp.plugin_type()):
+class TestCommand(BeSubCommand, bapp.plugin_type()):
     """@todo documentation"""
     __slots__ = ()
 
-    name = 'foo'
+    name = "hello"
     version = '0.0.0'
-    description = 'none'
-    main_command_name = NestedCommand.name
+    description = "prints hello world"
 
-    def execute(self):
+    def execute(self, args, remaining_args):
+        print "hello world"
         return self.SUCCESS
 
-# end class NestedSubCommand
+# end class TestCommand
 
 
 class TestCmd(BeTestCase):
     __slots__ = ()
 
-    @with_application
+    @with_application(from_file=__file__)
     def test_base(self):
         cmd = BeCommand(bapp.main())
         assert cmd.parse_and_execute('foo'.split()) != 0, "command didn't exist"
         assert cmd.parse_and_execute([TestCommand.name]) == 0, "command did exist"
 
+
+        configured_name = 'new-name'
+        assert cmd.info_data().name == configured_name, \
+                                                    "it's possible to rename a be command"
 
 # end class TestCmd

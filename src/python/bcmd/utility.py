@@ -6,16 +6,12 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['CommandArgumentParser', 'command_info', 'ArgparserHandledCall']
+__all__ = ['CommandArgumentParser', 'ArgparserHandledCall']
 
 import sys
 from .argparse import ArgumentParser
 
 
-def command_info(command):
-    """@return DictObject filled with information from the command's info() KVStore"""
-    return command.info().value(command.info_schema.key(), command.info_schema)
-    
 class ArgparserHandledCall(Exception):
     """An exception to indicate the arg parser handled the logic already.
     This usually happens if the commandline was called in help mode, or when showing the version"""

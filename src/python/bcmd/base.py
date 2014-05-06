@@ -13,8 +13,8 @@ import logging
 
 
 import bapp
-from bkvstore import KeyValueStoreProvider
-from butility import LazyMixin
+from butility import (LazyMixin,
+                      DictObject)
 from bprocess import ProcessAwareApplication
 
 from .argparse import ( ArgumentError,
@@ -23,8 +23,7 @@ from .argparse import ( ArgumentError,
 from .interfaces import ( ICommand,
                           ISubCommand )
 from .utility import ( CommandArgumentParser,
-                       ArgparserHandledCall,
-                       command_info )
+                       ArgparserHandledCall)
 
 
 class InputError(Exception):
@@ -144,7 +143,7 @@ class CommandBase(ICommand, LazyMixin):
         elif name == '_info':
             assert self.name and self.version and self.description
             log_id = self.log_id or self.name
-            self._info = KeyValueStoreProvider({
+            self._info = DictObject(              {
                                                     'name' : self.name,
                                                     'version' : self.version,
                                                     'log_id' : log_id,
@@ -171,7 +170,7 @@ class CommandBase(ICommand, LazyMixin):
     ## @name Interface Implementation
     # @{
     
-    def info(self):
+    def info_data(self):
         return self._info
     
     def log(self):
@@ -223,7 +222,7 @@ class CommandBase(ICommand, LazyMixin):
         """@return a fully initialized arg-parser instance, ready for parsing arguments
         @param parser if set, you are called as neseted subcomand. Parser was initialized for you and 
         should be altered with your subcommands accordingly."""
-        info = command_info(self)
+        info = self.info_data()
         if parser is None:
             parser = self.ArgumentParserType(prog=info.name,
                                              description=info.description)
@@ -245,7 +244,7 @@ class CommandBase(ICommand, LazyMixin):
             
             subparsers = parser.add_subparsers(**scmds_dict)
             for cmd in subcommands:
-                cmd_info = command_info(cmd)
+                cmd_info = cmd.info_data()
                 subparser = subparsers.add_parser(cmd_info.name, description=cmd_info.description, help=cmd_info.description)
                 subparser.set_defaults(**{self._subcommand_slot_name() : cmd})
                 # Allow recursion - there can be a hierarchy of subcommands
@@ -357,7 +356,7 @@ class SubCommandBase(CommandBase, ISubCommand):
     def is_compatible(self, command):
         """@return True if the given command's name"""
         assert self.main_command_name
-        return command_info(command).name == self.main_command_name
+        return command.info_data().name == self.main_command_name
     
     ## -- End Interface Implementation -- @}
 

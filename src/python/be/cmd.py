@@ -22,12 +22,11 @@ class BeCommandMixin(object):
     """
     __slots__ = ()
 
-    
 
 # end class BeCommandMixin
 
 
-class BeCommand(BeCommandMixin, CommandBase):
+class BeCommand(BeCommandMixin, CommandBase, ApplicationSettingsClient):
     """Marries the 'be' framework with the command framework"""
     __slots__ = ()
 
@@ -47,7 +46,20 @@ class BeCommand(BeCommandMixin, CommandBase):
     
     ## -- End Configuration -- @}
 
-    _schema = KeyValueStoreSchema(name, {'name' : name})
+    # NOTE: we must have a fixed entry point into the configuration ! It's always 'be'
+    _schema = KeyValueStoreSchema('be', {'name' : name,
+                                         'version' : version,
+                                         'description' : description})
+
+    # -------------------------
+    ## @name Overrides
+    # @{
+
+    def info_data(self):
+        """Obtains the name and other information from the settings"""
+        return self.settings_value(self.application().context().settings())
+    
+    ## -- End Overrides -- @}
 
 
 # end class BeCommand
@@ -57,20 +69,14 @@ class BeSubCommand(SubCommandBase):
     """Your custom subcomand should derive from this type to facilitate becoming a be-subcommand 
     that will be loaded automatically.
 
-    Additionally, derive form bapp.plugin_type()
+    Additionally, derive form bapp.plugin_type().
     """
     __slots__ = ()
 
-    # -------------------------
-    ## @name Configuration
-    # @{
 
-    ## It's ok for use to refer to the be command (even though on the shell it might be named differently)
-    # As all subcommands are loaded explicitly. This is to assure one BeSubCommand doesn't reach a 
-    # a BeCommand it wasn't intended for
-    main_command_name = BeCommand.name
-    
-    ## -- End Configuration -- @}
+    def is_compatible(self, command):
+        """@return We will always be compatible to the be-command, based on the configuration"""
+        return command.info_data().name == BeCommand.settings_value().name
 
 # end class BeSubCommand
 
