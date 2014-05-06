@@ -6,10 +6,11 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['BeCommand', 'BeCommandMixin']
+__all__ = ['BeCommand', 'BeCommandMixin', 'BeSubCommand']
 
 from butility import Version
-from bcmd import CommandBase
+from bcmd import (CommandBase,
+                  SubCommandBase)
 
 
 class BeCommandMixin(object):
@@ -45,6 +46,28 @@ class BeCommand(BeCommandMixin, CommandBase):
     ## -- End Configuration -- @}
 
 # end class BeCommand
+
+
+class BeSubCommand(BeCommand, SubCommandBase):
+    """Your custom subcomand should derive from this type to facilitate becoming a be-subcommand 
+    that will be loaded automatically.
+
+    Additionally, derive form bapp.plugin_type()
+    """
+    __slots__ = ()
+
+    # -------------------------
+    ## @name Configuration
+    # @{
+
+    ## It's ok for use to refer to the be command (even though on the shell it might be named differently)
+    # As all subcommands are loaded explicitly. This is to assure one BeSubCommand doesn't reach a 
+    # a BeCommand it wasn't intended for
+    main_command_name = BeCommand.name
+    
+    ## -- End Configuration -- @}
+
+# end class BeSubCommand
 
 
 if __name__ == '__main__':

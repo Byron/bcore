@@ -111,7 +111,10 @@ class TestProcessControl(TestCaseBase):
         process = pctrl.execute()
         assert process.returncode == 0
 
-        pctrl = TestProcessController(pseudo_executable('py-program'), '---packages.py-program.delegate=ProcessControllerDelegate ----escaped-arg @@ @ ---'.split())
+        prefix, at_prefix = TestProcessController.wrapper_arg_prefix, TestProcessController.wrapper_context_prefix
+        args = ('---packages.py-program.delegate=ProcessControllerDelegate ----escaped-arg %s%s %s %s'
+                        % (at_prefix, at_prefix, at_prefix, prefix)).split()
+        pctrl = TestProcessController(pseudo_executable('py-program'), args)
         pctrl.application()
         
     @preserve_application
