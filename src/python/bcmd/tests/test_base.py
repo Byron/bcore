@@ -76,6 +76,54 @@ class IncompatibleSubccommand(SimpleSubcommand):
 # end class IncompatibleSubccommand
 
 
+class NestedBase(CommandBase):
+    __slots__ = ()
+
+    name = 'with-nesting'
+    version = '1.0'
+    description = 'none'
+
+    subcommands_title = 'enabled subcommands'
+
+# end class NestedBase
+
+
+class NestedCommand(SubCommandBase, bapp.plugin_type()):
+    """See if it works to have multiple nesting levels"""
+    __slots__ = ('_argparser_called')
+
+    name = 'nested'
+    version = '0.1.2'
+    description = 'other'
+    main_command_name = NestedBase.name
+
+    # make this one a subcommand master as well
+    subcommands_title = "we also have subcommands"
+
+    def __init__(self, *args, **kwargs):
+        super(NestedCommand, self).__init__(*args, **kwargs)
+
+# end class NestedCommand
+
+
+class NestedSubCommand(SubCommandBase, bapp.plugin_type()):
+    __slots__ = ()
+
+    name = 'bar'
+    version = '0.0.0'
+    description = 'none'
+    main_command_name = NestedCommand.name
+
+    call_magic = 234
+
+    def execute(self, args, remaining):
+        return self.call_magic
+
+# end class NestedSubCommand
+
+
+
+
 class TestCommands(TestCaseBase):
     """Basic command framework tests"""
     __slots__ = ()
@@ -106,5 +154,11 @@ class TestCommands(TestCaseBase):
         MainCommand.allow_unknown_args = False
 
         assert InputError, "Let's be sure this makes it into bcmd"
+
+    @with_application
+    def test_nested_command(self):
+        cmd = NestedBase(application=bapp.main())
+        assert cmd.parse_and_execute([NestedCommand.name, NestedSubCommand.name]) == NestedSubCommand.call_magic, \
+        'nesting should work just fine'
 
 # end class TestCommands

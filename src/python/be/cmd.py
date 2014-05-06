@@ -8,6 +8,8 @@
 """
 __all__ = ['BeCommand', 'BeCommandMixin', 'BeSubCommand']
 
+from bapp import ApplicationSettingsClient
+from bkvstore import KeyValueStoreSchema
 from butility import Version
 from bcmd import (CommandBase,
                   SubCommandBase)
@@ -45,10 +47,13 @@ class BeCommand(BeCommandMixin, CommandBase):
     
     ## -- End Configuration -- @}
 
+    _schema = KeyValueStoreSchema(name, {'name' : name})
+
+
 # end class BeCommand
 
 
-class BeSubCommand(BeCommand, SubCommandBase):
+class BeSubCommand(SubCommandBase):
     """Your custom subcomand should derive from this type to facilitate becoming a be-subcommand 
     that will be loaded automatically.
 

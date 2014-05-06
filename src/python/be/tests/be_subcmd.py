@@ -18,11 +18,11 @@ class TestCommand(BeSubCommand, bapp.plugin_type()):
     __slots__ = ()
 
     name = "hello"
+    version = '0.0.0'
     description = "prints hello world"
 
     def execute(self, args, remaining_args):
         print "hello world"
-
         return self.SUCCESS
 
 # end class TestCommand

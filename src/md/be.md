@@ -10,3 +10,8 @@ As *graphical environments* are fundamental different in requirements from a sta
 
 The default UCT should be launched through the standard python interpreter, yet it must be trivially easy to make it launch through another interpreter.
 
+
+# FEATURES (DRAFT)
+
+* sub-commands can have their own subcommands, and use the plugin system/base implementation to deal with it. That way (applause), you can take a previous main command, and make it a sub-command, therefore combine multiple commands into one if you are inclined to do so.
+

@@ -151,7 +151,6 @@ class Application(object):
             prev_contexts = def_stack.pop(until_size=0)
             cur_contexts = context_stack.pop(until_size=0)
             for ctx in chain(prev_contexts, cur_contexts):
-                assert not ctx.settings().data(), "Settings of context should be unset"
                 context_stack.push(ctx)
             # end handle context merge
         # end bring in latest items

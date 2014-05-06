@@ -44,6 +44,7 @@ class CommandBase(ICommand, LazyMixin):
                     '_log',         # our logging instance, lazy
                     '_info',        # info kv store, lazy
                     '_app',         # the application to use when querying the registry, or settings
+                    '_level'        # the depth within the sub-command chain
                 )
     
     ArgumentParserType = CommandArgumentParser 
@@ -128,7 +129,7 @@ class CommandBase(ICommand, LazyMixin):
         If None, the global instance will be used automatically"""
         super(ICommand, self).__init__()
         self._app = application
-
+        self._level = 0
         if self._app is None and self.ApplicationType:
             self._app = self.ApplicationType.new()
         # end 
@@ -160,6 +161,11 @@ class CommandBase(ICommand, LazyMixin):
     def _is_subcommand(self):
        """@return True if we are a subcommand"""
        return hasattr(self, 'main_command_name') and self.main_command_name
+
+    def _subcommand_slot_name(self):
+       """@return a name to access the args namespace, matching our level.
+       That way, arbitrary depth command hierachies can be supported"""
+       return "__subcommand__%i" % self._level
         
     # -------------------------
     ## @name Interface Implementation
@@ -180,9 +186,11 @@ class CommandBase(ICommand, LazyMixin):
         @throws NotImplementedError if this command has no subcommands"""
         if not self._has_subcommands():
             raise NotImplementedError("Have no subcommands, thus the subclass needs to implement this")
-        return args.subcommand.execute(args, remaining_args)
+
+        cmd = getattr(args, self._subcommand_slot_name())
+        assert cmd is not self
+        return cmd.execute(args, remaining_args)
             
-        
         
     ## -- End Interface Implementation -- @}        
     # -------------------------
@@ -211,13 +219,16 @@ class CommandBase(ICommand, LazyMixin):
     ## @name Interface
     # @{
     
-    def argparser(self):
-        """@return a fully initialized arg-parser instance, ready for parsing arguments"""
+    def argparser(self, parser = None):
+        """@return a fully initialized arg-parser instance, ready for parsing arguments
+        @param parser if set, you are called as neseted subcomand. Parser was initialized for you and 
+        should be altered with your subcommands accordingly."""
         info = command_info(self)
-        parser = self.ArgumentParserType(
-                                            prog=info.name,
-                                            description=info.description,
-                                        )
+        if parser is None:
+            parser = self.ArgumentParserType(prog=info.name,
+                                             description=info.description)
+
+        # end handle parser
         self._add_version_argument(parser, str(info.version))
         self.setup_argparser(parser)
         if self._has_subcommands():
@@ -236,8 +247,16 @@ class CommandBase(ICommand, LazyMixin):
             for cmd in subcommands:
                 cmd_info = command_info(cmd)
                 subparser = subparsers.add_parser(cmd_info.name, description=cmd_info.description, help=cmd_info.description)
-                subparser.set_defaults(subcommand=cmd)
-                cmd.setup_argparser(subparser)
+                subparser.set_defaults(**{self._subcommand_slot_name() : cmd})
+                # Allow recursion - there can be a hierarchy of subcommands
+                assert cmd is not self, 'picked up myself as subcommand - check your name'
+                if cmd._has_subcommands():
+                    # that way, the new subcommand master will be able to 
+                    cmd._level = self._level + 1
+                    cmd.argparser(subparser)
+                else:
+                    cmd.setup_argparser(subparser)
+                # end handle arg initialization
             # end for each subcommand
         # end handle subcommands
         return parser
@@ -260,8 +279,9 @@ class CommandBase(ICommand, LazyMixin):
                 return self.ERROR
             # print usage if nothing was specified
             parsed_args, remaining_args = parser.parse_known_args(args)
-            if not (self.allow_unknown_args|(self._has_subcommands() and parsed_args.subcommand.allow_unknown_args)) and remaining_args:
-                print >> sys.stderr, "The following arguments could not be parsed: '%s'" % ' '.join(remaining_args)
+            if not (self.allow_unknown_args|(self._has_subcommands() and 
+                    getattr(parsed_args, self._subcommand_slot_name()).allow_unknown_args)) and remaining_args:
+                sys.stderr.write("The following arguments could not be parsed: '%s'\n" % ' '.join(remaining_args))
                 return self.ERROR
             # end handle remaining
             return self.execute(parsed_args, remaining_args)
@@ -274,7 +294,8 @@ class CommandBase(ICommand, LazyMixin):
             self.log().error(str(err))
             return self.ARGUMENT_ERROR
         except InputError, err:
-            (parsed_args.subcommand and parsed_args.subcommand.log() or self.log()).error(str(err))
+            cmd = getattr(parsed_args, self._subcommand_slot_name())
+            (cmd and cmd.log() or self.log()).error(str(err))
             return self.ARGUMENT_ERROR
         except (ArgumentError, ArgumentTypeError), err:
             parser.print_usage(sys.stderr)

@@ -66,23 +66,32 @@ def with_application(fun=None, **dkwargs):
         app = bapp.Application.new(**dkwargs)
 
         # Make sure the default context is inserted, if it doesn't have it
-        has_default_ctx = False
+        default_ctx = None
         for ctx in app.context().stack():
-            has_default_ctx = ctx.name() == bapp.Application.PRE_APPLICATION_CONTEXT_NAME
-            if has_default_ctx:
+            if ctx.name() == bapp.Application.PRE_APPLICATION_CONTEXT_NAME:
+                default_ctx = ctx
                 break
             # end context found
         # end find default context if possible
 
-        if not has_default_ctx:
+        if default_ctx is None and bapp.Application.Plugin.default_stack:
             # We have incredible knowledge about this implementation, and probably shouldn't use it !
             # We know there is a default 
-            app.context().stack().insert(1, bapp.Application.Plugin.default_stack)
+            assert len(bapp.Application.Plugin.default_stack) == 1
+            default_ctx = bapp.Application.Plugin.default_stack.stack()[0]
+            app.context().insert(0, default_ctx)
         # end 
 
         try:
             return fun(*args, **kwargs)
         finally:
+            # put the transferred and possibly existing default context back
+            if default_ctx:
+                # yes, it may be that it wasn't needed when we arrived here
+                assert len(bapp.Application.Plugin.default_stack) == 0
+                bapp.Application.Plugin.default_stack.push(default_ctx)
+            # end restore default context
+
             # we don't have to do anything with the default context, it will just remain in the origin
             bapp.Application.main = prev
         # end assure original application is put back
