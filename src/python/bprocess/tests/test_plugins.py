@@ -8,6 +8,8 @@
 """
 __all__ = []
 
+import os
+
 import bapp
 from be import BeCommand
 from bapp.tests import with_application
@@ -27,14 +29,23 @@ class PluginsTestCase(TestCaseBase):
     def test_launcher(self):
         # This makes sure we can resolve the configuration file. It's internal use only !
         go = LauncherBeSubCommand.name
+        go_exec = pseudo_executable(go)
         bapp.main().context().push(_ProcessControllerContext(go, 
-                                                             pseudo_executable(go),
+                                                             go_exec,
                                                              'doesntmatter', []))
         cmd = BeCommand(application=bapp.main()).parse_and_execute
 
         assert cmd([go]) == 0, 'empty program will just list executables'
         assert cmd([go, 'foo']) != 0, 'invalid names are an error'
-        assert cmd([go] + '--spawn py-program'.split()) == 0, 'can launch programs that exist for him'
+        # We are lazy here - instead of launching it through ProcessController.execute_in_current_context()
+        # we just set the CWD for it to pick up the correct configuration
+        cwd = os.getcwd()
+        try:
+            os.chdir(go_exec.dirname())
+            assert cmd([go] + '--spawn py-program'.split()) == 0, 'can launch programs that exist for him'
+        finally:
+            os.chdir(cwd)
+        # end cwd handling
 
 
 
