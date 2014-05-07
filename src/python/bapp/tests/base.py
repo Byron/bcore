@@ -45,6 +45,7 @@ def with_application(fun=None, **dkwargs):
     @param dkwargs are given to bapp.Application.new()
     @note you can use the custom parameter from_file=__file__ to append the given file to the settings_trees of
     the new application.
+    @note you may also specifiy the application type using the application_type kwargument
     It will also make sure the stack receives the initial types, which were gathered by the default context
     while there was no application"""
     if fun is None:
@@ -56,6 +57,7 @@ def with_application(fun=None, **dkwargs):
     @wraps(fun)
     def wrapper(*args, **kwargs):
         from_file = dkwargs.pop('from_file', None)
+        application_type = dkwargs.pop('application_type', bapp.Application)
         prev = bapp.Application.main
         if from_file:
             settings_trees = dkwargs.setdefault('settings_trees', list())
@@ -63,7 +65,7 @@ def with_application(fun=None, **dkwargs):
         # end handle arguments
         # never load user settings
         dkwargs['user_settings'] = False
-        app = bapp.Application.new(**dkwargs)
+        app = application_type.new(**dkwargs)
 
         # Make sure the default context is inserted, if it doesn't have it
         default_ctx = None
