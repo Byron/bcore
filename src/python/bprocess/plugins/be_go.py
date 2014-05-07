@@ -27,7 +27,7 @@ from bprocess import (PackageDataIteratorMixin,
 class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsClient, PackageDataIteratorMixin, 
                            bapp.plugin_type()):
     """A progam to launch arbitrary configured bprocess executables"""
-    __slots__ = ()
+    __slots__ = ('_parser')
 
     name = 'go'
     version = Version('0.1.0')
@@ -39,6 +39,19 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsClient, PackageDataI
 
     # Those are to be passed to the application
     allow_unknown_args = True
+
+    def setup_argparser(self, parser):
+        parser.add_argument('-s', '--spawn',
+                            action='store_true', 
+                            default=False,
+                            help='If set, the program will be launched as separate process')
+
+        self._parser = parser
+        # emulate usage - we are a bit more custom here
+        # NOTE: need to generate full name here - currently only known to parsers
+        parser.usage = '... %s [-s|--spawn] program [args]' % self.name
+        return self
+        
 
     def _executable_package_names(self):
         """@return a list of program names that are executable, based on our context
@@ -65,8 +78,13 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsClient, PackageDataI
         
     def execute(self, args, remaining_args):
         programs = self._executable_package_names()
+
+        if not programs:
+            raise InputError("No program configured for launch")
+        # end handle nothing there
+
         if not remaining_args:
-            sys.stdout.write('... %s program [args]\n\n' % self.name)
+            sys.stdout.write(self._parser.usage + '\n\n')
             sys.stdout.write('Please choose one of the following:\n\n')
             for name in programs:
                 sys.stdout.write(name + '\n')
@@ -74,20 +92,23 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsClient, PackageDataI
             return self.SUCCESS
         # end handle query mode
 
-        if not programs:
-            raise InputError("No program configured for launch")
-        # end handle nothing there
-
         program = remaining_args[0]
         if program not in programs:
             maybe_this_one = SpellingCorrector(programs).correct(program)
-            raise InputError("unknown program named '%s', did you mean '%s'" % (program, maybe_this_one))
+            did_you_mean = ''
+            if maybe_this_one != program:
+                did_you_mean = ", did you mean '%s'" % maybe_this_one
+            # end compose did you mean
+            raise InputError("unknown program named '%s'%s" % (program, did_you_mean))
         # end handle name
 
-        # This will never return, spawn is off (unless the delegate overrides it).
         # Also we let it build it's Context from scratch, and won't pass ours
         # It's important to pass the CWD as major context provider to the called program
-        process = ProcessController(program, remaining_args[1:], cwd = os.getcwd()).execute()
-
+        pctrl = ProcessController(program, remaining_args[1:], cwd = os.getcwd())
+        if args.spawn:
+            process = pctrl.execute_in_current_context()
+        else:
+            # This will possibly never return, spawn is off (unless the delegate overrides it)
+            process = pctrl.execute()
         # If the delegate wanted something else, we use the return code of the program
         return process.returncode
