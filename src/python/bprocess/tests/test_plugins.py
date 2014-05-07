@@ -16,9 +16,6 @@ from bapp.tests import with_application
 from butility.tests import TestCaseBase
 from butility import Path
 from .test_base import pseudo_executable
-
-# test import *
-from bprocess.plugins.be_go import *
 from bprocess.controller import _ProcessControllerContext
 
 
@@ -28,6 +25,10 @@ class PluginsTestCase(TestCaseBase):
     @with_application(from_file=__file__)
     def test_launcher(self):
         # This makes sure we can resolve the configuration file. It's internal use only !
+        # test import *
+        # Must be done here, otherwise we can 'loose' the plugin for our invocation due to 
+        # changing Application states
+        from bprocess.plugins.be_go import *
         go = LauncherBeSubCommand.name
         go_exec = pseudo_executable(go)
         bapp.main().context().push(_ProcessControllerContext(go, 
