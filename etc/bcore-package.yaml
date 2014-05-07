@@ -18,3 +18,10 @@ packages:
       prepend:
         - -m
         - be.cmd
+
+  # update-docs:
+  #   name: update-docs utility
+  #   require: bcore
+  #   description: |
+  #     rebuild docs using mkdocs in a development repository, using gh-pages
+  #   executable: src/bash/update-pages

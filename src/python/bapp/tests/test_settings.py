@@ -20,7 +20,7 @@ from bkvstore import (KeyValueStoreSchema,
                       RootKey)
 
 
-class TestSettingsClient(PersistentApplicationSettingsClient):
+class TestSettingsClient(PersistentApplicationSettingsMixin):
     """A client with a simple schema to test out its settings"""
     __slots__ = ('_settings_dir')
     

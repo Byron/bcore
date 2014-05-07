@@ -6,12 +6,12 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['PersistentSettings', 'PersistentApplicationSettingsClient']
+__all__ = ['PersistentSettings', 'PersistentApplicationSettingsMixin']
 
 from copy import deepcopy
 from bkvstore import (ChangeTrackingJSONKeyValueStoreModifier,
                       KeyValueStoreProvider)
-from .utility import ApplicationSettingsClient
+from .utility import ApplicationSettingsMixin
 from bdiff import (merge_data,
                    AutoResolveAdditiveMergeDelegate)
 from butility import (LazyMixin,
@@ -81,7 +81,7 @@ class PersistentSettings(ChangeTrackingJSONKeyValueStoreModifier):
 # end class PersistentSettings
 
 
-class PersistentApplicationSettingsClient(ApplicationSettingsClient, LazyMixin):
+class PersistentApplicationSettingsMixin(ApplicationSettingsMixin, LazyMixin):
     """A type that facilitates the use of settings data for reading and writing.
     
     It will read your information form the global context according to your schema, and provide simple
@@ -109,7 +109,7 @@ class PersistentApplicationSettingsClient(ApplicationSettingsClient, LazyMixin):
     # @{
     
     ## Your schema which is used to read data from the kvstore initially. It must be set, and is repeated
-    ## here just for documentation. See ApplicationSettingsClient for more information
+    ## here just for documentation. See ApplicationSettingsMixin for more information
     _schema = None
     
     ## -- End Subclass Configuration -- @}
@@ -128,7 +128,7 @@ class PersistentApplicationSettingsClient(ApplicationSettingsClient, LazyMixin):
         elif name == '_settings_kvstore':
             self._settings_kvstore = self.SettingsType(self._initial_settings_value(), self._settings_path())  
         else:
-            return super(PersistentApplicationSettingsClient, self)._set_cache_(name)
+            return super(PersistentApplicationSettingsMixin, self)._set_cache_(name)
         #end handle name
     
     # -------------------------
@@ -184,5 +184,5 @@ class PersistentApplicationSettingsClient(ApplicationSettingsClient, LazyMixin):
         
     ## -- End Interface -- @}
 
-# end class PersistentApplicationSettingsClient
+# end class PersistentApplicationSettingsMixin
 

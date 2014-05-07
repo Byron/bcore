@@ -12,7 +12,7 @@ import os
 import sys
 
 import bapp
-from bapp import ApplicationSettingsClient
+from bapp import ApplicationSettingsMixin
 from butility import (Version,
                       SpellingCorrector)
 from bcmd import InputError
@@ -24,7 +24,7 @@ from bprocess import (PackageDataIteratorMixin,
 
 
 
-class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsClient, PackageDataIteratorMixin, 
+class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIteratorMixin, 
                            bapp.plugin_type()):
     """A progam to launch arbitrary configured bprocess executables"""
     __slots__ = ('_parser')

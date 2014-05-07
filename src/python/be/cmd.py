@@ -8,7 +8,7 @@
 """
 __all__ = ['BeCommand', 'BeSubCommand']
 
-from bapp import ApplicationSettingsClient
+from bapp import ApplicationSettingsMixin
 from bkvstore import KeyValueStoreSchema
 from butility import Version
 from bcmd import (CommandBase,
@@ -34,7 +34,7 @@ def _init_schema(key, clsdict):
 
 
 
-class BeCommand(CommandBase, ApplicationSettingsClient):
+class BeCommand(CommandBase, ApplicationSettingsMixin):
     """Marries the 'be' framework with the command framework"""
     __slots__ = ()
 

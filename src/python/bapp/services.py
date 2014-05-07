@@ -15,7 +15,7 @@ import sys
 import bapp
 from butility import abstractmethod
 from bcontext import HierarchicalContext
-from .utility import ApplicationSettingsClient
+from .utility import ApplicationSettingsMixin
 
 from .interfaces import (IPlatformService,
                          IProjectService)
@@ -23,7 +23,7 @@ from .interfaces import (IPlatformService,
 from . import schema
 
 
-class PlatformServicesBase(IPlatformService, ApplicationSettingsClient, bapp.plugin_type()):
+class PlatformServicesBase(IPlatformService, ApplicationSettingsMixin, bapp.plugin_type()):
     """Base implementation for platform instances"""
     
     platform_names_map = HierarchicalContext.platform_names_map
@@ -169,7 +169,7 @@ class DirectoryServicesMixin(object):
 # end class DirectoryServicesMixin
 
 
-class ProjectInformation(DirectoryServicesMixin, IProjectService, ApplicationSettingsClient):
+class ProjectInformation(DirectoryServicesMixin, IProjectService, ApplicationSettingsMixin):
     """Implements the project information interface, using the kvstore exclusively"""
     __slots__ = ()
 

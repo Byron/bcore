@@ -6,10 +6,10 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ContextPropertyDescriptor', 'PropertyApplicationSettingsClientMeta',
-           'PropertyApplicationSettingsClient', 'CompoundPropertyDescriptor']
+__all__ = ['ContextPropertyDescriptor', 'PropertyApplicationSettingsMixinMeta',
+           'PropertyApplicationSettingsMixin', 'CompoundPropertyDescriptor']
 
-from bapp.utility import ApplicationSettingsClient
+from bapp.utility import ApplicationSettingsMixin
 
 from bkvstore import ( KeyValueStoreSchema,
                        RootKey )
@@ -73,7 +73,7 @@ class ContextPropertyDescriptor(PropertyDescriptor):
 # end class ContextPropertyDescriptor
 
 
-class PropertyApplicationSettingsClientMeta(PropertySchemaMeta):
+class PropertyApplicationSettingsMixinMeta(PropertySchemaMeta):
     """A meta-class to automatically assemble a simplified schema from ContextDescriptors"""
     __slots__ = ()
     
@@ -95,13 +95,13 @@ class PropertyApplicationSettingsClientMeta(PropertySchemaMeta):
 # end class Property
 
 
-class PropertyApplicationSettingsClient(ApplicationSettingsClient):
+class PropertyApplicationSettingsMixin(ApplicationSettingsMixin):
     """A context client to more easily accss context values, read-only"""
     __slots__ = (
                     '_settings_value_cache', # An optional cache for our context value, 
                 )
     
-    __metaclass__ = PropertyApplicationSettingsClientMeta
+    __metaclass__ = PropertyApplicationSettingsMixinMeta
     _schema_attribute = '_schema'
     
     
@@ -146,6 +146,6 @@ class PropertyApplicationSettingsClient(ApplicationSettingsClient):
         
     ## -- End Context Value Caching -- @}
 
-# end class PropertyApplicationSettingsClient
+# end class PropertyApplicationSettingsMixin
 
 

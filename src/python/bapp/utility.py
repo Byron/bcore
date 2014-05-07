@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ApplicationSettingsClient', 'LogConfigurator', 'StackAwareHierarchicalContext']
+__all__ = ['ApplicationSettingsMixin', 'LogConfigurator', 'StackAwareHierarchicalContext']
 
 import os
 import warnings
@@ -28,8 +28,8 @@ import bapp
 # ------------------------------------------------------------------------------
 ## @{
 
-class ApplicationSettingsClient(object):
-    """Base implementation to allow anyone to safely use the context of the global Context stack.
+class ApplicationSettingsMixin(object):
+    """A mixin to allow anyone to safely use the context of the global Context stack.
     Everyone using the global context should derive from it to facilitate context usage and to allow the 
     ContextStack to verify its data.
     
@@ -62,7 +62,7 @@ class ApplicationSettingsClient(object):
         return (context or bapp.main().context().settings()).value_by_schema(cls.settings_schema(), resolve=resolve)
 
 
-# end class ApplicationSettingsClient
+# end class ApplicationSettingsMixin
 
 
 class StackAwareHierarchicalContext(HierarchicalContext):
@@ -135,7 +135,7 @@ class _KVStoreLoggingVerbosity(object):
 # end class _KVStoreLoggingVerbosity
 
 
-class LogConfigurator(ApplicationSettingsClient):
+class LogConfigurator(ApplicationSettingsMixin):
     """Implements the ILog interface and allows to initialize the logging system using context configuration"""
     __slots__ = ()
     

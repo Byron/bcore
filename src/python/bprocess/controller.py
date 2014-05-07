@@ -30,7 +30,7 @@ from butility import ( Path,
 from bcontext import Context
 from bkvstore import KeyValueStoreModifier
 from bapp import         ( Application,
-                           ApplicationSettingsClient,
+                           ApplicationSettingsMixin,
                            StackAwareHierarchicalContext,
                            OSContext)
 from .delegates import ( ControlledProcessInformation,
@@ -139,7 +139,7 @@ def by_existing_dirs_and_files(fs_items):
 ## -- End Utilities -- @}
 
 
-class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient):
+class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
     """The main interface to deal with \ref processcontrol "Process Control" .
     
     It allows to control the environment in which processes are executed, as well as to alter their input 
