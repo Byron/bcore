@@ -45,7 +45,8 @@ def with_application(fun=None, **dkwargs):
     @param dkwargs are given to bapp.Application.new()
     @note you can use the custom parameter from_file=__file__ to append the given file to the settings_trees of
     the new application.
-    @note you may also specifiy the application type using the application_type kwargument
+    @note you may also specifiy the application type using the application_type kwargument. It should not definitely
+    not load the ProcessEnvironment, in case this process is already wrapped.
     It will also make sure the stack receives the initial types, which were gathered by the default context
     while there was no application"""
     if fun is None:

@@ -189,7 +189,7 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         except root_module.DisplayHelpException, err:
             sys.stderr.write(err.help_string)
         except root_module.DisplayContextException:
-            sys.stderr.write(controller.application().context()._contents_str())
+            sys.stderr.write(controller.application().context().pformat())
         except root_module.DisplaySettingsException:
             sys.stderr.write(str(controller.application().context().settings().data()))
         except root_module.DisplayLoadedYamlException:
@@ -202,7 +202,7 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
             # end for each environment
         except Exception, err:
             if controller.is_debug_mode():
-                # sys.stderr.write(controller.application().context()._contents_str())
+                # sys.stderr.write(controller.application().context().pformat())
                 sys.stderr.write("AN UNHANDLED EXCEPTION OCCURRED WHEN TRYING TO LAUNCH PROGRAM\n")
                 print "Controller-Delegate: ", controller.delegate()
                 raise
