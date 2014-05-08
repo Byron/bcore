@@ -869,6 +869,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
             # else a simple key-value pair 
             debug = dict()
             cwd_handled = False # Will be True if a package altered the current working dir
+            
+            normpath = lambda p: pm.environment.normalize_paths and p.normpath() or p
             for package_name, depth in self._iter_(program, self.upstream, self.breadth_first):
                 log.debug("Using package '%s'", package_name)
                 # save this one call ... 
@@ -926,6 +928,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
                         # end 
                         path = delegate.verify_path(evar, package.to_abs_path(path))
                         if path is not None:
+                            path = normpath(path)
                             debug.setdefault(evar, list()).append((str(path), package_name))
                             update_env_path(evar, path, append = True, environment = self._environ)
                         # end append path if possible
@@ -950,6 +953,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
                         # end prepare path's value
                         
                         if evar_is_path and delegate.variable_is_appendable(evar, value):
+                            value = normpath(value)
                             debug.setdefault(evar, list()).append((str(value), package_name))
                             update_env_path(evar, value, append = True, environment = self._environ)
                         else:

@@ -20,6 +20,8 @@ from be import BeSubCommand
 from bprocess import (PackageDataIteratorMixin,
                       ProcessController,
                       package_schema)
+import bprocess
+from bprocess.bootstrap import Bootstrapper
 
 
 
@@ -106,9 +108,14 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIt
         # It's important to pass the CWD as major context provider to the called program
         pctrl = ProcessController(program, remaining_args[1:], cwd = os.getcwd())
         if args.spawn:
-            process = pctrl.execute_in_current_context()
+            process = Bootstrapper.handle_controller_call(bprocess, pctrl, pctrl.execute_in_current_context)
         else:
             # This will possibly never return, spawn is off (unless the delegate overrides it)
-            process = pctrl.execute()
+            process = Bootstrapper.handle_controller_call(bprocess, pctrl, pctrl.execute)
         # If the delegate wanted something else, we use the return code of the program
+        
+        if process is None:
+            return self.ERROR
+        # end 
+
         return process.returncode
