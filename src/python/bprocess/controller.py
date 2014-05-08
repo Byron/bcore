@@ -553,6 +553,25 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
         # Finally, just return the default one. We assume it's just the standard one ProcessController
         return ProcessControllerDelegate(self._app)
 
+    @classmethod
+    def _parse_value(cls, string):
+        """@return the actual numeric instance the value string represents"""
+        if string in ('on', 'yes', 'true', 'True'):
+            return True
+        if string in ('off', 'no', 'false', 'False'):
+            return False
+        for numtype in (long, float):
+            try:
+                val = numtype(string)
+                if val != float(string):
+                    continue
+                return val
+            except (ValueError,TypeError):
+                continue
+            # end ignore type errors
+        # end for each numeric type
+        return string
+
     def _handle_arguments(self, args):
         """Parse args for those that can be understood by us, and return a new list with all the args 
         we didn't consume.
@@ -607,7 +626,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
                 # interpret argument as key in context
                 key_value = arg
                 assert len(key_value) > 2 and self.wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
-                kvstore_overrides.set_value(*key_value.split(self.wrapper_arg_kvsep))
+                k, v = key_value.split(self.wrapper_arg_kvsep)
+                kvstore_overrides.set_value(k, self._parse_value(v))
                 log.debug("CONTEXT VALUE OVERRIDE: %s", key_value)
             elif arg == 'debug-context':
                 # Just ignore these, they are handled elsewhere
@@ -869,7 +889,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
             # else a simple key-value pair 
             debug = dict()
             cwd_handled = False # Will be True if a package altered the current working dir
-            
+
             normpath = lambda p: pm.environment.normalize_paths and p.normpath() or p
             for package_name, depth in self._iter_(program, self.upstream, self.breadth_first):
                 log.debug("Using package '%s'", package_name)
