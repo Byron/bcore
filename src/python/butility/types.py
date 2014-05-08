@@ -518,20 +518,23 @@ class OrderedDict(dict, DictMixin):
     itervalues = DictMixin.itervalues
     iteritems = DictMixin.iteritems
 
-    def __str__(self, indent=1):
+    def __str__(self):
+        return self.__unicode__().encode('utf-8')
+
+    def __unicode__(self, indent=1):
         indent_str = '    '*indent
-        ret_str = "\n"
+        ret_str = u"\n"
         for key, value in self.iteritems():
             if isinstance(value, OrderedDict):
-                ret_str += "%s%s: %s" % (indent_str, key, value.__str__(indent=indent+1))
+                ret_str += u"%s%s: %s" % (indent_str, key, value.__unicode__(indent=indent+1))
             elif isinstance(value, (tuple, list)):
                 # for now, without recursion, assuming simple scalar values
-                ret_str += "%s%s:\n" % (indent_str, key)
+                ret_str += u"%s%s:\n" % (indent_str, key)
                 for item in value:
-                    ret_str += "%s - %s\n" % (indent_str, item)
+                    ret_str += u"%s - %s\n" % (indent_str, item)
                 # end for each item
             else:
-                ret_str += "%s%s: %s\n" % (indent_str, key, str(value))
+                ret_str += u"%s%s: %s\n" % (indent_str, key, unicode(value))
             # end handle value type
         # end for each item in dict
         return ret_str
