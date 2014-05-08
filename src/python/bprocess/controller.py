@@ -560,16 +560,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
             return True
         if string in ('off', 'no', 'false', 'False'):
             return False
-        for numtype in (long, float):
-            try:
-                val = numtype(string)
-                if val != float(string):
-                    continue
-                return val
-            except (ValueError,TypeError):
-                continue
-            # end ignore type errors
-        # end for each numeric type
+        
+        # more conversions are not required, as they are handled by the schema
         return string
 
     def _handle_arguments(self, args):
