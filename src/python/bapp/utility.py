@@ -159,8 +159,9 @@ class LogConfigurator(ApplicationSettingsMixin):
     ## -- End Configuration -- @}
     
     @classmethod
-    def initialize(cls):
+    def initialize(cls, verbosity=None):
         """Initialize the logging system using the information provided by the context
+        @param verbosity may be a logging.LEVEL value, which will override anything that is set elsewhere.
         @note at some point we might want to implement a more sophisticated yaml based log initialization"""
         # definition of possible overrides (i.e. which configuration file to use)
         value = cls.settings_value()
@@ -197,7 +198,7 @@ class LogConfigurator(ApplicationSettingsMixin):
         #end create configuration if not yet set
     
         log = logging.root
-        log.setLevel(value.verbosity.level)
+        log.setLevel(verbosity or value.verbosity.level)
         
         # Setup logfile
         if value.logdir:

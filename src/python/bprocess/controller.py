@@ -32,7 +32,8 @@ from bkvstore import KeyValueStoreModifier
 from bapp import         ( Application,
                            ApplicationSettingsMixin,
                            StackAwareHierarchicalContext,
-                           OSContext)
+                           OSContext,
+                           LogConfigurator)
 from .delegates import ( ControlledProcessInformation,
                          ProcessControllerDelegateProxy,
                          ProcessControllerDelegate )
@@ -170,6 +171,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
                     '_dry_run',           # if True, we will not actually spawn the application,
                     '_package_data_cache',# intermediate data cache, to reduce overhead during iteration
                     '_resolve_args',      # if True, we will resolve arguments in some way
+                    '_logging_override',  # log level we parsed from the commandline, or None
                     '_debug_mode',        # a flag to indicate we are in debug mode
                     '_next_exception'     # type of exception to throw if something goes wrong during preparation
                 )
@@ -302,6 +304,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
         self._resolve_args = False
         self._next_exception = None
         self._debug_mode = False
+        self._logging_override = None
         # NOTE: We can't set the _app attribute right away, as we rely on lazy mechanisms to initialize ourselves
         # when needed. The latter wouldn't work if we set the attribute directly
         self._prebuilt_app = application
@@ -595,7 +598,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
             elif arg == 'dry-run':
                 self._dry_run = True
             elif arg in self.wrapper_logging_levels:
-                set_log_level(logging.root, getattr(logging, arg.upper()))
+                self._logging_override = getattr(logging, arg.upper())
+                set_log_level(logging.root, self._logging_override)
                 if arg == 'debug':
                     self._debug_mode = True
                 # end set state
@@ -694,9 +698,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
             self._app = app = self._prebuilt_app
         else:
             self._app = app = self.ApplicationType.new(
-                                    settings_trees=self._filter_application_directories((bootstrap_dir, self._cwd)),
-                                                          settings_hierarchy=self.traverse_process_path_hierachy,
-                                                          user_settings=self.load_user_settings)
+                                    settings_trees=   self._filter_application_directories((bootstrap_dir, 
+                                                      self._cwd)),
+                                                      settings_hierarchy=self.traverse_process_path_hierachy,
+                                                      user_settings=self.load_user_settings,
+                                                      setup_logging=False)
         # end initialize application
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, orig_args))
 
@@ -704,6 +710,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
         if overrides_context:
             app.context().push(overrides_context)
         # end add context prior to delegate work
+
+        # now setup the logging - we delay it as much as possible, as we want the overrides to catch on
+        # We restore the logging level if there is an override set on the commandline (for process control)
+        LogConfigurator.initialize(self._logging_override)
 
         # Add global package manager settings. We put it onto the stack right away, as this allows others 
         # to offload their program configuraiton to a seemingly unrelated location
