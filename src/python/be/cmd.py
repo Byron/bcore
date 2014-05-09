@@ -6,25 +6,35 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['BeCommand', 'BeCommandMixin']
+__all__ = ['BeCommand', 'BeSubCommand']
 
+from bapp import ApplicationSettingsMixin
+from bkvstore import KeyValueStoreSchema
 from butility import Version
-from bcmd import CommandBase
+from bcmd import (CommandBase,
+                  SubCommandBase)
 
 
-class BeCommandMixin(object):
-    """A mixin for use in a CommandBase compatible type.
+# ==============================================================================
+## @name Utilities
+# ------------------------------------------------------------------------------
+## @{
 
-    It implements all the functionality of the 'be' command framework.
-    """
-    __slots__ = ()
+def _init_schema(key, clsdict):
+    """Initialize our schema, the given key as root key.
+    In case you derive from BeCommand, you might want to store your configuration elsewhere.
+    @param key name of the root key at which to place settings, like 'be' , or 'foo'.
+    @param clsdict your classes locals, call locals() from the body of your class
+    @return the new schema, usually assigned to _schema class member"""
+    return KeyValueStoreSchema('be', {   'name' : key,
+                                         'version' : clsdict['version'],
+                                         'description' : clsdict['description']})
 
-    
-
-# end class BeCommandMixin
+## -- End Utilities -- @}
 
 
-class BeCommand(BeCommandMixin, CommandBase):
+
+class BeCommand(CommandBase, ApplicationSettingsMixin):
     """Marries the 'be' framework with the command framework"""
     __slots__ = ()
 
@@ -44,7 +54,57 @@ class BeCommand(BeCommandMixin, CommandBase):
     
     ## -- End Configuration -- @}
 
+
+    # NOTE: If your derived type overrides the name to get a different space in the kvstore, you need an
+    # adjusted SubCommandBase.main_command
+    _schema = _init_schema(name, locals())
+
+    # -------------------------
+    ## @name Overrides
+    # @{
+
+    def info_data(self):
+        """Obtains the name and other information from the settings"""
+        return self.settings_value(self.application().context().settings())
+    
+    ## -- End Overrides -- @}
+
+
 # end class BeCommand
+
+
+class BeSubCommand(SubCommandBase):
+    """Your custom subcomand should derive from this type to facilitate becoming a be-subcommand 
+    that will be loaded automatically.
+
+    Additionally, derive form bapp.plugin_type().
+    """
+    __slots__ = ()
+
+    # -------------------------
+    ## @name Configuration
+    # @{
+
+    main_command = BeCommand
+
+    ## -- End Configuration -- @}
+
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
+
+    @classmethod
+    def _main_command_name(cls):
+        """@return the name of our main command"""
+        return cls.main_command.settings_value().name
+    
+    ## -- End Subclass Interface -- @}
+
+    def is_compatible(self, command):
+        """@return We will always be compatible to the be-command, based on the configuration"""
+        return command.info_data().name == self._main_command_name()
+
+# end class BeSubCommand
 
 
 if __name__ == '__main__':

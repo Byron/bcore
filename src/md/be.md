@@ -10,3 +10,9 @@ As *graphical environments* are fundamental different in requirements from a sta
 
 The default UCT should be launched through the standard python interpreter, yet it must be trivially easy to make it launch through another interpreter.
 
+
+# FEATURES (DRAFT)
+
+* configure all aspects of it in the settings 
+* sub-commands can have their own subcommands, and use the plugin system/base implementation to deal with it. That way (applause), you can take a previous main command, and make it a sub-command, therefore combine multiple commands into one if you are inclined to do so.
+* thanks to be, departments can write a plugin that integrates their own subcommand into `be`, but only if they are within their own department context. That way, not everyone will see custom tools, whereas departments still get to see their own stuff through the company's main command. However, this would mean they have their own assembly, which could easily be the case for IT for instance.

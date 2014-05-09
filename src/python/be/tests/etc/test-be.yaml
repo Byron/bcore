@@ -1,0 +1,6 @@
+be:
+  name: new-name
+  version: '1.0.0'
+  description: |
+    This command can be configured via yaml, freely, as it is just a plugin system
+    that can become pretty much anything.

@@ -140,6 +140,7 @@ else:
 package_manager_schema = KeyValueStoreSchema('package-manager', 
                                                     {'include' : PathList,
                                                      'environment' : {
+                                                        'normalize_paths' : False,
                                                         'variables' : {
                                                           'inherit' : StringList(_inherit_evars),
                                                           'regex' : {
@@ -151,71 +152,37 @@ package_manager_schema = KeyValueStoreSchema('package-manager',
                                                        }# end environment
                                                     })
 
-package_schema = KeyValueStoreSchema(AnyKey,            # Path to the root of the package. All relative paths will be 
-                                                        # made absolute with the first valid root path
+# see bpackage.sublime-snippet for docs.
+# UPDATE IT WHENEVER YOU MODIFY THIS SCHEMA !
+package_schema = KeyValueStoreSchema(AnyKey,            
                                                         { 'trees' : KVPathList,
-                                                         # absolute or relative path to the executable    
                                                           'executable' : Path,
-                                                          # Path to the current working directory of the process
-                                                          # This will not affect the current working dir set for 
-                                                          # setting up the configuration
                                                           'cwd' : Path,
-                                                          # We are explicit about our delegate type, so this needs to be overridden
                                                           'delegate' : NamedServiceProcessControllerDelegate('ProcessControllerDelegate'),
-                                                          # A list of packages that we depend on, and whose 
-                                                          # configuration we will need
                                                           'requires' : StringList,
-                                                          # A list of packages not to consider in our requirements
-                                                          # only used when building the process environment
                                                           'ignore' : StringList,
-                                                          # An alias to the package which provides the executable of our program.
-                                                          # The delegate may be overridden here, and all 
-                                                          # all environment variables
                                                           'alias' : str,
-                                                          # The python configuration only at boot time (using the bootstrapper)
                                                           'boot' : {
-                                                            # The sys.paths to set in order to allow imports
                                                             'python_paths' : PathList,
-                                                            # A list of modules which are to be imported
                                                             'import' : StringList,
-                                                            # A list of paths to directories and files from which all python files should be loaded non-recursively
-                                                            # May also be a python file to be executed
                                                             'plugin_paths' : PathList,
                                                           },
                                                           'version' : Version(),
-                                                          # Allows to specify additional configuration 
-                                                          # that we have to pull in. It affects the bootstrapper
-                                                          # as well as the launched process
                                                           'include': PathList,
                                                           'arguments' : {
-                                                              # Arguments to append
                                                               'append' : StringList,
-                                                              # arguments to prepend
                                                               'prepend' : StringList,
-                                                              # if True, we will substitute environment variables
-                                                              # The first encountered True value will enable it
                                                               'resolve' : False
                                                           },
-                                                          # tractor specific information
                                                           'environment' : {
-                                                              # If True, the entire environment will be inherited. 
-                                                              # Otherwise the process will build its environment from 
-                                                              # scratch.
                                                               'inherit' : False,
-                                                              # if True, environment variables specified here
-                                                              # will be substituted automatically
                                                               'resolve' : False,
                                                               'linker_search_paths' : PathList,
                                                               'executable_search_paths' : PathList,
-                                                              # Environment Variables we are to set
                                                               'variables' : {
                                                                 AnyKey : StringList
                                                               }
                                                            },
-                                                        # a list of keys into the package actions
-                                                        # Dictionary. It is accessed using a variable schema
-                                                        # depending on the type of action.
-                                                        # Specified using type.name
                                                         'actions' : StringList
                                                         }
                                                     )

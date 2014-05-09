@@ -35,8 +35,8 @@ class ICommand(InterfaceBase):
     # @{
     
     @abstractmethod
-    def info(self):
-        """@return KeyValueStoreProvider with information matching ICommand.info_schema"""
+    def info_data(self):
+        """@return DictObject with information matching ICommand.info_schema"""
     
     @abstractmethod
     def setup_argparser(self, argparser):

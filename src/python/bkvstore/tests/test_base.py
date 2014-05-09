@@ -274,6 +274,10 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                                                 'version_resolver' : str(),
                                                 'name_recursive' : str(),
                                                 'version_autoresolve' : int(),
+                                                'unset_path' : Path,
+                                                'empty_path' : Path,
+                                                'nested' :
+                                                    { 'unset_path' : Path },
                                                 'root_path' : { 'repository' : 'default',
                                                                 'base' : str,
                                                                 'unresolvable' : '',
@@ -304,6 +308,7 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
                                         # It's a key-feature
                                         'version_autoresolve' : '{site.version.major}',
                                         'version' : '2.5.6',
+                                        'empty_path' : '',
                                         'root_path' : 
                                             OrderedDict({ 'repository' : None,
                                                         'base' : root,
@@ -334,6 +339,9 @@ class TestKeyValueStoreProvider(TestConfigurationBase):
         assert len(value.root_path.paths) == 2
         assert isinstance(value.root_path.paths[0], Path)
         assert isinstance(value.root_path.paths[1], Path)
+        assert isinstance(value.unset_path, Path), "unset values must be provided as desired type"
+        assert isinstance(value.empty_path, Path), "null or empty values must be converted"
+        assert isinstance(value.nested.unset_path, Path), 'unset nested values must end up in the desired type'
         
         # simple resolution
         resolved_path = value.root_path.software.format(**data)

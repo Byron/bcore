@@ -30,9 +30,10 @@ from butility import ( Path,
 from bcontext import Context
 from bkvstore import KeyValueStoreModifier
 from bapp import         ( Application,
-                           ApplicationSettingsClient,
+                           ApplicationSettingsMixin,
                            StackAwareHierarchicalContext,
-                           OSContext)
+                           OSContext,
+                           LogConfigurator)
 from .delegates import ( ControlledProcessInformation,
                          ProcessControllerDelegateProxy,
                          ProcessControllerDelegate )
@@ -139,7 +140,7 @@ def by_existing_dirs_and_files(fs_items):
 ## -- End Utilities -- @}
 
 
-class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient):
+class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
     """The main interface to deal with \ref processcontrol "Process Control" .
     
     It allows to control the environment in which processes are executed, as well as to alter their input 
@@ -170,6 +171,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                     '_dry_run',           # if True, we will not actually spawn the application,
                     '_package_data_cache',# intermediate data cache, to reduce overhead during iteration
                     '_resolve_args',      # if True, we will resolve arguments in some way
+                    '_logging_override',  # log level we parsed from the commandline, or None
                     '_debug_mode',        # a flag to indicate we are in debug mode
                     '_next_exception'     # type of exception to throw if something goes wrong during preparation
                 )
@@ -302,6 +304,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         self._resolve_args = False
         self._next_exception = None
         self._debug_mode = False
+        self._logging_override = None
         # NOTE: We can't set the _app attribute right away, as we rely on lazy mechanisms to initialize ourselves
         # when needed. The latter wouldn't work if we set the attribute directly
         self._prebuilt_app = application
@@ -550,6 +553,17 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         # Finally, just return the default one. We assume it's just the standard one ProcessController
         return ProcessControllerDelegate(self._app)
 
+    @classmethod
+    def _parse_value(cls, string):
+        """@return the actual numeric instance the value string represents"""
+        if string in ('on', 'yes', 'true', 'True'):
+            return True
+        if string in ('off', 'no', 'false', 'False'):
+            return False
+        
+        # more conversions are not required, as they are handled by the schema
+        return string
+
     def _handle_arguments(self, args):
         """Parse args for those that can be understood by us, and return a new list with all the args 
         we didn't consume.
@@ -595,7 +609,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             elif arg == 'dry-run':
                 self._dry_run = True
             elif arg in self.wrapper_logging_levels:
-                set_log_level(logging.root, getattr(logging, arg.upper()))
+                self._logging_override = getattr(logging, arg.upper())
+                set_log_level(logging.root, self._logging_override)
                 if arg == 'debug':
                     self._debug_mode = True
                 # end set state
@@ -603,7 +618,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                 # interpret argument as key in context
                 key_value = arg
                 assert len(key_value) > 2 and self.wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
-                kvstore_overrides.set_value(*key_value.split(self.wrapper_arg_kvsep))
+                k, v = key_value.split(self.wrapper_arg_kvsep)
+                kvstore_overrides.set_value(k, self._parse_value(v))
                 log.debug("CONTEXT VALUE OVERRIDE: %s", key_value)
             elif arg == 'debug-context':
                 # Just ignore these, they are handled elsewhere
@@ -638,6 +654,20 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
 
         return res, cwd, ctx
         
+    @classmethod
+    def _resolve_package_alias(cls, package, fpackage_by_name):
+        """@return alias_package for the given package. alias_package may be package
+        @param fpackage_by_name f(n) -> ProcessControllerPackageSpecification for n"""
+        # recursively resolve the alias
+        seen = set()
+        while package.data().alias:
+            if package.data().alias in seen:
+                raise AssertionError("hit loop at '%s' when trying to resolve %s" % (package.data().alias, ', '.join(seen)))
+            # end raise assertion
+            seen.add(package.data().alias)
+            package = fpackage_by_name(package.data().alias)
+        # end handle alias executable
+        return package
         
     def _setup_execution_context(self):
         """Initialize the context in which the process will be executed to the point right before it will actually
@@ -651,17 +681,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         @return self
         """
         def root_package_and_executable_provider():
-            root_package = alias_package = self._package(program)
-            # recursively resolve the alias
-            seen = set()
-            while alias_package.data().alias:
-                if alias_package.data().alias in seen:
-                    raise AssertionError("hit loop at '%s' when trying to resolve %s" % (alias_package.data().alias, ', '.join(seen)))
-                # end raise assertion
-                seen.add(alias_package.data().alias)
-                alias_package = self._package(alias_package.data().alias)
-            # end handle alias executable
-            return root_package, alias_package
+            root_package = self._package(program)
+            return root_package, self._resolve_package_alias(root_package, self._package)
         # end utility
         
         # Setup Environment according to Executable Dir and CWD
@@ -689,9 +710,11 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             self._app = app = self._prebuilt_app
         else:
             self._app = app = self.ApplicationType.new(
-                                    settings_trees=self._filter_application_directories((bootstrap_dir, self._cwd)),
-                                                          settings_hierarchy=self.traverse_process_path_hierachy,
-                                                          user_settings=self.load_user_settings)
+                                    settings_trees=   self._filter_application_directories((bootstrap_dir, 
+                                                      self._cwd)),
+                                                      settings_hierarchy=self.traverse_process_path_hierachy,
+                                                      user_settings=self.load_user_settings,
+                                                      setup_logging=False)
         # end initialize application
         app.context().push(_ProcessControllerContext(program, self._boot_executable, bootstrap_dir, orig_args))
 
@@ -699,6 +722,10 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
         if overrides_context:
             app.context().push(overrides_context)
         # end add context prior to delegate work
+
+        # now setup the logging - we delay it as much as possible, as we want the overrides to catch on
+        # We restore the logging level if there is an override set on the commandline (for process control)
+        LogConfigurator.initialize(self._logging_override)
 
         # Add global package manager settings. We put it onto the stack right away, as this allows others 
         # to offload their program configuraiton to a seemingly unrelated location
@@ -854,6 +881,8 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
             # else a simple key-value pair 
             debug = dict()
             cwd_handled = False # Will be True if a package altered the current working dir
+
+            normpath = lambda p: pm.environment.normalize_paths and p.normpath() or p
             for package_name, depth in self._iter_(program, self.upstream, self.breadth_first):
                 log.debug("Using package '%s'", package_name)
                 # save this one call ... 
@@ -911,6 +940,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                         # end 
                         path = delegate.verify_path(evar, package.to_abs_path(path))
                         if path is not None:
+                            path = normpath(path)
                             debug.setdefault(evar, list()).append((str(path), package_name))
                             update_env_path(evar, path, append = True, environment = self._environ)
                         # end append path if possible
@@ -935,6 +965,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsClient)
                         # end prepare path's value
                         
                         if evar_is_path and delegate.variable_is_appendable(evar, value):
+                            value = normpath(value)
                             debug.setdefault(evar, list()).append((str(value), package_name))
                             update_env_path(evar, value, append = True, environment = self._environ)
                         else:

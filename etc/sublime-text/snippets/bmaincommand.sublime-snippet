@@ -1,0 +1,49 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+from butility import Version
+from bcmd import CommandBase
+
+__all__ = ['${1}Command']
+
+class ${1:Name}Command(CommandBase):
+    """${2:todo description}"""
+    __slots__ = ()
+
+    name = '${3:name}'
+    version = Version('${4:0.1.0}')
+    description = '${5:one line description for commandline}'
+
+    # If true, the argument parsing will not fail if some arguments are not understood
+    allow_unknown_args = False
+
+    # The base implementation will create an Application instance by default.
+    # If you require a custom one, you may override the instantiated type here.
+    # ApplicationType = MyCustomProcessAwareApplication
+
+    
+    def setup_argparser(self, parser):
+        ${0:now setup your arguments and implement execute()}
+        # parser.add_argument('-v', '--verbose',
+        #                     action='store_true', 
+        #                     default=False, 
+        #                     dest='verbosity',
+        #                     help='enable verbose mode')
+        return self
+
+
+    def execute(self, args, remaining_args):
+        """Use the args namespace and possibly remaining args (see allow_unknown_args) to perform your operation.
+        @return one of self.(SUCESS|ERROR|IO_ERROR)"""
+        self.log().info("hello world")
+        return self.ERROR
+
+# end class ${1}Command
+
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>bmaincommand</tabTrigger>
+  <description>a command without subcommands</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.python</scope>
+</snippet>

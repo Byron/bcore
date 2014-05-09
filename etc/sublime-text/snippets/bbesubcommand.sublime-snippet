@@ -1,0 +1,36 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+import bapp
+from butility import Version
+from be import BeSubCommand
+
+
+class ${1:Name}BeSubCommand(BeSubCommand, bapp.plugin_type()):
+    """${2:@todo: description}"""
+    __slots__ = ()
+
+    name = '${3:name}'
+    version = Version('${4:0.1.0}')
+    description = "${5:description}"
+
+    def setup_argparser(self, parser):
+        """Setup your flags using argparse"""
+        # parser.add_argument('-v', '--verbose',
+        #                     action='store_true', 
+        #                     default=False, 
+        #                     dest='verbosity',
+        #                     help='enable verbose mode')
+        return self
+
+    def execute(self, args, remaining_args):
+        $0raise NotImplementedError('tbd')
+        return self.SUCCESS
+
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>bbesubcommand</tabTrigger>
+  <description>a new SubCommand for the 'be' UCT</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.python</scope>
+</snippet>

@@ -16,7 +16,7 @@ from .schema import ( process_schema,
 from .utility import (FlatteningPackageDataIteratorMixin,
                       PythonPackageIterator,
                       CommandlineOverridesContext)
-from bapp import ( ApplicationSettingsClient,
+from bapp import ( ApplicationSettingsMixin,
                    IContextController,
                    StackAwareHierarchicalContext )
 from bkvstore import ( KeyValueStoreSchema,
@@ -46,7 +46,7 @@ class ProcessConfigurationIncompatibleError(IContextController.ContextIncompatib
 # end class ProcessConfigurationIncompatibleError
 
 
-class ProcessControlContextControllerBase(IContextController, ApplicationSettingsClient,
+class ProcessControlContextControllerBase(IContextController, ApplicationSettingsMixin,
                                           FlatteningPackageDataIteratorMixin, bapp.plugin_type()):
     """Basic implementation which uses the basic ProcessController implementation to implement 
     simple context tracking for the _before_scene_save() as well as 

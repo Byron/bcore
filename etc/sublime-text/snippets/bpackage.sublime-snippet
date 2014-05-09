@@ -1,0 +1,99 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+# packages:
+  ${1:package-id}:
+
+
+    name: ${2:Long Name of Package for User Interfaces}
+    description: |
+      ${3:Single or multi-line description of the packages purpose for user interfaces}
+    url: https://vendor/product
+    version: '${4:1.0.0}' # optional, unless you use it in a path
+    ${0:# Unless specified differently, the values below are optional
+    # To use this template, delete all comments and all values you don't set}
+
+    # one or more directories at which the package can be found.
+    # If you are a library, leave it out to allows others to relocate your package
+    trees:
+      - /local/path/to/package@{packages.$1.version.major}.{packages.$1.version.minor}
+      - 'c:\path\to\package'      # multi-platforms can be specified as well
+      - /shared/path/to/package
+    # absolute or relative path to the executable, if there is one
+    executable: 'relative/path/to/executable'
+    # An alias to the package which provides the executable of your program.
+    # This allows to use interpreters for scripts for example
+    alias: python
+    # Path to the current working directory of the process
+    # This will not affect the current working dir set for 
+    # setting up the configuration
+    cwd: '/path/to/cwd'
+    # optional delegate to use. A delegate is a python script to alter the way the executable is launched
+    delegate: ProcessControllerDelegate
+    # A list of packages that we depend on, and whose configuration we will need
+    requires:
+      - package-1
+      - package-2
+    # A list of packages not to consider in our requirements.
+    ignore:
+      - package-1
+      - package-2
+    # Adjusts the python configuration only at boot time.
+    boot:
+      # one or more paths to append to the PYTHONPATH to allow imports
+      python_paths:
+        - relative/path
+        - /absolute/path
+      # A list of modules which are to be imported
+      import:
+        - my.plugins
+        - their.plugins
+      # A list of paths to directories and files from which all python files should be loaded non-recursively
+      # May also be a python file to be executed
+      plugin_paths:
+        - relative/path/to/directory
+        - /path/to/plugin.py
+    # Allows to specify additional configuration that we will to pull in. 
+    # It affects the bootstrapper as well as the launched process
+    include:
+      - path/to/directory/with/yaml/files
+      - /path/to/file.yaml
+    # modifies arguments of the launched executable
+    arguments:
+        # Arguments to append
+        append:
+          - -arg
+          - value_for_arg
+        # arguments to prepend
+        prepend:
+          - --last
+          - $ENVIRONMENT_VARIABLE
+        # if True, we will substitute environment variables
+        resolve: False
+    # control the environment of the launched program
+    environment:
+        # If True, the entire environment will be inherited. 
+        # Otherwise the process will build its environment from scratch, which is recommended
+        inherit: False
+        # if True, environment variables specified in values will be substituted automatically
+        resolve: False
+        # Directories that contain .so, .dylib or .dll files
+        linker_search_paths:
+          - lib
+          - other/lib
+        # directories that contain executables which should be made available for direct invocation.
+        # e.g. blender instead of /path/to/blender
+        executable_search_paths:
+          - bin
+        # Environment Variables we are to set
+        variables:
+          PACKAGE_ROOT_PATH: relative/path/to/resolve
+          VAR1: any-value
+
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>bpackage</tabTrigger>
+  <description>a new package for use with bprocess</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.yaml</scope>
+</snippet>

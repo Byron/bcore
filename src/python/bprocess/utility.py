@@ -21,7 +21,7 @@ import logging
 import bapp
 from .schema import (package_meta_data_schema,
                      controller_schema)
-from bapp import PersistentApplicationSettingsClient
+from bapp import PersistentApplicationSettingsMixin
 from bkvstore import (KeyValueStoreModifier,
                       KeyValueStoreSchema,
                       NoSuchKeyError,
@@ -34,7 +34,7 @@ from butility import ( OrderedDict,
 
 from bcontext import Context
 from bapp import         ( StackAwareHierarchicalContext,
-                           ApplicationSettingsClient )
+                           ApplicationSettingsMixin )
 from .delegates import ControlledProcessInformation
 from .schema import ( controller_schema,
                       package_schema,
@@ -124,7 +124,7 @@ class PackageDataIteratorMixin(object):
     # @{
     
     @classmethod
-    def new_controller_schema(cls, schema):
+    def new_controller_schema(cls, schema = package_schema):
         """Called during type instantiation to put your own schema onto package level. This allows 
         your data to be returned upon query by placing it into a KeyValueStoreSchema whose hierarchy fits
         to the one of the package controller
@@ -132,17 +132,22 @@ class PackageDataIteratorMixin(object):
         @param schema KeyValueStoreSchema or any dict representing the data you wish to associate with
         a package. The schema must have the 'requires' key 
         @return KeyValueStoreSchema suitable for use in iteration. Assign it to your _schema class variable
-        if you are an ApplicationSettingsClient subclass"""
+        if you are an ApplicationSettingsMixin subclass"""
         return KeyValueStoreSchema(controller_schema.key(), 
                                             {   
                                                 package_schema.key() : schema
                                             }
                                             )
-    
+
+    @classmethod
+    def _package_key(cls, name):
+        """@return kvstore key for package with 'name'"""
+        return '%s.%s' % (controller_schema.key(), name)
+
     def _internal_iter_package_data(self, settings_value_or_kvstore, package_name, schema = None):
         """If schema is None, we use the settings_value mode, otherwise we access a kvstore directly"""
         if schema:
-            data_by_name = lambda n: settings_value_or_kvstore.value('%s.%s' % (controller_schema.key(), n), schema, resolve=True)
+            data_by_name = lambda n: settings_value_or_kvstore.value(self._package_key(n), schema, resolve=True)
         else:
             data_by_name = lambda n: settings_value_or_kvstore[n]
         # end handle query function
@@ -155,8 +160,8 @@ class PackageDataIteratorMixin(object):
             try:
                 pdata = data_by_name(name)
             except (KeyError, NoSuchKeyError):
-                raise KeyError("A package named '%s' wasn't configured. It should be located at '%s.%s'."
-                                                    % (name, controller_schema.key(), name))
+                raise KeyError("A package named '%s' wasn't configured. It should be located at '%s'."
+                                                    % (name, self._package_key(name)))
             # end provide nice exceptions
             requires = pdata.requires   # cache it !
             yield pdata, name
@@ -172,7 +177,7 @@ class PackageDataIteratorMixin(object):
     def _iter_package_data(self, settings_value, package_name):
         """@return iterator yielding tuples (data, package_name) from your given settings_value, matching your package schema
         @param settings_value top-level data structure containing everything below the 'packages' key of the 
-        corresponding kvstore. If you are an ApplicationSettingsClient, this value is the settings_value()
+        corresponding kvstore. If you are an ApplicationSettingsMixin, this value is the settings_value()
         @param package_name name of the package at which to start the iteration - it will be returned as well."""
         return self._internal_iter_package_data(settings_value, package_name)
 
@@ -186,7 +191,9 @@ class PackageDataIteratorMixin(object):
         the package, among other things
         @param name package name
         @param data data you retrieved for the packge.
-        @note in order to work properly, your data must have the trees member"""
+        @note in order to work properly, your data must have the trees member. Ideally, only use this
+        with the default schema, i.e. package_schema, to be sure you have all the information the interface
+        would want to read"""
         assert hasattr(data, 'trees'), "Data requrires 'trees' attribute for package to be functional"
         return ProcessControllerPackageSpecification(name, data)
         
@@ -217,7 +224,7 @@ class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
 # end class FlattenedPackgeTreeMixin
 
 
-class PackageMetaDataChangeTracker( PersistentApplicationSettingsClient, 
+class PackageMetaDataChangeTracker( PersistentApplicationSettingsMixin, 
                                     FlatteningPackageDataIteratorMixin):
     """A utility to track and query changes done to meta-data of individual packages, and to iterate 
     package information.
@@ -406,7 +413,10 @@ class ProcessControllerPackageSpecification(LazyMixin):
         @note for now this is uncached, but its okay for our use
         @note we always resolve environment variables
         """
-        executable_path = Path._expandvars_deep(self.data().executable, env)
+        executable = self.data().executable
+        if not executable:
+            raise ValueError("no executable set for package '%s'" % self.name())
+        executable_path = Path._expandvars_deep(executable, env)
         try:
             executable_path = self.to_abs_path(executable_path)
         except EnvironmentError:
@@ -429,7 +439,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
 # end class ProcessControllerPackageSpecification
 
 
-class PythonPackageIterator(ApplicationSettingsClient, PackageDataIteratorMixin):
+class PythonPackageIterator(ApplicationSettingsMixin, PackageDataIteratorMixin):
     """A utility type allowing to deal with additional python information
     
     Currently it is able to import any of the given modules, per package

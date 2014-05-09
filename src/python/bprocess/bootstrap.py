@@ -164,6 +164,41 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         # end handle import
         
         return imported_module
+
+    @classmethod
+    def handle_controller_call(self, bprocess_mod, controller, controller_call):
+        """Handle all exceptions a controller could throw, when making the call
+        @param bprocess module
+        @param controller_call a callable
+        @note use this method if you want to behave similarly to the standard bootstrapper"""
+        try:
+            return controller_call()
+        except bprocess_mod.DisplayHelpException, err:
+            sys.stderr.write(err.help_string)
+        except bprocess_mod.DisplayContextException:
+            sys.stderr.write(controller.application().context().pformat())
+        except bprocess_mod.DisplaySettingsException:
+            sys.stderr.write(str(controller.application().context().settings().data()))
+        except bprocess_mod.DisplayLoadedYamlException:
+            for ctx in controller.application().context().stack():
+                if hasattr(ctx, 'config_files'):
+                    for path in ctx.config_files():
+                        sys.stderr.write(path + '\n')
+                    # end for each path
+                # end if context compatible
+            # end for each environment
+        except Exception, err:
+            if controller.is_debug_mode():
+                # sys.stderr.write(controller.application().context().pformat())
+                sys.stderr.write("AN UNHANDLED EXCEPTION OCCURRED WHEN TRYING TO LAUNCH PROGRAM\n")
+                sys.stderr.write("Controller-Delegate: %s\n" % controller.delegate())
+                raise
+            else:
+                sys.stderr.write("ERROR: %s\n" % str(err))
+                sys.stderr.write("(Add ---debug flag or set BAPP_STARTUP_LOG_LEVEL=DEBUG environment variable for more information)\n")
+            # end handle debugging
+        #end
+
     ## -- End Utiltiies -- @}
     
     # -------------------------
@@ -182,36 +217,10 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         executable = os.path.splitext(executable)[0]
         controller = process_controller_type(executable, args)
 
-        try:
-            # if we are spawned, we return with whatever the spawned process says. Otherwise, this 
-            # will not return
-            sys.exit(controller.execute().returncode)    
-        except root_module.DisplayHelpException, err:
-            sys.stderr.write(err.help_string)
-        except root_module.DisplayContextException:
-            sys.stderr.write(controller.application().context()._contents_str())
-        except root_module.DisplaySettingsException:
-            sys.stderr.write(str(controller.application().context().settings().data()))
-        except root_module.DisplayLoadedYamlException:
-            for ctx in controller.application().context().stack():
-                if hasattr(ctx, 'config_files'):
-                    for path in ctx.config_files():
-                        sys.stderr.write(path + '\n')
-                    # end for each path
-                # end if context compatible
-            # end for each environment
-        except Exception, err:
-            if controller.is_debug_mode():
-                # sys.stderr.write(controller.application().context()._contents_str())
-                sys.stderr.write("AN UNHANDLED EXCEPTION OCCURRED WHEN TRYING TO LAUNCH PROGRAM\n")
-                print "Controller-Delegate: ", controller.delegate()
-                raise
-            else:
-                sys.stderr.write("ERROR: %s\n" % str(err))
-                sys.stderr.write("(Add ---debug flag or set BAPP_STARTUP_LOG_LEVEL=DEBUG environment variable for more information)\n")
-            # end handle debugging
-            
-        #end 
+
+        # if we are spawned, we return with whatever the spawned process says. Otherwise, this 
+        # will not return
+        self.handle_controller_call(root_module, controller, lambda: sys.exit(controller.execute().returncode))
 
         # If we end up here, there was an exceptional condition
         sys.exit(2)

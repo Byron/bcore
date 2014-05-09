@@ -16,7 +16,7 @@ from bcontext import Context
 
 from . import services
 from .schema import platform_schema
-from .utility import (ApplicationSettingsClient,
+from .utility import (ApplicationSettingsMixin,
                       StackAwareHierarchicalContext)
 
 from .interfaces import IPlatformService
@@ -31,7 +31,7 @@ from butility import (Path,
 
 
 
-class OSContext(Context, ApplicationSettingsClient):
+class OSContext(Context, ApplicationSettingsMixin):
     """Context containing information about the operating system we're running on.
     Provides IPlatformService implementations"""
     _category = 'platform'

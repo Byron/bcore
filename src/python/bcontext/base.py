@@ -102,7 +102,7 @@ class Context(object):
         # end for each registered item
         return items
     
-    def _contents_str(self):
+    def pformat(self):
         """Display the contents of the Context primarily for debugging purposes
         @return string indicating the human-readable contents
         @todo: revise printing"""
@@ -231,14 +231,14 @@ class ContextStack(LazyMixin):
     def __str__(self):
         return '\n'.join(str(ctx) for ctx in reversed(self._stack))
     
-    def _contents_str(self):
+    def pformat(self):
         """ print a comprehensive representation of the stack 
             @todo convert this into returning a data structure which would be useful and printable            
         """
         otp = str()
         for idx, env in enumerate(self._stack):
             otp += "### Context %i - %s ###############\n\n" % (idx, env.name())
-            otp += env._contents_str()
+            otp += env.pformat()
         # for each env on stack
         return otp
         
