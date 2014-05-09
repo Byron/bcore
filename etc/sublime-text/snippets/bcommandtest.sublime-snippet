@@ -1,0 +1,30 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+
+import bapp
+from bapp.tests import with_application
+from ${1:butility.tests} import ${2:TestCaseBase}
+# test * import
+from ${3:your.module} import *
+
+
+class Test${4:name}Command($2):
+
+    @with_application(from_file=__file__)
+    def test_basic_operation(self):
+        """general testing with sandboxed Application instance"""
+        cmd = ${4}Command(application=bapp.main()).parse_and_execute
+        assert cmd('-h'.split()) == ${4}Command.ARGUMENT_HANDLED, "this just shows the help"
+
+        ${0:#keep calling your command with various arguments and check the return code}
+
+# end class Test${4}Command
+
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>bcommand test</tabTrigger>
+  <description>a basic test for any command or subcommand</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.python</scope>
+</snippet>

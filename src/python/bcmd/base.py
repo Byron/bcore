@@ -105,7 +105,7 @@ class CommandBase(ICommand, LazyMixin):
     ERROR = 1
     
     ## A constant indicating an error related to file-io or accessibility
-    FILE_ERROR = 2
+    IO_ERROR = 2
     
     ## A constant indicating an error with argument parsing or handling
     ARGUMENT_ERROR = 3
