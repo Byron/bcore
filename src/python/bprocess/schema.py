@@ -140,7 +140,7 @@ else:
 package_manager_schema = KeyValueStoreSchema('package-manager', 
                                                     {'include' : PathList,
                                                      'environment' : {
-                                                        'normalize_paths' : False,
+                                                        'normalize_paths' : True,
                                                         'variables' : {
                                                           'inherit' : StringList(_inherit_evars),
                                                           'regex' : {
