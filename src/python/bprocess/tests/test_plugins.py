@@ -43,7 +43,7 @@ class PluginsTestCase(TestCaseBase):
         cwd = os.getcwd()
         try:
             os.chdir(go_exec.dirname())
-            assert cmd([go] + '--spawn py-program'.split()) == 0, 'can launch programs that exist for him'
+            assert cmd([go] + '+spawn py-program'.split()) == 0, 'can launch programs that exist for him'
         finally:
             os.chdir(cwd)
         # end cwd handling

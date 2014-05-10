@@ -215,6 +215,18 @@ class CommandBase(ICommand, LazyMixin):
         @param parser an argparse.ArgumentParser instance
         @param version a version string"""
         parser.add_argument('--version', action='version', version=version)
+
+    def _add_subparser(self, add_parser, *args, **kwargs):
+        """Called whenever subparsers.add_parser(**kwargs) is supposed to be called. **kwargs are given 
+        to the argument parser instance
+        Subcommand subclasses may override this to customize the arguments of their parser
+        @param add_parser callable
+        @param *args to be given to callable, as prepared by main command
+        @param **kwargs see *args
+        @note subclasses should call the base implementation after modifying args/kwargs
+        @note see https://docs.python.org/dev/library/argparse.html#sub-commands for details
+        """
+        return add_parser(*args, **kwargs)
     
     ## -- End Subclass Methods -- @}
     
@@ -248,7 +260,7 @@ class CommandBase(ICommand, LazyMixin):
                 subparsers = parser.add_subparsers(**scmds_dict)
                 for cmd in subcommands:
                     cmd_info = cmd.info_data()
-                    subparser = subparsers.add_parser(cmd_info.name, description=cmd_info.description, help=cmd_info.description)
+                    subparser = cmd._add_subparser(subparsers.add_parser, cmd_info.name, description=cmd_info.description, help=cmd_info.description)
                     subparser.set_defaults(**{self._subcommand_slot_name() : cmd})
                     # Allow recursion - there can be a hierarchy of subcommands
                     assert cmd is not self, 'picked up myself as subcommand - check your name'

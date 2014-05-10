@@ -42,8 +42,18 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIt
     # Those are to be passed to the application
     allow_unknown_args = True
 
+    def _add_subparser(self, add_parser, *args, **kwargs):
+        """make sure we don't get support for help."""
+        kwargs['add_help'] = False
+        kwargs['prefix_chars'] = '+'
+        return super(LauncherBeSubCommand, self)._add_subparser(add_parser, *args, **kwargs)
+
     def setup_argparser(self, parser):
-        parser.add_argument('-s', '--spawn',
+        """@note ideally, we create the launchable programs as subcommands, that way we can 
+        have our own help, and own arguments. However, this makes the command help less readable, 
+        compared to the custom one we implement, which is why we go for a special syntax to reduce 
+        chance of clashes"""
+        parser.add_argument('+spawn',
                             action='store_true', 
                             default=False,
                             help='If set, the program will be launched as separate process')
@@ -51,7 +61,7 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIt
         self._parser = parser
         # emulate usage - we are a bit more custom here
         # NOTE: need to generate full name here - currently only known to parsers
-        parser.usage = '... %s [-s|--spawn] program [args]' % self.name
+        parser.usage = '... %s [+spawn] program [args]' % self.name
         return self
         
 
