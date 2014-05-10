@@ -122,13 +122,21 @@ class Bootstrapper(object):
                 # end assertion
             # end handle windows
 
-            executable = actual_executable
             
-            root_package_path = self._root_package_path(executable)
+            # on posix, this means we might have failed to read a symbolic link, which can easily
+            # happen if we are on a smb share
+            # NOTE: the code below does double duty on windows in case the configuration is wrong, but 
+            # it's ok as it is execeptional. On linux, it does the rigth thing
+            root_package_path = self._root_package_path(actual_executable) or \
+                                self._root_package_path(self._resolve_win_link(executable))
+
+            executable = actual_executable
             if root_package_path is None:
-                msg = "Unable to find our 'bprocess' package from bootstrapper location at %s"
-                msg += " - please make sure your executable is a symbolic link to the bootstrapper"
-                raise AssertionError(msg % executable)
+                if root_package_path is None:
+                    msg = "Unable to find our 'bprocess' package from bootstrapper location at %s"
+                    msg += " - please make sure your executable is a symbolic link to the bootstrapper"
+                    raise AssertionError(msg % executable)
+                # end second attempt to make resolution
             # end handle root_package not found
         # end allow environment override of rootpackage 
             
