@@ -25,7 +25,8 @@ from butility import ( Path,
                        LazyMixin,
                        PythonFileLoader,
                        DictObject,
-                       set_log_level )
+                       set_log_level, 
+                       parse_key_value_string)
 
 from bcontext import Context
 from bkvstore import KeyValueStoreModifier
@@ -616,18 +617,9 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
                 # end set state
             elif self.wrapper_arg_kvsep in arg:
                 # interpret argument as key in context
-                key_value = arg
-                assert len(key_value) > 2 and self.wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
-                k, v = key_value.split(self.wrapper_arg_kvsep)
-                if v.startswith('['):
-                    try:
-                        v = eval(v)
-                    except Exception:
-                        raise ValueError("Failed to parse '%s' as a list for key '%s'" % (v, k))
-                    # end handle conversion
-                # end handle lists
+                k, v = parse_key_value_string(arg, self.wrapper_arg_kvsep)
                 kvstore_overrides.set_value(k, self._parse_value(v))
-                log.debug("CONTEXT VALUE OVERRIDE: %s", key_value)
+                log.debug("CONTEXT VALUE OVERRIDE: %s", arg)
             elif arg == 'debug-context':
                 # Just ignore these, they are handled elsewhere
                 self._next_exception = DisplayContextException

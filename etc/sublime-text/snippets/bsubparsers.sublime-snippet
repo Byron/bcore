@@ -1,0 +1,29 @@
+<snippet>
+  <!-- Example: Hello, ${1:this} is a ${2:snippet}. -->
+  <content><![CDATA[
+factory = parser.add_subparsers(title="${1:operations}",
+                                description="${2:Choose between various ${1}}",
+                                dest='operation', # args.operation == chosen subcommand
+                                help="${2}")
+
+###############${3/./#/g}####
+# SUBCOMMAND: '${3:name} ##
+##############${3/./#/g}###
+description = "${4:TODO one-line description}"
+help = """${5:TODO a more detailed description, multi-line if needed}"""
+subparser = factory.add_parser('${3:name}', description=description, help=help)
+${0:--> Now add arguments for the sub-parser, and repeat with each additional sub-parser
+# help = "TODO proper help string"
+# subparser.add_argument('-v', '--verbose',
+#                        action='store_true', 
+#                        default=False, 
+#                        dest='verbosity',
+#                        help=help)}
+
+]]></content>
+  <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+  <tabTrigger>bsubparsers</tabTrigger>
+  <description>code for adding subparsers, for use in setup_argparser</description>
+  <!-- Optional: Set a scope to limit where the snippet will trigger -->
+  <scope>source.python</scope>
+</snippet>

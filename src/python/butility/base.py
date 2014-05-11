@@ -9,8 +9,8 @@
 __all__ = ['Error', 'InterfaceBase', 'MetaBase', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIteratorBase',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
-           'set_log_level', 'partial']
-           
+           'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value' ]
+
 from functools import (wraps,
                        partial)
 import logging
@@ -123,6 +123,38 @@ def capitalize(self):
 def equals_eps(float_left, float_right, epsilon = sys.float_info.epsilon):
     """@return True if float_left equals float_right within an error of epsilon"""
     return abs(float_left - float_right) <= epsilon
+
+def parse_string_value(string):
+    """@return the actual numeric instance the value string represents. May be a list, if it starts 
+    with '['."""
+    if string.startswith('['):
+        try:
+            return eval(string)
+        except Exception:
+            raise ValueError("Failed to parse '%s' as a list" % (string))
+        # end handle conversion
+    # end handle lists
+
+    if string in ('on', 'yes', 'true', 'True'):
+        return True
+    if string in ('off', 'no', 'false', 'False'):
+        return False
+    
+    # more conversions are not required, as they are handled by the schema
+    return string
+
+def parse_key_value_string(string, separator='='):
+    """@return tuple(key, value), whereas key is what's on the left side of the separator, and value 
+    is either a numerical value, string, or list of scalars
+    @param string the k{separator}v string to parse
+    @param separator
+    @throws ValueError if string is malformatted"""
+    if len(string) < 2 or separator not in string:
+        raise ValueError("expected k=v string, got '%s'" % string)
+    # end 
+
+    k, v = string.split(separator)
+    return k, parse_string_value(v)
 
 
 # ==============================================================================

@@ -24,7 +24,8 @@ from .interfaces import ( ICommand,
                           ISubCommand )
 from .utility import ( CommandArgumentParser,
                        ArgparserHandledCall,
-                       InputError)
+                       InputError,
+                       SuccessfulBreak)
 
 
 
@@ -162,7 +163,9 @@ class CommandBase(ICommand, LazyMixin):
         if level is None:
             level = self._level
         # end 
-        return "__subcommand__%i" % level
+        # unify it, also by type. That way commands can define their own set of additional 
+        # subcommands
+        return "__%s__%i" % (type(self).__name__,level)
         
     # -------------------------
     ## @name Interface Implementation
@@ -176,7 +179,11 @@ class CommandBase(ICommand, LazyMixin):
         
     def setup_argparser(self, parser):
         """Default implementation adds nothing. This is common if you use subcommands primarily"""
-        return self
+        try:
+            return super(CommandBase, self).setup_argparser(parser)
+        except AttributeError:
+            return self
+        # end support mixins
         
     def execute(self, args, remaining_args):
         """Base implementation will just execute the selected subcommand
@@ -199,9 +206,15 @@ class CommandBase(ICommand, LazyMixin):
     def _find_compatible_subcommands(self):
         """@return a list or tuple of compatible ISubCommand instances. Must contain at least one subcommand instance
         @note the base implementation searches the current environment stack for it"""
-        return [scmd for scmd in (self.application() or bapp.main()).context().new_instances(ISubCommand) 
-                                                                    if scmd.is_compatible(self)]
-        
+        res = list()
+        ctx = (self.application() or bapp.main()).context()
+        for scmd in ctx.new_instances(ISubCommand, kwargs={'application' : self.application()}):
+            if scmd.is_compatible(self):
+                res.append(scmd)
+            # end 
+        # end for each command
+        return res
+
     def _add_version_argument(self, parser, version):
         """Set the given version as argument to the argparser.
         By default, we set the --version flag only, but subclasses can decide how they wish
@@ -323,6 +336,8 @@ class CommandBase(ICommand, LazyMixin):
             parser.print_usage(sys.stderr)
             self.log().error(str(err))
             return self.ARGUMENT_ERROR
+        except SuccessfulBreak:
+            return self.SUCCESS
         except KeyboardInterrupt:
             # Signal 15, or Ctrl+C
             self.log().error("Interrupted by user")

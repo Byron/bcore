@@ -5,6 +5,7 @@
 * WHY
     - With `bcmd` it is already easy to create complex, plugin-based commands whose parsers can form arbitrary trees, and who are truly decoupled from each other thanks to [argparse's](https://docs.python.org/2/howto/argparse.html) awsomeness.
     - facilitate building plugin-based sub-commands with arbitrary hierarchies
+    - write about nestable subcommand plugins, and the difference between the auto-version and maunal creation of sub-parsers
 
 
 The command framework allows you to build commandline tools easily and in a unified way. 

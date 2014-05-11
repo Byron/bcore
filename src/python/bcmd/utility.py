@@ -6,10 +6,13 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['CommandArgumentParser', 'ArgparserHandledCall', 'CommandlineOverridesMixin', 'InputError']
+__all__ = ['CommandArgumentParser', 'ArgparserHandledCall', 'CommandlineOverridesMixin', 'InputError', 
+           'SuccessfulBreak']
 
 import sys
 
+from bapp import ApplicationSettingsMixin
+from butility import parse_key_value_string
 from .argparse import ArgumentParser
 
 
@@ -22,8 +25,16 @@ class InputError(Exception):
     """Thrown if one of the inputs to the commands turned out to be invalid"""
     __slots__ = ()
     
-
 # end class InputError
+
+
+class SuccessfulBreak(Exception):
+    """An exception indicating that everything is alright.
+    Useful if particular implementations want to break out of a call"""
+    __slots__ = ()
+
+
+# end class SuccessfulBreak
 
 ## -- End Exceptions -- @}
 
@@ -95,20 +106,24 @@ class CommandlineOverridesMixin(object):
     ## the arguments we take on the commandline    
     set_args = ['--set']
 
+    ## If set, and if we have a schema, our configuration
+    show_config_args = ['-c', '--show-settings']
+
+    ## separator between keys and values
+    key_value_separator = '='
+
     ## -- End Configuration -- @}
 
-    def setup_argparser(self, parser):
-        try:
-            super(CommandlineOverridesMixin, self).setup_argparser(parser)
-        except AttributeError:
-            # It can be that super doesn't work here as we are not called through a direct instance method, but like
-            # CommandlineOverridesMixin.foo(self)
-            pass
-        # end 
-
+    def setup_overrides_argparser(self, parser):
         help = "Override any settings value, relative to your command's settings."
         help += 'Example: -s foo=bar --set limit=1.24'
         parser.add_argument(*self.set_args, dest='overrides', nargs='+', metavar='key=value', help=help)
+
+        if self.show_config_args:
+            help = "Show the daemons effective configuration and exit"
+            parser.add_argument(*self.show_config_args, default=False, 
+                                    dest='show_settings', action='store_true', help=help)
+        # end handle commandargs
 
         return self
 
@@ -117,33 +132,25 @@ class CommandlineOverridesMixin(object):
     ## @name Subclass Interface
     # @{
     
-    def apply_overrides(self, schema, overrides):
+    def apply_overrides(self, schema, args):
         """Parse overrides and set them into a new context
         @param schema KeyValueStoreSchema of your command
         @param all override values as 'key=value' string
         @note to be called in execute() method"""
-        if not overrides:
-            return
-        # end early bailout
+        if args.overrides:
+            env = self.application().context().push('user overrides')
+            kvstore = env._kvstore
+            for kvstring in args.overrides:
+                k, v = parse_key_value_string(kvstring, self.key_value_separator)
+                kvstore.set_value('%s.%s' % (schema.key(), k), v)
+            # end for each string to apply
+        # end handle overrides
 
-        env = self.application().context().push('user overrides')
-        kvstore = env._kvstore
-        for kvstring in overrides:
-            tokens = kvstring.split('=')
-            if len(tokens) != 2:
-                raise InputError("format of user-override is 'key=value', got '%s'" % kvstring)
-            #end verify format
-            key, value = tokens
-            if value.startswith('['):
-                try:
-                    value = eval(value)
-                except Exception:
-                    raise InputError("Failed to parse '%s' as a list" % value)
-                # end handle conversion
-            # end handle 
-            kvstore.set_value('%s.%s' % (schema.key(), key), value)
-        # end for each string to apply
-
+        if getattr(args, 'show_settings', None):
+            sys.stdout.write("%s.*\n" % schema.key())
+            sys.stdout.write(str(self.application().context().settings().value_by_schema(schema)))
+            raise SuccessfulBreak
+        # end handle settings
     ## -- End Subclass Interface -- @}
 
 # end class CommandlineOverridesMixin

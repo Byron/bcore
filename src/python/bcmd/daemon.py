@@ -83,7 +83,7 @@ class DaemonCommandMixin(object):
         help += "Fails if the file already exists - we won't check for orphaned files"
         parser.add_argument(*self.pid_file_args, dest='pid_file', type=Path, help=help)
 
-        if issubclass(self.ThreadType, ApplicationSettingsMixin):
+        if self.show_config_args and issubclass(self.ThreadType, ApplicationSettingsMixin):
             help = "Show the daemons effective configuration and exit"
             parser.add_argument(*self.show_config_args, default=False, 
                                     dest='show_config', action='store_true', help=help)
