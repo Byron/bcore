@@ -8,6 +8,12 @@
 """
 __all__ = []
 
+import os
+from nose import SkipTest
+import signal
+from time import (sleep, 
+                  time)
+
 import bapp
 from bapp.tests import with_application
 from butility.tests import TestCaseBase
@@ -123,24 +129,45 @@ class NestedSubCommand(SubCommandBase, bapp.plugin_type()):
 # end class NestedSubCommand
 
 
-class DaemonThrea(TerminatableThread):
-    
+class DaemonThread(TerminatableThread):
+
+    work_time_s = 1.0
+    response_time_s = 0.05
+
     def run(self):
         """perform some amount of work, checking for cancellation"""
-        return 
-        
+        s = time()
+        while time() - s < self.work_time_s:
+            sleep(self.response_time_s)
+            if self._should_terminate():
+                return
+        # end work loop
 
 
-class DaemonCommand(CommandBase, DaemonCommandMixin, CommandlineOverridesMixin):
-    """@todo documentation"""
+class DaemonCommand(DaemonCommandMixin, CommandBase, CommandlineOverridesMixin):
     __slots__ = ()
 
     name = 'tester'
     description = 'testing'
     version = '0.0'
 
-    ThreadType = DaemonThrea
+    ThreadType = DaemonThread
+    check_period_s = 0.01
 
+    kill_after_s = 0.5
+
+    def _check_thread(self, thread):
+        if self.kill_after_s:
+            type(self).kill_after_s
+            if time() - self._start_time >= self.kill_after_s:
+                os.kill(os.getpid(), signal.SIGTERM)
+        # end handle auto-kill
+        super(DaemonCommand, self)._check_thread(thread)
+
+    def execute(self, args, remaining_args):
+        self._start_time = time()
+        return super(DaemonCommand, self).execute(args, remaining_args)
+        
 # end class DaemonCommand
 
 
@@ -189,9 +216,26 @@ class TestDaemonCommand(TestCaseBase):
     @with_application(from_file=__file__)
     def test_basic_operation(self):
         """general testing with sandboxed Application instance"""
-        cmd = DaemonCommand(application=bapp.main()).parse_and_execute
-        assert cmd('-h'.split()) == DaemonCommand.ARGUMENT_HANDLED, "this just shows the help"
-        assert cmd(['-c']) == DaemonCommand.ERROR, "no configuration without compatible thread type"
+        cmd = DaemonCommand(application=bapp.main())
+        call = cmd.parse_and_execute
+        assert call('-h'.split()) == DaemonCommand.ARGUMENT_HANDLED, "this just shows the help"
+        assert call(['-c']) == DaemonCommand.ERROR, "no configuration without compatible thread type"
 
+        # try running the thread and kill it with signals
+        # check for windows and/or python support
+        if not hasattr(os, 'kill'):
+            raise SkipTest('need os.kill')
+        # end
+
+        # daemon thread should terminate naturally
+        cmd.kill_after_s = 0.5
+        DaemonThread.work_time_s = 0.1
+        assert call([]) == 0, "it should run without issues"
+
+        DaemonThread.work_time_s = 1.0
+        cmd.kill_after_s = 0.1
+        assert call([]) == 0
+
+        # we don't test daemonization here, but via travis
 
 # end class TestDaemonCommand

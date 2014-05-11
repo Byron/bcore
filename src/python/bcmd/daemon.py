@@ -23,7 +23,6 @@ from butility import (Path,
 class DaemonCommandMixin(object):
     """Main Daemon command without subcommands. Just starts a thread which can be an EnvironmentStackContextClient
     """
-    __slots__ = ()
 
     # -------------------------
     ## @name Subclass Configuration
@@ -42,13 +41,15 @@ class DaemonCommandMixin(object):
     # Allows to override names taken on the commandline
     # @{
 
+    ## we check every now and then for intterups or exceptions, and sleep in the meanwhile
+    check_period_s = 0.5
+
     pid_file_args = ['-d', '--pid-file']
 
     # only used if ThreadType has custom configuration
     show_config_args = ['-c', '--show-configuration']
 
     ## -- End Settings -- @}
-
 
     # -------------------------
     ## @name Utilities
@@ -60,6 +61,18 @@ class DaemonCommandMixin(object):
         dt.stop_and_join()
 
     ## -- End Utilities -- @}
+
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
+
+    def _check_thread(self, thread):
+        """A call to check if the thread is alright, aside from is_alive(), which is done for you.
+        You should sleep an interval (done by base) to prevent wasting cycles
+        @throw an exception to interrupt the thread"""
+        sleep(self.check_period_s)
+    
+    ## -- End Subclass Interface -- @}
 
     def setup_argparser(self, parser):
         super(DaemonCommandMixin, self).setup_argparser(parser)
@@ -79,8 +92,6 @@ class DaemonCommandMixin(object):
         return self
 
     def execute(self, args, remaining_args):
-        self.apply_overrides(self.ThreadType.schema(), args.overrides)
-
         if getattr(args, 'show_config', None):
             sys.stdout.write("%s.*\n" % self.ThreadType.settings_schema().key())
             sys.stdout.write(str(self.ThreadType.context_value()))
@@ -99,20 +110,22 @@ class DaemonCommandMixin(object):
 
         prev_signal = signal.signal(signal.SIGTERM, lambda sig, frame: self._sighandler_term(sig, frame, dt))
         try:
-            dt = self.ThreadType()
+            self._thread = dt = self.ThreadType()
             dt.start()
 
             self.log().info("Running in debug mode - press Ctrl+C to interrupt")
             try:
                 # Wait for it to come up
-                sleep(0.1)
+                sleep(self.check_period_s)
                 # Thread will run forever, we have to watch for interrupts
                 while dt.is_alive():
-                    sleep(0.1)
+                    self._check_thread(dt)
                 # end wait loop
             except (KeyboardInterrupt, SystemExit):
                 self._sighandler_term(15, None, dt)
             except Exception:
+                # we raised, make sure thread shuts down
+                self._sighandler_term(15, None, dt)
                 self.log().error("Unknown exception occurred", exc_info=True)
                 return self.ERROR
             else:
@@ -124,11 +137,21 @@ class DaemonCommandMixin(object):
             return self.SUCCESS
         finally:
             # restore previous signal, just to assure we don't alter state in tests
-            signal.signal(ginal.SIGTERM, prev_signal)
+            signal.signal(signal.SIGTERM, prev_signal)
             if args.pid_file and args.pid_file.isfile():
                 args.pid_file.remove()
             # end remove pid file
         #end handle pid file
+
+    # -------------------------
+    ## @name Interface
+    # @{
+
+    def thread(self):
+        """@return our thread instance. May be None if execute didn't run yet"""
+        return getattr(self, '_thread', None)
+        
+    ## -- End Interface -- @}
 
 
 # end class DaemonCommandMixin

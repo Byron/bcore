@@ -1,0 +1,17 @@
+packages:
+  test-environment:
+    environment:
+      resolve: True
+      variables:
+        PYTHONPATH: '{process.core_tree}'
+
+  daemon-command:
+    requires: test-environment
+    alias: python
+    arguments:
+      prepend:
+        - -c 
+        - import bcmd.tests.test_base as tb; tb.DaemonCommand.main()
+
+  python:
+    executable: '{process.python_executable}'
