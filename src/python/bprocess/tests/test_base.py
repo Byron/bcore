@@ -138,6 +138,12 @@ class TestProcessControl(TestCaseBase):
         for context in ('foobar', '/path/to/foobar.ext'):
             self.failUnlessRaises(ValueError, TestProcessController(cmd_path, ['@%s' % context]).application)
         # end for each context to check
+
+        # try list parsing
+        TestProcessController(cmd_path, ("---foo=['some','list','items']").split()).executable()
+        
+        # this one should fail, invalid value
+        self.failUnlessRaises(ValueError, TestProcessController(cmd_path, ("---foo=[bar]").split()).executable)
         
     @preserve_application
     def test_execute_in_context(self):

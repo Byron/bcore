@@ -619,6 +619,13 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
                 key_value = arg
                 assert len(key_value) > 2 and self.wrapper_arg_kvsep in key_value, "expected k=v string at the very least, got '%s'" % key_value
                 k, v = key_value.split(self.wrapper_arg_kvsep)
+                if v.startswith('['):
+                    try:
+                        v = eval(v)
+                    except Exception:
+                        raise ValueError("Failed to parse '%s' as a list for key '%s'" % (v, k))
+                    # end handle conversion
+                # end handle lists
                 kvstore_overrides.set_value(k, self._parse_value(v))
                 log.debug("CONTEXT VALUE OVERRIDE: %s", key_value)
             elif arg == 'debug-context':
