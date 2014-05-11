@@ -47,4 +47,4 @@ Once the first release is out of the door, the API will stabilize though, yet I 
 
 ### LICENSE
 
-This open source software is licensed under [GNU Lesser General Public License](license.md)
+This open source software is licensed under [GNU Lesser General Public License](https://github.com/Byron/bcore/blob/master/LICENSE.md)
