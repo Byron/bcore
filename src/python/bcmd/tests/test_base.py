@@ -11,6 +11,7 @@ __all__ = []
 import bapp
 from bapp.tests import with_application
 from butility.tests import TestCaseBase
+from butility import TerminatableThread
 
 # Test * import
 from bcmd import *
@@ -122,6 +123,25 @@ class NestedSubCommand(SubCommandBase, bapp.plugin_type()):
 # end class NestedSubCommand
 
 
+class DaemonThrea(TerminatableThread):
+    
+    def run(self):
+        """perform some amount of work, checking for cancellation"""
+        return 
+        
+
+
+class DaemonCommand(CommandBase, DaemonCommandMixin, CommandlineOverridesMixin):
+    """@todo documentation"""
+    __slots__ = ()
+
+    name = 'tester'
+    description = 'testing'
+    version = '0.0'
+
+    ThreadType = DaemonThrea
+
+# end class DaemonCommand
 
 
 class TestCommands(TestCaseBase):
@@ -162,3 +182,16 @@ class TestCommands(TestCaseBase):
         'nesting should work just fine'
 
 # end class TestCommands
+
+
+class TestDaemonCommand(TestCaseBase):
+
+    @with_application(from_file=__file__)
+    def test_basic_operation(self):
+        """general testing with sandboxed Application instance"""
+        cmd = DaemonCommand(application=bapp.main()).parse_and_execute
+        assert cmd('-h'.split()) == DaemonCommand.ARGUMENT_HANDLED, "this just shows the help"
+        assert cmd(['-c']) == DaemonCommand.ERROR, "no configuration without compatible thread type"
+
+
+# end class TestDaemonCommand

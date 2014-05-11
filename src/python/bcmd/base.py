@@ -23,15 +23,9 @@ from .argparse import ( ArgumentError,
 from .interfaces import ( ICommand,
                           ISubCommand )
 from .utility import ( CommandArgumentParser,
-                       ArgparserHandledCall)
+                       ArgparserHandledCall,
+                       InputError)
 
-
-class InputError(Exception):
-    """Thrown if one of the inputs to the commands turned out to be invalid"""
-    __slots__ = ()
-    
-
-# end class InputError
 
 
 class CommandBase(ICommand, LazyMixin):
