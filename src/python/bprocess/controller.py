@@ -629,7 +629,7 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
             elif arg == 'debug-yaml':
                 self._next_exception = DisplayLoadedYamlException
             elif prefix == self.wrapper_arg_prefix:
-                raise ValueError("Argument named '%s' unknown to wrapping engine" % arg)
+                raise ValueError("Argument named '%s' unknown to wrapping engine, escape arguments by prepending a dash, like ----escaped-arg" % arg)
             else:
                 # it could be a context
                 new_cwd = Path(arg)

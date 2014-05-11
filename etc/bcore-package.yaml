@@ -14,6 +14,11 @@ packages:
     # To use it, create your own, and require this one.
     # Just must set an alias to whichever python interpreter you want
     requires: bcore
+    environment:
+      # it's important to let everything through just in case programs like `go` are launched.
+      # This is potentially dirty, as it will affect other programs as well, but there is no
+      # way around it really ... .
+      inherit: on
     arguments:
       prepend:
         - -m
