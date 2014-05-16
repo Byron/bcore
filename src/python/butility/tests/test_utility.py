@@ -158,6 +158,14 @@ class TestUtility(TestCaseBase):
         dobjclone.there.other = 42
         assert dobj.there.other == 7
 
+        for dct, attr, desired_value in ((dobj.there, 'other', 7), (dobj, 'there', {})):
+            self.failUnlessRaises(KeyError, dct.pop, 'notthere')
+            assert dct.pop('notthere', None) is None
+            assert dct.pop(attr) == desired_value
+        # end for each sample
+
+
+
     def test_python_file_loader(self):
         mod_name = 'test_module'
         mod = PythonFileLoader.load_file(self.fixture_path('module.py'), mod_name)

@@ -9,7 +9,7 @@
 __all__ = ['Error', 'InterfaceBase', 'MetaBase', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIteratorBase',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
-           'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value' ]
+           'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value']
 
 from functools import (wraps,
                        partial)

@@ -257,20 +257,20 @@ class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
                       application = None):
         """
         Initialize this instance to make it operational
-        Our executable does not have to actually exist, as we will look it up in the kvstore of our environment.
-        This environment stack is based on the executable's directory, which should be (but doesn't have to be) 
+        Our executable does not have to actually exist, as we will look it up in the kvstore of our context.
+        This context stack is based on the executable's directory, which should be (but doesn't have to be) 
         accessible. Additionally it is influenced by the cwd.
         
         Callers who just want to spawn a process should make sure they manipulate the executable path to be 
         in the directory context they require, or use the cwd for that purpose if the program isn't negatively
         affected by that.
         
-        @param executable of the bootstrapper program, that was launched originally. e.g. /usr/local/bin/maya
+        @param executable of the bootstrapper program, that was launched originally. e.g. /usr/local/bin/maya, 
+        or the name of the package, like 'be', or any path with basename, like '/path/to/provide/context/executable'.
+        In any way, the basename of the executable must be a package name, like 'packages.basename'.
         @param args all commandline arguments passed to the executable, as list of strings. 
-        @param delegate instance of type IProcessControllerDelegate. If None, the component system will be used
-        to find one.
-        If the envrionment stack is altered by the IProcessControllerDelegate.prepare_context() method, 
-        the delegate may be overwritten.
+        @param delegate instance of type IProcessControllerDelegate. If None, the default implementation will be 
+        used, unless a delegate is set in the respective package configuration ('packages.name.delegate').
         @param cwd current working directory to be used as additional context. If None, the actual cwd will be used.
         @param dry_run if True, we will not actually spawn any process, but make preparations as usual
         @param application if not None, this application instance will be used and modified while preparing

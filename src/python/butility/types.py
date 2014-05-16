@@ -398,6 +398,15 @@ class DictObject(object):
         """as dict.iteritems"""
         return self.__dict__.iteritems()
 
+    def pop(self, key, default=re):
+        """as dict.pop"""
+        if default is re:
+            return self.__dict__.pop(key)
+        else:
+            return self.__dict__.pop(key, default)
+        # end assure semantics are kept
+        
+
 # end class DictObject
 
 
