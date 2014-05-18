@@ -42,6 +42,16 @@ class PersistentSettings(ChangeTrackingJSONKeyValueStoreModifier):
     to be written back using the save_changes()
     """
     __slots__ = ()
+
+    # -------------------------
+    ## @name Configuration
+    # @{
+
+    ## When loading our jsons, we don't want their paths to show up in the data dict. It can disturb our 
+    # change tracking
+    settings_key = None
+    
+    ## -- End Configuration -- @}
     
     
     def __init__(self, data, settings_path_or_stream, take_ownership = True):

@@ -8,7 +8,8 @@
 """
 __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
             'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',
-            'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath', 'KVPathList']
+            'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath', 'KVPathList',
+            'FrequencyStringAsSeconds']
 
 import os
 import logging
@@ -22,7 +23,8 @@ from bdiff import ( DiffRecord,
 
 from butility import (Path,
                       NativePath,
-                      DictObject)
+                      DictObject,
+                      frequncy_to_seconds)
 
 from .diff import transform_value
 
@@ -213,7 +215,23 @@ class KVPathList(PathList):
 
     MemberType = KVPath
 
-# end class KVPathList    
+# end class KVPathList
+
+
+class FrequencyStringAsSeconds(object):
+    """Converts a frequency into seconds
+    Defaults to 0"""
+    __slots__ = ('seconds', 'frequency')
+    
+    def __init__(self, value = None):
+        self.frequency = value
+        self.seconds = value and frequncy_to_seconds(value) or 0
+
+    def __str__(self):
+        return self.frequency
+
+# end class FrequencyStringAsSeconds
+
 
 ## -- End Utility Structures -- @}
 

@@ -9,7 +9,8 @@
 __all__ = ['Error', 'InterfaceBase', 'MetaBase', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIteratorBase',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
-           'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value']
+           'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value', 'size_to_int',
+           'frequncy_to_seconds', 'int_to_size_string']
 
 from functools import (wraps,
                        partial)
@@ -557,3 +558,67 @@ class GraphIteratorBase(object):
 
 
 
+# ==============================================================================
+## @name Unit Conversion Utilities
+# ------------------------------------------------------------------------------
+## @{
+
+data_unit_multipliers = {
+                'k' : 1024,
+                'm' : 1024**2,
+                'g' : 1024**3,
+                't' : 1024**4,
+                'p' : 1024**5,
+                '%' : 1,
+}
+
+time_unit_multipliers = {
+        's' : 1,
+        'h' : 60**2,
+        'd' : 60**2 * 24,
+        'w' : 60**2 * 24 * 7,
+        'm' : 60**2 * 24 * 30,
+        'y' : 60**2 * 24 * 365
+    }
+
+
+def size_to_int(size):
+    """Converts a size to the respective integer
+    @param size string like 1M or 2T, or 35.5K
+    """
+    unit = size[-1].lower()
+    if unit in '0123456789':
+        return int(size)
+    # end handle no unit
+    try:
+        return int(data_unit_multipliers[unit] * float(size[:-1]))
+    except KeyError:
+        raise ValueError("Invalid unit: '%s'" % unit)
+    # end handle errors gracefully
+
+def frequncy_to_seconds(time_string):
+    """@return seconds identified by the given time-string, like 14s, or 14w
+    @throw ValueError"""
+    try:
+        return int(time_string[:-1]) * time_unit_multipliers[time_string[-1].lower()]
+    except (KeyError, ValueError):
+        raise ValueError("Could not parse '%s' - should be something like <integer><unit>, like 14s, or 12d" % time_string)
+    #end handle frequency conversion
+
+def int_to_size_string(size):
+    """@return a string suitable for input into size_to_int(), scaling dynamically depending on the actual `size`"""
+    asize = abs(size)
+    if asize < 1024**2:
+        divider, unit = 1024, 'K'
+    elif asize <1024**3:
+        divider, unit = 1024**2, 'M'
+    elif asize <1024**4:
+        divider, unit = 1024**3, 'G'
+    elif asize <1024**5:
+        divider, unit = 1024**4, 'T'
+    else:
+        divider, unit = 1024**5, 'P'
+    # end handle sizes
+    return '%.2f%s' % (size / float(divider), unit)
+
+## -- End Unit Conversion Utilities -- \}

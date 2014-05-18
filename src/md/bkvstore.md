@@ -1,5 +1,7 @@
 ![under construction](https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png)
 
+TODO: WHY: dissolve the underlying folder structure and files, into a big tree of data. Deal with schema only, not with files or where data is coming from.
+
 The configuration system allows to be comprised of multiple files located in a hierarchical directory tree. Configuration levels further down the tree will overwrite settings specified further up. This way, we may flexibly configure all aspects of the pipeline.
 
 Additionally, configuration files can be conditional using a tag system, which allows to provide custom configuration based on the platform for instance, or the project's name.

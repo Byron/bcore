@@ -23,6 +23,8 @@ from bdiff import (NoValue,
 from .base import (KeyValueStoreModifier,
                    ChangeTrackingKeyValueStoreModifier)
 
+from .schema import KVPath
+
 
 
 # ==============================================================================
@@ -84,6 +86,11 @@ class _SerializingKeyValueStoreModifierMixin(object):
     ## A type to use for serialization
     ## To be set by subclass
     StreamSerializerType = None
+
+
+    ## A key under which all loaded settings files will be stored in the kvstore
+    # If None or empty, no setting files will be stored
+    settings_key='settings-files'
     
     ## -- End Subclass Configuration -- @}
 
@@ -154,13 +161,21 @@ class _SerializingKeyValueStoreModifierMixin(object):
             try:
                 # YES: THEY RETURN NONE IF THERE WAS NOTHING, INSTEAD OF DICT. GOD DAMNED ! Interface change !
                 stream = path_or_stream
+                stream_path = None
                 if not hasattr(path_or_stream, 'read'):
+                    stream_path = path_or_stream
                     stream = open(path_or_stream)
                 # end open stream as needed
                 data = streamer.deserialize(stream)
                 if hasattr(stream, 'close'):
                     stream.close()
                 # end handle stream close
+
+                # Add the path of the loaded configuration to allow referencing it in configuration.
+                # This allows configuration to be relative to the configuration file !
+                if stream_path and self.settings_key:
+                    data.setdefault(self.settings_key, dict())[stream_path.basename().split('.')[0]] = KVPath(stream_path)
+                # end place anchor
             except (OSError, IOError):
                 self.log.error("Could not load %s file at '%s'", streamer.file_extension, path_or_stream, exc_info=True)
                 return
