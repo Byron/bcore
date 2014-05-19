@@ -820,12 +820,16 @@ class PythonFileLoader(object):
         if path.isfile():
             res += cls._load_files(path.dirname(), [path.basename()])
         else:
-            for path, dirs, files in os.walk(path, topdown=True, followlinks=True):
+            seen = None
+            for seen, (path, dirs, files) in enumerate(os.walk(path, topdown=True, followlinks=True)):
                 res += cls._load_files(path, files)
                 if not recurse:
                     break
                 # end handle recursion
             # end for each directory to walk
+            if seen is None:
+                log.log(logging.TRACE, "Didn't find any plugin files at '%s'", path)
+            # end 
         # end handle file or directory
         return res
         

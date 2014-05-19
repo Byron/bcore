@@ -512,10 +512,16 @@ class PythonPackageIterator(ApplicationSettingsMixin, PackageDataIteratorMixin):
             if plugin_paths:
                 package = self._to_package(pname, pdata)
                 for plugin_path in plugin_paths:
-                    if not plugin_path.isabs():
-                        plugin_path = package.root_path() / plugin_path
-                    # end make plugin path absolute
-                    PythonFileLoader.load_files(plugin_path)
+                    try:
+                        if not plugin_path.isabs():
+                            plugin_path = package.to_abs_path(plugin_path)
+                        # end make plugin path absolute
+                        PythonFileLoader.load_files(plugin_path.expand_or_raise())
+                    except Exception as err:
+                        # plugin's shouldn't be essential, and make a program fail to startup (at least until
+                        # we make it a configuration flag)
+                        log.error("Failed to load plugin(s) at '%s' with error: %s", plugin_path, err)
+                    # end don't quit on failures to load plugins
                 #end for each plugin path
             # end handle plugin paths
         #end for each package

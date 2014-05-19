@@ -34,7 +34,6 @@ def with_application(fun):
     traversing the hiararchy in order to not be dependent on whatever assembly we are in"""
     @wraps(fun)
     def wrapper(*args, **kwargs):
-        print Path(__file__).dirname() / 'etc'
         app = bapp.Application.new(settings_trees=Path(__file__).dirname() / 'etc', 
                                    settings_hierarchy=False,
                                    user_settings=False)
