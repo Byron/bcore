@@ -7,6 +7,7 @@ python:
 install:
   pip install coveralls
 script:
+  export && exit 1
   nosetests src/python --with-coverage
 after_success:
   coveralls

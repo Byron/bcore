@@ -1,6 +1,7 @@
 packages:
   bcore:
-    # NOTE: The assembly maintainer will have to set the 'trees' value of this package accordingly.
+    trees:
+      - '{settings-files.bcore-package.dirname.dirname}'
     name: BCore
     description: |
       An application framework providing a powerful settings and plugin framework.
