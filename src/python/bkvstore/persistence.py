@@ -47,7 +47,7 @@ class OrderedDictYAMLLoader(Loader):
     """
  
     def __init__(self, *args, **kwargs):
-        yaml.Loader.__init__(self, *args, **kwargs)
+        Loader.__init__(self, *args, **kwargs)
  
         self.add_constructor(u'tag:yaml.org,2002:map', type(self).construct_yaml_map)
         self.add_constructor(u'tag:yaml.org,2002:omap', type(self).construct_yaml_map)
