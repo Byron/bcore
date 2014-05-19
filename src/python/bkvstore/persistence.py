@@ -10,8 +10,8 @@ from the actual yaml package from within this package
 """
 __all__ = ['OrderedDictYAMLLoader']
 
+import yaml
 import yaml.constructor
-import yaml.representer
 
 try:
     from yaml import CLoader as Loader
@@ -42,84 +42,29 @@ def initialize_yaml_overrides():
 
 
 class OrderedDictYAMLLoader(Loader):
-    """ A YAML loader that loads mappings into ordered dictionaries.
-
-    It is required to assure that iterating keys during serialization and
-    deserialization will not change the order of the keys.
-    Otherwise it would be confusing as files being written back unchanged
-    will result in a different file with a mostly unpredictable order.
-
-    @note based on https://gist.github.com/844388
     """
-
-    def construct_object(self, node, deep=False):
-        """Overridden to assure we use our overridden method before using
-        trying the plug-in types"""
-        if node in self.constructed_objects:
-            return self.constructed_objects[node]
-        if deep:
-            old_deep = self.deep_construct
-            self.deep_construct = True
-        if node in self.recursive_objects:
-            raise yaml.constructor.ConstructorError(None, None,
-                    "found unconstructable recursive node", node.start_mark)
-        self.recursive_objects[node] = None
-        constructor = None
-        tag_suffix = None
-
-        # prefer our own mapping override - don't use plugin types for this!
-        if isinstance(node, yaml.MappingNode):
-            constructor = self.__class__.construct_mapping
-        elif node.tag in self.yaml_constructors:
-            constructor = self.yaml_constructors[node.tag]
-        else:
-            for tag_prefix in self.yaml_multi_constructors:
-                if node.tag.startswith(tag_prefix):
-                    tag_suffix = node.tag[len(tag_prefix):]
-                    constructor = self.yaml_multi_constructors[tag_prefix]
-                    break
-            else:
-                if None in self.yaml_multi_constructors:
-                    tag_suffix = node.tag
-                    constructor = self.yaml_multi_constructors[None]
-                elif None in self.yaml_constructors:
-                    constructor = self.yaml_constructors[None]
-                elif isinstance(node, yaml.ScalarNode):
-                    constructor = self.__class__.construct_scalar
-                elif isinstance(node, yaml.SequenceNode):
-                    constructor = self.__class__.construct_sequence
-                elif isinstance(node, yaml.MappingNode):
-                    constructor = self.__class__.construct_mapping
-        if tag_suffix is None:
-            data = constructor(self, node)
-        else:
-            data = constructor(self, tag_suffix, node)
-        if hasattr(data, 'next'):
-            generator = data
-            data = generator.next()
-            if self.deep_construct:
-                for dummy in generator:
-                    pass
-            else:
-                self.state_generators.append(generator)
-        self.constructed_objects[node] = data
-        del self.recursive_objects[node]
-        if deep:
-            self.deep_construct = old_deep
-        return data
-
-
+    A YAML loader that loads mappings into ordered dictionaries.
+    """
+ 
+    def __init__(self, *args, **kwargs):
+        yaml.Loader.__init__(self, *args, **kwargs)
+ 
+        self.add_constructor(u'tag:yaml.org,2002:map', type(self).construct_yaml_map)
+        self.add_constructor(u'tag:yaml.org,2002:omap', type(self).construct_yaml_map)
+ 
+    def construct_yaml_map(self, node):
+        data = OrderedDict()
+        yield data
+        value = self.construct_mapping(node)
+        data.update(value)
+ 
     def construct_mapping(self, node, deep=False):
-        """Called preferably - all we do is use an ordered dict. Unfortunately
-        the dict type is nothing we could easily override"""
         if isinstance(node, yaml.MappingNode):
             self.flatten_mapping(node)
         else:
             raise yaml.constructor.ConstructorError(None, None,
                 'expected a mapping node, but found %s' % node.id, node.start_mark)
-            #end
-        #end is node a mapping node
-
+ 
         mapping = OrderedDict()
         for key_node, value_node in node.value:
             key = self.construct_object(key_node, deep=deep)
@@ -127,22 +72,10 @@ class OrderedDictYAMLLoader(Loader):
                 hash(key)
             except TypeError, exc:
                 raise yaml.constructor.ConstructorError('while constructing a mapping',
-                    node.start_mark, 'found unacceptable key (%s)' % exc,
-                                        key_node.start_mark)
-                #end raise other exception
-            #end try hash(key)
+                    node.start_mark, 'found unacceptable key (%s)' % exc, key_node.start_mark)
             value = self.construct_object(value_node, deep=deep)
             mapping[key] = value
-        #end for each key_node, value_node in node.value
         return mapping
-        
-    # Support for older yaml versions - this is required to make it work
-    # For some reason, it pulls another version of yaml in which is missing this method
-    if not hasattr(Loader, 'dispose'):
-        def dispose(self):
-            """noop
-            @todo remove this """
-            pass
 
 
 class OrderedDictRepresenter(yaml.representer.Representer):

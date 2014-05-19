@@ -25,7 +25,7 @@ def _init_yaml_persistence():
     except ImportError:
         # use our version
         try:
-            from . import yaml
+            from . import yaml_builtin as yaml
         except ImportError:
             raise ImportError("Failed to import yaml, even using our own library at bkvstore.yaml")
         #end handle yaml
@@ -33,7 +33,6 @@ def _init_yaml_persistence():
     
     # set the module to be part of us
     sys.modules['yaml'] = yaml
-    
     
     # Setup persistence
     from . import persistence
