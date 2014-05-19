@@ -15,12 +15,13 @@ import os
 import signal
 from time import sleep
 
+from .utility import CommandlineOverridesMixin
 from bapp import ApplicationSettingsMixin
 from butility import (Path,
                       daemonize)
                     
 
-class DaemonCommandMixin(object):
+class DaemonCommandMixin(CommandlineOverridesMixin):
     """Main Daemon command without subcommands. Just starts a thread which can be an EnvironmentStackContextClient
     """
 
@@ -46,8 +47,8 @@ class DaemonCommandMixin(object):
 
     pid_file_args = ['-d', '--pid-file']
 
-    # only used if ThreadType has custom configuration
-    show_config_args = ['-c', '--show-configuration']
+    # If True, and if ThreadType has a settings schema, they can be shown and overridden
+    enable_commandline_overrides = True
 
     ## -- End Settings -- @}
 
@@ -83,20 +84,16 @@ class DaemonCommandMixin(object):
         help += "Fails if the file already exists - we won't check for orphaned files"
         parser.add_argument(*self.pid_file_args, dest='pid_file', type=Path, help=help)
 
-        if self.show_config_args and issubclass(self.ThreadType, ApplicationSettingsMixin):
-            help = "Show the daemons effective configuration and exit"
-            parser.add_argument(*self.show_config_args, default=False, 
-                                    dest='show_config', action='store_true', help=help)
+        if self.enable_commandline_overrides and issubclass(self.ThreadType, ApplicationSettingsMixin):
+            self.setup_overrides_argparser(parser)
         # end handle commandargs
 
         return self
 
     def execute(self, args, remaining_args):
-        if getattr(args, 'show_config', None):
-            sys.stdout.write("%s.*\n" % self.ThreadType.settings_schema().key())
-            sys.stdout.write(str(self.ThreadType.settings_value()))
-            return self.SUCCESS
-        # end handle config printing
+        if issubclass(self.ThreadType, ApplicationSettingsMixin):
+            self.apply_overrides(self.ThreadType.settings_schema(), args)
+        # end statement will raise if we shold abort
 
         # Whatever happens, make sure we delete the pid file
         if args.pid_file is not None:

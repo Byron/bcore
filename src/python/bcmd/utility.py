@@ -97,7 +97,6 @@ class CommandlineOverridesMixin(object):
     Derive from the type, and call 'self.apply_overrides()' during execute(). You must define a schema informing
     about the values you can support, and where to find them.
     """
-    __slots__ = ()
 
     # -------------------------
     ## @name Configuration
