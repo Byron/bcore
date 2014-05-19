@@ -9,9 +9,9 @@
 __all__ = []
 
 from .base import (preserve_application,
-                   TestCoreCaseBase)
+                   TestCoreCase)
                             
-from butility import (InterfaceBase,
+from butility import (Interface,
                       abstractmethod)
 
 import bapp
@@ -23,7 +23,7 @@ from bapp.contexts import (ApplicationContext,
                             OSContext)
 
 
-class TestCore(TestCoreCaseBase):
+class TestCore(TestCoreCase):
     __slots__ = ()
     
     @preserve_application
@@ -32,7 +32,7 @@ class TestCore(TestCoreCaseBase):
 
         self.failUnlessRaises(EnvironmentError, bapp.main)
 
-        class ICustomInterface(InterfaceBase):
+        class ICustomInterface(Interface):
             __slots__ = ()
             
             @abstractmethod
@@ -88,7 +88,7 @@ class TestCore(TestCoreCaseBase):
 # end class TestCore
 
 
-class TestContext(TestCoreCaseBase):
+class TestContext(TestCoreCase):
     __slots__ = ()
 
     @preserve_application

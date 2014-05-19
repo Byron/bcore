@@ -8,13 +8,13 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ChangeTrackingSerializingKeyValueStoreModifierBase', 'SerializingKeyValueStoreModifierBase']
+__all__ = ['ChangeTrackingSerializingKeyValueStoreModifier', 'SerializingKeyValueStoreModifier']
 
 import logging
 
 
 from butility import (Path,
-                      InterfaceBase,
+                      Interface,
                       abstractmethod)
 
 from bdiff import (NoValue,
@@ -32,7 +32,7 @@ from .schema import KVPath
 # ------------------------------------------------------------------------------
 ## @{
 
-class IStreamSerializer(InterfaceBase):
+class IStreamSerializer(Interface):
     """An interface to allow serialization of objects to a stream
     @todo these classes are so general, they should move somewhere more general too !"""
     __slots__ = ()
@@ -223,7 +223,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
 
 
 # NOTE: unfortunately, we cannot make an absolute import here due to cyclic dependencies
-class SerializingKeyValueStoreModifierBase(_SerializingKeyValueStoreModifierMixin, KeyValueStoreModifier):
+class SerializingKeyValueStoreModifier(_SerializingKeyValueStoreModifierMixin, KeyValueStoreModifier):
     """From an iterable of files, merge all obtained documentation into one.
     
     The idea is that the storage can be decomposed into multiple files, which are provided conditionally
@@ -237,14 +237,14 @@ class SerializingKeyValueStoreModifierBase(_SerializingKeyValueStoreModifierMixi
     __slots__ = ()
 
 
-# end class SerializingKeyValueStoreModifierBase
+# end class SerializingKeyValueStoreModifier
 
 
 
 # NOTE: unfortunately, we cannot make an absolute import here due to cyclic dependencies
-class ChangeTrackingSerializingKeyValueStoreModifierBase(_SerializingKeyValueStoreModifierMixin, 
+class ChangeTrackingSerializingKeyValueStoreModifier(_SerializingKeyValueStoreModifierMixin, 
                                                          ChangeTrackingKeyValueStoreModifier):
-    """Similar to the SerializingKeyValueStoreModifierBase, but additionally it will track changes (duplicating
+    """Similar to the SerializingKeyValueStoreModifier, but additionally it will track changes (duplicating
     the required amount of memory), and allow you to write back just the changed values.
     """
     __slots__ = ()
@@ -289,5 +289,5 @@ class ChangeTrackingSerializingKeyValueStoreModifierBase(_SerializingKeyValueSto
 
     ## -- End Serialization Interface -- @}
 
-# end class SerializingKeyValueStoreModifierBase
+# end class SerializingKeyValueStoreModifier
 

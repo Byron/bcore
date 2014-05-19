@@ -10,7 +10,7 @@ __all__ = []
 
 import bapp
 from .base import with_application
-from butility.tests import (TestCaseBase,
+from butility.tests import (TestCase,
                             with_rw_directory)
 
 # try * import
@@ -59,7 +59,7 @@ class TestSettingsClient(PersistentApplicationSettingsMixin):
 # end class TestSettingsClient
 
 
-class TestSettings(TestCaseBase):
+class TestSettings(TestCase):
     __slots__ = ()
 
     @with_rw_directory

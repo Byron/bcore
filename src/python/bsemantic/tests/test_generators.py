@@ -14,11 +14,11 @@ __all__ = []
 # test from x import *
 from bsemantic import ElementNodeTree
 from bsemantic.generators import *
-from bsemantic.tests.base import TestBase
+from bsemantic.tests.base import Test
 from butility import DictObject
 
 
-class TestGenerators(TestBase):
+class TestGenerators(Test):
     __slots__ = ()
     
     def test_formatting(self):

@@ -8,10 +8,10 @@
 """
 __all__ = ['PrefixProperty']
 
-from .base import PropertyBase
+from .base import Property
 
 
-class PrefixProperty(PropertyBase):
+class PrefixProperty(Property):
     """A Property which sets and gets values in its instance using a simple prefix
     
     This allows syntax like inst.foo.set_value(1) to set inst._foo to be 1.

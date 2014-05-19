@@ -8,11 +8,11 @@
 """
 __all__ = ['BeTestCase']
 
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from butility import Path
 
 
-class BeTestCase(TestCaseBase):
+class BeTestCase(TestCase):
     """Base for all be test cases"""
     __slots__ = ()
 

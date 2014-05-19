@@ -7,7 +7,7 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 
-__all__ = [ 'QualityCheckCategory', 'NoCategory', 'QualityCheckBase', 'QualityCheckRunner', 
+__all__ = [ 'QualityCheckCategory', 'NoCategory', 'QualityCheck', 'QualityCheckRunner', 
             'QualityCheckRunnerDelegate', 'StreamingQualityCheckRunnerDelegate']
 
 import sys
@@ -15,7 +15,7 @@ import traceback
 import logging
 
 from butility import ( abstractmethod,
-                      InterfaceBase,
+                      Interface,
                       wraps )
 
 from .interfaces import ( IQualityCheck,
@@ -84,7 +84,7 @@ class QualityCheckRunnerDelegate(IQualityCheckRunnerDelegate):
                                                                     quality_check.name(), exc_info=True)
     
     def post_fix(self, quality_check):
-        assert isinstance(quality_check, QualityCheckBase)
+        assert isinstance(quality_check, QualityCheck)
         if quality_check.result() != quality_check.success:
             quality_check.reset_result().run()
         #end handle check state
@@ -92,7 +92,7 @@ class QualityCheckRunnerDelegate(IQualityCheckRunnerDelegate):
     ## -- End Interface -- @}
 
 
-class QualityCheckBase(IQualityCheck):
+class QualityCheck(IQualityCheck):
     """A base class providing the foundation for all actual QualityCheck implementations."""
     __slots__ = (
         '_result',   # result constant of the last run
@@ -161,7 +161,7 @@ class QualityCheckBase(IQualityCheck):
     def reset_result(self):
         """Reset the result of the previous run
         @return this instance"""
-        self._result = QualityCheckBase.no_result
+        self._result = QualityCheck.no_result
         return self
         
     def fix(self):
@@ -219,15 +219,15 @@ class QualityCheckBase(IQualityCheck):
         """@returns an instance of `QualityCheckCategory` which serves as group. The same instance is used by multiple
         quality checks.
         
-        Can be the special constant `QualityCheckBase.no_category`, which is the default.
+        Can be the special constant `QualityCheck.no_category`, which is the default.
         """
 
     ## -- Information -- @}
-# end class QualityCheckBase    
+# end class QualityCheck    
 
 
 class QualityCheckRunner(IQualityCheckRunner):
-    """Is a list of `QualityCheckBase` compatible instances which can be run safely, providing just-in-time information
+    """Is a list of `QualityCheck` compatible instances which can be run safely, providing just-in-time information
     about the results of this run.
     
     For this, it uses a delegate which will receive respective calls. The client can implement one, but even 
@@ -271,7 +271,7 @@ class QualityCheckRunner(IQualityCheckRunner):
         #end handle delegate initialization
         
     def run_one(self, quality_check, auto_fix=False):
-        assert isinstance(quality_check, QualityCheckBase)
+        assert isinstance(quality_check, QualityCheck)
         # PRE RUN
         #########
         dres = self._delegate.pre_run(quality_check)
@@ -362,7 +362,7 @@ class StreamingQualityCheckRunnerDelegate(QualityCheckRunnerDelegate):
     
     def _check_failed(self, check):
         """@return True if the check failed"""
-        assert isinstance(check, QualityCheckBase)
+        assert isinstance(check, QualityCheck)
         return check.result() != check.success
     
     def handle_error(self, quality_check):

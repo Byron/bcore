@@ -7,13 +7,13 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = ['PropertyError', 'NotWritableError', 'NoSuchPropertyError', 'NotDeletableError', 
-           'PropertyBase', 'CompoundProperty', 
+           'Property', 'CompoundProperty', 
            'PropertyDescriptor', 'CompoundPropertyDescriptor',
            'PropertyMeta', 'PropertySchemaMeta']
 
 from butility import (abstractmethod,
                      Error,
-                     MetaBase)
+                     Meta)
 import logging
 import weakref
 
@@ -57,7 +57,7 @@ class NoSuchPropertyError(PropertyError):
 # ------------------------------------------------------------------------------
 ## @{
 
-class PropertyBase(object):
+class Property(object):
     """A property returned by a property descriptor
     
     @note Instances of this type are considered transient, and must not be kept alive after use. Instead,
@@ -67,7 +67,7 @@ class PropertyBase(object):
     @note even though Descriptors have support for read-only and/or write-only attributes, they 
     lack support for more complex attributes or interfaces, which this type is providing
     """
-    __metaclass__ = MetaBase
+    __metaclass__ = Meta
     __slots__ = (
                     '_descriptor',   # A back-link to our descriptor
                     '_instance'      # A back-link to the instance who owns this property
@@ -101,10 +101,10 @@ class PropertyBase(object):
         
     ## -- End Interface -- @}
 
-# end class PropertyBase
+# end class Property
 
 
-class CompoundProperty(PropertyBase):
+class CompoundProperty(Property):
     """A property which has named child-properties, allowing nested properties.
     @note this type just as intermediate object to return values by name"""
     __slots__ = ( )
@@ -197,7 +197,7 @@ class PropertyDescriptor(object):
     ## @name Configuration
     # @{
     
-    ## The PropertyBase compatible type that is to be instantiated
+    ## The Property compatible type that is to be instantiated
     ## Must be set by subclass
     PropertyType = None
     
@@ -369,7 +369,7 @@ class CompoundPropertyDescriptor(PropertyDescriptor):
 # ------------------------------------------------------------------------------
 ## @{
 
-class PropertyMeta(MetaBase):
+class PropertyMeta(Meta):
     """A metaclass to verify all Property descriptors have their appropriate name
     @note useful for debugging, or to save some typing"""
     __slots__ = ()
@@ -394,7 +394,7 @@ class PropertyMeta(MetaBase):
 # end class PropertyMeta
 
 
-class PropertySchemaMeta(MetaBase):
+class PropertySchemaMeta(Meta):
     """A metaclass to colllect all properties and merge them into a common schema.
     
     It will also resolve all Descriptor names

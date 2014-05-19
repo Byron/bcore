@@ -11,7 +11,7 @@ __all__ = []
 import sys
 
 import bapp
-from butility.tests import (TestCaseBase,
+from butility.tests import (TestCase,
                             with_rw_directory)
 
 import bcmd
@@ -25,7 +25,7 @@ import bcmd
 ## \{
 
 ## [ExampleCommand]
-class ExampleCommand(bcmd.CommandBase):
+class ExampleCommand(bcmd.Command):
     """A command with verbosity argument"""
     __slots__ = ()
     
@@ -58,7 +58,7 @@ class ExampleCommand(bcmd.CommandBase):
 ## [ExampleCommand] 
         
 ## [ExampleCommandWithSubcommands]
-class MasterCommand(bcmd.CommandBase):
+class MasterCommand(bcmd.Command):
     """Allows for subcommands"""
     
     name = 'master'
@@ -72,11 +72,11 @@ class MasterCommand(bcmd.CommandBase):
 
 # end class MasterCommand
 
-class ExampleSubCommand(ExampleCommand, bcmd.SubCommandBase, bapp.plugin_type()):
+class ExampleSubCommand(ExampleCommand, bcmd.SubCommand, bapp.plugin_type()):
     """Shows how to use an existing command as mode of a master command.
-    @note we make ourselves a plugin to allow the CommandBase implementation to find our command.
+    @note we make ourselves a plugin to allow the Command implementation to find our command.
     This can also be overridden if no plugin system is required, using the 
-    bcmd.CommandBase._find_compatible_subcommands() method"""
+    bcmd.Command._find_compatible_subcommands() method"""
     
     # this associates us with the main command
     main_command_name = MasterCommand.name

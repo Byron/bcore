@@ -17,7 +17,7 @@ from bkvstore import ( KeyValueStoreSchema,
 from bproperty import    ( PropertySchemaMeta,
                            PropertyDescriptor,
                            CompoundPropertyDescriptor,
-                           PropertyBase,
+                           Property,
                            NotDeletableError,
                            NotWritableError )
 

@@ -10,7 +10,7 @@ __all__ = []
 
 import logging
 
-from butility.tests import ( TestCaseBase,
+from butility.tests import ( TestCase,
                              with_rw_directory )
 
 from btransaction import Transaction
@@ -27,7 +27,7 @@ class CopyInformationEnvironment(object):
 # end class CopyInformationEnvironment
 
 
-class ActionTests(TestCaseBase):
+class ActionTests(TestCase):
     """Verify different actions work correctly """
     __slots__ = ()
 

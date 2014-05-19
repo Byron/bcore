@@ -8,7 +8,7 @@
 """
 __all__ = []
 
-from .base import (TestCoreCaseBase,
+from .base import (TestCoreCase,
                    with_application)
 from bapp.properties import *
 from bkvstore import RootKey
@@ -31,7 +31,7 @@ class ExampleContextClient(PropertyApplicationSettingsMixin):
 # end class ExampleContextClient
 
 
-class TestEnvironmentProperties(TestCoreCaseBase):
+class TestEnvironmentProperties(TestCoreCase):
     __slots__ = ()
 
     @with_application

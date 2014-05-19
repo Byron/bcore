@@ -12,7 +12,7 @@ import time
 import os
 import logging
 
-from butility.tests import (TestCaseBase,
+from butility.tests import (TestCase,
                             with_rw_directory,
                             skip_on_travis_ci)
 
@@ -28,7 +28,7 @@ from btransaction.operations.fsops import *
 log = logging.getLogger('btransaction.tests.test_operations')
 
 
-class TestOperations(TestCaseBase):
+class TestOperations(TestCase):
     
     def _assert_rsync_state(self, ro):
         """Verify state of rsync object after operation"""

@@ -12,7 +12,7 @@ import sys
 import os.path
 
 import bapp
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from butility import PythonFileLoader
 
 # Dynamic loading of wrapper code - its not in a package for good reason
@@ -22,7 +22,7 @@ bootstrap = PythonFileLoader.load_file(wrapper_file, 'bootstrap')
 import bootstrap
 
     
-class TestBootstrap(TestCaseBase):
+class TestBootstrap(TestCase):
     """Tests for the bootstrap implementation"""
     __slots__ = ()
     

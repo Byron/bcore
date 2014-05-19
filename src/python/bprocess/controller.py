@@ -21,7 +21,7 @@ import bapp
 from butility import ( Path,
                        TRACE,
                        update_env_path,
-                       GraphIteratorBase,
+                       GraphIterator,
                        LazyMixin,
                        PythonFileLoader,
                        DictObject,
@@ -141,7 +141,7 @@ def by_existing_dirs_and_files(fs_items):
 ## -- End Utilities -- @}
 
 
-class ProcessController(GraphIteratorBase, LazyMixin, ApplicationSettingsMixin):
+class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
     """The main interface to deal with \ref processcontrol "Process Control" .
     
     It allows to control the environment in which processes are executed, as well as to alter their input 

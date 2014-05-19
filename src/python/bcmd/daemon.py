@@ -26,7 +26,7 @@ class DaemonCommandMixin(object):
 
     # -------------------------
     ## @name Subclass Configuration
-    # @note all CommandBase configuration must be provided too
+    # @note all Command configuration must be provided too
     # @{
 
     ## The kind of TerminatableThread, which must be a context client, to daemonize

@@ -16,14 +16,14 @@ from time import (sleep,
 
 import bapp
 from bapp.tests import with_application
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from butility import TerminatableThread
 
 # Test * import
 from bcmd import *
 
 
-class SimpleCommand(CommandBase):
+class SimpleCommand(Command):
     """Just to run the code"""
     __slots__ = ()
     
@@ -44,7 +44,7 @@ class SimpleCommand(CommandBase):
 # end class SimpleCommand
 
 
-class MainCommand(CommandBase):
+class MainCommand(Command):
     """A command providing subcommands"""
     __slots__ = ()
 
@@ -65,7 +65,7 @@ class MainCommand(CommandBase):
 # end class MainCommand
 
 
-class SimpleSubcommand(SimpleCommand, SubCommandBase, bapp.plugin_type()):
+class SimpleSubcommand(SimpleCommand, SubCommand, bapp.plugin_type()):
     """A simple command to be used as subcommand"""
     __slots__ = ()
     
@@ -83,7 +83,7 @@ class IncompatibleSubccommand(SimpleSubcommand):
 # end class IncompatibleSubccommand
 
 
-class NestedBase(CommandBase):
+class Nested(Command):
     __slots__ = ()
 
     name = 'with-nesting'
@@ -92,17 +92,17 @@ class NestedBase(CommandBase):
 
     subcommands_title = 'enabled subcommands'
 
-# end class NestedBase
+# end class Nested
 
 
-class NestedCommand(SubCommandBase, bapp.plugin_type()):
+class NestedCommand(SubCommand, bapp.plugin_type()):
     """See if it works to have multiple nesting levels"""
     __slots__ = ('_argparser_called')
 
     name = 'nested'
     version = '0.1.2'
     description = 'other'
-    main_command_name = NestedBase.name
+    main_command_name = Nested.name
 
     # make this one a subcommand master as well
     subcommands_title = "we also have subcommands"
@@ -113,7 +113,7 @@ class NestedCommand(SubCommandBase, bapp.plugin_type()):
 # end class NestedCommand
 
 
-class NestedSubCommand(SubCommandBase, bapp.plugin_type()):
+class NestedSubCommand(SubCommand, bapp.plugin_type()):
     __slots__ = ()
 
     name = 'bar'
@@ -144,7 +144,7 @@ class DaemonThread(TerminatableThread):
         # end work loop
 
 
-class DaemonCommand(DaemonCommandMixin, CommandBase, CommandlineOverridesMixin):
+class DaemonCommand(DaemonCommandMixin, Command, CommandlineOverridesMixin):
     __slots__ = ()
 
     name = 'tester'
@@ -171,7 +171,7 @@ class DaemonCommand(DaemonCommandMixin, CommandBase, CommandlineOverridesMixin):
 # end class DaemonCommand
 
 
-class TestCommands(TestCaseBase):
+class TestCommands(TestCase):
     """Basic command framework tests"""
     __slots__ = ()
 
@@ -204,14 +204,14 @@ class TestCommands(TestCaseBase):
 
     @with_application
     def test_nested_command(self):
-        cmd = NestedBase(application=bapp.main())
+        cmd = Nested(application=bapp.main())
         assert cmd.parse_and_execute([NestedCommand.name, NestedSubCommand.name]) == NestedSubCommand.call_magic, \
         'nesting should work just fine'
 
 # end class TestCommands
 
 
-class TestDaemonCommand(TestCaseBase):
+class TestDaemonCommand(TestCase):
 
     @with_application(from_file=__file__)
     def test_basic_operation(self):

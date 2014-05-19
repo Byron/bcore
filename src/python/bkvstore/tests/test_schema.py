@@ -8,7 +8,7 @@
 """
 __all__ = []
 
-from .base import TestConfigurationBase
+from .base import TestConfiguration
 from . import test_serialize
 
 
@@ -34,7 +34,7 @@ def validator_backup(func):
     return wrapper
     
 
-class TestSchema(TestConfigurationBase):
+class TestSchema(TestConfiguration):
     __slots__ = ()
     
     @classmethod

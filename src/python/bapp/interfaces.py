@@ -10,13 +10,13 @@
 __all__ = ['IPlatformService', 'IContextController', 
            'IProjectService', 'IDirectoryService']
 
-from butility import (InterfaceBase,
+from butility import (Interface,
                       abstractmethod,
                       Error)
 
         
         
-class IContextController(InterfaceBase):
+class IContextController(Interface):
     """A controller to deal with the context changes of a typical application.
     
     It deals with two kinds of contexts:
@@ -91,7 +91,7 @@ class IContextController(InterfaceBase):
         
     
 
-class IPlatformService(InterfaceBase):
+class IPlatformService(Interface):
     """Interface for platform instances specific to operating systems"""
     
     # -------------------------
@@ -138,7 +138,7 @@ class IPlatformService(InterfaceBase):
     ## -- End Interface -- @}
     
     
-class IDirectoryService(InterfaceBase):
+class IDirectoryService(Interface):
     """Provides information about the directory structure, and generally where to find things"""
     __slots__ = ()
 

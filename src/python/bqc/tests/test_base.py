@@ -9,7 +9,7 @@
 __all__ = []
 
 import bapp
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from bqc import *
 
 from cStringIO import StringIO
@@ -40,7 +40,7 @@ class TestStreamingDelegate(StreamingQualityCheckRunnerDelegate):
 # ------------------------------------------------------------------------------
 ## @{
 
-class QualityCheckMockup(QualityCheckBase, bapp.plugin_type()):
+class QualityCheckMockup(QualityCheck, bapp.plugin_type()):
     """A utility to test the quality check framework """
 
     __slots__ = (
@@ -63,9 +63,9 @@ class QualityCheckMockup(QualityCheckBase, bapp.plugin_type()):
             raise TypeError("Controlled exception")
         #end raise at runtime
         if self._fixed is not None:
-            self._result = self._fixed and QualityCheckBase.success or QualityCheckBase.failure
+            self._result = self._fixed and QualityCheck.success or QualityCheck.failure
         else:
-            self._result = QualityCheckBase.failure
+            self._result = QualityCheck.failure
         #end handle result according to fixed state
         return self
     
@@ -142,14 +142,14 @@ class QualityCheckRunnerDelegateMockup(QualityCheckRunnerDelegate, bapp.plugin_t
 ## -- End Testing Mockups -- @}
 
 
-class TestQualityCheckFramework(TestCaseBase):
+class TestQualityCheckFramework(TestCase):
     
     def test_class_methods(self):
         """Verify class interface of quality check"""
         qcm = QualityCheckMockup
         self.failUnless(qcm.name() == qcm._name)
         assert qcm.description() == qcm._description
-        assert qcm.category() is QualityCheckBase.no_category
+        assert qcm.category() is QualityCheck.no_category
         assert hash(qcm.uid()) == hash(qcm.uid()), "UID should be hashable and deterministic"
         
     def test_category(self):
@@ -172,14 +172,14 @@ class TestQualityCheckFramework(TestCaseBase):
     def test_quality_check(self):
         """Testing the quality check mockup"""
         qci = QualityCheckMockup()
-        assert qci.result() is QualityCheckBase.no_result, "Shouldn't have any result yet"
+        assert qci.result() is QualityCheck.no_result, "Shouldn't have any result yet"
         assert not qci.can_fix()
-        self.failUnless(qci.run().result() is QualityCheckBase.failure)
-        assert qci.reset_result().result() is QualityCheckBase.no_result
+        self.failUnless(qci.run().result() is QualityCheck.failure)
+        assert qci.reset_result().result() is QualityCheck.no_result
         
         assert qci.set_unfixed().can_fix()
-        assert qci.run().result() is QualityCheckBase.failure
-        assert qci.fix().run().result() is QualityCheckBase.success
+        assert qci.run().result() is QualityCheck.failure
+        assert qci.fix().run().result() is QualityCheck.success
         
     def test_runner(self):
         """verify runner operation"""
@@ -191,13 +191,13 @@ class TestQualityCheckFramework(TestCaseBase):
         
         assert qcr.delegate() is dlg
         
-        assert qck.result() == QualityCheckBase.no_result, "precondition: check is not yet done"
+        assert qck.result() == QualityCheck.no_result, "precondition: check is not yet done"
         dlg.pre_run_result = qcr.skip_check
-        assert qcr.run_one(qck).result() is QualityCheckBase.no_result, "Expected the check to be skipped"
+        assert qcr.run_one(qck).result() is QualityCheck.no_result, "Expected the check to be skipped"
         assert dlg.exception_encountered == False
         
         dlg.pre_run_result = None
-        assert qcr.run_all()[0].result() is QualityCheckBase.failure
+        assert qcr.run_all()[0].result() is QualityCheck.failure
         
         # verify it can handle exceptions
         dlg.reset()
@@ -219,7 +219,7 @@ class TestQualityCheckFramework(TestCaseBase):
         assert not dlg.fix_attempted
         assert qcr.run_all(auto_fix=True) is qcr
         assert dlg.fix_attempted
-        assert qcr[0].result() is QualityCheckBase.success, "Expected success when item was fixed"
+        assert qcr[0].result() is QualityCheck.success, "Expected success when item was fixed"
         dlg.reset()
         
     def test_stream_delegate(self):

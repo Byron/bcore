@@ -23,7 +23,7 @@ from .interfaces import (IPlatformService,
 from . import schema
 
 
-class PlatformServicesBase(IPlatformService, ApplicationSettingsMixin, bapp.plugin_type()):
+class PlatformServices(IPlatformService, ApplicationSettingsMixin, bapp.plugin_type()):
     """Base implementation for platform instances"""
     
     platform_names_map = HierarchicalContext.platform_names_map
@@ -81,10 +81,10 @@ class PlatformServicesBase(IPlatformService, ApplicationSettingsMixin, bapp.plug
 
     ## -- End Interface -- @}
     
-# end class PlatformServicesBase
+# end class PlatformServices
 
 
-class LinuxPlatformService(PlatformServicesBase):
+class LinuxPlatformService(PlatformServices):
     """Platform instances specific for Linux"""
     
     # -------------------------
@@ -100,7 +100,7 @@ class LinuxPlatformService(PlatformServicesBase):
 # end class LinuxPlatformService
 
     
-class MacPlatformService(PlatformServicesBase):
+class MacPlatformService(PlatformServices):
     """Platform instances specific for Mac OS X"""
     # -------------------------
     ## @name Configuration
@@ -115,7 +115,7 @@ class MacPlatformService(PlatformServicesBase):
 # end class MacPlatformService
 
 
-class WindowsPlatformService(PlatformServicesBase):
+class WindowsPlatformService(PlatformServices):
     """Platform instances specific to windows"""
     
     # -------------------------

@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['CommandBase', 'SubCommandBase', 'InputError']
+__all__ = ['Command', 'SubCommand', 'InputError']
 
 import sys
 import logging
@@ -29,7 +29,7 @@ from .utility import ( CommandArgumentParser,
 
 
 
-class CommandBase(ICommand, LazyMixin):
+class Command(ICommand, LazyMixin):
     """Implements a simple command which is easily configured through overridable class members.
     
     It has built-in support for plugin-subcommands
@@ -145,7 +145,7 @@ class CommandBase(ICommand, LazyMixin):
                                                     'description' : self.description
                                                   })
         else:
-            return super(CommandBase, self)._set_cache_(name)
+            return super(Command, self)._set_cache_(name)
         # end handle name
         
     def _has_subcommands(self):
@@ -180,7 +180,7 @@ class CommandBase(ICommand, LazyMixin):
     def setup_argparser(self, parser):
         """Default implementation adds nothing. This is common if you use subcommands primarily"""
         try:
-            return super(CommandBase, self).setup_argparser(parser)
+            return super(Command, self).setup_argparser(parser)
         except AttributeError:
             return self
         # end support mixins
@@ -360,10 +360,10 @@ class CommandBase(ICommand, LazyMixin):
         
             
     ## -- End Interface -- @}
-# end class CommandBase
+# end class Command
 
 
-class SubCommandBase(CommandBase, ISubCommand):
+class SubCommand(Command, ISubCommand):
     """Base implementation for SubCommands to work with any compatible main command.
     
     Compatibility is determined by comparing the name of the given command with the name we see in 
@@ -398,4 +398,4 @@ class SubCommandBase(CommandBase, ISubCommand):
     
     ## -- End Interface Implementation -- @}
 
-# end class SubCommandBase
+# end class SubCommand

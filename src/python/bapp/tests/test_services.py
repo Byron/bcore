@@ -8,7 +8,7 @@
 """
 __all__ = []
 
-from butility.tests import TestInterfaceBase
+from butility.tests import TestInterface
 from .test_interfaces import (TestIPlatformService,
                               TestDirectoryServicesMixin)
 from bapp.services import ( LinuxPlatformService,
@@ -25,7 +25,7 @@ class TestPlatformServices(TestIPlatformService):
 # end class TestPlatformServices
 
 
-class TestProjectServices(TestDirectoryServicesMixin, TestInterfaceBase):
+class TestProjectServices(TestDirectoryServicesMixin, TestInterface):
     """Tests for the default project-instances implemntation """
     __slots__ = ()
     

@@ -10,12 +10,12 @@ __all__ = []
 
 import yaml
 
-from .base import TestConfigurationBase
+from .base import TestConfiguration
 from butility.tests import with_rw_directory
 
 from bkvstore import ( KeyValueStoreProviderDiffDelegate,
                        RelaxedKeyValueStoreProviderDiffDelegate,
-                       ChangeTrackingSerializingKeyValueStoreModifierBase,
+                       ChangeTrackingSerializingKeyValueStoreModifier,
                        YAMLStreamSerializer )
 from bkvstore.serialize import *
 from bkvstore.persistence import OrderedDictYAMLLoader
@@ -30,7 +30,7 @@ from butility import tagged_file_paths
 # Used to get loose kvstore semantics back for those relatively old tests
 ## @{
 
-class LooseYAMLKeyValueStoreModifier(ChangeTrackingSerializingKeyValueStoreModifierBase):
+class LooseYAMLKeyValueStoreModifier(ChangeTrackingSerializingKeyValueStoreModifier):
     """Loose semantics"""
     __slots__ = ()
     
@@ -43,7 +43,7 @@ class LooseYAMLKeyValueStoreModifier(ChangeTrackingSerializingKeyValueStoreModif
 
 
 
-class TestYamlConfiguration(TestConfigurationBase):
+class TestYamlConfiguration(TestConfiguration):
     __slots__ = ()
     
     @classmethod

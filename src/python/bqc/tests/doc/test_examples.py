@@ -10,15 +10,15 @@ __all__ = []
 import sys
 
 import bapp
-from butility.tests import (TestCaseBase,
+from butility.tests import (TestCase,
                             with_rw_directory)
 
 from bqc import (QualityCheckRunner,
-                      QualityCheckBase)
+                      QualityCheck)
 
 ## [quality_check]
 
-class FileExistsCheck(QualityCheckBase):
+class FileExistsCheck(QualityCheck):
     """Check if a file exists. When fixing, it just creates it"""
 
     __slots__ = (
@@ -57,7 +57,7 @@ class QualityCheckRunnerTest(QualityCheckRunner):
     """basic quality check runner, just inherits the QualityCheckRunner interface"""
 
 
-class QualityCheckTest(TestCaseBase):
+class QualityCheckTest(TestCase):
     """brief docs"""
     __slots__ = ()
 
@@ -72,11 +72,11 @@ class QualityCheckTest(TestCaseBase):
         runner = QualityCheckRunnerTest([qck])
         # run without automatic fixing - the check will fail as the file does not exist
         runner.run_all()
-        assert qck.result() is QualityCheckBase.failure, "qc didn't fail as expected"
+        assert qck.result() is QualityCheck.failure, "qc didn't fail as expected"
         
         # re-run with fixing enabled
         runner.run_all(auto_fix=True)
-        assert qck.result() is QualityCheckBase.success, "qc didn't succeed as expected"
+        assert qck.result() is QualityCheck.success, "qc didn't succeed as expected"
         assert file_path.isfile(), "Now the file should exist"
         ## [quality_check_usage]
         

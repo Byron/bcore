@@ -17,8 +17,8 @@ from butility import OrderedDict
 
 from .persistence import OrderedDictYAMLLoader
 
-from .serialize import ( SerializingKeyValueStoreModifierBase,
-                         ChangeTrackingSerializingKeyValueStoreModifierBase,
+from .serialize import ( SerializingKeyValueStoreModifier,
+                         ChangeTrackingSerializingKeyValueStoreModifier,
                          IStreamSerializer )
 
 
@@ -40,7 +40,7 @@ class YAMLStreamSerializer(IStreamSerializer):
 # end class YAMLStreamSerializer
 
 
-class YAMLKeyValueStoreModifier(SerializingKeyValueStoreModifierBase):
+class YAMLKeyValueStoreModifier(SerializingKeyValueStoreModifier):
     """Implemnetation for yaml-based stores"""
     __slots__ = ()
 
@@ -74,7 +74,7 @@ class JSONStreamSerializer(IStreamSerializer):
 # end class ChangeTrackingJSONKeyValueStoreModifier
 
 
-class JSONKeyValueStoreModifier(SerializingKeyValueStoreModifierBase):
+class JSONKeyValueStoreModifier(SerializingKeyValueStoreModifier):
     """A modifier with change tracking and JSon serialization
     
     @note no support for OrderedDicts just yet
@@ -86,7 +86,7 @@ class JSONKeyValueStoreModifier(SerializingKeyValueStoreModifierBase):
 # end class JSONKeyValueStoreModifier
 
 
-class ChangeTrackingJSONKeyValueStoreModifier(ChangeTrackingSerializingKeyValueStoreModifierBase):
+class ChangeTrackingJSONKeyValueStoreModifier(ChangeTrackingSerializingKeyValueStoreModifier):
     """A modifier with change tracking and JSon serialization
     
     @note no support for OrderedDicts just yet

@@ -8,7 +8,7 @@
 """
 __all__ = []
 
-from .base import TestCaseBase
+from .base import TestCase
 import sys
 import os
 
@@ -29,7 +29,7 @@ class TestNonInstantiatable(NonInstantiatable):
 ## -- End TestTypes -- \}
 
 
-class TestUtility(TestCaseBase):
+class TestUtility(TestCase):
 
     def test_platform_utilities(self):
         """verify simple utilities"""

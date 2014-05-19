@@ -10,7 +10,7 @@ __all__ = []
 import sys
 
 import bapp
-from butility.tests import (TestCaseBase,
+from butility.tests import (TestCase,
                             with_rw_directory)
 
 from butility import LazyMixin
@@ -44,7 +44,7 @@ class LazyMixinExample(LazyMixin):
 
 
 
-class ExamplesTest(TestCaseBase):
+class ExamplesTest(TestCase):
     """Provides a space to test your own code examples"""
     __slots__ = ()
 

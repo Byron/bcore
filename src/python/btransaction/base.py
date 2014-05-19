@@ -18,7 +18,7 @@ import threading
 import time
 
 from butility import (Path,
-					  InterfaceBase,
+					  Interface,
 					  ProgressIndicator,
 					  abstractmethod,
 					  Error)
@@ -75,7 +75,7 @@ class StoringProgressIndicator(ProgressIndicator):
 	#}END interface
 
 
-class IOperation(InterfaceBase):
+class IOperation(Interface):
 	"""Define the simple interface to do and undo operations"""
 	
 	#{ Interface

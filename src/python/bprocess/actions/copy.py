@@ -12,10 +12,10 @@ import bapp
 from bkvstore import PathList
 from butility import Path
 
-from .base import PackageActionBase
+from .base import PackageAction
 
         
-class CopyAction(PackageActionBase, bapp.plugin_type()):
+class CopyAction(PackageAction, bapp.plugin_type()):
     """An action to copy a single file to a folder"""
     __slots__ = (
                     ## True if we wrote the file to the folder

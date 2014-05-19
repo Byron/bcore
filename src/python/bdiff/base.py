@@ -10,7 +10,7 @@ __all__ = ['NoValue', 'TreeItem', 'RootKey', 'TwoWayDiffDelegateInterface']
 
 from butility import  (NonInstantiatable,
                        abstractmethod,
-                       MetaBase,
+                       Meta,
                        DictObject)
 
 # ==============================================================================
@@ -59,7 +59,7 @@ class TwoWayDiffDelegateInterface(object):
     to start the next diff with a clean delegate without knowledge about previous diff runs.
     """
     __slots__ = ()
-    __metaclass__ = MetaBase
+    __metaclass__ = Meta
     
     # -------------------------
     ## @name Change Types

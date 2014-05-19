@@ -17,7 +17,7 @@ import tempfile
 
 import bapp
 
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from bprocess import *
 from bapp.tests import preserve_application
 from butility import Path
@@ -84,7 +84,7 @@ def pseudo_executable(bin_name):
     return Path(__file__).dirname() / bin_name
 
 
-class TestProcessControl(TestCaseBase):
+class TestProcessControl(TestCase):
     """Tests for the process control engine"""
     __slots__ = ()
     

@@ -14,7 +14,7 @@ import re
 import logging
 
 
-from .base import ( ValidatedElementNodeBase,
+from .base import ( ValidatedElementNode,
                     ElementNodeTree,
                     ElementNodeList,
                     RelaxedKeyValueStoreProvider )
@@ -35,7 +35,7 @@ from butility import DictObject
 # R0201 Method could be a function, but we want it to be overridable
 # pylint: disable-msg=R0201
     
-class StringFormatNode(ValidatedElementNodeBase):
+class StringFormatNode(ValidatedElementNode):
     """A node that substitutes a string with data usually provided as DictObject.
     
     Valid formats are those supported by the `format()` method of a string. However, we only support named 
@@ -119,7 +119,7 @@ class StringFormatNode(ValidatedElementNodeBase):
     def _apply_format(self, data, index=None):
         """@return a string which is the result of the substitution
         @param data see the `format()` method
-        @param index a dict that will be used similarly to the `validate()` method of the `ValidatedElementNodeBase`
+        @param index a dict that will be used similarly to the `validate()` method of the `ValidatedElementNode`
         to track format errors (which can only be cought when actually applying the format).
         If None, these issues will not be recorded.
         @return a new string with all substitutions applied successfully, or None string if there was insufficient data

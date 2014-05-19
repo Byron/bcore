@@ -6,9 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['TestBase']
+__all__ = ['Test']
 
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from butility import ( DictObject,
                        Path )
 
@@ -28,7 +28,7 @@ except ImportError:
 #end obtain fast loader if possible
 
 
-class TestBase(TestCaseBase):
+class Test(TestCase):
     __slots__ = ()
     
     # -------------------------
@@ -65,4 +65,4 @@ class TestBase(TestCaseBase):
         cls.path_rule_data = cls.rule_data(cls.path_rules_file)
 
 
-# end class TestBase
+# end class Test

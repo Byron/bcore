@@ -6,16 +6,16 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['TestConfigurationBase']
+__all__ = ['TestConfiguration']
 
 import yaml
 
 
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from butility import Path
 from bkvstore import OrderedDictYAMLLoader
 
-class TestConfigurationBase(TestCaseBase):
+class TestConfiguration(TestCase):
     __slots__ = ()
 
     fixture_root = Path(__file__).dirname()
@@ -26,6 +26,6 @@ class TestConfigurationBase(TestCaseBase):
         using the OrderedDictYAMLLoader"""
         return yaml.load(open(cls.fixture_path(name)), Loader = OrderedDictYAMLLoader)
         
-# end class TestConfigurationBase
+# end class TestConfiguration
 
     

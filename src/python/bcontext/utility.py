@@ -10,7 +10,7 @@ __all__ = ['PluginMeta', 'Plugin']
 
 from itertools import chain
 
-from butility import MetaBase
+from butility import Meta
 
 
 # ==============================================================================
@@ -21,7 +21,7 @@ from butility import MetaBase
 
 
 # inherits from InterfaceMeta to support inheritance in the implements() function
-class PluginMeta(MetaBase):
+class PluginMeta(Meta):
     """ metaclass for Plugin, registers the Plugin subclass in the currently set
         Context. Can be used with any type, doesn't need to derive from Plugin.
         However, the Plugin implementation will register instances, which the implementor would have to 
@@ -29,7 +29,7 @@ class PluginMeta(MetaBase):
         
     def __new__(mcls, name, bases, clsdict):
         """Registers the plugin's type to allow it to be instantiated""" 
-        new_type = MetaBase.__new__(mcls, name, bases, clsdict)
+        new_type = Meta.__new__(mcls, name, bases, clsdict)
         original_plugin_type = globals().get('Plugin')
 
         if original_plugin_type is not None and hasattr(new_type, '_auto_register_class_') and new_type._auto_register_class_:
@@ -39,7 +39,7 @@ class PluginMeta(MetaBase):
                 if issubclass(typ, original_plugin_type):
                     plugin_base = typ
                     break
-                # end obtain PluginBase
+                # end obtain Plugin
             # end for each base of type Plugin
             assert plugin_base, "Didn't find a single base of type Plugin, this MetaClass must not be used alone"
             # We assume someone overrides Plugin and implements the one method that needs implementation.

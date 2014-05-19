@@ -73,7 +73,7 @@ Additional Reading
 #! A module-level __all__ is required to make from module import * save, which 
 #! may be by parent-packages exclusively. For anything else, we need to be 
 #! explicit.
-__all__ = [ 'ConjugatorBase', 'ControlConjugator', 'HighlevelControlConjugator',
+__all__ = [ 'Conjugator', 'ControlConjugator', 'HighlevelControlConjugator',
             'function', 'function_without_group' ]
 
 #! Generally order your imports (naturally) by dependency. Therefore, the most
@@ -148,7 +148,7 @@ def function_without_group(hello):
 # ------------------------------------------------------------------------------
 ## @{
 
-class ConjugatorBase(object):
+class Conjugator(object):
     """A base class for all types in this module"""
     #! Make sure all your bases have slots, otherwise derived types
     #! will get a dict anyway even if they define slots themselves.
@@ -169,10 +169,10 @@ class ConjugatorBase(object):
     
     ## -- Interface -- @}
     
-# end class ConjugatorBase
+# end class Conjugator
 
 
-class ControlConjugator(ConjugatorBase):
+class ControlConjugator(Conjugator):
     """a brief description
     
     Now comes the long description with information on what it does and how to

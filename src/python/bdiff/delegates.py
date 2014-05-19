@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = [ 'DiffRecord', 'DiffIndex', 'DiffIndexDelegate', 'QualifiedKeyDiffDelegateBase', 'MergeDelegate',
+__all__ = [ 'DiffRecord', 'DiffIndex', 'DiffIndexDelegate', 'QualifiedKeyDiffDelegate', 'MergeDelegate',
             'AdditiveMergeDelegate', 'ApplyDifferenceMergeDelegate', 'AutoResolveAdditiveMergeDelegate']
 
 from .base import (TwoWayDiffDelegateInterface,
@@ -145,7 +145,7 @@ class DiffIndex(OrderedDict):
 # ------------------------------------------------------------------------------
 ## \{
 
-class QualifiedKeyDiffDelegateBase(TwoWayDiffDelegateInterface):
+class QualifiedKeyDiffDelegate(TwoWayDiffDelegateInterface):
     """A base class which provides utilities for dealing with keys that can be fully qualified.
     
     To achieve this, it keeps a stack of keys and from which it can generate a fully qualified 
@@ -160,7 +160,7 @@ class QualifiedKeyDiffDelegateBase(TwoWayDiffDelegateInterface):
     
     def __init__(self):
         """Initialize this instance"""
-        super(QualifiedKeyDiffDelegateBase, self).__init__()
+        super(QualifiedKeyDiffDelegate, self).__init__()
         self.reset()
     
     def reset(self):
@@ -203,7 +203,7 @@ class QualifiedKeyDiffDelegateBase(TwoWayDiffDelegateInterface):
 # Types which contain the basic diff implementation
 ## \{
 
-class DiffIndexDelegate(QualifiedKeyDiffDelegateBase):
+class DiffIndexDelegate(QualifiedKeyDiffDelegate):
     """A diff delegate which builds up a generic DiffIndex.
     
     It requires all keys to be strings which do not contain the separator
@@ -247,7 +247,7 @@ class DiffIndexDelegate(QualifiedKeyDiffDelegateBase):
 # end class DiffIndexDelegate
 
 
-class MergeDelegate(QualifiedKeyDiffDelegateBase):
+class MergeDelegate(QualifiedKeyDiffDelegate):
     """A delegate which builds a new structure from the difference information it obtains.
     
     The subclass will implement the `_resolve_conflict` method and determine which of the two values to use
@@ -258,7 +258,7 @@ class MergeDelegate(QualifiedKeyDiffDelegateBase):
     
     @note currently tested via its subclasses
     
-    @note Technically we don't need the QualifiedKeyDiffDelegateBase as a base, however, for now its 
+    @note Technically we don't need the QualifiedKeyDiffDelegate as a base, however, for now its 
     easier and more useful to have it maintained automatically. If this should be problematic, it can be changed.
     """
     __slots__ = (   

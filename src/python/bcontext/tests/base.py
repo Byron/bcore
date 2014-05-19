@@ -6,10 +6,10 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['TestContextBase']
+__all__ = ['TestContext']
 
 from butility import Path
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 
 
 # ==============================================================================
@@ -17,12 +17,12 @@ from butility.tests import TestCaseBase
 # ------------------------------------------------------------------------------
 ## @{
 
-class TestContextBase(TestCaseBase):
+class TestContext(TestCase):
     __slots__ = ()
 
     fixture_root = Path(__file__).dirname()
 
-# end class TestContextBase
+# end class TestContext
 
 ## -- End Classes -- @}
 

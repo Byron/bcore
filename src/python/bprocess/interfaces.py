@@ -8,11 +8,11 @@
 """
 __all__ = ['IProcessControllerDelegate', 'IControlledProcessInformation']
 
-from butility import (InterfaceBase,
+from butility import (Interface,
                       abstractmethod)
 
 
-class IProcessControllerDelegate(InterfaceBase):
+class IProcessControllerDelegate(Interface):
     """A delegate used by the ProcessController to guide how to build the environment of the application"""
     # Can't do slots due to layout conflict issues
     # __slots__ = ('_app')
@@ -125,7 +125,7 @@ class IProcessControllerDelegate(InterfaceBase):
 # end class IProcessControllerDelegate
 
 
-class IControlledProcessInformation(InterfaceBase):
+class IControlledProcessInformation(Interface):
     """An interface to provide information about the currently running process as launched by the IProcessController.
     It works for spawned as well as for replaced processes (execv).
     

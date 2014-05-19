@@ -7,7 +7,7 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 
 # test * import
 from bproperty import *
@@ -68,7 +68,7 @@ class PropertyHolder(object):
 
 
 
-class TestProperties(TestCaseBase):
+class TestProperties(TestCase):
     __slots__ = ()
     
     def test_base(self):
@@ -100,7 +100,7 @@ class TestProperties(TestCaseBase):
         ############
         assert len(ph.parent.descriptor_names()) == 3
         assert ph.parent.descriptor_names()[0] == 'foo'
-        assert isinstance(ph.parent.foo, PropertyBase)
+        assert isinstance(ph.parent.foo, Property)
         assert ph.parent.descriptor('foo').name() == 'parent.foo'
         assert ph.parent.sub.descriptor('foo').name() == 'parent.sub.foo', "properties return properties"
         assert PropertyHolder.parent.sub.foo.name() == 'parent.sub.foo', "descriptors always return descriptors"

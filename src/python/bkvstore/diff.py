@@ -402,7 +402,7 @@ class KeyValueStoreModifierBaseSwapDelegate(ApplyDifferenceMergeDelegate):
 
     We perform all changes on the fly, and thus have no unnecessary memory overhead.
 
-    @note the only reason we are deriving from a QualifiedKeyDiffDelegateBase is that its nice to have tracking
+    @note the only reason we are deriving from a QualifiedKeyDiffDelegate is that its nice to have tracking
     for fully qualified keys, for debugging and the user. We don't technically require this feature though.
 
     @note we cannot really be reset, as the value will only be written once."""

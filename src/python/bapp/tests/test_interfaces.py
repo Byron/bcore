@@ -11,14 +11,14 @@ __all__ = []
 import os
 
 import bapp
-from butility.tests import (TestInterfaceBase,
+from butility.tests import (TestInterface,
                             TempRWDirProvider)
 from butility import Path
 from .base import with_application
 from bapp.interfaces import *
 
 
-class TestIPlatformService(TestInterfaceBase):
+class TestIPlatformService(TestInterface):
     """Check for interface correctness"""
     __slots__ = ()
 
@@ -45,7 +45,7 @@ class TestDirectoryServicesMixin(object):
     """Tests for the default project-instances interface
     NOTE: We cannot be called alone, yet we want to be named after a valid test.
     All this is necessary as we want to use the same test implementation multiple times in the same module, 
-    which doesn't natively work with the TestInterfaceBase subclasses"""
+    which doesn't natively work with the TestInterface subclasses"""
     
     __slots__ = ()
 
@@ -66,7 +66,7 @@ class TestDirectoryServicesMixin(object):
 # end class TestIDirectoryServices
 
 
-class TestIProjectService(TestDirectoryServicesMixin, TestInterfaceBase):
+class TestIProjectService(TestDirectoryServicesMixin, TestInterface):
     __slots__ = ()
 
 

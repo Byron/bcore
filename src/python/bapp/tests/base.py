@@ -10,7 +10,7 @@
 import logging
 
 import bapp
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from butility import (Path,
                       wraps,
                       partial)
@@ -110,12 +110,12 @@ def with_application(fun=None, **dkwargs):
 # ------------------------------------------------------------------------------
 ## @{
 
-class TestCoreCaseBase(TestCaseBase):
+class TestCoreCase(TestCase):
     __slots__ = ()
 
     fixture_root = Path(__file__).dirname()
 
-# end class TestCaseBase
+# end class TestCase
 
 ## -- End Types -- @}
 

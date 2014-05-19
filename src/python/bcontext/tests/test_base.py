@@ -9,17 +9,17 @@
 """
 __all__ = []
 
-from butility import (InterfaceBase,
+from butility import (Interface,
                       abstractmethod)
 
-from .base import TestContextBase
+from .base import TestContext
 from butility import PythonFileLoader
 
 from bkvstore import KeyValueStoreModifier
 from bcontext import *
 
 
-class TestPlugin(TestContextBase):
+class TestPlugin(TestContext):
 
     def test_context(self):
         """Verify context methods"""

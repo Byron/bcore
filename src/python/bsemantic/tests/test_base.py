@@ -13,7 +13,7 @@ __all__ = []
 
 # test from x import *
 from bsemantic import * 
-from bsemantic.tests.base import TestBase
+from bsemantic.tests.base import Test
 
 # ==============================================================================
 ## @name Utility Types
@@ -22,7 +22,7 @@ from bsemantic.tests.base import TestBase
 
 ## [verified_element_node]
 
-class VerifiedElementNode(ValidatedElementNodeBase):
+class VerifiedElementNode(ValidatedElementNode):
     """Tests a verified element node"""
     __slots__ = ()
     
@@ -39,7 +39,7 @@ class VerifiedElementNode(ValidatedElementNodeBase):
 ## -- End Utility Types -- @}
 
 
-class TestSemantic(TestBase):
+class TestSemantic(Test):
     __slots__ = ( )
     
     def test_element_node(self):
@@ -99,7 +99,7 @@ class TestSemantic(TestBase):
         assert child_a.child_separator != child_b.child_separator
         
     def test_validated_node(self):
-        """assert the ValidatedElementNodeBase"""
+        """assert the ValidatedElementNode"""
         ## [verified_element_node_usage]
         velm = ElementNodeTree.new('root', self.path_rule_data, element_node_type=VerifiedElementNode).root_node()
         

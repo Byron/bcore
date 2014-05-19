@@ -11,7 +11,7 @@ __all__ = []
 import logging
 from copy import deepcopy
 
-from .base import TestConfigurationBase
+from .base import TestConfiguration
 from butility import (OrderedDict,
                       Version,
                       Path)
@@ -50,7 +50,7 @@ class LooseKeyValueStoreModifier(KeyValueStoreModifier):
 ## -- End Utilities -- @}
 
 
-class TestKeyValueStoreProvider(TestConfigurationBase):
+class TestKeyValueStoreProvider(TestConfiguration):
     __slots__ = ()
     
     def _assert_cp_interface_simple(self, config_provider_type):

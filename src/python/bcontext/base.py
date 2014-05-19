@@ -14,8 +14,8 @@ import logging
 
 from butility import ( OrderedDict,
                        LazyMixin,
-                       InterfaceBase,
-                       MetaBase,
+                       Interface,
+                       Meta,
                        Error,
                        Path )
 
@@ -196,7 +196,7 @@ class ContextStack(LazyMixin):
         registers instances in the current Context.
         Will always have (and keep) a base Context that serves as 'catch all' Context.
     """
-    __metaclass__ = MetaBase
+    __metaclass__ = Meta
     __slots__ = (   
                     '_stack',                               # multiple context instances
                     '_kvstore',                             # a cached and combined kvstore

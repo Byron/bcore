@@ -11,8 +11,8 @@ __all__ = ['BeCommand', 'BeSubCommand']
 from bapp import ApplicationSettingsMixin
 from bkvstore import KeyValueStoreSchema
 from butility import Version
-from bcmd import (CommandBase,
-                  SubCommandBase)
+from bcmd import (Command,
+                  SubCommand)
 
 
 # ==============================================================================
@@ -34,7 +34,7 @@ def _init_schema(key, clsdict):
 
 
 
-class BeCommand(CommandBase, ApplicationSettingsMixin):
+class BeCommand(Command, ApplicationSettingsMixin):
     """Marries the 'be' framework with the command framework"""
     __slots__ = ()
 
@@ -56,7 +56,7 @@ class BeCommand(CommandBase, ApplicationSettingsMixin):
 
 
     # NOTE: If your derived type overrides the name to get a different space in the kvstore, you need an
-    # adjusted SubCommandBase.main_command
+    # adjusted SubCommand.main_command
     _schema = _init_schema(name, locals())
 
     # -------------------------
@@ -73,7 +73,7 @@ class BeCommand(CommandBase, ApplicationSettingsMixin):
 # end class BeCommand
 
 
-class BeSubCommand(SubCommandBase):
+class BeSubCommand(SubCommand):
     """Your custom subcomand should derive from this type to facilitate becoming a be-subcommand 
     that will be loaded automatically.
 

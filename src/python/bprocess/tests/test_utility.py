@@ -6,14 +6,14 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-from butility.tests import ( TestCaseBase,
+from butility.tests import ( TestCase,
                              with_rw_directory )
 from bkvstore import KeyValueStoreModifier
 from bprocess.tests import with_application
 from bprocess.utility import *
 
 
-class TestUtilities(TestCaseBase):
+class TestUtilities(TestCase):
     """Test process controller utiltiies"""
     __slots__ = ()
     

@@ -12,14 +12,14 @@ __all__ = []
 from bsemantic import ( StringFormatNode,
                         StringFormatNodeTree )
 from bsemantic.inference import *
-from bsemantic.tests.base import TestBase
+from bsemantic.tests.base import Test
 from butility import DictObject
 from bkvstore import ( KeyValueStoreProvider,
                        ValidatedKeyValueStoreSchema, 
                        KeyValueStoreSchemaValidator )
 
 
-class TestInference(TestBase):
+class TestInference(Test):
     __slots__ = ()
     
     @classmethod
@@ -184,7 +184,7 @@ class TestInference(TestBase):
             def set_version(self, version):
                 """Set our version to the given value
                 @note this is just the type-checked variant of self.version, which is supported due to our
-                ValidatedElementNodeBase heritage"""
+                ValidatedElementNode heritage"""
                 if not isinstance(version, int):
                     raise ValueError("invalid value type")
                 self.version = version

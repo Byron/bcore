@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ProcessControlContextControllerBase', 'ProcessConfigurationIncompatibleError']
+__all__ = ['ProcessControlContextController', 'ProcessConfigurationIncompatibleError']
 
 import bapp
 from .delegates import ControlledProcessInformation
@@ -46,7 +46,7 @@ class ProcessConfigurationIncompatibleError(IContextController.ContextIncompatib
 # end class ProcessConfigurationIncompatibleError
 
 
-class ProcessControlContextControllerBase(IContextController, ApplicationSettingsMixin,
+class ProcessControlContextController(IContextController, ApplicationSettingsMixin,
                                           FlatteningPackageDataIteratorMixin, bapp.plugin_type()):
     """Basic implementation which uses the basic ProcessController implementation to implement 
     simple context tracking for the _before_scene_save() as well as 
@@ -84,7 +84,7 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
         """Intialize our initial stack len with a default value - its just a marker indicating its not set
         to something specific
         @param context_stack usually self._context_stack"""
-        super(ProcessControlContextControllerBase, self).__init__()
+        super(ProcessControlContextController, self).__init__()
         self._initial_stack_len = None
         self._context_stack = context_stack
         
@@ -238,4 +238,4 @@ class ProcessControlContextControllerBase(IContextController, ApplicationSetting
         
     ## -- End Interface Implementation -- @}
 
-# end class ContextControllerBase
+# end class ContextController

@@ -2,7 +2,7 @@
 import sys
 import bcmd
 
-class HelloWorldCommand(bcmd.CommandBase):
+class HelloWorldCommand(bcmd.Command):
     __slots__ = ()
     
     name = 'hello'

@@ -11,7 +11,7 @@ __all__ = []
 import time
 import logging
 
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from butility import ConcurrentRun
 
 from btransaction import *
@@ -78,7 +78,7 @@ class LongRunningOp(TestOp):
 #}END utilities
 
 
-class TestTransaction(TestCaseBase):
+class TestTransaction(TestCase):
 	def test_base(self):
 		t = Transaction(log)
 		assert t.succeeded() == False, "Should be unsuccessful if it didn't run yet"

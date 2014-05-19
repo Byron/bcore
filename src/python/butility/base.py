@@ -6,8 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['Error', 'InterfaceBase', 'MetaBase', 'abstractmethod', 
-           'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIteratorBase',
+__all__ = ['Error', 'Interface', 'Meta', 'abstractmethod', 
+           'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIterator',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
            'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value', 'size_to_int',
            'frequncy_to_seconds', 'int_to_size_string']
@@ -243,13 +243,13 @@ def tagged_file_paths(directory, taglist, pattern=None):
 # at will to automated otherwise tedious processes.
 ## \{
 
-class MetaBase(ABCMeta):
+class Meta(ABCMeta):
     """A base class for all other meta-classes used in the @ref bapp package.
     
     It provides facilities to automatically wrap methods into decorators which 
     perform certain tasks, like additional logging for improved debugging.
     
-    * All subclasses of InterfaceBase are put into bapp as well, allowing their access
+    * All subclasses of Interface are put into bapp as well, allowing their access
       through bapp.InterfaceName.
     * Puts new types into bapp if the type itself (not its subtype) has the 'place_into_root_package' set to True
     """
@@ -287,7 +287,7 @@ class MetaBase(ABCMeta):
         
     ## -- End Subclass Interface -- @}
     
-# end class MetaBase
+# end class Meta
 
 ## -- End Meta-Classes -- \}
 
@@ -362,11 +362,11 @@ class LazyMixin(object):
 # Implementations for types suitable to serve as base for derived types 
 ## \{
 
-class InterfaceBase(object):
+class Interface(object):
     """base class for all interfaces"""
     
     ## Provides support for ABC decorators, like abstractmethod
-    __metaclass__ = MetaBase
+    __metaclass__ = Meta
     
     ## Slots help to protect against typos when assigning variables, keep instances small, and document the
     ## types member variables
@@ -409,7 +409,7 @@ class Singleton(object) :
 # end class Singleton
 
 
-class GraphIteratorBase(object):
+class GraphIterator(object):
     """A generic, none-recursive implementation of a graph-iterator, which is able to handle cycles.
     
     Its meant to be subclassed to make the interface more approachable
@@ -418,7 +418,7 @@ class GraphIteratorBase(object):
     @todo add a test for this type - its not even indirectly used yet. Alternatively, remove it if its not used
     by anybody"""
     __slots__ = ()
-    __metaclass__ = MetaBase
+    __metaclass__ = Meta
     
     # -------------------------
     ## @name Constants

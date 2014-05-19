@@ -4,7 +4,7 @@
 @brief Contains utilities for use during testing
 
 """
-__all__ = ['unittest', 'with_rw_directory', 'TestCaseBase', 'TestInterfaceBase',
+__all__ = ['unittest', 'with_rw_directory', 'TestCase', 'TestInterface',
             'TempRWDirProvider', 'skip_not_implemented', 'skip_on_travis_ci']
 
 import unittest
@@ -16,7 +16,7 @@ import tempfile
 import inspect
 
 from butility import (Path,
-                      MetaBase,
+                      Meta,
                       wraps)
 
 
@@ -133,7 +133,7 @@ def skip_on_travis_ci(func):
 # ------------------------------------------------------------------------------
 ## @{
 
-class GlobalsItemDeletorMetaCls(MetaBase):
+class GlobalsItemDeletorMetaCls(Meta):
     """Utiltiy to prevent base implementations of tests to be picked up by nose as the metacls
     will delete the given name from the globals.
     
@@ -190,7 +190,7 @@ class TestInterfaceMetaCls(GlobalsItemDeletorMetaCls):
 # Classes to use for all test-cases
 ## @{
 
-class TestCaseBase(unittest.TestCase):
+class TestCase(unittest.TestCase):
     """A base type for all test cases, providing additional utilities
     for every-day testing
 
@@ -227,10 +227,10 @@ class TestCaseBase(unittest.TestCase):
         return Path(cls.fixture_root / 'fixtures' / cls.fixture_subdir / filename)
     ## -- End Utilities -- @}
 
-# end class TestCaseBase
+# end class TestCase
 
 
-class TestInterfaceBase(TestCaseBase):
+class TestInterface(TestCase):
     """A base implementation for generic interface tests
     
     Subtypes are tests cases for specific interface, which in turn are derived from by test cases who which
@@ -244,7 +244,7 @@ class TestInterfaceBase(TestCaseBase):
     @classmethod
     def _remove_from_globals(cls):
         """@return always our typename if it is a direct decendent of this type"""
-        name = 'TestInterfaceBase'
+        name = 'TestInterface'
         if name in (base.__name__ for base in cls.__bases__) and name != cls.__name__:
             return [cls.__name__]
         return list()
@@ -270,8 +270,8 @@ class TestInterfaceBase(TestCaseBase):
         
     def tearDown(self):
         del(self._instance)
-        super(TestInterfaceBase, self).tearDown()
+        super(TestInterface, self).tearDown()
 
-# end class TestInterfaceBase
+# end class TestInterface
 
 

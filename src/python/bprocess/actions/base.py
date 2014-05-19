@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ActionDelegateMixin', 'PackageActionBase']
+__all__ = ['ActionDelegateMixin', 'PackageAction']
 
 import bapp
 from btransaction import ( Transaction,
@@ -14,7 +14,7 @@ from btransaction import ( Transaction,
 
 from .schema import action_schema
 
-class PackageActionBase(Operation):
+class PackageAction(Operation):
     """An action to perform right before the process is started.
 
     @note yet another implementation of the command pattern
@@ -67,7 +67,7 @@ class PackageActionBase(Operation):
         self.action_data = data
         self.package_name = package_name
         self.package_data = package_data
-        super(PackageActionBase, self).__init__(transaction)
+        super(PackageAction, self).__init__(transaction)
 
     # -------------------------
     ## @name Interface
@@ -148,7 +148,7 @@ class ActionDelegateMixin(object):
         tokens = key.split('.')
         assert len(tokens) > 2, "expected action key of format %s.type_name.name[.name...]" % action_schema.key()
         type_name = tokens[1]
-        for cls in bapp.main().context().types(PackageActionBase):
+        for cls in bapp.main().context().types(PackageAction):
             if cls.type_name == type_name:
                 return cls
         # end for each class

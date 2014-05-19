@@ -10,12 +10,12 @@ __all__ = ['ICommand', 'ISubCommand']
 
 import bapp
 from butility import ( Version,
-                       InterfaceBase,
+                       Interface,
                        abstractmethod)
 from bkvstore import ( KeyValueStoreSchema,
                        RootKey )
 
-class ICommand(InterfaceBase):
+class ICommand(Interface):
     """A command implementing the command pattern, specialized for use with the commandline."""
     __slots__ = ()
     

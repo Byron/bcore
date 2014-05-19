@@ -6,10 +6,10 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElementNodeBase']
+__all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElementNode']
 
 
-from butility import  ( MetaBase,
+from butility import  ( Meta,
                         DictObject, 
                         LazyMixin )
 
@@ -45,7 +45,7 @@ def to_tuple(val):
     return (val,)
     
     
-class ValidatedElementNodeMetaClass(MetaBase):
+class ValidatedElementNodeMetaClass(Meta):
     """Provides dynamic compile-time features for the VerifiedElementNode"""
     __slots__ = ()
     _attr_name_schema = '_schema_'
@@ -103,7 +103,7 @@ class ValidatedElementNodeMetaClass(MetaBase):
         clsdict[mcs._attr_name_slots] = tuple(slots)
         clsdict[mcs._attr_name_schema] = tuple(schema)
         
-        return MetaBase.__new__(mcs, name, bases, clsdict)
+        return Meta.__new__(mcs, name, bases, clsdict)
         
 # end class ValidatedElementNodeMetaClass
 
@@ -297,7 +297,7 @@ class ElementNode(LazyMixin):
 # end class ElementNode
 
 
-class ValidatedElementNodeBase(ElementNode):
+class ValidatedElementNode(ElementNode):
     """An ElementNode implementation which allows direct, attribute access against a simple, flat, schema.
     
     Even though the base implementation is able to provide simple type checking, we make additional calls to our 
@@ -322,7 +322,7 @@ class ValidatedElementNodeBase(ElementNode):
     
     Advanced Features
     ##################
-    You can have mixin types which define a schema on their own, but don't derive from `ValidatedElementNodeBase`.
+    You can have mixin types which define a schema on their own, but don't derive from `ValidatedElementNode`.
     Their attributes will be made available by your class, which allows their implementation to use the required
     attributes and to validate themselves accordingly.
     
@@ -355,7 +355,7 @@ class ValidatedElementNodeBase(ElementNode):
                 return
             #end name matches 
         #end for each schema pair
-        return super(ValidatedElementNodeBase, self)._set_cache_(attr)
+        return super(ValidatedElementNode, self)._set_cache_(attr)
         
     def _validated_property(self, attr_name, value, default):
         """Called to assure the given attribute  with name `attr_name` is valid according to the `default` value
@@ -397,7 +397,7 @@ class ValidatedElementNodeBase(ElementNode):
             raise InvalidValueError(self._to_fq_meta_key(attr_name), msg)
         #end handle exceptions
         try:
-            return super(ValidatedElementNodeBase, self)._to_valid_value(attr_name, value, default)
+            return super(ValidatedElementNode, self)._to_valid_value(attr_name, value, default)
         except AttributeError:
             return self
         #end implement mixin support
@@ -407,7 +407,7 @@ class ValidatedElementNodeBase(ElementNode):
     def validate(self, index):
         """Tries to obtain valid values and registeres InvalidValueError in the index
         @note should run on a Node which was just created, and therefore has no cached values yet"""
-        super(ValidatedElementNodeBase, self).validate(index)
+        super(ValidatedElementNode, self).validate(index)
         for attr, _ in self._schema_:
             try:
                 getattr(self, attr)

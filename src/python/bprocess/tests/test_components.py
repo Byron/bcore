@@ -10,14 +10,14 @@ __all__ = []
 
 import bapp
 from butility import Path
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from bapp.tests import with_application
-from bprocess import ( ProcessControlContextControllerBase,
+from bprocess import ( ProcessControlContextController,
                        ProcessConfigurationIncompatibleError )
 from bkvstore import YAMLKeyValueStoreModifier
 
 
-class TestProcessController(ProcessControlContextControllerBase):
+class TestProcessController(ProcessControlContextController):
     __slots__ = ()
 
     def _setup_scene_callbacks(self):
@@ -26,7 +26,7 @@ class TestProcessController(ProcessControlContextControllerBase):
 # end class TestProcessController
 
 
-class TestProcessControlContextController(TestCaseBase):
+class TestProcessControlContextController(TestCase):
     """Verify the context controller, triggering a few of its functions manually"""
 
     fixture_root = Path(__file__).dirname()

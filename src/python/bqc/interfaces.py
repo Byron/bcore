@@ -10,7 +10,7 @@ __all__ = ['IQualityCheck', 'IQualityCheckProvider', 'IQualityCheckRunnerDelegat
             'QualityCheckCategory']
 
 from butility import ( abstractmethod,
-                       InterfaceBase )
+                       Interface )
 
 # -------------------------
 ## @name Utility
@@ -47,7 +47,7 @@ class QualityCheckCategory(object):
 ## -- End Utility -- @}
 
 
-class IQualityCheckProvider(InterfaceBase):
+class IQualityCheckProvider(Interface):
     """A simple interface implementing an algorithm to select checks for the current context"""
     __slots__ = ()
     
@@ -58,7 +58,7 @@ class IQualityCheckProvider(InterfaceBase):
 # end class IQualityCheckProvider
 
 
-class IQualityCheck(InterfaceBase):
+class IQualityCheck(Interface):
     """A base class providing the foundation for all actual QualityCheck implementations."""
     __slots__ = ()      
    
@@ -145,8 +145,8 @@ class IQualityCheck(InterfaceBase):
 # end class IQualityCheck    
 
 
-class IQualityCheckRunner(list, InterfaceBase):
-    """Is a list of `QualityCheckBase` compatible instances which can be run safely, providing just-in-time information
+class IQualityCheckRunner(list, Interface):
+    """Is a list of `QualityCheck` compatible instances which can be run safely, providing just-in-time information
     about the results of this run.
     
     For this, it uses a delegate which will receive respective calls. The client can implement one, but even 
@@ -157,7 +157,7 @@ class IQualityCheckRunner(list, InterfaceBase):
     @abstractmethod
     def __init__(self, quality_checks, delegate=None):
         """Initialize this instance with an iterable of quality checks and an (optional) delegate.
-        @param quality_checks an iterable of `QualityCheckBase` subclasses instances. Its contents will be cached
+        @param quality_checks an iterable of `QualityCheck` subclasses instances. Its contents will be cached
         within the runner
         @param delegate an instance of type `QualityCheckRunnerDelegate`  or None, in which case a default delegate
         will be used.
@@ -199,7 +199,7 @@ class IQualityCheckRunner(list, InterfaceBase):
 # end class IQualityCheckRunner
 
 
-class IQualityCheckRunnerDelegate(InterfaceBase):
+class IQualityCheckRunnerDelegate(Interface):
     """Defines a callback interface to be used by `QualityCheckRunner` instances
     
     The delegate may control the runner by returning codes for the runner to interpret.

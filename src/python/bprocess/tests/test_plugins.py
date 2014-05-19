@@ -13,13 +13,13 @@ import os
 import bapp
 from be import BeCommand
 from bapp.tests import with_application
-from butility.tests import TestCaseBase
+from butility.tests import TestCase
 from butility import Path
 from .test_base import pseudo_executable
 from bprocess.controller import _ProcessControllerContext
 
 
-class PluginsTestCase(TestCaseBase):
+class PluginsTestCase(TestCase):
     __slots__ = ()
 
     @with_application(from_file=__file__)

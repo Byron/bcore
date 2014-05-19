@@ -10,13 +10,13 @@ __all__ = []
 
 import yaml
 
-from .base import TestConfigurationBase
+from .base import TestConfiguration
 
 # test * imports (could have defective '__all__')
 from bkvstore.persistence import OrderedDictYAMLLoader
 from butility import OrderedDict
 
-class TestConfigurationCore(TestConfigurationBase):
+class TestConfigurationCore(TestConfiguration):
     __slots__ = ()
 
     def test_persistence(self):
