@@ -62,6 +62,8 @@ def with_rw_directory(func):
     The temporary directory will be named like the name of the wrapped function,
     suffixed with alphanumeric characters to make it unique.
 
+    It will be provided as last argument of the wrapped function, and put into the os.environ at 'RW_DIR'
+
     Example:
     @snippet bapp/tests/doc/test_examples.py with_rw_directory
     """
@@ -70,6 +72,8 @@ def with_rw_directory(func):
         path = Path(_maketemp(prefix=func.__name__))
         path.mkdir()
         keep = False
+        prev_val = os.environ.get('RW_DIR')
+        os.environ['RW_DIR'] = str(path)
         try:
             try:
                 return func(self, path)
@@ -80,6 +84,9 @@ def with_rw_directory(func):
                 raise
             #end be informed about failure
         finally:
+            if prev_val is not None:
+                os.environ['RW_DIR'] = prev_val
+            # end restore state
             # Need to collect here to be sure all handles have been closed. It appears
             # a windows-only issue. In fact things should be deleted, as well as
             # memory maps closed, once objects go out of scope. For some reason
