@@ -486,21 +486,28 @@ class PythonPackageIterator(ApplicationSettingsMixin, PackageDataIteratorMixin):
         # end ignore exceptions
         return None
     
-    def import_modules(self):
+    def import_modules(self, store=None, package_name=None):
         """Imports all additional modules as specified in the configuration of our loaded packages
+        @param store a kvstore with package settings (and more), usually Application.context().
+        If set, we need a package_name as well
+        @param package_name needs to be set if a store is given. Useful if no wrapper is involved
         @return a list of import-paths to modules that were loaded successfully.
         @note import errors will be logged, but ignored. We do not reload !
         @note only works if this process is wrapped
         @note this is a way to load plug-ins"""
-        assert ControlledProcessInformation.has_data()
-        info = ControlledProcessInformation()
-        store = info.as_kvstore()
+        if not (store and package_name):
+            assert ControlledProcessInformation.has_data()
+            info = ControlledProcessInformation()
+            store = info.as_kvstore()
+            package_name = info.process_data().id
+        # end get information
+
         imported_modules = list()
-        
         if store is None:
             return imported_modules
         # end handle no wrapped process
-        for pdata, pname in self._iter_package_data_by_schema(store, info.process_data().id, python_package_schema):
+
+        for pdata, pname in self._iter_package_data_by_schema(store, package_name, python_package_schema):
             for module in getattr(pdata.python, 'import'):
                 imp_module = self.import_module(module, force_reimport=True)
                 if imp_module:

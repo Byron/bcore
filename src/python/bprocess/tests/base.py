@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['NosetestDelegate', 'with_application']
+__all__ = ['NosetestDelegate', 'with_application', 'PluginLoadingProcessAwareApplication']
 
 
 import logging
@@ -14,7 +14,9 @@ import logging
 import bapp
 from bkvstore import KeyValueStoreSchema
 from bprocess import (ProcessControllerDelegate,
-                      ControlledProcessInformation)
+                      ProcessAwareApplication,
+                      ControlledProcessInformation,
+                      PythonPackageIterator)
 from butility import ( abstractmethod,
                        wraps,
                        Path )
@@ -31,7 +33,8 @@ logging.getLogger('bprocess.tests.base')
 
 def with_application(fun):
     """A decorator which assures that our particular test configuration is loaded specifically, without
-    traversing the hiararchy in order to not be dependent on whatever assembly we are in"""
+    traversing the hiararchy in order to not be dependent on whatever assembly we are in
+    @note does not load plugins based on package information"""
     @wraps(fun)
     def wrapper(*args, **kwargs):
         app = bapp.Application.new(settings_trees=Path(__file__).dirname() / 'etc', 
@@ -50,6 +53,39 @@ def with_application(fun):
 # ------------------------------------------------------------------------------
 # Classes to use for all test-cases
 # # @{
+
+
+class PluginLoadingProcessAwareApplication(ProcessAwareApplication):
+    """An application to load Plugins in any case, even if we have not been started by the wrapper.
+    This works by specifying the entrypoint package, and it will do the right thing depending on 
+    whether or not a wrapper was involved.
+    @note useful for standalone testing on CI, where no wrapper is involved (as it comes in through 
+        the parent assembly)
+    """
+    __slots__ = ('_package_name')
+
+    # -------------------------
+    ## @name Interface
+    # @{
+
+    @classmethod
+    def new(cls, *args, **kwargs):
+        """All parameters as in ProcessAwareApplication, but requires a package_name kwargs to 
+        provide an entry point in case we were launched without wrapper"""
+        package_name = kwargs.pop('package_name')
+        if not package_name:
+            raise ValueError("A package_name must be set to allow plugin loading if no wrapper is involved")
+        # end assure package_name is set
+        inst = super(PluginLoadingProcessAwareApplication, cls).new(*args, **kwargs)
+        if not ControlledProcessInformation.has_data():
+            PythonPackageIterator().import_modules(store=inst.context().settings(), package_name=package_name)
+        # end 
+        return inst
+    
+    ## -- End Interface -- @}
+
+# end class PluginLoadingProcessAwareApplication
+
 
 class NosetestDelegate(ProcessControllerDelegate):
     """This delegate does nothing more but to parse nose-specific arguments in the PostLaunch data structure.
