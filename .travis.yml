@@ -4,4 +4,9 @@ python:
   - "2.7"
   # - "pypy" - see https://travis-ci.org/Byron/bcore/jobs/24387322
 
-script: nosetests src/python
+install:
+  pip install coveralls
+script:
+  nosetests src/python --with-coverage
+after_success:
+  coveralls

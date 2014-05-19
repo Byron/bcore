@@ -223,8 +223,6 @@ class LogConfigurator(ApplicationSettingsMixin):
             else:
                 log.error("Log directory at %s did not exist - file logging disabled", value.logdir)
             # end handle logdir exists
-        else:
-            log.debug("Logging to directory disabled")
         # end handle logdir exists
         
 # end class LogConfigurator

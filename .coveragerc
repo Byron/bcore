@@ -1,0 +1,10 @@
+[run]
+source = bapp,bcmd,bcontext,bdiff,be,bkvstore,bprocess,bproperty,bqc,bsemantic,btransaction,butility
+
+; to make nosetests happy
+[report]
+omit = 
+	*/yaml*
+	*/tests/*
+    */python?.?/*
+    */site-packages/nose/*

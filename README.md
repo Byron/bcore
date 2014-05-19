@@ -30,6 +30,7 @@ Optionally, you may need the following
 
 ## Development Status
 
+[![Coverage Status](https://coveralls.io/repos/Byron/bcore/badge.png)](https://coveralls.io/r/Byron/bcore)
 [![Build Status](https://travis-ci.org/Byron/bcore.svg?branch=master)](https://travis-ci.org/Byron/bcore)
 
 The code base was initiated 1.5 years ago, and was created to faciliate development in the company I was working for. Thanks to a code-buyback deal I am able to open-source it.
