@@ -94,7 +94,7 @@ class DaemonCommandMixin(object):
     def execute(self, args, remaining_args):
         if getattr(args, 'show_config', None):
             sys.stdout.write("%s.*\n" % self.ThreadType.settings_schema().key())
-            sys.stdout.write(str(self.ThreadType.context_value()))
+            sys.stdout.write(str(self.ThreadType.settings_value()))
             return self.SUCCESS
         # end handle config printing
 
