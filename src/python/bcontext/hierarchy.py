@@ -164,7 +164,7 @@ class HierarchicalContext(Context, LazyMixin):
 
         for path in self._trees:
             path = path.abspath()
-            if sys.platform == 'nt':
+            if sys.platform == 'win32':
                 # on windows, you actually want to get the top-level directories
                 while True:
                     new_path = path / self.config_dir_name
