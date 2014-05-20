@@ -1,6 +1,10 @@
 ![under construction](https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png)
 
-TODO: WHY: dissolve the underlying folder structure and files, into a big tree of data. Deal with schema only, not with files or where data is coming from.
+**TODO**: 
+*   WHY: dissolve the underlying folder structure and files, into a big tree of data. Deal with schema only, not with files or where data is coming from.
+*   About merging of lists: single-values override lists, lists append to single values. Keep things as lists for flexibility, especially if dealing with trees
+*   Prefer anchoring settings at their configuration files, prefer this over process.executable, as you don't really know where this one will be (studio wrapper, project wrapper ?)
+*   Talk about value substitution, and advanced uses (like KVPath) and how to set own mappings
 
 The configuration system allows to be comprised of multiple files located in a hierarchical directory tree. Configuration levels further down the tree will overwrite settings specified further up. This way, we may flexibly configure all aspects of the pipeline.
 

@@ -1,5 +1,10 @@
 ![under construction](https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png)
 
+## TODO
+
+*   describe inclusion order of configuration, and what a context is comprised of
+*   how to build complex assemblies with on-demand inclusion of configuration
+
 Requirements
 ============
 

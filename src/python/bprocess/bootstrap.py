@@ -116,10 +116,6 @@ class Bootstrapper(object):
                 actual_executable = self._resolve_win_link(executable)
             else:
                 actual_executable = os.path.realpath(executable)
-                if actual_executable == executable:
-                    msg = "The executable %s must be a symlink to the bootstrapper implementation" % executable
-                    raise AssertionError(msg)
-                # end assertion
             # end handle windows
 
             
