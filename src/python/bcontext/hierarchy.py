@@ -163,14 +163,17 @@ class HierarchicalContext(Context, LazyMixin):
         dirs = list()
 
         for path in self._trees:
-            path = path.abspath() 
+            path = path.abspath()
             # prevent to reach root, on linux we would get /etc, which we don't search for anything
-            while path.dirname() != path:
+            while True:
                 new_path = path / self.config_dir_name
                 if new_path.isdir():
                     dirs.insert(0, new_path)
                 # end keep existing
-                path = path.dirname()
+                new_path = path.dirname()
+                if new_path == path:
+                    break
+                path = new_path
             # end less loop
         # end for each directory to traverse
         return dirs
