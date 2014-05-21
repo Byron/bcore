@@ -6,7 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['ApplicationSettingsMixin', 'LogConfigurator', 'StackAwareHierarchicalContext']
+__all__ = ['ApplicationSettingsMixin', 'LogConfigurator', 'StackAwareHierarchicalContext',
+           'preserve_application']
 
 import os
 import warnings
@@ -15,11 +16,37 @@ import logging
 import logging.config
 
 from butility import (Path,
-                      OrderedDict)
+                      OrderedDict,
+                      wraps)
 
 from bkvstore import KeyValueStoreSchema
 from bcontext import HierarchicalContext
+
 import bapp
+
+
+# ==============================================================================
+## @name Decorators
+# ------------------------------------------------------------------------------
+## @{
+
+def preserve_application(fun):
+    """A wrapper which preserves whichever value was in bapp.Application.main.
+    Useful if a method or fucntion wants to temporarily swap the processes Application instance
+    to manipulate code using the global instance.
+    Code should whenever feasible not rely on the global instance"""
+    @wraps(fun)
+    def wrapper(*args, **kwargs):
+        prev = bapp.Application.main
+        try:
+            return fun(*args, **kwargs)
+        finally:
+            bapp.Application.main = prev
+        # end reset Application
+    # end wrapper
+    return wrapper
+
+## -- End Decorators -- @}
 
 
 

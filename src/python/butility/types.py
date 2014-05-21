@@ -778,7 +778,7 @@ class PythonFileLoader(object):
     __slots__ = ()
         
     @classmethod
-    def _load_files(cls, path, files):
+    def _load_files(cls, path, files, on_error):
         """load all python \a files from \a path
         @return list of loaded files as full paths"""
         res = list()
@@ -794,6 +794,7 @@ class PythonFileLoader(object):
                 cls.load_file(py_file, mod_name)
             except Exception:
                 log.error("Failed to load %s from %s", mod_name, py_file, exc_info=True)
+                on_error(py_file, mod_name)
             else:
                 log.info("loaded %s into module %s", py_file, mod_name)
                 res.append(py_file)
@@ -806,10 +807,12 @@ class PythonFileLoader(object):
     # @{
     
     @classmethod
-    def load_files(cls, path, recurse=False):
+    def load_files(cls, path, recurse=False, on_error=lambda f, m: None):
         """Load all .py files found in the given directory, or load the file it points to
         @param path either path to directory, or path to py file.
         @param recurse if True, path will be searched for usable files recursively
+        @param on_error f(py_file, module_name) => None to perform an action when importing a module 
+        fails. It may raise to abort the entire operation. Note that an exception is set when called.
         @return a list of files loaded successfully"""
         # if we should recurse, we just use the standard dirwalk.
         # we use topdown so top directories should be loaded before their
@@ -818,11 +821,11 @@ class PythonFileLoader(object):
         res = list()
         path = Path(path)
         if path.isfile():
-            res += cls._load_files(path.dirname(), [path.basename()])
+            res += cls._load_files(path.dirname(), [path.basename()], on_error)
         else:
             seen = None
             for seen, (path, dirs, files) in enumerate(os.walk(path, topdown=True, followlinks=True)):
-                res += cls._load_files(path, files)
+                res += cls._load_files(path, files, on_error)
                 if not recurse:
                     break
                 # end handle recursion

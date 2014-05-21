@@ -142,8 +142,8 @@ class TypedList(list):
         try:
             return cls.MemberType(value)
         except Exception, err:
-            msg = "Conversion of '%s' to type %s failed with error: %s"
-            log.error(msg, value, cls.MemberType.__name__, str(err))
+            msg = "Conversion of '%s' (%s) to type %s failed with error: %s"
+            log.error(msg, value, type(value).__name__, cls.MemberType.__name__, str(err))
             return cls.MemberType()
         # end handle conversion
         

@@ -15,6 +15,8 @@ from butility import (Path,
                       wraps,
                       partial)
 
+from bapp import (preserve_application)
+
 log = logging.getLogger('bapp.tests')
 
 
@@ -22,21 +24,6 @@ log = logging.getLogger('bapp.tests')
 ## @name Decorators
 # ------------------------------------------------------------------------------
 ## @{
-
-def preserve_application(fun):
-    """A wrapper which preserves whichever value was in bapp.Application.main during
-    the test-case"""
-    @wraps(fun)
-    def wrapper(*args, **kwargs):
-        prev = bapp.Application.main
-        try:
-            return fun(*args, **kwargs)
-        finally:
-            bapp.Application.main = prev
-        # end reset Application
-    # end wrapper
-    return wrapper
-
 
 def with_application(fun=None, **dkwargs):
     """similar to preserve_application(), but will create a new application object that will 
