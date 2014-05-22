@@ -4,6 +4,7 @@
 
 *   describe inclusion order of configuration, and what a context is comprised of
 *   how to build complex assemblies with on-demand inclusion of configuration
+*   multi-hop bootstrapper links and why you would want that
 
 Requirements
 ============

@@ -163,6 +163,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                     '_args',              # arguments provided to executable
                     '_delegate',          # our delegate
                     '_cwd',               # current working dir to use as context
+                    '_context_paths',     # additional paths to get context from
                     '_environ',           # environment dictionary
                     '_executable_path',   # path to executable of process we should create
                     '_spawn_override',    # See set_should_spawn_process_override
@@ -254,7 +255,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
 
     
     def __init__(self, executable, args = list(), delegate = None, cwd = None, dry_run = False, 
-                      application = None):
+                      application = None, context_paths = list()):
         """
         Initialize this instance to make it operational
         Our executable does not have to actually exist, as we will look it up in the kvstore of our context.
@@ -277,6 +278,8 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         to start the program in question. This can be useful if you want to control which configuration to load
         when launching something, as a few semantics are implied otherwise.
         If None, a default Application is created automatically
+        @param context_paths additinoal paths from which to draw context. They have the same meaning as the 
+        current working directory for example
         @note must call _setup_execution_context, as this instance is assumed to be ready for execute()
         """
         # NOTE: it is valid to provide a relative path (or a path which just contains the basename of the executable)
@@ -300,6 +303,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         # we will always use delegates that where explicitly set, but get it as service on first access
         self._delegate_override = delegate
         self._cwd = cwd or os.getcwd()
+        self._context_paths = tuple(context_paths)
         self._environ = dict()
         self._spawn_override = None
         self._resolve_args = False
@@ -698,8 +702,10 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
             self._app = app = self._prebuilt_app
         else:
             self._app = app = self.ApplicationType.new(
-                                    settings_trees=   self._filter_application_directories((bootstrap_dir, 
-                                                      self._cwd)),
+                                    settings_trees=   self._filter_application_directories(
+                                                            (bootstrap_dir,) + 
+                                                            self._context_paths + 
+                                                            (self._cwd,)),
                                                       settings_hierarchy=self.traverse_process_path_hierachy,
                                                       user_settings=self.load_user_settings,
                                                       setup_logging=False)
