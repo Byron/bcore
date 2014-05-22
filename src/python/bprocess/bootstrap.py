@@ -135,7 +135,8 @@ class Bootstrapper(object):
         # end for each hop to resolve
 
         if not hops:
-            raise AssertionError("executable '%s' must be a symbolic link to the bootstrapper" % executable)
+            # assume we are the bootstrapper, and have been all the time
+            hops.append(executable)
         # end handle no symlink
 
         actual_executable = hops.pop()

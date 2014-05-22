@@ -31,12 +31,12 @@ class TestBootstrap(TestCase):
         @note doesn't run all code paths, but its just a few lines"""
         # Should be dealing with its executable being python as well as its file
         self.failUnlessRaises(SystemExit, bootstrap.Bootstrapper().main, wrapper_file)
-        self.failUnlessRaises(EnvironmentError, bootstrap.Bootstrapper().main, '/some/nonesense')
+        self.failUnlessRaises(AssertionError, bootstrap.Bootstrapper().main, '/some/nonesense')
         
         # this will actually do something (but not start a program)
         try:
             bootstrap.Bootstrapper().main(self.fixture_path('bin/foo'), '-file')
-        except EnvironmentError:
+        except AssertionError:
             # expected, as it will complain about it not being a symlink
             pass
         # end handle exception
