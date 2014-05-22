@@ -405,7 +405,7 @@ class ValidatedElementNode(ElementNode):
     ## -- End Subclass Interface -- @}
     
     def validate(self, index):
-        """Tries to obtain valid values and registeres InvalidValueError in the index
+        """Tries to obtain valid values and registers InvalidValueError in the index
         @note should run on a Node which was just created, and therefore has no cached values yet"""
         super(ValidatedElementNode, self).validate(index)
         for attr, _ in self._schema_:

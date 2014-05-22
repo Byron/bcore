@@ -32,9 +32,6 @@ from butility import DictObject
 # Mixins for nodes that add very specific functionality
 ## @{
 
-# R0201 Method could be a function, but we want it to be overridable
-# pylint: disable-msg=R0201
-    
 class StringFormatNode(ValidatedElementNode):
     """A node that substitutes a string with data usually provided as DictObject.
     
