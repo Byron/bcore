@@ -71,25 +71,10 @@ class Bootstrapper(object):
 
     def _resolve_win_link(self, executable):
         """Read a path from a side-by-side file and resolve it like a symlink"""
-        symlink_file = os.path.join(os.path.dirname(executable), '.' + os.path.basename(executable))
-        dirlink_file = os.path.join(os.path.dirname(executable), self.boot_info_file)
-        msg = ''
-        for iteration, link_file in enumerate((symlink_file, dirlink_file)):
-            try:
-                link = open(link_file, 'rt').readline()
-                msg = None
-            except (OSError, IOError), err:
-                msg += "Couldn't read side-by-side file at '%s'  - first line should be like ../bcore/bprocess/bootstrap.py" % link_file
-                if iteration == 0:
-                    msg += '\n'
-            # end handle exception
-        # end for each link-level to try
-
-        # if there was an error, abort
-        if msg:
-            raise OSError(msg)
-        # end handle bootstrapper not found
-        
+        try:
+            link = open(os.path.join(os.path.dirname(executable), self.boot_info_file), 'rt').readline()
+        except IOError:
+            raise OSError
         return self._to_absolute_symlink(executable, link)
         
     def _to_absolute_symlink(self, executable, link_destination):
