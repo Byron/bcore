@@ -554,17 +554,6 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         # Finally, just return the default one. We assume it's just the standard one ProcessController
         return ProcessControllerDelegate(self._app)
 
-    @classmethod
-    def _parse_value(cls, string):
-        """@return the actual numeric instance the value string represents"""
-        if string in ('on', 'yes', 'true', 'True'):
-            return True
-        if string in ('off', 'no', 'false', 'False'):
-            return False
-        
-        # more conversions are not required, as they are handled by the schema
-        return string
-
     def _handle_arguments(self, args):
         """Parse args for those that can be understood by us, and return a new list with all the args 
         we didn't consume.
@@ -618,7 +607,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
             elif self.wrapper_arg_kvsep in arg:
                 # interpret argument as key in context
                 k, v = parse_key_value_string(arg, self.wrapper_arg_kvsep)
-                kvstore_overrides.set_value(k, self._parse_value(v))
+                kvstore_overrides.set_value(k, v)
                 log.debug("CONTEXT VALUE OVERRIDE: %s", arg)
             elif arg == 'debug-context':
                 # Just ignore these, they are handled elsewhere
