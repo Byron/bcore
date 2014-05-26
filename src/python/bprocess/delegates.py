@@ -14,6 +14,7 @@ import os
 import sys
 import re
 import logging
+import subprocess
 
 import bapp
 # This yaml import is save, as bkvstore will place it's own yaml module there just in case there is no 
@@ -508,6 +509,48 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         @param kvstore a kvstore that can be used to store values in an overrride context
         @note you will have a chance to modify the arguments, and more, in pre_start()
         @throws AssertionError if the argument cannot be handled"""
+
+    def _pre_execve(self):
+        """Called before replacing the current process with an execve call.
+        It must release all system-resources we are still holding, like open file handles 
+        (might include stdin/out/err), network connections, X resources thanks to graphical interface
+        @note especially gui launchers should override this method and close their GUI accordingly
+        @todo close file handles
+        """
+        # Its unbuffered, be sure we see whats part of our process before replacement
+        sys.__stdout__.flush()
+
+    def start(self, args, cwd, env, spawn):
+        """Called to actually launch the process using the given arguments. Unless spawn is true, this 
+        method will not return. Otherwise it returns the Subprocess.popen process
+        @param args all arguments we figured out so far, first argument is the executable itself
+        @param cwd the current working directory to use for the newly started process
+        @param env dict with environment variables to set
+        @param spawn if True, you should not use execv, but subprocess.Popen, and return the created Process"""
+        if os.name == 'nt' and not should_spawn:
+            # TODO: recheck this - only tested on a VM with python 2.7 ! Could work on our image
+            log.warn("On windows, execve seems to crash python and is disabled in favor of spawn")
+            spawn = True
+        # end windows special handling
+        
+        if spawn:
+            stdin, stdout, stderr = self.process_filedescriptors()
+            process = subprocess.Popen( args, shell=False, 
+                                        stdin = stdin, stdout = stdout, stderr = stderr,
+                                        cwd = cwd, env = env)
+            
+            return self.communicate(process)
+        else:
+            # Cleanup our existing process - close file-handles, bring down user interface
+            # We would need a callback here, ideally using some sort of event system
+            self._pre_execve()
+            os.chdir(cwd)
+            ##############################################
+            os.execve(args[0], args, env)
+            ##############################################
+        # end 
+        assert False, "Shouldn't reach this point"
+        
         
     
     ## -- End Subclass Interface -- @}

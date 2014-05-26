@@ -11,7 +11,6 @@ __all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsExcep
 
 import sys
 import os
-import subprocess
 import logging
 import traceback
 
@@ -364,21 +363,6 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         @throws KeyError if it doesn't exist"""
         return ProcessControllerPackageSpecification(name, self._package_data(name))
 
-    # -------------------------
-    ## @name Subclass Interface
-    # @{
-            
-    def _pre_execve(self):
-        """Called before replacing the current process with an execve call.
-        It must release all system-resources we are still holding, like open file handles 
-        (might include stdin/out/err), network connections, X resources thanks to graphical interface
-        @note especially gui launchers should override this method and close their GUI accordingly
-        @todo close file handles
-        """
-        # Its unbuffered, be sure we see whats part of our process before replacement
-        sys.__stdout__.flush()
-        
-    ## -- End Subclass Interface -- @}
     
     
     # -------------------------
@@ -470,6 +454,11 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
             package_cache.append((package, pdata))
             
             for path in pdata.boot.python_paths:
+                try:
+                    path = package.to_abs_path(path)
+                except Exception as err:
+                    raise EnvironmentError("Error when trying to make boot-time python-path absolute: %s", err)
+                # end handle exception
                 if path not in sys.path:
                     if not path.isdir():
                         log.error("Wrapper python path at '%s' wasn't accessible - might not be able to load delegate", path) 
@@ -1070,30 +1059,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         args.insert(0, str(executable))
         
         if not self._dry_run:
-            
-            if os.name == 'nt' and not should_spawn:
-                # TODO: recheck this - only tested on a VM with python 2.7 ! Could work on our image
-                log.warn("On windows, execve seems to crash python and is disabled in favor of spawn")
-                should_spawn = True
-            # end windows special handling
-            
-            if should_spawn:
-                stdin, stdout, stderr = delegate.process_filedescriptors()
-                process = subprocess.Popen( args, shell=False, 
-                                            stdin = stdin, stdout = stdout, stderr = stderr,
-                                            cwd = cwd, env = env)
-                
-                return delegate.communicate(process)
-            else:
-                # Cleanup our existing process - close file-handles, bring down user interface
-                # We would need a callback here, ideally using some sort of event system
-                self._pre_execve()
-                os.chdir(cwd)
-                ##############################################
-                os.execve(executable, args, env)
-                ##############################################
-            # end 
-            assert False, "Shouldn't reach this point"
+            return delegate.start(args, cwd, env, should_spawn)            
         else:
             # This allows the bootstrapper to work
             return DictObject(dict(returncode = 0))
