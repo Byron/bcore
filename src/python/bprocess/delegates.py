@@ -527,7 +527,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         @param cwd the current working directory to use for the newly started process
         @param env dict with environment variables to set
         @param spawn if True, you should not use execv, but subprocess.Popen, and return the created Process"""
-        if os.name == 'nt' and not should_spawn:
+        if os.name == 'nt' and not spawn:
             # TODO: recheck this - only tested on a VM with python 2.7 ! Could work on our image
             log.warn("On windows, execve seems to crash python and is disabled in favor of spawn")
             spawn = True
