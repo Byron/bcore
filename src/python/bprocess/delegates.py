@@ -69,7 +69,8 @@ class ProcessControllerDelegateProxy(object):
     """A simple proxy which behaves differently based on its input channel arguments"""
     __slots__ = (
                     '_delegate', # delegate we are proxying
-                    '_channels'  # a list of channels
+                    '_channels',  # a list of channels
+                    '_communicate_orig' # delegate implementation of communicate
                 )
     
     def __init__(self, delegate, *channels):
@@ -93,8 +94,15 @@ class ProcessControllerDelegateProxy(object):
         """@return process without having communicated if any of our channels was set"""
         if any(self._channels):
             return process
-        return self._delegate.communicate(process)
-    
+        return self._communicate_orig(process)
+
+    def start(self, args, cwd, env, spawn):
+        self._communicate_orig = self._delegate.communicate
+        # self._delegate.__dict__['communicate'] = self.communicate
+        self._delegate.communicate = self.communicate
+        self._delegate.process_filedescriptors = self.process_filedescriptors
+
+        return self._delegate.start(args, cwd, env, spawn)
     ## -- End Overrides -- @}
     
     
