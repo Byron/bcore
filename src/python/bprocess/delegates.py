@@ -262,15 +262,14 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
         return self._kvstore
         
     @classmethod
-    def store(cls, env, context_stack):
+    def store(cls, env, context_stack, chunk_size=1024):
         """Store the data within the given application context within the environment dict for later retrieval
         @param env the environment dict to be used for the soon-to-be-started process
-        @param context_stack a ContextStack instance from which to store all data"""
+        @param context_stack a ContextStack instance from which to store all data
+        @param chunk_size the size of each chunk to be stored within the environment"""
         source = cls._encode(context_stack.settings().data())
 
         if source:
-            # Linux max-chunk size is actually not set, but now we chunk everything
-            chunk_size = sys.platform == 'win32' and 1024 * 32 - 2 or 1024*1024
             sc = StringChunker()
 
             keys = sc.split(source, chunk_size, env)
@@ -355,6 +354,12 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     DelegateContextOverrideType = DelegateContextOverride
     
     ## -- End Configuration -- @}
+
+    def environment_storage_chunk_size(self):
+        """@return chunk size in bytes, defining how many characters an environment variable value may help in total"""
+        # Linux max-chunk size is actually not set, but now we chunk everything
+        # chunk_size = sys.platform == 'win32' and 1024 * 32 - 2 or 1024*1024
+        return sys.platform == 'win32' and 1024 * 32 - 2 or 1024*1024
     
     def prepare_context(self, executable, env, args, cwd):
         """We will parse paths from the given commandline and use them in the context we build.

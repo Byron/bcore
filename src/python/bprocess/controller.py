@@ -1040,7 +1040,8 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         # Allow others to override our particular implementation
         # NOTE: This should be part of the delegate, and generally we would need to separate classes more
         # as this file is way too big !!
-        ControlledProcessInformation.store(env, self._app.context())
+        ControlledProcessInformation.store(env, self._app.context(), 
+                                           chunk_size = delegate.environment_storage_chunk_size())
         
         
         should_spawn = delegate.should_spawn_process()
