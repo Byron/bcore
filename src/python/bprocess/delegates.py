@@ -129,25 +129,25 @@ class DelegateContextOverride(Context):
     
     # end class DifferenceDelegate
     
-    def setup(self, delegate, schema, *args, **kwargs):
-        """Initialize this instance with the delegate itself - it will not be stored permanently, but is 
-        uesd for callbacks
-        @param delegate the one who has instantiated this instance.
+    def setup(self, kvstore, value_provider, schema, *args, **kwargs):
+        """Configure a value override, storing only changes done accoridng to a given schema
+        @param kvstore from which to retrieve values by schema
+        @param value_provider a function f(schema, current_value, *args, **kwargs), which changes current_value 
+        according to it's own needs. Only the changed values will make it into this Context's kvstore
         @param schema the schema to use for the override
-        @param args arguments to be passed to set_context_override()
-        @param kwargs kwargs to be passed to set_context_override()
-        @return self
-        @note we will put ourselves onto the environment stack for convenience"""
-        new_value = bapp.main().context().settings().value(schema.key(), schema)
-        delegate.set_context_override(schema, new_value, *args, **kwargs)
+        @param args arguments to be passed to value_provider()
+        @param kwargs kwargs to be passed to value_provider()
+        @return self """
+        new_value = kvstore.value(schema.key(), schema)
+        value_provider(schema, new_value, *args, **kwargs)
         
         # find only the changed values and write them as kvstore
-        prev_value = bapp.main().context().settings().value(schema.key(), schema)
-        delegate = self.DifferenceDelegate()
-        TwoWayDiff().diff(delegate, prev_value, new_value)
+        prev_value = kvstore.value(schema.key(), schema)
+        diff_delegate = self.DifferenceDelegate()
+        TwoWayDiff().diff(diff_delegate, prev_value, new_value)
         
-        self._kvstore.set_value(schema.key(), delegate.result())
-        return bapp.main().context().push(self)
+        self._kvstore.set_value(schema.key(), diff_delegate.result())
+        return self
         
 # end class ProcessControllerEnvironment
 
@@ -369,7 +369,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
-                    self._app.context().push(StackAwareHierarchicalContext(path.dirname()))
+                    self._app.context()(StackAwareHierarchicalContext(path.dirname()))
                 # end handle valid directory
             # end handle path
             self.handle_argument(arg, kvstore_overrides)
@@ -508,7 +508,11 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         @param args passed to set_context_override()
         @param kwargs passed to set_context_override()
         @return newly created DelegateContextOverride instance"""
-        return self.DelegateContextOverrideType(type(self).__name__ + ' Override').setup(self, controller_schema, *args, **kwargs)
+        ctx = self.DelegateContextOverrideType(type(self).__name__ + ' Override').setup(self._app.context().settings(),
+                                                                                        self.set_context_override,
+                                                                                        controller_schema,
+                                                                                        *args, **kwargs)
+        return self._app.context().push(ctx)
         
     def handle_argument(self, arg, kvstore):
         """Method called whenver an argument seen by the delegate is to be evaluated.
