@@ -70,14 +70,16 @@ class ProcessControllerDelegateProxy(object):
     __slots__ = (
                     '_delegate', # delegate we are proxying
                     '_channels',  # a list of channels
-                    '_communicate_orig' # delegate implementation of communicate
+                    '_communicate_orig', # delegate implementation of communicate
+                    '_launch_mode' # the launch mode to enforce, in any way
                 )
     
-    def __init__(self, delegate, *channels):
+    def __init__(self, delegate, launch_mode, *channels):
         """Intialize ourselves with a delegate that we are to proxy/override, and stdin, stdout, stderr 
         channels"""
         self._delegate = delegate
         self._channels = channels
+        self._launch_mode = launch_mode
         
     def __getattr__(self, name):
         return getattr(self._delegate, name)
@@ -89,6 +91,10 @@ class ProcessControllerDelegateProxy(object):
     def process_filedescriptors(self):
         """@return our channels"""
         return self._channels
+
+    def launch_mode(self):
+        """@return preset launch_mode"""
+        return self._launch_mode
         
     def communicate(self, process):
         """@return process without having communicated if any of our channels was set"""
@@ -440,12 +446,12 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
 
         return (executable, env, new_args, cwd)
 
-    def should_spawn_process(self):
-        """@return False"""
+    def launch_mode(self):
+        """@return fork by default, or spawn if required"""
         if self.has_transaction():
-            return any(op.delegate_must_spawn is not None and op.delegate_must_spawn or False for op in self.transaction())
+            return any(op.delegate_must_spawn is not None and op.delegate_must_spawn or False for op in self.transaction()) and self.LAUNCH_MODE_CHILD or None
         # end 
-        return False
+        return self.LAUNCH_MODE_REPLACE
         
     def process_filedescriptors(self):
         """Default implementation uses no stdin, and connects the parent processes stderr and stdout to the
@@ -537,27 +543,55 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         # Its unbuffered, be sure we see whats part of our process before replacement
         sys.__stdout__.flush()
 
-    def start(self, args, cwd, env, spawn):
-        """Called to actually launch the process using the given arguments. Unless spawn is true, this 
+    def start(self, args, cwd, env, launch_mode):
+        """Called to actually launch the process using the given arguments. Unless launch_mode is 'replace, this 
         method will not return. Otherwise it returns the Subprocess.popen process
         @param args all arguments we figured out so far, first argument is the executable itself
         @param cwd the current working directory to use for the newly started process
         @param env dict with environment variables to set
-        @param spawn if True, you should not use execv, but subprocess.Popen, and return the created Process"""
-        if os.name == 'nt' and not spawn:
-            # TODO: recheck this - only tested on a VM with python 2.7 ! Could work on our image
+        @param launch_mode one of the standard LAUNCH_MODE_* constants in the IProcessControllerDelegate interface"""
+        if os.name == 'nt' and launch_mode == self.LAUNCH_MODE_REPLACE:
+            # TODO: recheck this - only tested on a VM with python 2.7 !
             log.warn("On windows, execve seems to crash python and is disabled in favor of spawn")
-            spawn = True
+            launch_mode = self.LAUNCH_MODE_CHILD
         # end windows special handling
         
-        if spawn:
+
+        if launch_mode == self.LAUNCH_MODE_CHILD:
             stdin, stdout, stderr = self.process_filedescriptors()
             process = subprocess.Popen( args, shell=False, 
                                         stdin = stdin, stdout = stdout, stderr = stderr,
                                         cwd = cwd, env = env)
             
             return self.communicate(process)
-        else:
+        elif launch_mode == self.LAUNCH_MODE_SIBLING:
+            if sys.platform == "linux2":
+                args.append('&')
+            elif sys.platform == "darwin":
+                executable, app_args = args[0], args[1:]
+                args = ['open', '-n', '-a'] + [executable]
+                if app_args:
+                    args.append('--args')
+                    args.extend(app_args)
+                # end handle app_args
+            elif sys.platform == "win32":
+                args = ['start', '/B'] + args
+            # end handle shell based forking
+
+            # on posix, the shell behaviour is special, as such as args passed to the shell.
+            # For that reason, we have to convert into a string, but at least want to do it properly 
+            # in case of whitespace.
+            # NOTE: for now, we don't expect or support special shell characters
+            cmd = ''
+            for arg in args:
+                if ' ' in arg:
+                    arg = '"%s"' % arg
+                cmd += arg + ' '
+            # end for each arg to sanitize
+
+            log.log(logging.TRACE, cmd)
+            return self.communicate(subprocess.Popen(cmd.strip(), shell=True, cwd = cwd, env=env))
+        elif launch_mode == self.LAUNCH_MODE_REPLACE:
             # Cleanup our existing process - close file-handles, bring down user interface
             # We would need a callback here, ideally using some sort of event system
             self._pre_execve()
@@ -565,8 +599,9 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             ##############################################
             os.execve(args[0], args, env)
             ##############################################
+        else:
+            raise NotImplementedError("Unknown launch mode: %s" % launch_mode)
         # end 
-        assert False, "Shouldn't reach this point"
         
         
     

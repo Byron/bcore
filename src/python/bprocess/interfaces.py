@@ -17,6 +17,21 @@ class IProcessControllerDelegate(Interface):
     # Can't do slots due to layout conflict issues
     # __slots__ = ('_app')
 
+    # -------------------------
+    ## @name Constants
+    # @{
+
+    ## Indicate the current process to be replaced by the launched one
+    LAUNCH_MODE_REPLACE = 'replace/execve'
+
+    ## Indicate you want to spawn the launched process as a child
+    LAUNCH_MODE_CHILD = 'child/spawn'
+
+    ## Indicate you want to fork the process, and maintain it as a sibling
+    LAUNCH_MODE_SIBLING = 'sibling/fork'
+
+    ## -- End Constants -- @}
+
     def __init__(self, application):
         """initialize this instance with an Application. It will may be used for querying settings.
         It's important to never use the global one at bapp.main() to keep everything contained
@@ -97,9 +112,10 @@ class IProcessControllerDelegate(Interface):
         @note even though it would be possible, the delegate must not attempt to start the program himself"""
     
     @abstractmethod
-    def should_spawn_process(self):
-        """@return True if the process must be spawned by the process controller. Otherwise it will be 
-        called using execve. If True, communicate() will be called afterwards, with the spawned instance.
+    def launch_mode(self):
+        """@return one of the LAUNCH_MODE_* constants, or None in case you don't want to set an override.
+        If launch_mode ends up not being LAUNCH_MODE_REPLACE, communicate() will be called afterwards, with 
+        the spawned instance.
         @note called after pre_start
         """
         

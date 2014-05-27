@@ -20,8 +20,8 @@ class TestCommunicatorDelegate(ProcessControllerDelegate):
     """Communicate with a process and see how that works"""
     __slots__ = ()
     
-    def should_spawn_process(self):
-        return True
+    def launch_mode(self):
+        return self.LAUNCH_MODE_CHILD
     
     def process_filedescriptors(self):
         return (None, subprocess.PIPE, subprocess.PIPE)

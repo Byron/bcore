@@ -152,7 +152,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
     
     * Initializes the environment based on configuration found in cwd and bootstrap dir (search upwards)
     * Use Environment's context to prepare the process launch environment
-    * Spawn or exec a process, or call a python entry point.
+    * Spawn, exec or fork a process, or call a python entry point.
     * To facilitate in-process spawn, it will assure the environment stack remains unchanged
     
     @see __init__()
@@ -165,11 +165,10 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                     '_context_paths',     # additional paths to get context from
                     '_environ',           # environment dictionary
                     '_executable_path',   # path to executable of process we should create
-                    '_spawn_override',    # See set_should_spawn_process_override
                     '_app',               # the Application we are using to obtain information about our environment
                     '_prebuilt_app',      # An Application instance optionally provided by the user
                     '_delegate_override', # the delegate the caller might have set
-                    '_dry_run',           # if True, we will not actually spawn the application,
+                    '_dry_run',           # if True, we will not actually run the application,
                     '_package_data_cache',# intermediate data cache, to reduce overhead during iteration
                     '_resolve_args',      # if True, we will resolve arguments in some way
                     '_logging_override',  # log level we parsed from the commandline, or None
@@ -226,7 +225,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
     Set the BAPP_STARTUP_LOG_LEVEL=DEBUG variable to see even more output from the startup time of the entire
     framework.
     """
-    
+
     ## -- End Contants -- @}
 
     # -------------------------
@@ -261,7 +260,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         This context stack is based on the executable's directory, which should be (but doesn't have to be) 
         accessible. Additionally it is influenced by the cwd.
         
-        Callers who just want to spawn a process should make sure they manipulate the executable path to be 
+        Callers who just want to spawn or fork a process should make sure they manipulate the executable path to be 
         in the directory context they require, or use the cwd for that purpose if the program isn't negatively
         affected by that.
         
@@ -272,7 +271,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         @param delegate instance of type IProcessControllerDelegate. If None, the default implementation will be 
         used, unless a delegate is set in the respective package configuration ('packages.name.delegate').
         @param cwd current working directory to be used as additional context. If None, the actual cwd will be used.
-        @param dry_run if True, we will not actually spawn any process, but make preparations as usual
+        @param dry_run if True, we will not actually run any process, but make preparations as usual
         @param application if not None, this application instance will be used and modified while preparing
         to start the program in question. This can be useful if you want to control which configuration to load
         when launching something, as a few semantics are implied otherwise.
@@ -304,7 +303,6 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         self._cwd = cwd or os.getcwd()
         self._context_paths = tuple(context_paths)
         self._environ = dict()
-        self._spawn_override = None
         self._resolve_args = False
         self._next_exception = None
         self._debug_mode = False
@@ -407,7 +405,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
 
     def execute_in_current_context(self, stdin=None, stdout=None, stderr=None):
         """Use this method if you would like execute any configured program within your current context, which 
-        can be useful if you want to spawn a process from a running application.
+        can be useful if you want to spawn or fork a process from a running application.
         The program will always be spawned, and if desired, you can communicate with it yourself by specifying
         the respective channels.
         If any of the input channel arguments is not None, it must either be a true file object (i.e. by calling
@@ -416,14 +414,15 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         @param stdin
         @param stdout
         @param stderr see IProcessControllerDelegate.process_filedescriptors()
-        @return the spawned process as subprocess.Popen object. It will be ready to communicate if at least
+        @return the spawned or forked process as subprocess.Popen object. It will be ready to communicate if at least
         one channel is not None. Otherwise it will be terminated already - this method will have communicated
         with it until its natural termination. Therefore, we will block in that case."""
         # at this point, we have been initialized already and are ready to go.
         # We will smuggle in a proxy to ourselve which will return the given file-descriptors.
         # If all are None, it will communicate
-        self.set_delegate(ProcessControllerDelegateProxy(self.delegate(), stdin, stdout, stderr))
-        self.set_should_spawn_process_override(True)
+        self.set_delegate(ProcessControllerDelegateProxy(self.delegate(), 
+                                                         ProcessControllerDelegate.LAUNCH_MODE_CHILD, 
+                                                         stdin, stdout, stderr))
         return self.execute()
     
     ## -- End Interface -- @}
@@ -1004,20 +1003,9 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
             raise self._next_exception()
         # end 
         
-    def set_should_spawn_process_override(self, override):
-        """This override to let the controller's caller decide if spawning is desired or not, independently of what the delgate 
-        might decide. By default, the delegate will be asked.
-        @param override Either True to enforce the child to be spawned, or False to enforce the process to be replaced using 
-        execve. None can be set to undo any override, and let the delgate decide.
-        @return the previous value
-        """
-        res = self._spawn_override 
-        self._spawn_override = override
-        return res
-
     def execute(self):
         """execute the executable we were initialized with, based on the context we built during initialization
-        @return spawned a process instance of type Subprocess.Popen after it finished execution.
+        @return spawned or forked process instance of type Subprocess.Popen after it finished execution.
         Alterntively it can execv() a process and never returns.
         @note if execv is used, you should shutdown your frameworks and release your resources before 
         calling this method
@@ -1044,15 +1032,12 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                                            chunk_size = delegate.environment_storage_chunk_size())
         
         
-        should_spawn = delegate.should_spawn_process()
-        if self._spawn_override is not None:
-            should_spawn = self._spawn_override
-        # end handle spawn override
-
+        # we just use replace mode by default
+        launch_mode = delegate.launch_mode() or delegate.LAUNCH_MODE_REPLACE
         log.log(TRACE, "%s%s %s (%s)", self._dry_run and "WOULD RUN " or "",
                                        executable,
                                        ' '.join(args), 
-                                       should_spawn and 'child process' or 'replace process')
+                                       launch_mode)
         
         # Make sure arg[0] is always an executable
         # And be sure we have a list, in case people return tuples
@@ -1060,7 +1045,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         args.insert(0, str(executable))
         
         if not self._dry_run:
-            return delegate.start(args, cwd, env, should_spawn)            
+            return delegate.start(args, cwd, env, launch_mode)            
         else:
             # This allows the bootstrapper to work
             return DictObject(dict(returncode = 0))

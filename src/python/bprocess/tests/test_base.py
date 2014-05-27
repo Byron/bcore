@@ -97,13 +97,6 @@ class TestProcessControl(TestCase):
         self.failUnlessRaises(EnvironmentError, lambda: TestProcessController(pseudo_executable('foo'), ('hello', 'world')).application())
 
     @preserve_application
-    def test_forced_spawn(self):
-        """Verify that we can easily enforce a process to be spawned, without overwriting any 'natural' configuration"""
-        pctrl = TestProcessController(pseudo_executable('py-program'), list())
-        assert pctrl.set_should_spawn_process_override(True) is None
-        assert pctrl.execute().returncode == 0
-    
-    @preserve_application
     def test_python_execution(self):
         """we should be able to execute any code directly using the delegate, without spawning"""
         pctrl = TestProcessController(pseudo_executable('py-program'), list())
