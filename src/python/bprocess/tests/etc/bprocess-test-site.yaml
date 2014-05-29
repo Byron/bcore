@@ -1,4 +1,5 @@
-delegate_python_path: '{process.core_tree}/bprocess/tests'
+core_python_path: '{settings-files.bprocess-test-site.dirname}/../../..'
+delegate_python_path: '{settings-files.bprocess-test-site.dirname}/..'
 plugin_load_command: from bprocess.tests.test_base import TestPluginLoading; TestPluginLoading().execute()
 
 packages:
@@ -8,7 +9,7 @@ packages:
     environment:
       resolve: True
       variables:
-        PYTHONPATH: '{process.core_tree}'
+        PYTHONPATH: '{core_python_path}'
         
   python:
     executable: '{process.python_executable}'
@@ -47,8 +48,8 @@ packages:
     include:
       # for fun, just the same config again - it won't be loaded as we detect this
       - '{process.executable.dirname}/etc'
-      # this one will override the 
-      - '{process.executable.as_KVPath.dirname}/etc/per-package/some-packages.yaml'
+      # this one will override the delegate 
+      - '{settings-files.bprocess-test-site.dirname}/per-package/some-packages.yaml'
       # non-existing
       - '/foobar'
 

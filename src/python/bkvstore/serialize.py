@@ -174,7 +174,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
                 # Add the path of the loaded configuration to allow referencing it in configuration.
                 # This allows configuration to be relative to the configuration file !
                 if stream_path and self.settings_key:
-                    data.setdefault(self.settings_key, dict())[stream_path.basename().split('.')[0]] = KVPath(stream_path)
+                    data.setdefault(self.settings_key, dict())[stream_path.basename().split('.')[0]] = KVPath(stream_path.realpath())
                 # end place anchor
             except (OSError, IOError):
                 self.log.error("Could not load %s file at '%s'", streamer.file_extension, path_or_stream, exc_info=True)
