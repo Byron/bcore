@@ -12,6 +12,7 @@ import sys
 import os.path
 
 import bapp
+from bapp import preserve_application
 from butility.tests import TestCase
 from butility import PythonFileLoader
 
@@ -26,6 +27,7 @@ class TestBootstrap(TestCase):
     """Tests for the bootstrap implementation"""
     __slots__ = ()
     
+    @preserve_application
     def test_base(self):
         """test fundamentals
         @note doesn't run all code paths, but its just a few lines"""

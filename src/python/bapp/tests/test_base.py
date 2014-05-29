@@ -9,7 +9,8 @@
 __all__ = []
 
 from .base import (preserve_application,
-                   TestCoreCase)
+                   with_application,
+                   AppTestCase)
                             
 from butility import (Interface,
                       abstractmethod)
@@ -20,17 +21,17 @@ from bapp import (InstanceNotFound,
                    TypeNotFound)
 
 from bapp.contexts import (ApplicationContext,
-                            OSContext)
+                           OSContext)
 
 
-class TestCore(TestCoreCase):
+class TestCore(AppTestCase):
     __slots__ = ()
     
-    @preserve_application
+    @with_application
     def test_application(self):
         """Test BApplication functionality"""
 
-        self.failUnlessRaises(EnvironmentError, bapp.main)
+        app = bapp.main()
 
         class ICustomInterface(Interface):
             __slots__ = ()
@@ -52,7 +53,6 @@ class TestCore(TestCoreCase):
         # end class CustomPluginType
 
         # we don't have access to the stack without an application, so lets make one
-        app = bapp.Application.new(setup_logging=False)
         assert bapp.Application.main is bapp.main() is app
         self.failUnlessRaises(InstanceNotFound, bapp.main().instance, file)
         self.failUnlessRaises(InstanceNotFound, bapp.main().new_instance, file)
@@ -88,15 +88,15 @@ class TestCore(TestCoreCase):
 # end class TestCore
 
 
-class TestContext(TestCoreCase):
+class TestContext(AppTestCase):
     __slots__ = ()
 
-    @preserve_application
+    @with_application
     def test_base(self):
         pbe = ApplicationContext('test_pb')
         ose = OSContext('test_os')
 
-        app = bapp.Application.new()
+        app = bapp.main()
         app.context().push(pbe)
         app.context().push(ose)
         

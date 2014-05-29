@@ -7,17 +7,38 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from butility.tests import ( TestCase,
-                             with_rw_directory )
+                             with_rw_directory)
+import bapp
+from bapp import preserve_application
+from butility import (wraps,
+                      Path)
 from bkvstore import KeyValueStoreModifier
 from bapp.tests import with_application
+
+# test from * import
 from bprocess.utility import *
+
+
+def with_application(fun):
+    """A decorator which assures that our particular test configuration is loaded specifically, without
+    traversing the hiararchy in order to not be dependent on whatever assembly we are in
+    @note does not load plugins based on package information"""
+    @wraps(fun)
+    def wrapper(*args, **kwargs):
+        app = bapp.Application.new(settings_trees=Path(__file__).dirname() / 'etc', 
+                                   settings_hierarchy=False,
+                                   user_settings=False)
+        return fun(*args, **kwargs)
+    # end wrapper
+
+    return wrapper
 
 
 class TestUtilities(TestCase):
     """Test process controller utiltiies"""
     __slots__ = ()
     
-    
+    @preserve_application
     @with_application
     @with_rw_directory
     def test_base(self, rw_dir):

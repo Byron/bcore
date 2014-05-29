@@ -97,7 +97,7 @@ def with_application(fun=None, **dkwargs):
 # ------------------------------------------------------------------------------
 ## @{
 
-class TestCoreCase(TestCase):
+class AppTestCase(TestCase):
     __slots__ = ()
 
     fixture_root = Path(__file__).dirname()

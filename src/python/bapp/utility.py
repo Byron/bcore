@@ -41,6 +41,22 @@ def preserve_application(fun):
         try:
             return fun(*args, **kwargs)
         finally:
+            # the default context might have been picked up by the Application fun created, and 
+            # we need to be sure to put it back to where it was
+            new_app = bapp.Application.main
+            if not prev and new_app:
+                default_ctx = None
+                for ctx in new_app.context().stack():
+                    if ctx.name() == bapp.Application.PRE_APPLICATION_CONTEXT_NAME:
+                        default_ctx = ctx
+                        break
+                    # end context found
+                # end find default context if possible
+                if default_ctx:
+                    assert len(bapp.Application.Plugin.default_stack) == 0
+                    bapp.Application.Plugin.default_stack.push(default_ctx)
+                # end reapply default context
+            # end check default context
             bapp.Application.main = prev
         # end reset Application
     # end wrapper

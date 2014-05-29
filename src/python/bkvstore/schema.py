@@ -26,7 +26,8 @@ from butility import (Path,
                       DictObject,
                       frequncy_to_seconds)
 
-from .diff import transform_value
+from .diff import (transform_value,
+                   AnyKey)
 
 from .base import ( Error,
                     KeyValueStoreProvider )
@@ -261,6 +262,25 @@ class ValidateSchemaMergeDelegate(AdditiveMergeDelegate):
         """@return the list of clashing keys
         @note its modifiable"""
         return self._clashing_keys
+
+    @classmethod
+    def _to_string_key(cls, key):
+        """handle AnyKey"""
+        if key is AnyKey:
+            return '____ANY____'
+        else:
+            return super(ValidateSchemaMergeDelegate, cls)._to_string_key(key)
+        #end  handle AnyKey
+
+    def value_by_key(self, tree, key):
+        """@note Similar to _KeyValueStoreDiffDelegateBase - couldn't derive from it directly though."""
+        if key is AnyKey:
+            assert len(tree) == 1, "should have only one key/value pair"
+            assert tree.keys()[0] == AnyKey, "single key must be AnyKey"
+            return tree.values()[0]
+        else:
+            return super(ValidateSchemaMergeDelegate, self).value_by_key(tree, key)
+        # end handle anykey
 
 # end class ValidateSchemaMergeDelegate
 
