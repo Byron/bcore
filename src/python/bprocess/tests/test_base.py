@@ -165,7 +165,6 @@ class TestProcessControl(TestCase):
         # This one really tests remote configuration
         pctrl = TestProcessController(pseudo_executable('py-program-delegate-via-requires-in-remote-config'), ('---trace', 
             '---foo=bar'))
-        print pctrl.application().context().settings()
         assert type(pctrl.delegate()).__name__ == 'TestOverridesDelegate'
 
     @with_application(from_file=__file__)
