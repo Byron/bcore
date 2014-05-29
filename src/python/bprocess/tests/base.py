@@ -6,7 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['NosetestDelegate', 'with_application', 'PluginLoadingProcessAwareApplication']
+__all__ = ['NosetestDelegate', 'PluginLoadingProcessAwareApplication']
 
 
 import logging
@@ -25,27 +25,6 @@ from bapp.tests import preserve_application
 
 log = logging.getLogger('bprocess.tests.base')
 
-
-# ==============================================================================
-## @name Decorators
-# ------------------------------------------------------------------------------
-## @{
-
-def with_application(fun):
-    """A decorator which assures that our particular test configuration is loaded specifically, without
-    traversing the hiararchy in order to not be dependent on whatever assembly we are in
-    @note does not load plugins based on package information"""
-    @wraps(fun)
-    def wrapper(*args, **kwargs):
-        app = bapp.Application.new(settings_trees=Path(__file__).dirname() / 'etc', 
-                                   settings_hierarchy=False,
-                                   user_settings=False)
-        return fun(*args, **kwargs)
-    # end wrapper
-
-    return wrapper
-
-## -- End Decorators -- @}
 
 
 # ==============================================================================

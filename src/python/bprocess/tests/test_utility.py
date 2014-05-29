@@ -9,7 +9,7 @@
 from butility.tests import ( TestCase,
                              with_rw_directory )
 from bkvstore import KeyValueStoreModifier
-from bprocess.tests import with_application
+from bapp.tests import with_application
 from bprocess.utility import *
 
 
