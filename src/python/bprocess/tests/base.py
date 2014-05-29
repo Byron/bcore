@@ -23,7 +23,7 @@ from butility import ( abstractmethod,
 from bapp.tests import preserve_application
 
 
-logging.getLogger('bprocess.tests.base')
+log = logging.getLogger('bprocess.tests.base')
 
 
 # ==============================================================================
@@ -93,19 +93,21 @@ class NosetestDelegate(ProcessControllerDelegate):
     @note this requires nose to be available in the python path, ideally the wrapper provides it as well"""
     __slots__ = ()
     
-    schema = KeyValueStoreSchema('nosetests', { 'args' : list })
+    nose_schema = KeyValueStoreSchema('nosetests', { 'args' : list })
     
-    def set_context_override(self, schema, value, noseargs):
-        """Store noseargs in our value"""
-        value.args.extend(noseargs)
-
     def pre_start(self, executable, env, args, cwd, resolve):
         """Parse out all arguments until '--' and place them into extra process information.
         @note will place a new environment to assure we get those arguments over into the launched application"""
         try:
             sep_index = args.index('--')
             noseargs = args[:sep_index]
-            self.DelegateContextOverrideType('NosetestsOverride').setup(self, self.schema, noseargs)
+
+            def set_context_override(schema, value):
+                value.args.extend(noseargs)
+            # end 
+            self.DelegateContextOverrideType('NosetestsOverride').setup(self._app.context().settings(), 
+                                                                        set_context_override, 
+                                                                        self.nose_schema)
             args = args[sep_index+1:]
             
             log.info("Starting nosetest with args: %s", ' '.join(noseargs))
@@ -124,14 +126,14 @@ class NosetestDelegate(ProcessControllerDelegate):
         """Start nose with the arguments previously specified on the commandline
         @return true if all tests succeeded, false on failure"""
         kvstore = ControlledProcessInformation().as_kvstore()
-        value = kvstore.value(cls.schema.key(), cls.schema)
+        value = kvstore.value_by_schema(cls.nose_schema)
 
         import nose        
         return nose.main(argv=['nosetests'] + value.args)
     ## -- End Interface -- @}
 
 
-class NoseStartScriptDelegate(NosetestDelegate):
+class PythonScriptNosetestDelegate(NosetestDelegate):
     """Provides a path to the script that, if executed, starts up nose with the required arguments.
     Its interface facilitates injecting the script into the arguments of the called process"""
     __slots__ = ()
@@ -140,21 +142,22 @@ class NoseStartScriptDelegate(NosetestDelegate):
         """@return path to python script that can serve as entrypoint"""
         return Path(__file__).dirname() / 'start-nose.py'
         
-    @abstractmethod
     def modify_args(self, args, script_path):
         """@return modified argument list containing entry_script_path() in a way that causes the hostapplication
         to execute it
         @param args program flags to modify
         @param script_path path to the script that is to be injected so that the program will execute it
+        @note default implementation just returns script_path + args
         @note called from pre_start"""
+        return [script_path] + args
 
     def pre_start(self, executable, env, args, cwd, resolve):
-        executable, env, args, cwd = super(NoseStartScriptDelegate , self).pre_start(executable, env, args, cwd, resolve)
+        executable, env, args, cwd = super(PythonScriptNosetestDelegate , self).pre_start(executable, env, args, cwd, resolve)
         args = self.modify_args(args, self.entry_script_path())
         assert isinstance(args, (list, tuple))
         return (executable, env, args, cwd)
 
-# end class NoseStartScriptDelegate
+# end class PythonScriptNosetestDelegate
 
 ## -- End Base Classes -- @}
 

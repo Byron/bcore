@@ -19,7 +19,8 @@ import bapp
 
 from butility.tests import TestCase
 from bprocess import *
-from bapp.tests import preserve_application
+from bapp.tests import (preserve_application,
+                        with_application)
 from butility import Path
 
 import subprocess
@@ -165,6 +166,12 @@ class TestProcessControl(TestCase):
         pctrl = TestProcessController(pseudo_executable('py-program-delegate-via-requires-in-remote-config'), ('---trace', 
             '---foo=bar'))
         assert type(pctrl.delegate()).__name__ == 'TestOverridesDelegate'
+
+    @with_application(from_file=__file__)
+    def test_nosetest_delegate(self):
+        """brief docs"""
+        pctrl = TestProcessController(pseudo_executable('nosetests-delegate'), ['---dry-run'], application=bapp.main())
+        assert pctrl.execute().returncode == 0
 
     @preserve_application
     def test_process_plugin_loading(self):

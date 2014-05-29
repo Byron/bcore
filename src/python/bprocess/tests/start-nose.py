@@ -8,7 +8,7 @@
 """
 __all__ = []
 
-from bapp.tests import NosetestDelegate
+from bprocess.tests import NosetestDelegate
 
 
 NosetestDelegate.start_nose()

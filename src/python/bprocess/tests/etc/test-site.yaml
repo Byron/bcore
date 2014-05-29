@@ -95,7 +95,14 @@ packages:
       prepend:
         - -c
         - import nose; import sys; nose.main(argv = ['nosetests'] + sys.argv[1:])
-  hub:
-    python:
-      import:
-        bprocess.gui
+
+  nosetests-delegate:
+    # tests the scripted delegate
+    alias: python
+    requires:
+      - test-environment
+    boot:
+      import: bprocess.tests
+    delegate: PythonScriptNosetestDelegate
+
+  
