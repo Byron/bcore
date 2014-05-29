@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import division
+from future.builtins import range
+from future.builtins import object
 __all__ = []
 
 import logging

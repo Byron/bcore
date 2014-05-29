@@ -9,6 +9,7 @@ sample ruleset.
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import object
 __all__ = ['InferenceStringFormatNodeTreeDelegate', 'InferenceStringFormatNodeTree']
 
 import logging
@@ -60,7 +61,7 @@ class InferenceStringFormatNodeTreeDelegate(object):
         # put keys into our data - its okay to have no keys, not all formats have them
         if result.named:
             kvstore = UnorderedKeyValueStoreModifier(self._parsed_data)
-            for nested_key, value in result.named.iteritems():
+            for nested_key, value in result.named.items():
                 kvstore.set_value(nested_key, value)
             #end for each key to store
             # kvstore copies the data, therefore we have to get it back - its somewhat inefficient, but good

@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import object
+from future.utils import with_metaclass
 __all__ = ['NoValue', 'TreeItem', 'RootKey', 'TwoWayDiffDelegateInterface']
 
 from butility import  (NonInstantiatable,
@@ -46,7 +48,7 @@ class RootKey(NonInstantiatable):
 # ------------------------------------------------------------------------------
 ## \{
 
-class TwoWayDiffDelegateInterface(object):
+class TwoWayDiffDelegateInterface(with_metaclass(Meta, object)):
     """Defines the interface of a delegate to be used by the TwoWayDiff.
     
     Its used to inform the client about events when diffing two trees, allowing
@@ -59,7 +61,6 @@ class TwoWayDiffDelegateInterface(object):
     to start the next diff with a clean delegate without knowledge about previous diff runs.
     """
     __slots__ = ()
-    __metaclass__ = Meta
     
     # -------------------------
     ## @name Change Types
@@ -115,7 +116,7 @@ class TwoWayDiffDelegateInterface(object):
         given tree-like structure, which may be empty if there are none.
         @note override this methods if you want to support custom mappings."""
         assert self.is_tree(tree)
-        return tree.keys()
+        return list(tree.keys())
         
     def value_by_key(self, tree, key):
         """@return the value corresponding to the given key in the tree"""

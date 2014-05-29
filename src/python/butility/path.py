@@ -26,6 +26,8 @@ TODO
    - Could add split() and join() methods that generate warnings.
 """
 from __future__ import generators
+from __future__ import division
+from future.builtins import str
 __docformat__ = "restructuredtext"
 
 __license__='Freeware'
@@ -59,19 +61,11 @@ else:
         pwd = None
 
 # We just assume it supports unicode, as pre-python 2.4 support isn't needed
-_base = unicode
-_getcwd = os.getcwdu
-
-# Pre-2.3 workaround for basestring.
-try:
-    basestring
-except NameError:
-    basestring = (str, unicode)
+_base = str
+_getcwd = os.getcwd
 
 # Universal newline support
 _textmode = 'r'
-if hasattr(file, 'newlines'):
-    _textmode = 'U'
 
 
 # cache used for path expansion
@@ -107,7 +101,7 @@ class Path( _base ):
         return self.__class__(resultStr)
 
     def __radd__(self, other):
-        if isinstance(other, basestring):
+        if isinstance(other, str):
             return self.__class__(other.__add__(self))
         else:
             return NotImplemented
@@ -127,14 +121,14 @@ class Path( _base ):
     def __eq__( self, other ):
         """Comparison method with expanded variables, just to assure
         the comparison yields the results we would expect"""
-        return unicode(self._expandvars(self)) == unicode(self._expandvars(unicode(other)))
+        return str(self._expandvars(self)) == str(self._expandvars(str(other)))
 
     def __ne__( self, other ):
         return not self.__eq__( other )
 
     def __hash__( self ):
         """Expanded hash method"""
-        return hash(unicode(self._expandvars(self)))
+        return hash(str(self._expandvars(self)))
 
     #} END Special Python methods
 
@@ -697,7 +691,7 @@ class Path( _base ):
         @return self
         """
         bytes = ""
-        if isinstance(text, unicode):
+        if isinstance(text, str):
             if linesep is not None:
                 # Convert all standard end-of-line sequences to
                 # ordinary newline characters.
@@ -765,7 +759,7 @@ class Path( _base ):
         f = self.open(mode)
         try:
             for line in lines:
-                isUnicode = isinstance(line, unicode)
+                isUnicode = isinstance(line, str)
                 if linesep is not None:
                     # Strip off any existing line-end and add the
                     # specified linesep string.

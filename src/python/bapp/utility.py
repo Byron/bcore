@@ -6,6 +6,10 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
+from future import standard_library
+standard_library.install_hooks()
+from future.builtins import object
 __all__ = ['ApplicationSettingsMixin', 'LogConfigurator', 'StackAwareHierarchicalContext',
            'preserve_application']
 
@@ -225,7 +229,7 @@ class LogConfigurator(ApplicationSettingsMixin):
             # BUGFIX 3369
             # HOW STUPID IS THIS ? Now os throws different WindowsError on ... Windows ?? To add insult
             # to injury ... it doesn't even exist on linux ... so we have to except all here
-            import __builtin__
+            import builtins
             additional_exception = getattr(__builtin__, 'WindowsError', IOError)
             
             # BUGFIX 2759
@@ -234,7 +238,7 @@ class LogConfigurator(ApplicationSettingsMixin):
             try:
                 # DO NOT DISABLE LOGGERS CREATED SO FAR ! What a shitty default !
                 logging.config.fileConfig(log_config_file, disable_existing_loggers=False)
-            except (IOError, additional_exception), err:
+            except (IOError, additional_exception) as err:
                 warnings.warn("logging configuration from ini file failed with error: %s" % str(err))
                 base_setup()
             #end handle unwritable paths
@@ -250,7 +254,7 @@ class LogConfigurator(ApplicationSettingsMixin):
                     value.logdir.makedirs()
                     # Make sure that everyone can write into that folder - especially important for the farm
                     # available on windows
-                    value.logdir.chmod(0777)
+                    value.logdir.chmod(0o777)
                 except (OSError, IOError):
                     log.error("Could not create log directory at %s", value.logdir)
             # end handle logdir creation

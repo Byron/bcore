@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
+from future.builtins import object
 __all__ = [ 'DiffRecord', 'DiffIndex', 'DiffIndexDelegate', 'QualifiedKeyDiffDelegate', 'MergeDelegate',
             'AdditiveMergeDelegate', 'ApplyDifferenceMergeDelegate', 'AutoResolveAdditiveMergeDelegate']
 
@@ -126,7 +128,7 @@ class DiffIndex(OrderedDict):
         """@return iterator which yields all stored DiffRecord instances for which
         predicate returns True
         @param predicate `fun(record)` returning True for each record which matches"""
-        for record in self.itervalues():
+        for record in self.values():
             if predicate(record):
                 yield record
             #end if predicate matches
@@ -185,7 +187,7 @@ class QualifiedKeyDiffDelegate(TwoWayDiffDelegateInterface):
         if key is RootKey:
             return str()
         #end convert None to ''
-        assert isinstance(key, basestring) and cls.key_separator not in key
+        assert isinstance(key, str) and cls.key_separator not in key
         return key
         
     def _qualified_key(self, key):

@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
+from future.builtins import object
 __all__ = [ 'KeyValueStoreProviderDiffDelegate', 'KeyValueStoreModifierDiffDelegate', 
             'KeyValueStoreModifierBaseSwapDelegate', 'AnyKey', 'RelaxedKeyValueStoreProviderDiffDelegate']
 
@@ -159,8 +161,8 @@ class _KeyValueStoreDiffDelegateBase(MergeDelegate):
             # Either we don't have the string-key in question, or it tries to use AnyKey as key during 
             # recursive removals
             assert len(tree) == 1, "should have only one key/value pair"
-            assert tree.keys()[0] == AnyKey, "single key must be AnyKey"
-            return tree.values()[0]
+            assert list(tree.keys())[0] == AnyKey, "single key must be AnyKey"
+            return list(tree.values())[0]
         # end handle anykey
         
 # end class _KeyValueStoreDiffDelegateBase
@@ -301,7 +303,7 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
         """@return a resolved single scalar string value"""
         # Actually, all of the values we see should be strings
         # however, the caller is and may be 'stupid', so we handle it here
-        if not isinstance(value, basestring):
+        if not isinstance(value, str):
             return value
         # end ignore non-string types
 
@@ -322,7 +324,7 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
                 # end 
             # end recursive resolution
             return value
-        except (KeyError, AttributeError, ValueError, TypeError), err:
+        except (KeyError, AttributeError, ValueError, TypeError) as err:
             msg = "Failed to resolve value '%s' at key '%s' with error: %s"
             self._log.warn(msg, value, key, str(err))
             # if we can't resolve, we have to resolve substitute to an empty value. Otherwise

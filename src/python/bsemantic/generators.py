@@ -8,6 +8,8 @@ Generators are commonly provided as small base implementations which can be used
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
+from future.builtins import range
 __all__ = ['StringFormatNode', 'StringFormatNodeTree', 'StringFormatNodeList']
 
 import re

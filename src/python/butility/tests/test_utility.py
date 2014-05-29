@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import division
+from future.builtins import str
+from future.builtins import range
 __all__ = []
 
 from .base import TestCase
@@ -111,8 +114,8 @@ class TestUtility(TestCase):
         assert isinstance(str(dobj), str)
         assert repr(dobj) == str(dobj)
         
-        assert len(dobj.keys()) == 2
-        assert len(dobj.keys()) == len(dobj.values())
+        assert len(list(dobj.keys())) == 2
+        assert len(list(dobj.keys())) == len(list(dobj.values()))
         assert 'first' in dobj
         
         self.failUnlessRaises(AttributeError, getattr, dobj, 'unknown')

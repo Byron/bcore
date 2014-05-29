@@ -10,6 +10,7 @@ order.
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import range
 __all__ = ['Transaction', 'Operation', 'StoringProgressIndicator']
 
 import weakref

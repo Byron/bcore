@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
 __all__ = ['init_ipython_terminal', 'dylib_extension', 'login_name', 'uname', 'int_bits', 
            'system_user_id', 'update_env_path', 'Thread', 'ConcurrentRun', 'daemonize', 
            'TerminatableThread', 'octal']
@@ -81,9 +82,9 @@ def int_bits():
     """
     try:
         return { 9223372036854775807 : 64,
-                          2147483647 : 32 }[sys.maxint]
+                          2147483647 : 32 }[sys.maxsize]
     except KeyError:
-        raise EnvironmentError("maxint size uknown: %i" % sys.maxint)
+        raise EnvironmentError("maxint size uknown: %i" % sys.maxsize)
     #end convert keyerror to environmenterror
     
 def octal(string):

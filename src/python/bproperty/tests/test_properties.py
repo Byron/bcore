@@ -6,11 +6,13 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import object
 
 from butility.tests import TestCase
 
 # test * import
 from bproperty import *
+from future.utils import with_metaclass
 
 
 # ==============================================================================
@@ -35,7 +37,7 @@ class TestPropertyDescriptor(PropertyDescriptor):
 
 ## [PrefixPropertyClass]
 
-class PropertyHolder(object):
+class PropertyHolder(with_metaclass(PropertySchemaMeta, object)):
     """A type which defines some properties"""
     __slots__ = (
                     '_foo',
@@ -44,8 +46,6 @@ class PropertyHolder(object):
                     '_parent_bar',
                     '_parent_sub_foo',
                 )
-    
-    __metaclass__ = PropertySchemaMeta
     _schema_attribute = '_schema'
     
     foo = TestPropertyDescriptor()

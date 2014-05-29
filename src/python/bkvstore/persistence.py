@@ -91,7 +91,7 @@ class OrderedDictRepresenter(yaml.representer.Representer):
             dumper.represented_objects[dumper.alias_key] = node
         best_style = True
 
-        for item_key, item_value in mapping.iteritems():
+        for item_key, item_value in mapping.items():
             node_key = dumper.represent_data(item_key)
             node_value = dumper.represent_data(item_value)
             if not (isinstance(node_key, yaml.ScalarNode) and not node_key.style):

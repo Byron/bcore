@@ -7,6 +7,7 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 @todo get rid of the standard error redirect or maybe solve it differently
 """
+from future.builtins import range
 __all__ = []
 
 from butility import (Interface,
@@ -28,7 +29,7 @@ class TestPlugin(TestContext):
 
         assert not ctx.types(object)
         assert not ctx.instances(object)
-        assert len(ctx.settings().keys()) == 0
+        assert len(list(ctx.settings().keys())) == 0
 
         inst = ctx.register('foo')
         assert not ctx.types(str)
@@ -50,7 +51,7 @@ class TestPlugin(TestContext):
         # an empty stack should provide nothing
         assert len(stack.instances(object)) == 0
         assert len(stack.types(object)) == 0
-        assert len(stack.settings().keys()) == 0
+        assert len(list(stack.settings().keys())) == 0
         assert len(stack.new_instances(object)) == 0
 
         for until_size in (-1, 1):

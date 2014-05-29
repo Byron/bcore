@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import division
+from future.builtins import str
+from future.builtins import range
 __all__ = []
 
 import time
@@ -54,7 +57,7 @@ class TestOperations(TestCase):
             #END handle destination
             
             p = StoringProgressIndicator()
-            for dry_run in reversed(range(2)):
+            for dry_run in reversed(list(range(2))):
                 t = Transaction(log, dry_run = dry_run, progress = p)
                 ro = RsyncOperation(t, source, destination)
                 
@@ -92,7 +95,7 @@ class TestOperations(TestCase):
         file = (rw_dir / "file").touch()
         
         # REMOVE FS ITEM
-        for dry_run in reversed(range(2)):
+        for dry_run in reversed(list(range(2))):
             for item in (file, base_dir):
                 t = Transaction(log, dry_run = dry_run)
                 ro = DeleteOperation(t, item)
@@ -141,7 +144,7 @@ class TestOperations(TestCase):
         destination = base_dir / "my_new_item"
         for dry_run in range(2):
             for content in (None, "hello world"):
-                for mode in (0755,  None):
+                for mode in (0o755,  None):
                     for gid in (None, os.getgid()):
                         for uid in (None, os.getuid()):
                             for dest_exists in range(2):

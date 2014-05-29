@@ -36,7 +36,7 @@ for item in chain([logging.root], logging.root.handlers):
 
 
 
-class Bootstrapper(object):
+class Bootstrapper:
     """Contains for logic required to import bapp and launch the actual implementation from our root package.
     It implements the following algorithm
     
@@ -193,7 +193,7 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         @note use this method if you want to behave similarly to the standard bootstrapper"""
         try:
             return controller_call()
-        except bprocess_mod.DisplayHelpException, err:
+        except bprocess_mod.DisplayHelpException as err:
             sys.stderr.write(err.help_string)
         except bprocess_mod.DisplayContextException:
             sys.stderr.write(controller.application().context().pformat())

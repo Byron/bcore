@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import division
+from future.builtins import str
 __all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsException', 
            'DisplayHelpException', 'DisplayLoadedYamlException']
 
@@ -627,7 +629,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         # end for each arg
         
         # set overrides
-        if kvstore_overrides.keys():
+        if list(kvstore_overrides.keys()):
             ctx = _ProcessControlCommandlineOverridesContext('commandline overrides', kvstore_overrides)
             ControlledProcessInformation.store_commandline_overrides(self._environ, kvstore_overrides.data())
         #end handle overrides
@@ -931,7 +933,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                 
                 # Set environment variables
                 ############################
-                for evar, values in package.data().environment.variables.items():
+                for evar, values in list(package.data().environment.variables.items()):
                     evar_is_path = delegate.variable_is_path(evar)
                     for value in values:
                         # for now we append, as we walk dependencies breadth-first and items coming later
@@ -980,7 +982,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         self._executable_path = alias_package.executable(self._environ)
 
         # We also have to resolve all values, unconditionally.
-        for evar, value in self._environ.iteritems():
+        for evar, value in self._environ.items():
             if '$' not in value:
                 continue
             self._environ[evar] = delegate.resolve_value(value, self._environ)

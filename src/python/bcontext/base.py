@@ -6,6 +6,10 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
+from future.builtins import range
+from future.builtins import object
+from future.utils import with_metaclass
 __all__ = ['Context', 'ContextStack',
            'StackAutoResolveAdditiveMergeDelegate']
 
@@ -190,13 +194,12 @@ class Context(object):
 # end class Context
 
 
-class ContextStack(LazyMixin):
+class ContextStack(with_metaclass(Meta, LazyMixin)):
     """ Keeps a stack of Context instances.
         returns instances (instances of Plugins) or types for instantiation by searching through this stack
         registers instances in the current Context.
         Will always have (and keep) a base Context that serves as 'catch all' Context.
     """
-    __metaclass__ = Meta
     __slots__ = (   
                     '_stack',                               # multiple context instances
                     '_kvstore',                             # a cached and combined kvstore
@@ -303,7 +306,7 @@ class ContextStack(LazyMixin):
         Otherwise, the context instance will be pushed.
         @return pushed context instance
         """
-        if isinstance(context, basestring):
+        if isinstance(context, str):
             context = self.ContextType(context)
         else:
             if context in self._stack:

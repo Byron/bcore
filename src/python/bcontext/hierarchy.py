@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import division
+from future.builtins import str
 __all__ = ['HierarchicalContext']
 
 import sys

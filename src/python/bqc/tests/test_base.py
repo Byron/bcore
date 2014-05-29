@@ -6,13 +6,15 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future import standard_library
+standard_library.install_hooks()
 __all__ = []
 
 import bapp
 from butility.tests import TestCase
 from bqc import *
 
-from cStringIO import StringIO
+from io import StringIO
 
 # ==============================================================================
 ## @name TestTypes

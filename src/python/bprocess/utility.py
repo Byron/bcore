@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import division
+from future.builtins import object
 __all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment',
            'ProcessControllerPackageSpecification', 'PackageDataIteratorMixin',
            'ExecutableContext', 'PythonPackageIterator', 'CommandlineOverridesContext', 
@@ -613,7 +615,7 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
         self._hash_map = ppi.config_hashmap()
 
         seen_dirs = set()
-        self._config_files = self._hash_map.values()
+        self._config_files = list(self._hash_map.values())
         self._config_dirs = list()
 
         # Be a good citizen, and rebuild the internal structure

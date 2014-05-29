@@ -72,7 +72,7 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIt
         res = list()
         packages = self.settings_value(bapp.main().context().settings())
         becmd = self._main_command_name()
-        for package_name in packages.keys():
+        for package_name in list(packages.keys()):
             if package_name == becmd:
                 continue
             # end don't place ourselves to prevent the guys from calling themselves just for fun ;)

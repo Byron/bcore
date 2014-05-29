@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
 __all__ = ['Command', 'SubCommand', 'InputError']
 
 import sys
@@ -332,7 +333,7 @@ class Command(ICommand, LazyMixin):
             cmd = getattr(parsed_args, self._subcommand_slot_name(), None)
             (cmd and cmd.log() or self.log()).error(str(err))
             return self.ARGUMENT_ERROR
-        except (ArgumentError, ArgumentTypeError), err:
+        except (ArgumentError, ArgumentTypeError) as err:
             parser.print_usage(sys.stderr)
             self.log().error(str(err))
             return self.ARGUMENT_ERROR

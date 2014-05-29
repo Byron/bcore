@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
+from future.builtins import object
 __all__ = ['CommandArgumentParser', 'ArgparserHandledCall', 'CommandlineOverridesMixin', 'InputError', 
            'SuccessfulBreak']
 

@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import object
 __all__ = []
 
 import os
@@ -28,12 +29,12 @@ class TestIPlatformService(TestInterface):
         inst = self._instance
         
         for id_name in ('ID_SHORT', 'ID_FULL'):
-            assert isinstance(inst.id(getattr(inst, id_name)), basestring)
+            assert isinstance(inst.id(getattr(inst, id_name)), str)
         # end for each id to test
         self.failUnlessRaises(ValueError, inst.id, 'something')
         
         for variable_name in ('SEARCH_DYNLOAD', 'SEARCH_EXECUTABLES'):
-            assert isinstance(inst.search_path_variable(getattr(inst, variable_name)), basestring)
+            assert isinstance(inst.search_path_variable(getattr(inst, variable_name)), str)
         # end for each variable nam
         self.failUnlessRaises(ValueError, inst.search_path_variable, 'invalid')
         

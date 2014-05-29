@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
+from future.builtins import object
 __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
             'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',
             'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath', 'KVPathList',
@@ -276,8 +278,8 @@ class ValidateSchemaMergeDelegate(AdditiveMergeDelegate):
         """@note Similar to _KeyValueStoreDiffDelegateBase - couldn't derive from it directly though."""
         if key is AnyKey:
             assert len(tree) == 1, "should have only one key/value pair"
-            assert tree.keys()[0] == AnyKey, "single key must be AnyKey"
-            return tree.values()[0]
+            assert list(tree.keys())[0] == AnyKey, "single key must be AnyKey"
+            return list(tree.values())[0]
         else:
             return super(ValidateSchemaMergeDelegate, self).value_by_key(tree, key)
         # end handle anykey

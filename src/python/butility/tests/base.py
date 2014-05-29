@@ -4,6 +4,11 @@
 @brief Contains utilities for use during testing
 
 """
+from __future__ import division
+from __future__ import print_function
+from future.builtins import str
+from future.builtins import object
+from future.utils import with_metaclass
 __all__ = ['unittest', 'with_rw_directory', 'TestCase', 'TestInterface',
             'TempRWDirProvider', 'skip_not_implemented', 'skip_on_travis_ci']
 
@@ -78,8 +83,8 @@ def with_rw_directory(func):
             try:
                 return func(self, path)
             except Exception as err:
-                print >> sys.stderr, ("Test %s.%s failed with error %s: '%s', output is at %r"
-                            % (type(self).__name__, type(err), str(err), func.__name__, path))
+                print(("Test %s.%s failed with error %s: '%s', output is at %r"
+                            % (type(self).__name__, type(err), str(err), func.__name__, path)), file=sys.stderr)
                 keep = True
                 raise
             #end be informed about failure
@@ -172,7 +177,7 @@ class TestInterfaceMetaCls(GlobalsItemDeletorMetaCls):
         If that is not possible, the interface is too specific
     """
     def __new__(metacls, name, bases, clsdict):
-        for key, value in clsdict.iteritems():
+        for key, value in clsdict.items():
             if inspect.isroutine(value) and key.startswith('test_'):
                 clsdict[key] = skip_not_implemented(value)
             # end if we have a test
@@ -230,7 +235,7 @@ class TestCase(unittest.TestCase):
 # end class TestCase
 
 
-class TestInterface(TestCase):
+class TestInterface(with_metaclass(TestInterfaceMetaCls, TestCase)):
     """A base implementation for generic interface tests
     
     Subtypes are tests cases for specific interface, which in turn are derived from by test cases who which
@@ -239,7 +244,6 @@ class TestInterface(TestCase):
     Interface test cases may access a fresh instance of their interface in each test.
     """
     __slots__ = ('_instance')
-    __metaclass__ = TestInterfaceMetaCls
     
     @classmethod
     def _remove_from_globals(cls):

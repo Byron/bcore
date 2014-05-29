@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import division
+from future.builtins import object
+from future.utils import with_metaclass
 __all__ = ['Error', 'Interface', 'Meta', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIterator',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
@@ -91,7 +94,7 @@ def is_mutable( value):
     A value is considered mutable if at least one contained value is mutable
     @param value a possibly nested value of built-in types
     @return true if value is mutable"""
-    if isinstance(value, (basestring, int, float, type(None))):
+    if isinstance(value, (str, int, float, type(None))):
         return False
     #end check immutable
     if isinstance(value, (list, dict)):
@@ -362,11 +365,8 @@ class LazyMixin(object):
 # Implementations for types suitable to serve as base for derived types 
 ## \{
 
-class Interface(object):
+class Interface(with_metaclass(Meta, object)):
     """base class for all interfaces"""
-    
-    ## Provides support for ABC decorators, like abstractmethod
-    __metaclass__ = Meta
     
     ## Slots help to protect against typos when assigning variables, keep instances small, and document the
     ## types member variables
@@ -409,7 +409,7 @@ class Singleton(object) :
 # end class Singleton
 
 
-class GraphIterator(object):
+class GraphIterator(with_metaclass(Meta, object)):
     """A generic, none-recursive implementation of a graph-iterator, which is able to handle cycles.
     
     Its meant to be subclassed to make the interface more approachable
@@ -418,7 +418,6 @@ class GraphIterator(object):
     @todo add a test for this type - its not even indirectly used yet. Alternatively, remove it if its not used
     by anybody"""
     __slots__ = ()
-    __metaclass__ = Meta
     
     # -------------------------
     ## @name Constants

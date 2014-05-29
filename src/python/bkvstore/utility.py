@@ -65,7 +65,7 @@ class KVStringFormatter(Formatter):
             return cls._type_cache[name]
         except KeyError:
             # cache miss - search in modules and update cache
-            for mod in sys.modules.itervalues():
+            for mod in sys.modules.values():
                 try:
                     typ = getattr(mod, name)
                 except AttributeError:

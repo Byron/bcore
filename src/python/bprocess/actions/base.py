@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import object
 __all__ = ['ActionDelegateMixin', 'PackageAction']
 
 import bapp

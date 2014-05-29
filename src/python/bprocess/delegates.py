@@ -6,6 +6,10 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
+from future import standard_library
+standard_library.install_hooks()
+from future.builtins import object
 __all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'ControlledProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate',
            'ProcessControllerDelegateProxy', 'MariControllerDelegate']
@@ -24,7 +28,7 @@ import yaml
 import binascii
 import zlib
 
-from cPickle import (loads,
+from pickle import (loads,
                      dumps)
 
 import logging
@@ -387,7 +391,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         # end for each arg to check
         
         # set overrides
-        if kvstore_overrides.keys():
+        if list(kvstore_overrides.keys()):
             self._app.context().push(Context('delegate overrides', kvstore_overrides))
         #end handle overrides
         return super(ProcessControllerDelegate, self).prepare_context(executable, env, args, cwd)

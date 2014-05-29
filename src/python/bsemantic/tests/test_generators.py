@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import str
 __all__ = []
 
 # W0614 unused wildcard import - its okay here
@@ -27,7 +28,7 @@ class TestGenerators(Test):
         root = tree.root_node()
         assert isinstance(root, StringFormatNode)
         
-        assert isinstance(root.format_string(), basestring)
+        assert isinstance(root.format_string(), str)
         assert len(root.format_keys()) == 1
         assert root.format_keys()[0].count('.') == 2
         

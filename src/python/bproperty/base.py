@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from future.builtins import object
+from future.utils import with_metaclass
 __all__ = ['PropertyError', 'NotWritableError', 'NoSuchPropertyError', 'NotDeletableError', 
            'Property', 'CompoundProperty', 
            'PropertyDescriptor', 'CompoundPropertyDescriptor',
@@ -57,7 +59,7 @@ class NoSuchPropertyError(PropertyError):
 # ------------------------------------------------------------------------------
 ## @{
 
-class Property(object):
+class Property(with_metaclass(Meta, object)):
     """A property returned by a property descriptor
     
     @note Instances of this type are considered transient, and must not be kept alive after use. Instead,
@@ -67,7 +69,6 @@ class Property(object):
     @note even though Descriptors have support for read-only and/or write-only attributes, they 
     lack support for more complex attributes or interfaces, which this type is providing
     """
-    __metaclass__ = Meta
     __slots__ = (
                     '_descriptor',   # A back-link to our descriptor
                     '_instance'      # A back-link to the instance who owns this property
@@ -377,7 +378,7 @@ class PropertyMeta(Meta):
     @classmethod
     def _resolve_descriptor_names(cls, clsdict):
         """assure all descriptors have their name set"""
-        for name, value in clsdict.iteritems():
+        for name, value in clsdict.items():
             if not isinstance(value, PropertyDescriptor):
                 continue
             # end ignore non-properties
@@ -498,13 +499,13 @@ class PropertySchemaMeta(Meta):
             
             # gather all base class properties
             for base in reversed(mro_combined):
-                for attr_name, value in base.__dict__.iteritems():
+                for attr_name, value in base.__dict__.items():
                     check_and_build(value)
                 # end for each name, value pair
             # end for each base
             
             # finally process our current ones
-            for attr_name, value in clsdict.iteritems():
+            for attr_name, value in clsdict.items():
                 check_and_build(value)
             # end for each value in clsdict
             

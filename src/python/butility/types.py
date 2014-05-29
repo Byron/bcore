@@ -6,10 +6,17 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import division
+from __future__ import unicode_literals
+from future.builtins import filter
+from future.builtins import zip
+from future.builtins import str
+from past.builtins import cmp
+from future.builtins import range
+from future.builtins import object
 __all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator', 'PythonFileLoader',
            'SpellingCorrector']
 
-from UserDict import DictMixin
 import imp
 import sys
 import os
@@ -19,6 +26,11 @@ import pprint
 import logging
 from copy import deepcopy
 from .path import Path
+
+if sys.version_info.major < 3:
+    from UserDict import DictMixin
+else:
+    from collections import MutableMapping as DictMixin
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +74,7 @@ class Version(object):
         """Intiialize this instance
         @param version_string a string of pretty much any format that resembles a version. Usually, it consists
         of digits and/or names"""
-        assert isinstance(version_string, basestring), '%s was %s, require string' % (version_string, type(version_string))
+        assert isinstance(version_string, str), '%s was %s, require string' % (version_string, type(version_string))
         self._version = version_string
         
         
@@ -99,7 +111,7 @@ class Version(object):
                     return 1
                 # handle rt type
             else:
-                if isinstance(rt, basestring):
+                if isinstance(rt, str):
                     if lt == rt:
                         continue
                     else:
@@ -258,7 +270,7 @@ class DictObject(object):
             return
         #END handle special case, be a reference
         dct = indict
-        for key, val in dct.iteritems():
+        for key, val in dct.items():
             if isinstance(val, self._unpackable_types):
                 dct = None
                 break
@@ -274,7 +286,7 @@ class DictObject(object):
                     val = type(val)(unpack(item) for item in val)
                 return val
             #END unpack
-            for key, val in dct.iteritems():
+            for key, val in dct.items():
                 dct[key] = unpack(val)
             #END for each k,v pair
         #END handle recursive copy
@@ -348,7 +360,7 @@ class DictObject(object):
             #end unpack
             
             needs_copy = False
-            for value in self.__dict__.itervalues():
+            for value in self.__dict__.values():
                 if obtain_needs_copy(value):
                     needs_copy = True
                     break
@@ -357,7 +369,7 @@ class DictObject(object):
             
             if needs_copy:
                 new_dict = dict()
-                for key, val in self.__dict__.iteritems():
+                for key, val in self.__dict__.items():
                     new_dict[key] = unpack(val)
                 #END for each key, value pair
                 return new_dict
@@ -376,7 +388,7 @@ class DictObject(object):
         """@return new dictionary which uses this dicts keys as values, and values as keys
         @note duplicate values will result in just a single key, effectively drupping items.
         Use this only if you have unique key-value pairs"""
-        return dict(zip(self.__dict__.values(), self.__dict__.keys()))
+        return dict(list(zip(list(self.__dict__.values()), list(self.__dict__.keys()))))
     
     def get(self, name, default=None):
         """as dict.get"""
@@ -384,19 +396,19 @@ class DictObject(object):
         
     def keys(self):
         """as dict.keys"""
-        return self.__dict__.keys()
+        return list(self.__dict__.keys())
         
     def values(self):
         """as dict.values"""
-        return self.__dict__.values()
+        return list(self.__dict__.values())
         
     def items(self):
         """as dict.items"""
-        return self.__dict__.items()
+        return list(self.__dict__.items())
         
     def iteritems(self):
         """as dict.iteritems"""
-        return self.__dict__.iteritems()
+        return iter(self.__dict__.items())
 
     def pop(self, key, default=re):
         """as dict.pop"""
@@ -484,9 +496,9 @@ class OrderedDict(dict, DictMixin):
         if not self:
             raise KeyError('dictionary is empty')
         if last:
-            key = reversed(self).next()
+            key = next(reversed(self))
         else:
-            key = iter(self).next()
+            key = next(iter(self))
         value = self.pop(key)
         return key, value
 
@@ -523,9 +535,15 @@ class OrderedDict(dict, DictMixin):
     pop = DictMixin.pop
     values = DictMixin.values
     items = DictMixin.items
-    iterkeys = DictMixin.iterkeys
-    itervalues = DictMixin.itervalues
-    iteritems = DictMixin.iteritems
+    if sys.version_info.major < 3:
+        iterkeys = DictMixin.iterkeys
+        itervalues = DictMixin.itervalues
+        iteritems = DictMixin.iteritems
+    else:
+        iterkeys = DictMixin.keys
+        itervalues = DictMixin.values
+        iteritems = DictMixin.items
+    # end
 
     def __str__(self):
         return self.__unicode__().encode('utf-8')
@@ -533,7 +551,7 @@ class OrderedDict(dict, DictMixin):
     def __unicode__(self, indent=1):
         indent_str = '    '*indent
         ret_str = u"\n"
-        for key, value in self.iteritems():
+        for key, value in self.items():
             if isinstance(value, OrderedDict):
                 ret_str += u"%s%s: %s" % (indent_str, key, value.__unicode__(indent=indent+1))
             elif isinstance(value, (tuple, list)):
@@ -543,7 +561,7 @@ class OrderedDict(dict, DictMixin):
                     ret_str += u"%s - %s\n" % (indent_str, item)
                 # end for each item
             else:
-                ret_str += u"%s%s: %s\n" % (indent_str, key, unicode(value))
+                ret_str += u"%s%s: %s\n" % (indent_str, key, str(value))
             # end handle value type
         # end for each item in dict
         return ret_str
@@ -551,7 +569,7 @@ class OrderedDict(dict, DictMixin):
     def __repr__(self):
         if not self:
             return '%s()' % (self.__class__.__name__,)
-        return '%s(%r)' % (self.__class__.__name__, self.items())
+        return '%s(%r)' % (self.__class__.__name__, list(self.items()))
 
     def copy(self):
         """same as in dict"""
@@ -561,7 +579,7 @@ class OrderedDict(dict, DictMixin):
         """@return a recursive copy of this dict, except that the dict type is just dict.
         @note useful for pretty-printing"""
         out = dict()
-        for key, value in self.iteritems():
+        for key, value in self.items():
             if isinstance(value, self.__class__):
                 value = value.to_dict()
             out[key] = value
@@ -580,7 +598,7 @@ class OrderedDict(dict, DictMixin):
         if isinstance(other, OrderedDict):
             if len(self) != len(other):
                 return False
-            for left, right in  zip(self.items(), other.items()):
+            for left, right in  zip(list(self.items()), list(other.items())):
                 if left != right:
                     return False
             return True
