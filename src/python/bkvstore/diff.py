@@ -276,7 +276,7 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
                             actual_value = type(right_value)(left_value)
                     # end handle list packing
                 # handle value type - special handling for None
-            except Exception, err:
+            except Exception as err:
                 # Assure we have a real value for error printing and value handling
                 actual_value = right_value_inst
                 
@@ -384,7 +384,7 @@ class KeyValueStoreModifierDiffDelegate(_KeyValueStoreDiffDelegateBase):
                 return right_value
             else:
                 return type(left_value)(right_value)
-        except Exception, err:
+        except Exception as err:
             # ignore this one - for now we just suck it up
             # NOTE: is it worth having an external handler for this to allow throwing exceptions ?
             msg = "Could not convert new value '%s' at key '%s' of type %s to the desired type %s, with error: %s"

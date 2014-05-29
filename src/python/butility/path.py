@@ -38,6 +38,9 @@ import glob
 import shutil
 import codecs
 import re
+
+from .system import octal
+
 log = logging.getLogger("bapp.path")
 
 __version__ = '3.0'
@@ -58,12 +61,6 @@ else:
 # We just assume it supports unicode, as pre-python 2.4 support isn't needed
 _base = unicode
 _getcwd = os.getcwdu
-
-# Pre-2.3 workaround for booleans
-try:
-    True, False
-except NameError:
-    True, False = 1, 0
 
 # Pre-2.3 workaround for basestring.
 try:
@@ -970,14 +967,14 @@ class Path( _base ):
 
     #{ Create/delete operations on directories
 
-    def mkdir(self, mode=0777):
+    def mkdir(self, mode=octal('0777')):
         """Make this directory, fail if it already exists
         
         @return self"""
         os.mkdir(self._expandvars(self), mode)
         return self
 
-    def makedirs(self, mode=0777):
+    def makedirs(self, mode=octal('0777')):
         """Smarter makedir, see os.makedirs
         
         @return self"""
@@ -1002,7 +999,7 @@ class Path( _base ):
 
     #{ Modifying operations on files
 
-    def touch(self, flags = os.O_WRONLY | os.O_CREAT, mode = 0666):
+    def touch(self, flags = os.O_WRONLY | os.O_CREAT, mode = octal('0666')):
         """ Set the access/modified times of this file to the current time.
         Create the file if it does not exist.
         

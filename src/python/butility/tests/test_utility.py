@@ -164,8 +164,6 @@ class TestUtility(TestCase):
             assert dct.pop(attr) == desired_value
         # end for each sample
 
-
-
     def test_python_file_loader(self):
         mod_name = 'test_module'
         mod = PythonFileLoader.load_file(self.fixture_path('module.py'), mod_name)
@@ -186,5 +184,11 @@ class TestUtility(TestCase):
         else:
             assert NativePath(r'\foo\bar') == '/foo/bar'
         # end 
+
+    def test_octal(self):
+        """test octal conversion"""
+        assert octal('0777') == 511
+        assert octal('777') == 511
+        assert octal('0003') == 3
 
 # end class TestUtility

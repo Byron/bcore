@@ -293,7 +293,7 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsMixin,
                 # Data can be empty if there is a read-error
                 try:
                     data = self.settings_kvstore().settings_data(open(path))
-                except Exception, err:
+                except Exception as err:
                     # usually program startup fails if we fail here, lets be verbose, but forgiving
                     log.error("Failed to load file at '%s' - discarding it", path, exc_info=True)
                 # end empty files cause it to fail

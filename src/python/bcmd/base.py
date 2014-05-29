@@ -320,15 +320,15 @@ class Command(ICommand, LazyMixin):
                 # end abort if no one allowed them
             # end handle remaining
             return self.execute(parsed_args, remaining_args)
-        except ArgparserHandledCall, info:
+        except ArgparserHandledCall as info:
             # Happens on help or version - exit with error anyway as we didn't do anything useful
             if info.message:
                 sys.stdout.write(info.message + '/n')
             return self.ARGUMENT_HANDLED
-        except ParserError, err:
+        except ParserError as err:
             self.log().error(str(err))
             return self.ARGUMENT_ERROR
-        except InputError, err:
+        except InputError as err:
             cmd = getattr(parsed_args, self._subcommand_slot_name(), None)
             (cmd and cmd.log() or self.log()).error(str(err))
             return self.ARGUMENT_ERROR
@@ -342,7 +342,7 @@ class Command(ICommand, LazyMixin):
             # Signal 15, or Ctrl+C
             self.log().error("Interrupted by user")
             return self.KEYBOARD_INTERRUPT
-        except Exception, err:
+        except Exception as err:
             self.log().error("An unhandled exception occurred", exc_info=True)
             return self.UNHANDLED_ERROR
         # end exception handling

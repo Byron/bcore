@@ -316,7 +316,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         if name in ('_app', '_executable_path', '_delegate'):
             try:
                 self._setup_execution_context()
-            except Exception, err:
+            except Exception as err:
                 # convert to a custom type, in case we got that far, to respect stuff the user wanted
                 # prior to the issue. This makes sure we can show debug information, for instance
                 if self._next_exception is not None:
@@ -970,7 +970,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                     Action(delegate.transaction(), action_key, Action.data(action_key), package_name, package.data())
                 # end for each action
             # end for each program
-        except KeyError, err:
+        except KeyError as err:
             msg = "Configuration for program '%s' not found - error was: %s" % (package_name, str(err))
             raise EnvironmentError(msg) 
         # end handle unknown dependencies

@@ -77,7 +77,7 @@ def with_rw_directory(func):
         try:
             try:
                 return func(self, path)
-            except Exception, err:
+            except Exception as err:
                 print >> sys.stderr, ("Test %s.%s failed with error %s: '%s', output is at %r"
                             % (type(self).__name__, type(err), str(err), func.__name__, path))
                 keep = True
