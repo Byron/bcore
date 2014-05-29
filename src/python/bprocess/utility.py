@@ -413,26 +413,43 @@ class ProcessControllerPackageSpecification(LazyMixin):
         @note for now this is uncached, but its okay for our use
         @note we always resolve environment variables
         """
-        executable = self.data().executable
-        if not executable:
+        executables = self.data().executable
+        if not executables:
             raise ValueError("no executable set for package '%s'" % self.name())
-        executable_path = Path._expandvars_deep(executable, env)
-        try:
-            executable_path = self.to_abs_path(executable_path)
-        except EnvironmentError:
-            if '$' in executable_path:
-                # give it more time, let them work with it until something breaks
-                # Don't have another choice
-                executable_path = Path(executable_path)
-            else:
-                raise
-        # end handle conversion
-        if os.name == 'nt':
-            win_ext = '.exe'
-            if not executable_path.ext():
-                executable_path += win_ext
-            # handle extension
-        # end handle windows
+
+        error = None
+        executable_path = None
+        for executable in executables:
+            executable_path = Path._expandvars_deep(executable, env)
+            try:
+                executable_path = self.to_abs_path(executable_path)
+            except EnvironmentError as err:
+                if '$' in executable_path:
+                    # give it more time, let them work with it until something breaks
+                    # Don't have another choice
+                    executable_path = Path(executable_path)
+                else:
+                    error = err
+                    continue
+            # end handle conversion
+
+            # If we have variables in the path, we can't assume anything (nor resolve) as it might be too early 
+            # for that. In that case, we assume the best. Otherwise, the executable must exist
+            if not executable_path.containsvars() and not executable.isfile():
+                continue
+            # end 
+
+            if os.name == 'nt':
+                win_ext = '.exe'
+                if not executable_path.ext():
+                    executable_path += win_ext
+                # handle extension
+            # end handle windows
+            return executable_path
+        # end for each executable to try
+        assert executable_path or error, "Should have collected at least one error at this point"
+        if error:
+            raise error
         return executable_path
     ## -- End Interface -- @}
 

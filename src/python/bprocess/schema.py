@@ -156,7 +156,7 @@ package_manager_schema = KeyValueStoreSchema('package-manager',
 # UPDATE IT WHENEVER YOU MODIFY THIS SCHEMA !
 package_schema = KeyValueStoreSchema(AnyKey,            
                                                         { 'trees' : KVPathList,
-                                                          'executable' : Path,
+                                                          'executable' : PathList,
                                                           'cwd' : Path,
                                                           'delegate' : NamedServiceProcessControllerDelegate('ProcessControllerDelegate'),
                                                           'requires' : StringList,

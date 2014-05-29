@@ -91,11 +91,6 @@ packages:
       # for all the requirements (for testing, remove the following line and list
       # module requirements manually
       - test-environment
-    arguments:
-      # Just for testing ...
-      prepend:
-        - -c
-        - import nose; import sys; nose.main(argv = ['nosetests'] + sys.argv[1:])
 
   nosetests-delegate:
     # tests the scripted delegate
