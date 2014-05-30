@@ -189,13 +189,6 @@ class TestUtility(TestCase):
         del sys.modules[mod_name]
         del sys.modules['submodule']
 
-    def test_native_path(self):
-        if os.name == 'nt':
-            assert NativePath('/foo/bar') == r'\foo\bar'
-        else:
-            assert NativePath(r'\foo\bar') == '/foo/bar'
-        # end 
-
     def test_octal(self):
         """test octal conversion"""
         assert octal('0777') == 511

@@ -3,12 +3,16 @@
 :todo: actual implementation of path tests - currently it is just a placeholder assuring
 that the module can at least be imported
 """
+from __future__ import unicode_literals
 import os
 
-from butility import (Path,
-                      ConversionPath)
-import butility.path
+from future.builtins import (bytes,
+                             str)
 
+# test * import
+from butility.path import *
+
+from butility import octal
 from .base import (TestCase,
                    with_rw_directory)
 
@@ -57,7 +61,7 @@ class TestPath( TestCase ):
             
         assert pwv.expand_or_raise() == pwv
         
-        first_var = os.environ.iterkeys().next()
+        first_var = next(iter(os.environ.keys()))
         expanded = Path("$%s/something" % first_var).expand_or_raise()
         assert os.environ[first_var] in expanded
         
@@ -175,8 +179,9 @@ class TestPath( TestCase ):
         
         # expand recursive
         tvar = "PATH_TEST_ENV_VAR"
-        os.environ[tvar] = "$" + os.environ.keys()[0]
-        nestedpath = Path("$" + tvar) / "folder" / "$" + os.environ.keys()[1]
+        os.environ[tvar] = "$" + list(os.environ.keys())[0]
+        envkeys = iter(os.environ.keys())
+        nestedpath = Path("$" + tvar) / "folder" / "$" + list(os.environ.keys())[1]
         
         # expand_or_raise works - it realizes that we could at least expand the 
         # non-recursive variables
@@ -303,8 +308,8 @@ class TestPath( TestCase ):
         for errval in ('ignore', 'warn'):
             assert len(list(invalidpath.walk(errors=errval))) == 0
             
-        self.failUnlessRaises(OSError, invalidpath.walk(errors='strict').next)
-        self.failUnlessRaises(ValueError, invalidpath.walk(errors='something').next)
+        self.failUnlessRaises(OSError, next, invalidpath.walk(errors='strict'))
+        self.failUnlessRaises(ValueError, next, invalidpath.walk(errors='something'))
         
         # NOTE: for walkdirs, walkfiles,  implementation uses walk, dont have to 
         # check everthing again
@@ -328,9 +333,8 @@ class TestPath( TestCase ):
         assert len(rw_dir.glob('?dir')) == 2
         
         # open
-        adata = 'abcd'
-        fd = afile.open('w')
-        assert isinstance(fd, file)
+        adata = bytes(b'abcd')
+        fd = afile.open('wb')
         fd.write(adata)
         fd.close()
         
@@ -344,16 +348,15 @@ class TestPath( TestCase ):
         assert afile.bytes() == adata*2
         
         # text
-        assert afile.text() == adata*2  #   8bit string
-        assert afile.text(encoding='utf-8') == adata*2
+        assert afile.text() == adata.decode()*2  #   8bit string
+        assert afile.text(encoding='utf-8') == adata.decode()*2
         
         # write_text
         adata = 'ab'
         assert afile.write_text(adata) == afile # returns self
         assert afile.text() == adata
         afile.write_text(adata, append=True).bytes() == adata*2
-        len(afile.write_text(unicode(adata), encoding='utf-16').bytes()) == len(adata)*2
-        self.failUnlessRaises(AssertionError, afile.write_text, adata, encoding='utf-16') # strings with encoding are forbidden
+        len(afile.write_text(str(adata), encoding='utf-16').bytes()) == len(adata)*2
         
         # write_lines and lines- loose test only
         adata = ('ab', 'cd')
@@ -400,7 +403,7 @@ class TestPath( TestCase ):
             assert afile.statvfs()
         if hasattr(afile, 'pathconf'):
             try:
-                assert afile.pathconf(os.pathconf_names.values()[0])
+                assert afile.pathconf(next(iter(os.pathconf_names.values())))
             except OSError:
                 pass # likely to happen as we don't use it correctly
         # END check pathconf if possible
@@ -408,7 +411,7 @@ class TestPath( TestCase ):
         assert afile.isWritable() and not adir.isWritable()
         
         assert afile.setutime((0, 1)) == afile
-        assert afile.chmod(0777) == afile
+        assert afile.chmod(octal('0777')) == afile
         if hasattr(afile, 'chown'):
             # we use something ridiculous to see we get an error at least
             self.failUnlessRaises(OSError, afile.chown, 0, 1)
@@ -495,7 +498,7 @@ class TestPath( TestCase ):
         
         # test joining
         dpath = ConversionPath("c:%stest" % osep)
-        fname = "file.a"
+        fname = 'file.a'
         fpath = dpath / fname
         assert sep not in fpath
         assert fpath == dpath.joinpath('file.a')
@@ -536,8 +539,12 @@ class TestPath( TestCase ):
         assert fpath.relpathto(fpath.dirname()) == 'there'
         assert fpath.relpathfrom(fpath.dirname()) == '..'
         
-        # test makepath
-        assert isinstance(butility.path.Path("hi"), butility.path.ConversionPath)
-        
         Path.set_separator(sep)
+
+    def test_native_path(self):
+        if os.name == 'nt':
+            assert NativePath('/foo/bar') == r'\foo\bar'
+        else:
+            assert NativePath(r'\foo\bar') == '/foo/bar'
+        # end 
         

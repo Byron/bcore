@@ -27,7 +27,9 @@ TODO
 """
 from __future__ import generators
 from __future__ import division
+from __future__ import unicode_literals
 from future.builtins import str
+
 __docformat__ = "restructuredtext"
 
 __license__='Freeware'
@@ -615,7 +617,11 @@ class Path( _base ):
         # END handle encoding
         
         try:
-            return f.read()
+            if sys.version_info.major < 3:
+                return str(f.read())
+            else:
+                return f.read()
+            # end assure type is correct
         finally:
             f.close()
         # END handle file read
@@ -1152,7 +1158,9 @@ class ConversionPath(Path):
     the methods to work nonetheless."""
     def __div__(self, rel):
         return self.joinpath(rel)
-        
+
+    __truediv__ = __div__
+
     @classmethod
     def _expandvars(cls, path):
         # when expanding, we might get operating system separators into the path, which
