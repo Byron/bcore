@@ -40,7 +40,8 @@ def dylib_extension():
     """@return extension used for dynamically loaded libraries on the current platform
     @throws EnvironmentError if platform is unknown"""
     try:
-        return {    'linux2' : "so",
+        return {    'linux'  : "so",
+                    'linux2' : "so",
                     'darwin' : "bundle",
                     'win32'   : "dll"}[sys.platform]
     except KeyError:

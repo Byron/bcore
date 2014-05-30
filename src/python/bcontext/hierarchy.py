@@ -54,7 +54,8 @@ class HierarchicalContext(Context, LazyMixin):
     config_dir_name = 'etc'
 
     # A mapping of long to short platform names
-    platform_names_map = { 'linux2': 'lnx',
+    platform_names_map = { 'linux': 'lnx',
+                           'linux2': 'lnx',
                            'sunos5': 'sun',
                            'darwin': 'mac',
                            'win32':  'win'}

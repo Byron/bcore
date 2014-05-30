@@ -570,16 +570,16 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             
             return self.communicate(process)
         elif launch_mode == self.LAUNCH_MODE_SIBLING:
-            if sys.platform == "linux2":
+            if sys.platform.startswith('linux')
                 args.append('&')
-            elif sys.platform == "darwin":
+            elif sys.platform == 'darwin':
                 executable, app_args = args[0], args[1:]
                 args = ['open', '-n', '-a'] + [executable]
                 if app_args:
                     args.append('--args')
                     args.extend(app_args)
                 # end handle app_args
-            elif sys.platform == "win32":
+            elif sys.platform == 'win32':
                 args = ['start', '/B'] + args
             # end handle shell based forking
 
