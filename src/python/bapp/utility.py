@@ -8,8 +8,6 @@
 """
 from __future__ import unicode_literals
 from future.builtins import str
-from future import standard_library
-standard_library.install_hooks()
 from future.builtins import object
 __all__ = ['ApplicationSettingsMixin', 'LogConfigurator', 'StackAwareHierarchicalContext',
            'preserve_application']
@@ -227,11 +225,7 @@ class LogConfigurator(ApplicationSettingsMixin):
             # Resort to standard setup if there is no further configuration
             logging.basicConfig()
         else:
-            # BUGFIX 3369
-            # HOW STUPID IS THIS ? Now os throws different WindowsError on ... Windows ?? To add insult
-            # to injury ... it doesn't even exist on linux ... so we have to except all here
-            import builtins
-            additional_exception = getattr(__builtin__, 'WindowsError', IOError)
+            additional_exception = getattr(__builtins__, 'WindowsError', IOError)
             
             # BUGFIX 2759
             # make sure the appropriate path exists and is writable, otherwise warn and use different temporary

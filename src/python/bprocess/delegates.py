@@ -8,8 +8,6 @@
 """
 from __future__ import unicode_literals
 from future.builtins import str
-from future import standard_library
-standard_library.install_hooks()
 from future.builtins import object
 __all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'ControlledProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate',

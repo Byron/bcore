@@ -12,7 +12,6 @@ from __future__ import unicode_literals
 from future.builtins import filter
 from future.builtins import zip
 from future.builtins import str
-from past.builtins import cmp
 from future.builtins import range
 from future.builtins import object
 __all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator',

@@ -62,9 +62,11 @@ class TestPath( TestCase ):
             
         assert pwv.expand_or_raise() == pwv
         
-        first_var = next(iter(os.environ.keys()))
-        expanded = Path("$%s/something" % first_var).expand_or_raise()
-        assert os.environ[first_var] in expanded
+        var = 'BAZ'
+        os.environ[var] = 'FOO'
+        expanded = Path("$%s/something" % var).expand_or_raise()
+        assert os.environ[var] in expanded
+        del os.environ[var]
         
     @with_rw_directory
     def test_all(self, rw_dir):
@@ -180,9 +182,10 @@ class TestPath( TestCase ):
         
         # expand recursive
         tvar = "PATH_TEST_ENV_VAR"
-        os.environ[tvar] = "$" + list(os.environ.keys())[0]
-        envkeys = iter(os.environ.keys())
-        nestedpath = Path("$" + tvar) / "folder" / "$" + list(os.environ.keys())[1]
+        var = 'BAZ'
+        os.environ[var] = 'FOO'
+        os.environ[tvar] = "$" + var
+        nestedpath = Path("$" + tvar) / "folder" / "$" + var
         
         # expand_or_raise works - it realizes that we could at least expand the 
         # non-recursive variables
@@ -486,6 +489,8 @@ class TestPath( TestCase ):
         assert acdir.copytree(addir) == addir   and addir.isdir()
         
         assert addir.rmtree() == addir and not addir.isdir()
+
+        del os.environ[var]
         
     def test_separator(self):
         # assert Path.sep == os.path.sep
