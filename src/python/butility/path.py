@@ -617,7 +617,7 @@ class Path( _base ):
         # END handle encoding
         
         try:
-            if sys.version_info.major < 3:
+            if sys.version_info[0] < 3:
                 return str(f.read())
             else:
                 return f.read()

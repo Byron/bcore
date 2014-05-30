@@ -119,7 +119,7 @@ class TestProperties(TestCase):
         assert ph.parent.foo.value() == 4
         
         # no setattr support
-        if sys.version_info.major > 2:
+        if sys.version_info[0] > 2:
             self.failUnlessRaises(AttributeError, setattr, ph.parent.sub, 'foo', 5)
         # end handle py3
         assert not hasattr(ph, '_parent_sub_foo')

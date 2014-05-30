@@ -12,7 +12,7 @@ __all__ = ['KVStringFormatter']
 import sys
 from string import Formatter
 
-if sys.version_info.major > 2:
+if sys.version_info[0] > 2:
     import _string
 # end py3
 
@@ -88,7 +88,7 @@ class KVStringFormatter(Formatter):
 
     def get_field(self, field_name, args, kwargs):
         """This is just a copy of the base implementation, re-implementing the portion we need"""
-        if sys.version_info.major < 3:
+        if sys.version_info[0] < 3:
             first, rest = field_name._formatter_field_name_split()
         else:
             first, rest = _string.formatter_field_name_split(field_name)

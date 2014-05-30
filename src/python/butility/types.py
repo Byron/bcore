@@ -27,7 +27,7 @@ import logging
 from copy import deepcopy
 from .path import Path
 
-if sys.version_info.major < 3:
+if sys.version_info[0] < 3:
     from UserDict import DictMixin
     string_types = (str, __builtins__['str'])
 else:
@@ -457,7 +457,7 @@ def _to_dict(d):
     return out
 
 
-if sys.version_info.major < 3:
+if sys.version_info[0] < 3:
 
     class OrderedDict(dict, DictMixin):
         """@copyright (c) 2009 Raymond Hettinger
@@ -572,7 +572,7 @@ if sys.version_info.major < 3:
         pop = DictMixin.pop
         values = DictMixin.values
         items = DictMixin.items
-        if sys.version_info.major < 3:
+        if sys.version_info[0] < 3:
             iterkeys = DictMixin.iterkeys
             itervalues = DictMixin.itervalues
             iteritems = DictMixin.iteritems

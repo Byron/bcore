@@ -404,7 +404,7 @@ class TestPath( TestCase ):
             assert afile.statvfs()
 
         # for some reason, this doesn't work reliably on py3 - might have to do something with ordering of values
-        if sys.version_info.major < 3:
+        if sys.version_info[0] < 3:
             if hasattr(afile, 'pathconf'):
                 try:
                     assert afile.pathconf(next(iter(os.pathconf_names.values())))

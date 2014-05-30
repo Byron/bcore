@@ -28,7 +28,7 @@ def _init_yaml_persistence():
     except ImportError:
         # use our version
         try:
-            yaml_package_dir = Path(__file__).dirname() / 'yaml-builtin' / ('py%i' % sys.version_info.major)
+            yaml_package_dir = Path(__file__).dirname() / 'yaml-builtin' / ('py%i' % sys.version_info[0])
             yaml = load_package(yaml_package_dir, 'yaml')
         except ImportError:
             raise ImportError("Failed to import yaml, even using our own library at bkvstore.yaml")
