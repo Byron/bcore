@@ -5,6 +5,7 @@ source = bapp,bcmd,bcontext,bdiff,be,bkvstore,bprocess,bproperty,bqc,bsemantic,b
 [report]
 omit = 
 	*/*yaml*
+	*/future/*
 	*/tests/*
     */python?.?/*
     */site-packages/nose/*
