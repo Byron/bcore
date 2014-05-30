@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 from future.builtins import str
 __all__ = ['init_ipython_terminal', 'dylib_extension', 'login_name', 'uname', 'int_bits', 
            'system_user_id', 'update_env_path', 'Thread', 'ConcurrentRun', 'daemonize', 
@@ -55,10 +56,11 @@ def login_name():
     users to impersonate others quite easily.
     """
     # getuser is linux only !
+    # py3: str conversion required to get unicode
     if sys.platform == 'win32':
-        return os.environ['USERNAME']
+        return str(os.environ['USERNAME'])
     else:
-        return getpass.getuser()
+        return str(getpass.getuser())
     #end handle platforms
 
 

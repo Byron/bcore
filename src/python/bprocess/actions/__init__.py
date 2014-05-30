@@ -10,6 +10,7 @@ Actions are the application of the command pattern to do anything.
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 from .base import *
 from .copy import *
 from .schema import *
