@@ -87,6 +87,15 @@ class TestUtility(TestCase):
         assert Version.UNKNOWN >= Version.UNKNOWN
         assert Version.UNKNOWN <= Version.UNKNOWN
         assert not (Version.UNKNOWN != Version.UNKNOWN)
+
+    def test_ordered_dict_special_api(self):
+        """Assert on custom API methods"""
+        odict = OrderedDict()
+        odict.foo = 'bar'
+        assert odict.foo is odict['foo'], "setattr should work, as well as getattr"
+
+        assert isinstance(str(odict), str)
+
         
     def test_chunker(self):
         """Verify the chunker works as expected"""

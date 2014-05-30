@@ -443,6 +443,17 @@ def _ordered_ict_format_string(odict, indent=1):
     # end for each item in dict
     return ret_str
 
+def _to_dict(d):
+    """@return a recursive copy of this dict, except that the dict type is just dict.
+    @note useful for pretty-printing"""
+    out = dict()
+    for key, value in d.items():
+        if isinstance(value, d.__class__):
+            value = value.to_dict()
+        out[key] = value
+    #end for each key-value pair
+    return out
+
 
 if sys.version_info.major < 3:
 
@@ -583,16 +594,7 @@ if sys.version_info.major < 3:
             """same as in dict"""
             return self.__class__(self)
             
-        def to_dict(self):
-            """@return a recursive copy of this dict, except that the dict type is just dict.
-            @note useful for pretty-printing"""
-            out = dict()
-            for key, value in self.items():
-                if isinstance(value, self.__class__):
-                    value = value.to_dict()
-                out[key] = value
-            #end for each key-value pair
-            return out
+        to_dict = _to_dict
 
         @classmethod
         def fromkeys(cls, iterable, value=None):
@@ -621,13 +623,19 @@ else:
 
     class OrderedDict(OrderedDictPy3):
         """Add some compatiblity for our custom API"""
-        
-        def to_dict(self):
-            """@return ourselves - not a copy. The py2.7 implementation just has to copy in order to create a new type.
-            If code relies on that, it's a bug."""
-            return self
+        __reserved__ = set(('_OrderedDict__marker', '_OrderedDict__update', '__weakref__', '_OrderedDict__root',
+                            '_OrderedDict__map', '_OrderedDict__hardroot'))
+
+        to_dict = _to_dict
 
         __str__ = _ordered_ict_format_string
+
+        def __setattr__(self, name, value):
+            """Set the given value into our dict"""
+            print(name, value)
+            if name in self.__reserved__:
+                return OrderedDictPy3.__setattr__(self, name, value)
+            self[name] = value
 
         def __getattr__(self, name):
             """provides read access"""
@@ -638,7 +646,6 @@ else:
             #end handle getitem
     
     # end class OrderedDict
-
 # end handle py2/3 compatibility
     
 

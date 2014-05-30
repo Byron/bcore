@@ -8,6 +8,8 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
+from future.builtins import (str, int)
+
 __all__ = []
 
 import bapp
@@ -47,6 +49,7 @@ class TestSettingsClient(PersistentApplicationSettingsMixin):
         dog.friends = ['cat', 'bunny']
         dog.location.x = 1.0
         dog.location.y = 2.0
+        
         self.save_settings()
         
     def assert_values(self):
@@ -143,7 +146,7 @@ class TestSettings(TestCase):
         """Test settings client"""
         client = TestSettingsClient(rw_dir)
         client.set_values()
-        
+
         other_client = TestSettingsClient(rw_dir)
         other_client.assert_values()
         
