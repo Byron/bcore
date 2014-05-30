@@ -188,7 +188,9 @@ class QualifiedKeyDiffDelegate(TwoWayDiffDelegateInterface):
         if key is RootKey:
             return str()
         #end convert None to ''
-        assert isinstance(key, str) and cls.key_separator not in key
+        # py2/3: comparing string is difficult, as they need to be unicode
+        # Here we easily get deserialized strings, which are not necessarily unicode in py2
+        assert isinstance(key, (str, __builtins__['str'])) and cls.key_separator not in key
         return key
         
     def _qualified_key(self, key):

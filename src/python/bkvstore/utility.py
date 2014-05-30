@@ -12,6 +12,10 @@ __all__ = ['KVStringFormatter']
 import sys
 from string import Formatter
 
+if sys.version_info.major > 2:
+    import _string
+# end py3
+
 
 class KVStringFormatter(Formatter):
     """A formatter which introduces a way to specify the type to convert to. That way, it is possible to use
@@ -84,7 +88,12 @@ class KVStringFormatter(Formatter):
 
     def get_field(self, field_name, args, kwargs):
         """This is just a copy of the base implementation, re-implementing the portion we need"""
-        first, rest = field_name._formatter_field_name_split()
+        if sys.version_info.major < 3:
+            first, rest = field_name._formatter_field_name_split()
+        else:
+            first, rest = _string.formatter_field_name_split(field_name)
+        # end py3
+
         try:
             obj = self.get_value(first, args, kwargs)
         except Exception:

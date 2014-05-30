@@ -4,7 +4,7 @@ source = bapp,bcmd,bcontext,bdiff,be,bkvstore,bprocess,bproperty,bqc,bsemantic,b
 ; to make nosetests happy
 [report]
 omit = 
-	*/yaml*
+	*/*yaml*
 	*/tests/*
     */python?.?/*
     */site-packages/nose/*

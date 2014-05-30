@@ -26,7 +26,10 @@ def _init_yaml_persistence():
     except ImportError:
         # use our version
         try:
-            from . import yaml_builtin as yaml
+            if sys.version_info.major < 3:
+                from . import py2_yaml_builtin as yaml
+            else:
+                from . import py3_yaml_builtin as yaml
         except ImportError:
             raise ImportError("Failed to import yaml, even using our own library at bkvstore.yaml")
         #end handle yaml
