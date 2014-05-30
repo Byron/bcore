@@ -2,6 +2,7 @@ language: python
 python:
   - "2.6"
   - "2.7"
+  - "3.3"
   # - "pypy" - see https://travis-ci.org/Byron/bcore/jobs/24387322
 
 install:
