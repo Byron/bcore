@@ -16,12 +16,11 @@ def _initialize():
         import future
     except ImportError:
         # try to use our builtin version
+        import zipimport
         import os
-        import sys
-        pdir = os.path.join(os.path.dirname(__file__), 'future-builtin')
-        sys.path.append(pdir)
-
-        import future
+        archive = os.path.join(os.path.dirname(__file__), 'future-builtin', 'future.zip')
+        zim = zipimport.zipimporter(archive)
+        zim.load_module('future')
     # end try future import
 # end 
 

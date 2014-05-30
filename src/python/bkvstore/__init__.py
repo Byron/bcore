@@ -11,8 +11,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from butility import (Version,
-                      Path,
-                      load_package)
+                      Path)
 __version__ = Version("0.1.0")
 
 import sys
@@ -27,16 +26,14 @@ def _init_yaml_persistence():
         import yaml
     except ImportError:
         # use our version
+        import zipimport
         try:
-            yaml_package_dir = Path(__file__).dirname() / 'yaml-builtin' / ('py%i' % sys.version_info[0])
-            yaml = load_package(yaml_package_dir, 'yaml')
+            yaml_archive = Path(__file__).dirname() / 'yaml-builtin' / ('py%i' % sys.version_info[0]) / 'yaml.zip'
+            zipimport.zipimporter(yaml_archive).load_module('yaml')
         except ImportError:
             raise ImportError("Failed to import yaml, even using our own library at bkvstore.yaml")
         #end handle yaml
     # end handle exception
-    
-    # set the module to be part of us
-    sys.modules['yaml'] = yaml
     
     # Setup persistence
     from . import persistence
