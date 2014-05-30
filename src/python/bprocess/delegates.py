@@ -233,7 +233,9 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
     @classmethod
     def _encode(cls, data):
         """@return encoded version of data, suitable to be stored in the environment"""
-        return binascii.b2a_base64(zlib.compress(dumps(data), 9))
+        # make sure we pickle with protocol 2, to allow running python3 for bootstrap, which launches
+        # python2
+        return binascii.b2a_base64(zlib.compress(dumps(data, 2), 9))
         
     @classmethod
     def _decode(cls, data_string):
