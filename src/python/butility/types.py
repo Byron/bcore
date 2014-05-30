@@ -89,8 +89,16 @@ class Version(object):
     def __hash__(self):
         """brief docs"""
         return hash(self._version)
+
+    def __eq__(self, rhs):
+        """@retutn True if rhs equals lhs"""
+        if not isinstance(rhs, type(self)):
+            # assume type is str
+            return self._version == rhs
+        # handle type differences
+        return self._version == rhs._version
     
-    def __cmp__(self, rhs):
+    def __lt__(self, rhs):
         """Compare ourselves with the other version or string using 
         [RPM comparison algorithm](http://fedoraproject.org/wiki/Archive:Tools/RPM/VersionComparison)"""
         if not isinstance(rhs, type(self)):
@@ -104,34 +112,28 @@ class Version(object):
                     if lt == rt:
                         continue
                     else:
-                        return cmp(lt, rt)
+                        return lt < rt
                     # handle int comparison
                 else:
                     # strings are always older compared to ints
-                    return 1
+                    return False
                 # handle rt type
             else:
                 if isinstance(rt, str):
                     if lt == rt:
                         continue
                     else:
-                        return cmp(lt, rt)
+                        return lt < rt
                     # end string handle comparison
                 else:
                     # ints are always newer
-                    return -1
+                    return True
                 # end handle rt type
             # end handle lt type
         # end for each token
         
         # still here ? compare the length - more tokens are better
-        cmp_len = cmp(len(lts), len(rts))
-        if cmp_len != 0:
-            return cmp_len
-        # end 
-        
-        # equality !
-        return 0
+        return len(lts) < len(rts)
         
     def __str__(self):
         return self._version
@@ -860,7 +862,7 @@ class PythonFileLoader(object):
         If the module is already loaded, it will be reloaded
         @return the loaded module object
         @throws Exception any exception raised when trying to load the module"""
-        imp.load_source(module_name, python_file)
+        imp.load_source(module_name, str(python_file))
         return sys.modules[module_name]
 
     ## -- End Interface -- @}

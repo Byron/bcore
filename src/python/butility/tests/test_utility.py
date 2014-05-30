@@ -81,6 +81,11 @@ class TestUtility(TestCase):
         
         # default value
         assert Version() == Version() == Version.UNKNOWN
+        assert not (Version.UNKNOWN > Version.UNKNOWN)
+        assert not (Version.UNKNOWN < Version.UNKNOWN)
+        assert Version.UNKNOWN >= Version.UNKNOWN
+        assert Version.UNKNOWN <= Version.UNKNOWN
+        assert not (Version.UNKNOWN != Version.UNKNOWN)
         
     def test_chunker(self):
         """Verify the chunker works as expected"""
@@ -91,7 +96,7 @@ class TestUtility(TestCase):
             iteration += 1
             prev_size = len(out)
             string = 'abcdefghijklmnopqrstuvwxyz' * 123 * iteration
-            cs = len(string) / 40
+            cs = int(len(string) / 40)
             
 
             keys = chunker.split(string, cs, out)
@@ -145,6 +150,8 @@ class TestUtility(TestCase):
         dobj.first = 2
         assert dobj.first == 2
         
+        del dobj.sub
+        del dobj.nested_dict
         dobj_inv = dobj.inversed_dict()
         assert len(dobj_inv) == len(dobj) - 1, "Expected one item to be dropped due to duplicate value"
         assert 2 not in dobj
