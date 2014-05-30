@@ -16,7 +16,7 @@ from past.builtins import cmp
 from future.builtins import range
 from future.builtins import object
 __all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator', 'PythonFileLoader',
-           'SpellingCorrector']
+           'SpellingCorrector', 'string_types']
 
 import imp
 import sys
@@ -30,8 +30,11 @@ from .path import Path
 
 if sys.version_info.major < 3:
     from UserDict import DictMixin
+    string_types = (str, __builtins__['str'])
 else:
+    string_types = str
     from collections import MutableMapping as DictMixin
+# end py3 compat
 
 log = logging.getLogger(__name__)
 
@@ -75,7 +78,7 @@ class Version(object):
         """Intiialize this instance
         @param version_string a string of pretty much any format that resembles a version. Usually, it consists
         of digits and/or names"""
-        assert isinstance(version_string, str), '%s was %s, require string' % (version_string, type(version_string))
+        assert isinstance(version_string, string_types), '%s was %s, require string' % (version_string, type(version_string))
         self._version = version_string
         
         
@@ -632,7 +635,6 @@ else:
 
         def __setattr__(self, name, value):
             """Set the given value into our dict"""
-            print(name, value)
             if name in self.__reserved__:
                 return OrderedDictPy3.__setattr__(self, name, value)
             self[name] = value

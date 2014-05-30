@@ -18,18 +18,13 @@ __all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElemen
 
 from butility import  ( Meta,
                         DictObject, 
-                        LazyMixin )
+                        LazyMixin,
+                        string_types )
 
 from bkvstore import ( RelaxedKeyValueStoreProviderDiffDelegate,
                        KeyValueStoreProvider )
 from .exceptions import InvalidValueError
 
-if sys.version_info.major < 3:
-    # only for use in isinstance
-    string_types = (str, __builtins__['str'])
-else:
-    string_types = str
-# end py2/3 compat
 
 # ==============================================================================
 ## @name Utilities

@@ -198,7 +198,7 @@ class TestProcessControl(TestCase):
         # end for each package
         assert count > 1
         
-        self.failUnlessRaises(EnvironmentError, TestProcessController(executable, args).iter_packages('foobar').__next__)
+        self.failUnlessRaises(EnvironmentError, next, TestProcessController(executable, args).iter_packages('foobar'))
         
     @preserve_application
     def test_post_launch_info(self):

@@ -438,7 +438,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
 
             # If we have variables in the path, we can't assume anything (nor resolve) as it might be too early 
             # for that. In that case, we assume the best. Otherwise, the executable must exist
-            if not executable_path.containsvars() and not executable.isfile():
+            if not executable_path.containsvars() and not executable_path.isfile():
                 continue
             # end 
 

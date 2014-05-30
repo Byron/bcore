@@ -39,7 +39,7 @@ class TestCommunicatorDelegate(ProcessControllerDelegate):
             assert not err_lines
             lines = process.stdout.readlines()
             assert len(lines) == 1
-            tmpfile = Path(lines[0].strip())
+            tmpfile = Path(lines[0].decode().strip())
             tmpfile.remove()
         finally:
             res = super(TestCommunicatorDelegate, self).communicate(process) 
