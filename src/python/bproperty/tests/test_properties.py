@@ -9,6 +9,7 @@
 from __future__ import unicode_literals
 from future.builtins import object
 
+import sys
 from butility.tests import TestCase
 
 # test * import
@@ -118,7 +119,9 @@ class TestProperties(TestCase):
         assert ph.parent.foo.value() == 4
         
         # no setattr support
-        self.failUnlessRaises(AttributeError, setattr, ph.parent.sub, 'foo', 5)
+        if sys.version_info.major > 2:
+            self.failUnlessRaises(AttributeError, setattr, ph.parent.sub, 'foo', 5)
+        # end handle py3
         assert not hasattr(ph, '_parent_sub_foo')
         ph.parent.sub.foo.set_value(5)
         assert ph.parent.sub.foo.value() == 5
