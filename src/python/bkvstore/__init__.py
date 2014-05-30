@@ -10,7 +10,9 @@ from __future__ import unicode_literals
 # Allow better imports !
 from __future__ import absolute_import
 
-from butility import Version
+from butility import (Version,
+                      Path,
+                      load_package)
 __version__ = Version("0.1.0")
 
 import sys
@@ -26,10 +28,8 @@ def _init_yaml_persistence():
     except ImportError:
         # use our version
         try:
-            if sys.version_info.major < 3:
-                from . import py2_yaml_builtin as yaml
-            else:
-                from . import py3_yaml_builtin as yaml
+            yaml_package_dir = Path(__file__).dirname() / 'yaml-builtin' / ('py%i' % sys.version_info.major)
+            yaml = load_package(yaml_package_dir, 'yaml')
         except ImportError:
             raise ImportError("Failed to import yaml, even using our own library at bkvstore.yaml")
         #end handle yaml

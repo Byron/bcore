@@ -14,13 +14,14 @@ __all__ = ['Error', 'Interface', 'Meta', 'abstractmethod',
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIterator',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
            'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value', 'size_to_int',
-           'frequncy_to_seconds', 'int_to_size_string']
+           'frequncy_to_seconds', 'int_to_size_string', 'load_package']
 
 from functools import (wraps,
                        partial)
 import logging
 import os
 import sys
+import imp
 
 from abc import (abstractmethod,
                  ABCMeta)
@@ -234,6 +235,15 @@ def tagged_file_paths(directory, taglist, pattern=None):
         out_files.append(tagged_file)
     # end for each sorted tag
     return out_files
+
+
+def load_package(package_directory, module_name):
+    """unconditionally Imports a package, which is described by a path to a directory
+    @param package_directory a folder containing an __init__.py[co] file 
+    @param module_name the name of the module in sys.modules
+    @return the imported module object"""
+    imp.load_module(module_name, None, str(package_directory), ('', '', imp.PKG_DIRECTORY))
+    return sys.modules[module_name]
 
 ## -- End Filesystem Utilities -- @}
 
