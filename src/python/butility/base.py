@@ -14,7 +14,7 @@ __all__ = ['Error', 'Interface', 'Meta', 'abstractmethod',
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIterator',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
            'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value', 'size_to_int',
-           'frequncy_to_seconds', 'int_to_size_string', 'load_package']
+           'frequncy_to_seconds', 'int_to_size_string', 'load_package', 'load_files', 'load_file']
 
 from functools import (wraps,
                        partial)
@@ -243,6 +243,68 @@ def load_package(package_directory, module_name):
     @param module_name the name of the module in sys.modules
     @return the imported module object"""
     imp.load_module(module_name, None, str(package_directory), ('', '', imp.PKG_DIRECTORY))
+    return sys.modules[module_name]
+
+
+def _load_files(path, files, on_error):
+    """load all python \a files from \a path
+    @return list of loaded files as full paths"""
+    res = list()
+    def py_filter(f):
+        return f.endswith('.py') and not \
+               f.startswith('__')
+    # end filter
+
+    for filename in filter(py_filter, files):
+        py_file = os.sep.join([path, filename])
+        (mod_name, _) = os.path.splitext(os.path.basename(py_file))
+        try:
+            load_file(py_file, mod_name)
+        except Exception:
+            log.error("Failed to load %s from %s", mod_name, py_file, exc_info=True)
+            on_error(py_file, mod_name)
+        else:
+            log.info("loaded %s into module %s", py_file, mod_name)
+            res.append(py_file)
+        # end handle result
+    # end for eahc file to load
+    return res
+
+def load_files(path, recurse=False, on_error=lambda f, m: None):
+    """Load all .py files found in the given directory, or load the file it points to
+    @param path either path to directory, or path to py file.
+    @param recurse if True, path will be searched for usable files recursively
+    @param on_error f(py_file, module_name) => None to perform an action when importing a module 
+    fails. It may raise to abort the entire operation. Note that an exception is set when called.
+    @return a list of files loaded successfully"""
+    # if we should recurse, we just use the standard dirwalk.
+    # we use topdown so top directories should be loaded before their
+    # subdirectories and we follow symlinks, since it seems likely that's
+    # what people will expect
+    res = list()
+    path = Path(path)
+    if path.isfile():
+        res += _load_files(path.dirname(), [path.basename()], on_error)
+    else:
+        seen = None
+        for seen, (path, dirs, files) in enumerate(os.walk(path, topdown=True, followlinks=True)):
+            res += _load_files(path, files, on_error)
+            if not recurse:
+                break
+            # end handle recursion
+        # end for each directory to walk
+        if seen is None:
+            log.log(logging.TRACE, "Didn't find any plugin files at '%s'", path)
+        # end 
+    # end handle file or directory
+    return res
+    
+def load_file(python_file, module_name):
+    """Load the contents of the given python file into a module of the given name.
+    If the module is already loaded, it will be reloaded
+    @return the loaded module object
+    @throws Exception any exception raised when trying to load the module"""
+    imp.load_source(module_name, str(python_file))
     return sys.modules[module_name]
 
 ## -- End Filesystem Utilities -- @}

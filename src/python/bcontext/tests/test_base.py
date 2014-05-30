@@ -16,7 +16,6 @@ from butility import (Interface,
                       abstractmethod)
 
 from .base import TestContext
-from butility import PythonFileLoader
 
 from bkvstore import KeyValueStoreModifier
 from bcontext import *

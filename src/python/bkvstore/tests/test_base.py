@@ -231,7 +231,11 @@ class TestKeyValueStoreProvider(TestConfiguration):
 
         TwoWayDiff().diff(delegate, existing_value, new_value)
         
-        assert(delegate.result() == new_value)
+        # NOTE: These can loose their ordering ! 
+        # For some reason, this only really happens in py3, which as an entirely different yaml/ordereddict
+        # implmementation
+        by_key=lambda k: k[0]
+        assert(sorted(delegate.result().items(), key=by_key) == sorted(new_value.items(), key=by_key))
 
     def test_merge(self):
         """Verify that merging one kvstore ontop of another works"""

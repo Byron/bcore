@@ -15,12 +15,12 @@ import os.path
 import bapp
 from bapp import preserve_application
 from butility.tests import TestCase
-from butility import PythonFileLoader
+from butility import load_file
 
 # Dynamic loading of wrapper code - its not in a package for good reason
 dirname = os.path.dirname
 wrapper_file = os.path.join(dirname(dirname(__file__)), 'bootstrap.py')
-bootstrap = PythonFileLoader.load_file(wrapper_file, 'bootstrap')
+bootstrap = load_file(wrapper_file, 'bootstrap')
 import bootstrap
 
     

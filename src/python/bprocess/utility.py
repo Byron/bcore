@@ -31,7 +31,7 @@ from bkvstore import (KeyValueStoreModifier,
                       PathList)
 from butility import ( OrderedDict,
                        Path,
-                       PythonFileLoader,
+                       load_files,
                        LazyMixin )
 
 
@@ -543,7 +543,7 @@ class PythonPackageIterator(ApplicationSettingsMixin, PackageDataIteratorMixin):
                         if not plugin_path.isabs():
                             plugin_path = package.to_abs_path(plugin_path)
                         # end make plugin path absolute
-                        PythonFileLoader.load_files(plugin_path.expand_or_raise())
+                        load_files(plugin_path.expand_or_raise())
                     except Exception as err:
                         # plugin's shouldn't be essential, and make a program fail to startup (at least until
                         # we make it a configuration flag)

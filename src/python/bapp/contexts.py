@@ -28,8 +28,7 @@ from butility import (OrderedDict,
 from bkvstore import (YAMLKeyValueStoreModifier,
                       KeyValueStoreSchema )
 
-from butility import (Path,
-                      PythonFileLoader )
+from butility import Path
 
 
 

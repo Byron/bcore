@@ -25,7 +25,7 @@ from butility import ( Path,
                        update_env_path,
                        GraphIterator,
                        LazyMixin,
-                       PythonFileLoader,
+                       load_files,
                        DictObject,
                        set_log_level, 
                        parse_key_value_string)
@@ -486,7 +486,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         # end for each package
         
         for path in plugin_paths:
-            PythonFileLoader.load_files(path)
+            load_files(path)
         # end for each sorted plug-in to load
         
         for module in import_modules:

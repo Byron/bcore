@@ -17,7 +17,7 @@ import logging
 from butility import (LazyMixin,
                       int_bits,
                       Path,
-                      PythonFileLoader,
+                      load_files,
                       tagged_file_paths,
                       OrderedDict)
 from bkvstore import YAMLKeyValueStoreModifier
@@ -241,7 +241,7 @@ class HierarchicalContext(Context, LazyMixin):
             if subdirectory is not None:
                 path /= subdirectory
             # end amend plugin dir
-            PythonFileLoader.load_files(path, recurse=recurse)
+            load_files(path, recurse=recurse)
         # end load all plugins
     
     ## -- End Interface -- @}

@@ -186,11 +186,11 @@ class TestUtility(TestCase):
 
     def test_python_file_loader(self):
         mod_name = 'test_module'
-        mod = PythonFileLoader.load_file(self.fixture_path('module.py'), mod_name)
+        mod = load_file(self.fixture_path('module.py'), mod_name)
         assert mod
         assert mod.Foo.hello() == 'world'
 
-        res = PythonFileLoader.load_files(self.fixture_path(''), recurse=True)
+        res = load_files(self.fixture_path(''), recurse=True)
         assert len(res) == 2
         assert res[0].endswith('module.py')
         assert res[1].endswith('submodule.py')
