@@ -69,6 +69,8 @@ def with_rw_directory(func):
 
     It will be provided as last argument of the wrapped function, and put into the os.environ at 'RW_DIR'
 
+    Additionally, we will chdir into the newly created directory to allow using relative paths safely
+
     Example:
     @snippet bapp/tests/doc/test_examples.py with_rw_directory
     """
@@ -79,6 +81,8 @@ def with_rw_directory(func):
         keep = False
         prev_val = os.environ.get('RW_DIR')
         os.environ['RW_DIR'] = str(path)
+        prev_cwd = os.getcwd()
+        os.chdir(path)
         try:
             try:
                 return func(self, path)
@@ -100,6 +104,8 @@ def with_rw_directory(func):
                 gc.collect()
                 shutil.rmtree(path)
             #end if not keep
+            
+            os.chdir(prev_cwd)
         #end handle exception
     #end wrapper
     return wrapper

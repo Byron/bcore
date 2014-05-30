@@ -46,7 +46,7 @@ from .system import octal
 log = logging.getLogger("bapp.path")
 
 __version__ = '3.0'
-__all__ = ['Path', 'BasePath', 'NativePath']
+__all__ = ['Path', 'NativePath', 'ConversionPath']
 
 # Platform-specific support for path.owner
 if os.name == 'nt':
@@ -140,14 +140,6 @@ class Path( _base ):
         cls.sep = sep
         cls.osep = (sep == '/' and '\\') or "/"
         
-        # setup path conversion as necessary
-        global Path
-        if os.path.sep != cls.sep:
-            Path = ConversionPath
-        else:
-            Path = BasePath
-        # END handle Path type
-
     @classmethod
     def getcwd(cls):
         """@return the current working directory as a path object. """
@@ -1153,10 +1145,8 @@ def _to_os_path(path):
     
 #} END utilities
 
-# backup original class
-BasePath = Path
 
-class ConversionPath(BasePath):
+class ConversionPath(Path):
     """On windows, python represents paths with backslashes, within maya though, 
     these are slashes We want to keep the original representation, but allow
     the methods to work nonetheless."""
