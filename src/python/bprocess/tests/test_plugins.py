@@ -29,8 +29,10 @@ class PluginsTestCase(TestCase):
         # test import *
         # Must be done here, otherwise we can 'loose' the plugin for our invocation due to 
         # changing Application states
-        from bprocess.plugins.be_go import *
-        go = LauncherBeSubCommand.name
+        mod = 'bprocess.plugins.be_go'
+        mod = __import__(mod, globals(), locals(), [mod])
+
+        go = mod.LauncherBeSubCommand.name
         go_exec = pseudo_executable(go)
         bapp.main().context().push(_ProcessControllerContext(go, 
                                                              go_exec,
