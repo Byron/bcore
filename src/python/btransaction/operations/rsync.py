@@ -232,7 +232,7 @@ class RsyncOperation(Operation):
         try:
             if gather_mode:
                 while True:
-                    line = process.stdout.readline()
+                    line = process.stdout.readline().decode()
                     if not line:
                         return err_data
                     if self._parse_output_line(line) == 1:
@@ -253,7 +253,7 @@ class RsyncOperation(Operation):
                 # try to read as many as possible
                 # as long as there is someting
                 while select([process.stdout.fileno()], empty_list, empty_list, timeout)[0]:
-                    line = process.stdout.readline()
+                    line = process.stdout.readline().decode()
                     if not line:
                         break
                     self._parse_output_line(line)

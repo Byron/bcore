@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 from __future__ import division
 from future.builtins import str
 from future.builtins import range
+from future.builtins import bytes
 __all__ = []
 
 import time
@@ -159,7 +160,7 @@ class TestOperations(TestCase):
     def test_create_op(self, base_dir):
         destination = base_dir / "my_new_item"
         for dry_run in range(2):
-            for content in (None, "hello world"):
+            for content in (None, bytes(b"hello world")):
                 for mode in (0o755,  None):
                     for gid in (None, os.getgid()):
                         for uid in (None, os.getuid()):
