@@ -10,6 +10,23 @@ from __future__ import unicode_literals
 # Allow better imports !
 from __future__ import absolute_import
 
+def _initialize():
+    """Make sure our absolute requirements are met - namely future"""
+    try:
+        import future
+    except ImportError:
+        # try to use our builtin version
+        import os
+        import sys
+        pdir = os.path.join(os.path.dirname(__file__), 'future-builtin')
+        sys.path.append(pdir)
+
+        import future
+    # end try future import
+# end 
+
+_initialize()
+
 from .base import *
 from .path import *
 from .system import *

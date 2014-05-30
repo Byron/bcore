@@ -45,6 +45,7 @@ Once the first release is out of the door, the API will stabilize though, yet I 
 
 * [yaml](http://yaml.org)
 * [parse](https://github.com/r1chardj0n3s/parse)
+* [future](https://github.com/PythonCharmers/python-future)
 
 ### LICENSE
 
