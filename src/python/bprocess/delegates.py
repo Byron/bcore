@@ -570,7 +570,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             
             return self.communicate(process)
         elif launch_mode == self.LAUNCH_MODE_SIBLING:
-            if sys.platform.startswith('linux')
+            if sys.platform.startswith('linux'):
                 args.append('&')
             elif sys.platform == 'darwin':
                 executable, app_args = args[0], args[1:]

@@ -135,7 +135,7 @@ def daemonize(pid_file):
     @param pid_file path to file to prevent multiple daemons to run at once. Will always write it with our pid
     """
     
-    if sys.platform.startswith("win"):
+    if sys.platform.startswith('win'):
         raise OSError("Can only work on posix platforms")
     # END handle operating system
     
