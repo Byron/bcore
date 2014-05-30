@@ -28,7 +28,7 @@ def _init_yaml_persistence():
         # use our version
         import zipimport
         try:
-            yaml_archive = Path(__file__).dirname() / 'yaml-builtin' / ('py%i' % sys.version_info[0]) / 'yaml.zip'
+            yaml_archive = Path(__file__).dirname() / ('py%i_yaml.zip' % sys.version_info[0])
             zipimport.zipimporter(yaml_archive).load_module('yaml')
         except ImportError:
             raise ImportError("Failed to import yaml, even using our own library at bkvstore.yaml")

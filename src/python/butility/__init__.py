@@ -18,7 +18,7 @@ def _initialize():
         # try to use our builtin version
         import zipimport
         import os
-        archive = os.path.join(os.path.dirname(__file__), 'future-builtin', 'future.zip')
+        archive = os.path.join(os.path.dirname(__file__), 'future.zip')
         zim = zipimport.zipimporter(archive)
         zim.load_module('future')
     # end try future import
