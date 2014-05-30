@@ -7,7 +7,9 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 @todo get rid of the standard error redirect or maybe solve it differently
 """
+from __future__ import unicode_literals
 from future.builtins import range
+from future.builtins import str
 __all__ = []
 
 from butility import (Interface,

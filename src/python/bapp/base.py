@@ -158,11 +158,11 @@ class Application(object):
         # end bring in latest items
 
         self._stack = context_stack
-        self.Plugin = self.PluginType.__metaclass__.__new__(self.PluginType.__metaclass__,
-                                                            'ApplicationPlugin', 
-                                                           (self.PluginType,), 
-                                                           dict(_stack_ = context_stack))
 
+        class ApplicationPlugin(self.PluginType):
+            _stack_ = context_stack
+        # end class
+        self.Plugin = ApplicationPlugin
 
     # -------------------------
     ## @name Subclass Interface
