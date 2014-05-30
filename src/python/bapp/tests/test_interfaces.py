@@ -8,6 +8,7 @@
 """
 from __future__ import unicode_literals
 from future.builtins import object
+from future.builtins import str
 __all__ = []
 
 import os

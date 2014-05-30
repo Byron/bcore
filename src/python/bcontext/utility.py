@@ -61,7 +61,6 @@ class PluginMeta(Meta):
 # Careful about renames: name is used verbatim in code above !
 class Plugin(with_metaclass(PluginMeta, object)):
     """ base class for all Plugins implementing interfaces"""
-    __slots__ = tuple()
     
     # -------------------------
     ## @name Configuration

@@ -162,6 +162,7 @@ class Application(object):
         class ApplicationPlugin(self.PluginType):
             _stack_ = context_stack
         # end class
+
         self.Plugin = ApplicationPlugin
 
     # -------------------------

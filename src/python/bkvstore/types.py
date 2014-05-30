@@ -70,8 +70,6 @@ class JSONStreamSerializer(IStreamSerializer):
         converting the string versions back, and it might not work for everything"""
         json.dump(data, stream, indent=4, separators=(',', ': '), default=str)
 
-    
-
 # end class ChangeTrackingJSONKeyValueStoreModifier
 
 

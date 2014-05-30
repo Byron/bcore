@@ -307,7 +307,7 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
         Otherwise, the context instance will be pushed.
         @return pushed context instance
         """
-        if isinstance(context, str):
+        if not isinstance(context, Context):
             context = self.ContextType(context)
         else:
             if context in self._stack:

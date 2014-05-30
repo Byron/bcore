@@ -97,7 +97,7 @@ class TestSettings(TestCase):
         assert settings.changes()
         assert 'foz' not in settings.changes().foo
         assert settings.save_changes(open(target, 'w')) is settings, "It should be easy to save changes"
-        assert settings.settings_data(open(target)), "should have something to work with"
+        assert settings.settings_data(open(target, 'r')), "should have something to work with"
         settings_data = settings.value_by_schema(schema)
         
         prev_size = target.stat().st_size

@@ -56,9 +56,9 @@ class TestCore(AppTestCase):
 
         # we don't have access to the stack without an application, so lets make one
         assert bapp.Application.main is bapp.main() is app
-        self.failUnlessRaises(InstanceNotFound, bapp.main().instance, file)
-        self.failUnlessRaises(InstanceNotFound, bapp.main().new_instance, file)
-        self.failUnlessRaises(TypeNotFound, bapp.main().type, file)
+        self.failUnlessRaises(InstanceNotFound, bapp.main().instance, float)
+        self.failUnlessRaises(InstanceNotFound, bapp.main().new_instance, float)
+        self.failUnlessRaises(TypeNotFound, bapp.main().type, float)
 
         # As there is no instance, this one won't find one either
         self.failUnlessRaises(InstanceNotFound, bapp.main().instance, ICustomInterface)

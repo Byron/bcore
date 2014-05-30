@@ -144,7 +144,7 @@ class StackAwareHierarchicalContext(HierarchicalContext):
         instances of this type on the stack to assure we don't accidentally load the same file
         @note This method will update our _hash_map member"""
         for config_file in files:
-            self._hash_map[hashlib.md5(open(config_file).read()).digest()] = config_file
+            self._hash_map[hashlib.md5(open(config_file, 'rb').read()).digest()] = config_file
         #end for each file
         
         # subtract all existing hashes

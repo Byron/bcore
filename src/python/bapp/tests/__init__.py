@@ -26,7 +26,7 @@ def _initialize():
     """Add some utilities"""
     # be sure we can easily start ipython from an interpreter
     import builtins
-    setattr(__builtin__, 'ipy', init_ipython_terminal)
+    setattr(builtins, 'ipy', init_ipython_terminal)
     
     # Set debug logging for test cases
     logging.root.setLevel(logging.DEBUG)

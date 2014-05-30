@@ -430,7 +430,7 @@ def _ordered_ict_format_string(odict, indent=1):
     ret_str = u"\n"
     for key, value in odict.items():
         if isinstance(value, OrderedDict):
-            ret_str += u"%s%s: %s" % (indent_str, key, value.__unicode__(indent=indent+1))
+            ret_str += u"%s%s: %s" % (indent_str, key, _ordered_ict_format_string(value, indent=indent+1))
         elif isinstance(value, (tuple, list)):
             # for now, without recursion, assuming simple scalar values
             ret_str += u"%s%s:\n" % (indent_str, key)

@@ -66,9 +66,9 @@ def with_application(fun=None, **dkwargs):
             # end context found
         # end find default context if possible
 
-        if default_ctx is None and bapp.Application.Plugin.default_stack:
+        if default_ctx is None and len(bapp.Application.Plugin.default_stack):
             # We have incredible knowledge about this implementation, and probably shouldn't use it !
-            # We know there is a default 
+            # We know there is a default stack which shuold  
             assert len(bapp.Application.Plugin.default_stack) == 1
             default_ctx = bapp.Application.Plugin.default_stack.stack()[0]
             app.context().insert(0, default_ctx)
