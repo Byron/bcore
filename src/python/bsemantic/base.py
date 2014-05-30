@@ -11,6 +11,8 @@ from future.builtins import str
 from future.builtins import range
 from future.builtins import object
 from future.utils import with_metaclass
+import sys
+
 __all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElementNode']
 
 
@@ -22,6 +24,12 @@ from bkvstore import ( RelaxedKeyValueStoreProviderDiffDelegate,
                        KeyValueStoreProvider )
 from .exceptions import InvalidValueError
 
+if sys.version_info.major < 3:
+    # only for use in isinstance
+    string_types = (str, __builtins__['str'])
+else:
+    string_types = str
+# end py2/3 compat
 
 # ==============================================================================
 ## @name Utilities
@@ -63,7 +71,7 @@ class ValidatedElementNodeMetaClass(Meta):
         
         if isinstance(slots, tuple):
             slots = list(slots)
-        elif isinstance(slots, str):
+        elif isinstance(slots, string_types):
             slots = [slots]
         #end convert slots to list
         
@@ -187,7 +195,7 @@ class ElementNode(LazyMixin):
         if isinstance(data, (tuple, list)):
             data_dict = dict()
             for item in data:
-                assert isinstance(item, str), "invalid item type: %s" % type(item)
+                assert isinstance(item, string_types), "invalid item type: %s" % type(item)
                 # emulate empty items more directly. This conversion makes code further down 
                 # easier as it can assume a dictionary
                 data_dict[item] = dict()
