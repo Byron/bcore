@@ -56,7 +56,7 @@ def login_name():
     users to impersonate others quite easily.
     """
     # getuser is linux only !
-    # py3: str conversion required to get unicode
+    # py2: str conversion required to get unicode
     if sys.platform == 'win32':
         return str(os.environ['USERNAME'])
     else:

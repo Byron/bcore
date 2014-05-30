@@ -186,12 +186,14 @@ class PropertyDescriptor(object):
     @note natively compatible with compound attributes
     @note If a Descriptor is accessed through the class, it returns itself.
     """
-    __slots__ = (
-                    '_name',          # The name of the property, also the name it is stored in the clsdict
-                    '_description',   # A descriptive text about the Property
-                    '_weak_parent',   # An optional weak-link to our parent CompoundPropertyDescriptor
-                    '__weakref__'    # Allows us to be used as weak reference
-                )
+    # py3: just for documentation purposes - for some reason this doesn't work with future. 
+    # Lets call slots dead in most cases
+    _slots_ = (
+                '_name',          # The name of the property, also the name it is stored in the clsdict
+                '_description',   # A descriptive text about the Property
+                '_weak_parent',   # An optional weak-link to our parent CompoundPropertyDescriptor
+                '__weakref__'     # Allows us to be used as weak reference
+              )
     
     NAME_SEPARATOR = '.'
     
