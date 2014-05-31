@@ -8,10 +8,10 @@ python:
   # - "pypy" - see https://travis-ci.org/Byron/bcore/jobs/24387322
 
 install:
-  pip install coveralls
+  - pip install coveralls
   # make sure we have the latest version
-  'pip install -U nose'
+  - pip install -U nose
 script:
-  nosetests src/python --with-coverage
+  - nosetests src/python --with-coverage
 after_success:
-  coveralls
+  - coveralls
