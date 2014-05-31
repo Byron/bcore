@@ -8,7 +8,6 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from __future__ import unicode_literals
 from future.builtins import filter
 from future.builtins import zip
 from future.builtins import str
@@ -439,7 +438,7 @@ def _ordered_ict_format_string(odict, indent=1):
                 ret_str += "%s - %s\n" % (indent_str, item)
             # end for each item
         else:
-            ret_str += "%s%s: %s\n" % (indent_str, key, str(value))
+            ret_str += "%s%s: %s\n" % (indent_str, key, value)
         # end handle value type
     # end for each item in dict
     return ret_str

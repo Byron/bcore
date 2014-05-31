@@ -141,8 +141,11 @@ class StackAwareHierarchicalContext(HierarchicalContext):
         """@note our implementation will compare file hashes in our own hash map with ones of other
         instances of this type on the stack to assure we don't accidentally load the same file
         @note This method will update our _hash_map member"""
+        # NOTE: it's important to stay within the ascii range (thus hexdigest()), as this mep at some 
+        # point gets encoded. In py2, there's just bytes, in py3, it will be tempted to interpret these 
+        # as strings, without having a chance to find a suitable encoding
         for config_file in files:
-            self._hash_map[hashlib.md5(open(config_file, 'rb').read()).digest()] = config_file
+            self._hash_map[hashlib.md5(open(config_file, 'rb').read()).hexdigest()] = config_file
         #end for each file
         
         # subtract all existing hashes

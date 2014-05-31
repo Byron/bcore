@@ -238,7 +238,11 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
     @classmethod
     def _decode(cls, data_string):
         """@return decoded version of the previously encoded data_string"""
-        return loads(zlib.decompress(binascii.a2b_base64(data_string)))
+        if sys.version_info[0] < 3:
+            return loads(zlib.decompress(binascii.a2b_base64(data_string)))
+        else:
+            return loads(zlib.decompress(binascii.a2b_base64(data_string)), encoding='utf-8')
+        # end
 
     # -------------------------
     ## @name Interface
