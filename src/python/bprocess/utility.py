@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from minifuture import object
+
 __all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment',
            'ProcessControllerPackageSpecification', 'PackageDataIteratorMixin',
            'ExecutableContext', 'PythonPackageIterator', 'CommandlineOverridesContext', 

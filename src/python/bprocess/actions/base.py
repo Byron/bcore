@@ -7,7 +7,7 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from minifuture import object
+
 __all__ = ['ActionDelegateMixin', 'PackageAction']
 
 import bapp

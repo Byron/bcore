@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 from minifuture import str
-from minifuture import object
+
 __all__ = ['ApplicationSettingsMixin', 'LogConfigurator', 'StackAwareHierarchicalContext',
            'preserve_application']
 

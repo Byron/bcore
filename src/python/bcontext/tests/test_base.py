@@ -8,7 +8,7 @@
 @todo get rid of the standard error redirect or maybe solve it differently
 """
 from __future__ import unicode_literals
-from minifuture import range
+
 from minifuture import str
 __all__ = []
 

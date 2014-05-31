@@ -10,7 +10,7 @@ Generators are commonly provided as small base implementations which can be used
 """
 from __future__ import unicode_literals
 from minifuture import str
-from minifuture import range
+
 __all__ = ['StringFormatNode', 'StringFormatNodeTree', 'StringFormatNodeList']
 
 import re

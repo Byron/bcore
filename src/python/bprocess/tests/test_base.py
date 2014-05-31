@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 from __future__ import division
 from __future__ import print_function
-from minifuture import object
+
 __all__ = []
 
 if __name__ == '__main__':

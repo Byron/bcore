@@ -7,7 +7,7 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from minifuture import object
+
 from minifuture import with_metaclass
 __all__ = ['PropertyError', 'NotWritableError', 'NoSuchPropertyError', 'NotDeletableError', 
            'Property', 'CompoundProperty', 

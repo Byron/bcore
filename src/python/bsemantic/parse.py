@@ -259,7 +259,7 @@ See the end of the source file for the license of use.
 '''
 from __future__ import division
 from minifuture import str
-from minifuture import object
+
 __version__ = '1.4.1'
 
 # yes, I now have two problems

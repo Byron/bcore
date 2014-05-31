@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 from __future__ import division
 from minifuture import str
-from minifuture import int
+
 
 __all__ = []
 

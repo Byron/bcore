@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 from minifuture import str
-from minifuture import object
+
 __all__ = ['KeyValueStoreProvider', 'KeyValueStoreModifier', 'Error', 'NoSuchKeyError', 
            'UnorderedKeyValueStoreModifier', 'ChangeTrackingKeyValueStoreModifier']
 

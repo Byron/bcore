@@ -12,13 +12,9 @@ from __future__ import absolute_import
 
 def _initialize():
     """Make sure our absolute requirements are met - namely future"""
-    try:
-        import future
-    except ImportError:
-        import sys
-        from . import minifuture
-        sys.modules['minifuture'] = minifuture
-    # end try future import
+    import sys
+    from . import minifuture
+    sys.modules['minifuture'] = minifuture
 # end 
 
 _initialize()

@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from minifuture import range
+
 from butility.tests import ( TestCase,
                              with_rw_directory)
 import bapp

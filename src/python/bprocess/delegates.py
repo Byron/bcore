@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 from minifuture import str
-from minifuture import object
+
 __all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'ControlledProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate',
            'ProcessControllerDelegateProxy', 'MariControllerDelegate']

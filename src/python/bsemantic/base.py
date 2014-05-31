@@ -8,8 +8,8 @@
 """
 from __future__ import unicode_literals
 from minifuture import str
-from minifuture import range
-from minifuture import object
+
+
 from minifuture import with_metaclass
 import sys
 

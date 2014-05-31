@@ -9,8 +9,8 @@
 from __future__ import unicode_literals
 from __future__ import division
 from minifuture import str
-from minifuture import range
-from minifuture import bytes
+
+
 __all__ = []
 
 import time
