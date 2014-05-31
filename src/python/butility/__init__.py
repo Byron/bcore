@@ -15,12 +15,15 @@ def _initialize():
     try:
         import future
     except ImportError:
-        # try to use our builtin version
-        import zipimport
-        import os
-        archive = os.path.join(os.path.dirname(__file__), 'future.zip')
-        zim = zipimport.zipimporter(archive)
-        zim.load_module('future')
+        # # try to use our builtin version
+        # import zipimport
+        # import os
+        # archive = os.path.join(os.path.dirname(__file__), 'future.zip')
+        # zim = zipimport.zipimporter(archive)
+        # zim.load_module('future')
+        import sys
+        from . import future
+        sys.modules['future'] = future
     # end try future import
 # end 
 
