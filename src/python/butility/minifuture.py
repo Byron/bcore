@@ -868,7 +868,7 @@ class newbytes(with_metaclass(BaseNewBytes, _builtin_bytes)):
 
     def __getattribute__(self, name):
         
-        if name in ['encode', u'encode']:
+        if name in ['encode', 'encode']:
             raise AttributeError("encode method has been disabled in newbytes")
         return super(newbytes, self).__getattribute__(name)
 
@@ -1459,7 +1459,7 @@ class newstr(with_metaclass(BaseNewStr, unicode)):
 
     def __getattribute__(self, name):
         
-        if name in ['decode', u'decode']:
+        if name in ['decode', 'decode']:
             raise AttributeError("decode method has been disabled in newstr")
         return super(newstr, self).__getattribute__(name)
 
