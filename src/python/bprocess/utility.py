@@ -436,18 +436,22 @@ class ProcessControllerPackageSpecification(LazyMixin):
                     continue
             # end handle conversion
 
+            if os.name == 'nt':
+                # We assume exe by default, and not com or bat.
+                # Even though magic isn't good, I see no point in making this configurable, people 
+                # can just be explicit about the extension
+                win_ext = '.exe'
+                if not executable_path.ext():
+                    executable_path += win_ext
+                # handle extension
+            # end handle windows
+
             # If we have variables in the path, we can't assume anything (nor resolve) as it might be too early 
             # for that. In that case, we assume the best. Otherwise, the executable must exist
             if not executable_path.containsvars() and not executable_path.isfile():
                 continue
             # end 
 
-            if os.name == 'nt':
-                win_ext = '.exe'
-                if not executable_path.ext():
-                    executable_path += win_ext
-                # handle extension
-            # end handle windows
             return executable_path
         # end for each executable to try
         assert executable_path or error, "Should have collected at least one error at this point"
