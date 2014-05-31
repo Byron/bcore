@@ -16,11 +16,20 @@ def with_metaclass(meta, *bases):
     class metaclass(meta):
         __call__ = type.__call__
         __init__ = type.__init__
-        def __new__(cls, name, this_bases, d):
-            if this_bases is None:
+        def __new__(cls, name, nbases, d):
+            if nbases is None:
                 return type.__new__(cls, name, (), d)
-            return meta(name, bases, d)
-    return metaclass('temporary_class', None, {})
+            nt = meta(name, bases, d)
+            # There may be clients who rely on this attribute to be set to a reasonable value, which is why 
+            # we set the __metaclass__ attribute explicitly
+            if PY2 and not hasattr(nt, '___metaclass__'):
+                nt.__metaclass__ = meta
+            # end 
+            return nt
+        # end
+    # end metaclass
+    return metaclass(meta.__name__ + 'Helper', None, {})
+    # end handle py2
 
 if PY3:
     # We'll probably never use newstr on Py3 anyway...

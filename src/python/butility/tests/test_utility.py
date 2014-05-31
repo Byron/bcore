@@ -9,6 +9,8 @@
 from __future__ import unicode_literals
 from __future__ import division
 from minifuture import str
+from minifuture import PY2
+from minifuture import with_metaclass
 
 __all__ = []
 
@@ -203,5 +205,14 @@ class TestUtility(TestCase):
         assert octal('0777') == 511
         assert octal('777') == 511
         assert octal('0003') == 3
+
+    def test_meta(self):
+        """verify meta-classes work as expected"""
+        class TestInterface(Interface):
+            pass
+        # end classs
+
+        assert(hasattr(TestInterface, '__metaclass__') == PY2)
+        
 
 # end class TestUtility
