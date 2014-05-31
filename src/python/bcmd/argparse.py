@@ -61,11 +61,11 @@ All other classes in this module are considered implementation details.
 considered public as object names -- the API of the formatter objects is
 still considered an implementation detail.)
 """
-from future.builtins import zip
-from future.builtins import map
-from future.builtins import str
-from future.builtins import range
-from future.builtins import object
+from minifuture import zip
+from minifuture import map
+from minifuture import str
+from minifuture import range
+from minifuture import object
 
 __version__ = '1.2.1'
 __all__ = [

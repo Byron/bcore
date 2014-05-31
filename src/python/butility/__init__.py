@@ -22,8 +22,8 @@ def _initialize():
         # zim = zipimport.zipimporter(archive)
         # zim.load_module('future')
         import sys
-        from . import future
-        sys.modules['future'] = future
+        from . import minifuture
+        sys.modules['minifuture'] = minifuture
     # end try future import
 # end 
 

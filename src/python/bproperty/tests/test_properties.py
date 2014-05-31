@@ -7,14 +7,14 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from future.builtins import object
+from minifuture import object
 
 import sys
 from butility.tests import TestCase
 
 # test * import
 from bproperty import *
-from future.utils import with_metaclass
+from minifuture import with_metaclass
 
 
 # ==============================================================================

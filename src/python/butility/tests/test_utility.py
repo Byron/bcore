@@ -8,8 +8,8 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from future.builtins import str
-from future.builtins import range
+from minifuture import str
+from minifuture import range
 __all__ = []
 
 from .base import TestCase

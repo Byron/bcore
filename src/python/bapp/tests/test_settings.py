@@ -8,7 +8,8 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from future.builtins import (str, int)
+from minifuture import str
+from minifuture import int
 
 __all__ = []
 

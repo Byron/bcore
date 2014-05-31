@@ -8,11 +8,11 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from future.builtins import filter
-from future.builtins import zip
-from future.builtins import str
-from future.builtins import range
-from future.builtins import object
+from minifuture import filter
+from minifuture import zip
+from minifuture import str
+from minifuture import range
+from minifuture import object
 __all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator',
            'SpellingCorrector', 'string_types']
 

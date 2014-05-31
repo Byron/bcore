@@ -258,8 +258,8 @@ This code is copyright 2011 eKit.com Inc (http://www.ekit.com/)
 See the end of the source file for the license of use.
 '''
 from __future__ import division
-from future.builtins import str
-from future.builtins import object
+from minifuture import str
+from minifuture import object
 __version__ = '1.4.1'
 
 # yes, I now have two problems

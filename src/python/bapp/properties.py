@@ -21,7 +21,7 @@ from bproperty import    ( PropertySchemaMeta,
                            Property,
                            NotDeletableError,
                            NotWritableError )
-from future.utils import with_metaclass
+from minifuture import with_metaclass
 
 
 class ContextPropertyDescriptor(PropertyDescriptor):

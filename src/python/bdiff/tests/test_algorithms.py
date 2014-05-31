@@ -7,7 +7,7 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from future.builtins import range
+from minifuture import range
 __all__ = []
 
 from unittest import TestCase

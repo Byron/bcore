@@ -28,7 +28,7 @@ TODO
 from __future__ import generators
 from __future__ import division
 from __future__ import unicode_literals
-from future.builtins import str
+from minifuture import str
 
 __docformat__ = "restructuredtext"
 

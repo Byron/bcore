@@ -7,8 +7,8 @@ from __future__ import unicode_literals
 import os
 import sys
 
-from future.builtins import (bytes,
-                             str)
+from minifuture import bytes
+from minifuture import str
 
 # test * import
 from butility.path import *

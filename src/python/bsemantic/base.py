@@ -7,10 +7,10 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from future.builtins import str
-from future.builtins import range
-from future.builtins import object
-from future.utils import with_metaclass
+from minifuture import str
+from minifuture import range
+from minifuture import object
+from minifuture import with_metaclass
 import sys
 
 __all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElementNode']

@@ -7,7 +7,7 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from future.builtins import object
+from minifuture import object
 
 __all__ = ['LinuxPlatformService', 'MacPlatformService', 'WindowsPlatformService', 'ProjectInformation']
 

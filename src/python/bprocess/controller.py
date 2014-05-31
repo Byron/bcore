@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from future.builtins import str
+from minifuture import str
 __all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsException', 
            'DisplayHelpException', 'DisplayLoadedYamlException']
 

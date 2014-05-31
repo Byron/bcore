@@ -7,8 +7,8 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from future.builtins import str
-from future.builtins import object
+from minifuture import str
+from minifuture import object
 __all__ = ['ApplicationSettingsMixin', 'LogConfigurator', 'StackAwareHierarchicalContext',
            'preserve_application']
 

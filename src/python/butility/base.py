@@ -8,8 +8,8 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from future.builtins import object
-from future.utils import with_metaclass
+from minifuture import object
+from minifuture import with_metaclass
 __all__ = ['Error', 'Interface', 'Meta', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIterator',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',

@@ -7,8 +7,8 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from future.builtins import object
-from future.utils import with_metaclass
+from minifuture import object
+from minifuture import with_metaclass
 __all__ = ['NoValue', 'TreeItem', 'RootKey', 'TwoWayDiffDelegateInterface']
 
 from butility import  (NonInstantiatable,
