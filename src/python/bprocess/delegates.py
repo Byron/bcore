@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
+
 __all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'ControlledProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate',
            'ProcessControllerDelegateProxy', 'MariControllerDelegate']
@@ -24,7 +27,7 @@ import yaml
 import binascii
 import zlib
 
-from cPickle import (loads,
+from pickle import (loads,
                      dumps)
 
 import logging
@@ -180,7 +183,7 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
             # end handle not started that way
             # just return it without regarding the order
             keys = os.environ[self.storage_environment_variable].split(self.key_sep)
-            self._data = self._decode(''.join(os.environ[k] for k in keys))
+            self._data = self._decode(''.join(os.environ[k] for k in keys).encode())
         elif name == '_kvstore':
             data = self.data()
             self._kvstore = None
@@ -199,7 +202,7 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
         elif name == '_hash_map':
             self._hash_map = None
             if self.config_file_hash_map_environment_variable in os.environ:
-                self._hash_map = self._decode(os.environ[self.config_file_hash_map_environment_variable])
+                self._hash_map = self._decode(os.environ[self.config_file_hash_map_environment_variable].encode())
             # end decode value if present
         else:
             return super(ControlledProcessInformation, self)._set_cache_(name)
@@ -228,12 +231,18 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
     @classmethod
     def _encode(cls, data):
         """@return encoded version of data, suitable to be stored in the environment"""
-        return binascii.b2a_base64(zlib.compress(dumps(data), 9))
+        # make sure we pickle with protocol 2, to allow running python3 for bootstrap, which launches
+        # python2
+        return binascii.b2a_base64(zlib.compress(dumps(data, 2), 9))
         
     @classmethod
     def _decode(cls, data_string):
         """@return decoded version of the previously encoded data_string"""
-        return loads(zlib.decompress(binascii.a2b_base64(data_string)))
+        if sys.version_info[0] < 3:
+            return loads(zlib.decompress(binascii.a2b_base64(data_string)))
+        else:
+            return loads(zlib.decompress(binascii.a2b_base64(data_string)), encoding='utf-8')
+        # end
 
     # -------------------------
     ## @name Interface
@@ -387,7 +396,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         # end for each arg to check
         
         # set overrides
-        if kvstore_overrides.keys():
+        if list(kvstore_overrides.keys()):
             self._app.context().push(Context('delegate overrides', kvstore_overrides))
         #end handle overrides
         return super(ProcessControllerDelegate, self).prepare_context(executable, env, args, cwd)
@@ -565,16 +574,16 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             
             return self.communicate(process)
         elif launch_mode == self.LAUNCH_MODE_SIBLING:
-            if sys.platform == "linux2":
+            if sys.platform.startswith('linux'):
                 args.append('&')
-            elif sys.platform == "darwin":
+            elif sys.platform == 'darwin':
                 executable, app_args = args[0], args[1:]
                 args = ['open', '-n', '-a'] + [executable]
                 if app_args:
                     args.append('--args')
                     args.extend(app_args)
                 # end handle app_args
-            elif sys.platform == "win32":
+            elif sys.platform == 'win32':
                 args = ['start', '/B'] + args
             # end handle shell based forking
 

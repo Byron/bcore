@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+
+from minifuture import with_metaclass
 __all__ = ['PluginMeta', 'Plugin']
 
 from itertools import chain
@@ -56,10 +59,8 @@ class PluginMeta(Meta):
 # end class PluginMeta
 
 # Careful about renames: name is used verbatim in code above !
-class Plugin(object):
+class Plugin(with_metaclass(PluginMeta, object)):
     """ base class for all Plugins implementing interfaces"""
-    __metaclass__ = PluginMeta
-    __slots__ = tuple()
     
     # -------------------------
     ## @name Configuration

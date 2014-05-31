@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
 __all__ = ['ProcessControlContextController', 'ProcessConfigurationIncompatibleError']
 
 import bapp
@@ -143,7 +145,7 @@ class ProcessControlContextController(IContextController, ApplicationSettingsMix
         # end no change is the desired state
         
         # Otherwise, prepare an exception message using the diff index
-        index_str = '\n'.join(str(rec) for rec in index.itervalues())
+        index_str = '\n'.join(str(rec) for rec in index.values())
         msg = "Process configuration changed - application restart required\n\n%s" % index_str
         log.error(msg)
         raise ProcessConfigurationIncompatibleError(msg, index)

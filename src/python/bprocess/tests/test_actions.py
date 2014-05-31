@@ -6,6 +6,11 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import division
+
+
+
 __all__ = []
 
 import logging
@@ -35,7 +40,7 @@ class ActionTests(TestCase):
     @with_rw_directory
     def test_copy(self, base_dir):
         """Verify copy action works, also in case of failed copies"""
-        source = (base_dir / "source_file").write_bytes("hello there")
+        source = (base_dir / "source_file").write_bytes(bytes(b"hello there"))
         dest_file = base_dir / "subdir" / "subsubdir" / "destination_file.ext"
 
         dk = CopyAction.data_key('foo')

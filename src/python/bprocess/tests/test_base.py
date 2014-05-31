@@ -6,10 +6,14 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import print_function
+
 __all__ = []
 
 if __name__ == '__main__':
-    print sys.argv
+    print(sys.argv)
 
 import sys
 import os
@@ -35,7 +39,7 @@ class TestCommand(object):
     def execute(self):
         self.marker.touch()
         # Output for the delegate to receive
-        print self.marker
+        print(self.marker)
 
 # end class TestCommand
 
@@ -194,7 +198,7 @@ class TestProcessControl(TestCase):
         # end for each package
         assert count > 1
         
-        self.failUnlessRaises(EnvironmentError, TestProcessController(executable, args).iter_packages('foobar').next)
+        self.failUnlessRaises(EnvironmentError, next, TestProcessController(executable, args).iter_packages('foobar'))
         
     @preserve_application
     def test_post_launch_info(self):

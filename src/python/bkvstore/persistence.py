@@ -8,6 +8,7 @@ from the actual yaml package from within this package
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 __all__ = ['OrderedDictYAMLLoader']
 
 import yaml
@@ -49,8 +50,8 @@ class OrderedDictYAMLLoader(Loader):
     def __init__(self, *args, **kwargs):
         Loader.__init__(self, *args, **kwargs)
  
-        self.add_constructor(u'tag:yaml.org,2002:map', type(self).construct_yaml_map)
-        self.add_constructor(u'tag:yaml.org,2002:omap', type(self).construct_yaml_map)
+        self.add_constructor('tag:yaml.org,2002:map', type(self).construct_yaml_map)
+        self.add_constructor('tag:yaml.org,2002:omap', type(self).construct_yaml_map)
  
     def construct_yaml_map(self, node):
         data = OrderedDict()
@@ -70,7 +71,7 @@ class OrderedDictYAMLLoader(Loader):
             key = self.construct_object(key_node, deep=deep)
             try:
                 hash(key)
-            except TypeError, exc:
+            except TypeError as exc:
                 raise yaml.constructor.ConstructorError('while constructing a mapping',
                     node.start_mark, 'found unacceptable key (%s)' % exc, key_node.start_mark)
             value = self.construct_object(value_node, deep=deep)
@@ -91,7 +92,7 @@ class OrderedDictRepresenter(yaml.representer.Representer):
             dumper.represented_objects[dumper.alias_key] = node
         best_style = True
 
-        for item_key, item_value in mapping.iteritems():
+        for item_key, item_value in mapping.items():
             node_key = dumper.represent_data(item_key)
             node_value = dumper.represent_data(item_value)
             if not (isinstance(node_key, yaml.ScalarNode) and not node_key.style):
@@ -110,13 +111,13 @@ class OrderedDictRepresenter(yaml.representer.Representer):
 
 def represent_dictobject(dumper, data):
     return yaml.representer.Representer.represent_mapping(dumper,
-                                                u'tag:yaml.org,2002:map', data)
+                                                'tag:yaml.org,2002:map', data)
 
 def represent_ordereddict(dumper, data):
     """Represents and ordered dict like a dict
     @note: what's usually self is a dumper, which is not an instance of our
     type though. Therefore we explicitly call our code through a classmethod."""
     return OrderedDictRepresenter.represent_ordered_mapping(dumper,
-                                                u'tag:yaml.org,2002:map', data)
+                                                'tag:yaml.org,2002:map', data)
 
 ## -- End Yaml Tools -- \}

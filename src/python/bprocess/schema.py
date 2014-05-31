@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+
 __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_package_schema',
            'package_meta_data_schema', 'package_manager_schema']
 
@@ -82,7 +84,7 @@ class IgnoreCaseRegex(object):
       """Initialize ourselves with a regex, which is compiled right away"""
       try:
           self.regex = re.compile(regex, flags=self.flags)
-      except re.error, err:
+      except re.error as err:
           self.log.error("regex compilation failed: %s", err)
           # This regex is supposed to never match anything
           self.regex = self.re_never_match

@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 __all__ = ['YAMLKeyValueStoreModifier', 'ChangeTrackingJSONKeyValueStoreModifier', 
            'JSONStreamSerializer', 'YAMLStreamSerializer', 'JSONKeyValueStoreModifier']
 
@@ -68,8 +69,6 @@ class JSONStreamSerializer(IStreamSerializer):
         @note for now, we convert everything to a string, brutally. The KVStore would have to deal with
         converting the string versions back, and it might not work for everything"""
         json.dump(data, stream, indent=4, separators=(',', ': '), default=str)
-
-    
 
 # end class ChangeTrackingJSONKeyValueStoreModifier
 

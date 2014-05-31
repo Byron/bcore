@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
+
 __all__ = ['ApplicationSettingsMixin', 'LogConfigurator', 'StackAwareHierarchicalContext',
            'preserve_application']
 
@@ -138,8 +141,11 @@ class StackAwareHierarchicalContext(HierarchicalContext):
         """@note our implementation will compare file hashes in our own hash map with ones of other
         instances of this type on the stack to assure we don't accidentally load the same file
         @note This method will update our _hash_map member"""
+        # NOTE: it's important to stay within the ascii range (thus hexdigest()), as this mep at some 
+        # point gets encoded. In py2, there's just bytes, in py3, it will be tempted to interpret these 
+        # as strings, without having a chance to find a suitable encoding
         for config_file in files:
-            self._hash_map[hashlib.md5(open(config_file).read()).digest()] = config_file
+            self._hash_map[hashlib.md5(open(config_file, 'rb').read()).hexdigest()] = config_file
         #end for each file
         
         # subtract all existing hashes
@@ -222,11 +228,7 @@ class LogConfigurator(ApplicationSettingsMixin):
             # Resort to standard setup if there is no further configuration
             logging.basicConfig()
         else:
-            # BUGFIX 3369
-            # HOW STUPID IS THIS ? Now os throws different WindowsError on ... Windows ?? To add insult
-            # to injury ... it doesn't even exist on linux ... so we have to except all here
-            import __builtin__
-            additional_exception = getattr(__builtin__, 'WindowsError', IOError)
+            additional_exception = getattr(__builtins__, 'WindowsError', IOError)
             
             # BUGFIX 2759
             # make sure the appropriate path exists and is writable, otherwise warn and use different temporary
@@ -234,7 +236,7 @@ class LogConfigurator(ApplicationSettingsMixin):
             try:
                 # DO NOT DISABLE LOGGERS CREATED SO FAR ! What a shitty default !
                 logging.config.fileConfig(log_config_file, disable_existing_loggers=False)
-            except (IOError, additional_exception), err:
+            except (IOError, additional_exception) as err:
                 warnings.warn("logging configuration from ini file failed with error: %s" % str(err))
                 base_setup()
             #end handle unwritable paths
@@ -250,7 +252,7 @@ class LogConfigurator(ApplicationSettingsMixin):
                     value.logdir.makedirs()
                     # Make sure that everyone can write into that folder - especially important for the farm
                     # available on windows
-                    value.logdir.chmod(0777)
+                    value.logdir.chmod(0o777)
                 except (OSError, IOError):
                     log.error("Could not create log directory at %s", value.logdir)
             # end handle logdir creation

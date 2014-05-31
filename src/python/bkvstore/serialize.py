@@ -8,6 +8,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+
+from minifuture import str
 __all__ = ['ChangeTrackingSerializingKeyValueStoreModifier', 'SerializingKeyValueStoreModifier']
 
 import logging
@@ -164,7 +167,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
                 stream_path = None
                 if not hasattr(path_or_stream, 'read'):
                     stream_path = path_or_stream
-                    stream = open(path_or_stream)
+                    stream = open(path_or_stream, 'r')
                 # end open stream as needed
                 data = streamer.deserialize(stream)
                 if hasattr(stream, 'close'):

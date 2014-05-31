@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+
 
 __all__ = ['LinuxPlatformService', 'MacPlatformService', 'WindowsPlatformService', 'ProjectInformation']
 
@@ -163,7 +165,7 @@ class DirectoryServicesMixin(object):
 
     def path_types(self):
         """@return all path ids for values currently available for us"""
-        return self._directory_data().keys()
+        return list(self._directory_data().keys())
         
 
 # end class DirectoryServicesMixin

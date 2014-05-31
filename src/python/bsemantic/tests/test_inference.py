@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 __all__ = []
 
 # test from x import *
@@ -141,7 +142,7 @@ class TestInference(Test):
         
         # quick diff - there should be no differences (which are not overcome by converting from one type to another)
         validator = KeyValueStoreSchemaValidator()
-        for key, value in data.iteritems():
+        for key, value in data.items():
             ValidatedKeyValueStoreSchema(key, value, validator = validator)
         #end for each key, value
         assert type(delegate.parsed_data()['resource']['version']) is int

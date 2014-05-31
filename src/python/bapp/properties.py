@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 __all__ = ['ContextPropertyDescriptor', 'PropertyApplicationSettingsMixinMeta',
            'PropertyApplicationSettingsMixin', 'CompoundPropertyDescriptor']
 
@@ -20,6 +21,7 @@ from bproperty import    ( PropertySchemaMeta,
                            Property,
                            NotDeletableError,
                            NotWritableError )
+from minifuture import with_metaclass
 
 
 class ContextPropertyDescriptor(PropertyDescriptor):
@@ -95,13 +97,11 @@ class PropertyApplicationSettingsMixinMeta(PropertySchemaMeta):
 # end class Property
 
 
-class PropertyApplicationSettingsMixin(ApplicationSettingsMixin):
+class PropertyApplicationSettingsMixin(with_metaclass(PropertyApplicationSettingsMixinMeta, ApplicationSettingsMixin)):
     """A context client to more easily accss context values, read-only"""
     __slots__ = (
                     '_settings_value_cache', # An optional cache for our context value, 
                 )
-    
-    __metaclass__ = PropertyApplicationSettingsMixinMeta
     _schema_attribute = '_schema'
     
     

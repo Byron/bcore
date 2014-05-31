@@ -6,9 +6,11 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
 __all__ = ['init_ipython_terminal', 'dylib_extension', 'login_name', 'uname', 'int_bits', 
            'system_user_id', 'update_env_path', 'Thread', 'ConcurrentRun', 'daemonize', 
-           'TerminatableThread']
+           'TerminatableThread', 'octal']
 
 import sys
 import os
@@ -38,7 +40,8 @@ def dylib_extension():
     """@return extension used for dynamically loaded libraries on the current platform
     @throws EnvironmentError if platform is unknown"""
     try:
-        return {    'linux2' : "so",
+        return {    'linux'  : "so",
+                    'linux2' : "so",
                     'darwin' : "bundle",
                     'win32'   : "dll"}[sys.platform]
     except KeyError:
@@ -54,10 +57,11 @@ def login_name():
     users to impersonate others quite easily.
     """
     # getuser is linux only !
+    # py2: str conversion required to get unicode
     if sys.platform == 'win32':
-        return os.environ['USERNAME']
+        return str(os.environ['USERNAME'])
     else:
-        return getpass.getuser()
+        return str(getpass.getuser())
     #end handle platforms
 
 
@@ -81,11 +85,20 @@ def int_bits():
     """
     try:
         return { 9223372036854775807 : 64,
-                          2147483647 : 32 }[sys.maxint]
+                          2147483647 : 32 }[sys.maxsize]
     except KeyError:
-        raise EnvironmentError("maxint size uknown: %i" % sys.maxint)
+        raise EnvironmentError("maxint size uknown: %i" % sys.maxsize)
     #end convert keyerror to environmenterror
     
+def octal(string):
+    """@return the integer value represented by the given ocal value, as string.
+    @param string like '0777' or '0622'
+    @note useful for python 3 compatibilty with method default values"""
+    res = 0
+    for i, c in enumerate(reversed(string)):
+        res += int(c)*(8**i)
+    #end for each character
+    return res
     
 def system_user_id():
     """@return string identifying the currently active system user as name\@node
@@ -122,7 +135,7 @@ def daemonize(pid_file):
     @param pid_file path to file to prevent multiple daemons to run at once. Will always write it with our pid
     """
     
-    if sys.platform.startswith("win"):
+    if sys.platform.startswith('win'):
         raise OSError("Can only work on posix platforms")
     # END handle operating system
     
@@ -133,8 +146,8 @@ def daemonize(pid_file):
         # and inherits the parent's process group ID.  This step is required
         # to insure that the next call to os.setsid is successful.
         pid = os.fork()
-    except OSError, e:
-        raise Exception, "%s [%d]" % (e.strerror, e.errno)
+    except OSError as e:
+        raise Exception("%s [%d]" % (e.strerror, e.errno))
 
     if (pid != 0):
         # exit() or _exit()?
@@ -194,8 +207,8 @@ def daemonize(pid_file):
         # longer a session leader, preventing the daemon from ever acquiring
         # a controlling terminal.
         pid = os.fork() # Fork a second child.
-    except OSError, e:
-        raise Exception, "%s [%d]" % (e.strerror, e.errno)
+    except OSError as e:
+        raise Exception("%s [%d]" % (e.strerror, e.errno))
 
     if (pid != 0):
         # exit() or _exit()?     See below.
@@ -273,7 +286,7 @@ class ConcurrentRun(Thread):
     def run(self):
         try:
             self._result = self._fun()
-        except Exception, exc:
+        except Exception as exc:
             self._exc = exc
             if self._log is not None:
                 self._log.critical("%s failed" % str(self._fun), exc_info=1)

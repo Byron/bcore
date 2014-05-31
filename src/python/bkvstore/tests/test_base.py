@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
 __all__ = []
 
 import logging
@@ -76,7 +78,7 @@ class TestKeyValueStoreProvider(TestConfiguration):
         assert cps.value('section.string', 'doesntmatter') == 'value', "Expected a key-hit as value exists"
         assert cps.value('section.int', 50) == 42, "integers should work similarly and come out in proper type"
         assert cps.has_value('section.int'), "Should actually have the value"
-        assert len(cps.keys()) == 1, "exepected exactly one top-level key"
+        assert len(list(cps.keys())) == 1, "exepected exactly one top-level key"
         # try non-existing base key
         assert len(cps.keys('doesnt.exist')) == 0, "nonexisting key should return empty list"
         assert len(cps.keys('section')) == 6, "Should have 6 keys in section"
@@ -130,11 +132,11 @@ class TestKeyValueStoreProvider(TestConfiguration):
         # set simple values
         n_key = 'new_option'            # new key
         n_val = 'new_option_value'      # new key's value
-        key_count = len(cmod.keys())
+        key_count = len(list(cmod.keys()))
         assert cmod.set_value(n_key, n_val).value(n_key, n_val * 2) == n_val, "Should have gotten value that I put in"
-        assert len(cmod.keys()) == key_count + 1
+        assert len(list(cmod.keys())) == key_count + 1
         assert cmod.delete_value(n_key).value(n_key, 40) == 40, "Deleting a value should work"
-        assert len(cmod.keys()) == key_count
+        assert len(list(cmod.keys())) == key_count
         
         assert cmod.delete_value('doesntexist') is cmod, "deleting non-existing values doesn't matter"
         
@@ -229,7 +231,11 @@ class TestKeyValueStoreProvider(TestConfiguration):
 
         TwoWayDiff().diff(delegate, existing_value, new_value)
         
-        assert(delegate.result() == new_value)
+        # NOTE: These can loose their ordering ! 
+        # For some reason, this only really happens in py3, which as an entirely different yaml/ordereddict
+        # implmementation
+        by_key=lambda k: k[0]
+        assert(sorted(delegate.result().items(), key=by_key) == sorted(new_value.items(), key=by_key))
 
     def test_merge(self):
         """Verify that merging one kvstore ontop of another works"""
@@ -400,7 +406,7 @@ class TestKeyValueStoreProvider(TestConfiguration):
         assert value.worse.two == 'default'
         assert value.worse.three == 5
         assert not hasattr(value.worse, 'five'), 'five was not in schema, so it shouldnt be there'
-        assert len(value.worse.multi.keys()) == 0
+        assert len(list(value.worse.multi.keys())) == 0
 
     def test_kvpath(self):
         """Assure properties turn out as expected"""

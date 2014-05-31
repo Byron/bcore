@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import sys
 import bcmd
@@ -10,7 +11,7 @@ class HelloWorldCommand(bcmd.Command):
     description = 'just an example'
     
     def execute(self, args, remaining_argrs):
-        print 'hello world'
+        print('hello world')
         return 0
 
 # end class HelloWorldCommand

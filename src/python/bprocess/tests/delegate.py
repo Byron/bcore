@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 __all__ = []
 
 import subprocess
@@ -38,7 +39,7 @@ class TestCommunicatorDelegate(ProcessControllerDelegate):
             assert not err_lines
             lines = process.stdout.readlines()
             assert len(lines) == 1
-            tmpfile = Path(lines[0].strip())
+            tmpfile = Path(lines[0].decode().strip())
             tmpfile.remove()
         finally:
             res = super(TestCommunicatorDelegate, self).communicate(process) 

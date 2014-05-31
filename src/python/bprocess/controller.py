@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import division
+from minifuture import str
 __all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsException', 
            'DisplayHelpException', 'DisplayLoadedYamlException']
 
@@ -22,7 +25,7 @@ from butility import ( Path,
                        update_env_path,
                        GraphIterator,
                        LazyMixin,
-                       PythonFileLoader,
+                       load_files,
                        DictObject,
                        set_log_level, 
                        parse_key_value_string)
@@ -316,7 +319,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         if name in ('_app', '_executable_path', '_delegate'):
             try:
                 self._setup_execution_context()
-            except Exception, err:
+            except Exception as err:
                 # convert to a custom type, in case we got that far, to respect stuff the user wanted
                 # prior to the issue. This makes sure we can show debug information, for instance
                 if self._next_exception is not None:
@@ -483,7 +486,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         # end for each package
         
         for path in plugin_paths:
-            PythonFileLoader.load_files(path)
+            load_files(path)
         # end for each sorted plug-in to load
         
         for module in import_modules:
@@ -627,7 +630,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         # end for each arg
         
         # set overrides
-        if kvstore_overrides.keys():
+        if list(kvstore_overrides.keys()):
             ctx = _ProcessControlCommandlineOverridesContext('commandline overrides', kvstore_overrides)
             ControlledProcessInformation.store_commandline_overrides(self._environ, kvstore_overrides.data())
         #end handle overrides
@@ -931,7 +934,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                 
                 # Set environment variables
                 ############################
-                for evar, values in package.data().environment.variables.items():
+                for evar, values in list(package.data().environment.variables.items()):
                     evar_is_path = delegate.variable_is_path(evar)
                     for value in values:
                         # for now we append, as we walk dependencies breadth-first and items coming later
@@ -970,7 +973,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                     Action(delegate.transaction(), action_key, Action.data(action_key), package_name, package.data())
                 # end for each action
             # end for each program
-        except KeyError, err:
+        except KeyError as err:
             msg = "Configuration for program '%s' not found - error was: %s" % (package_name, str(err))
             raise EnvironmentError(msg) 
         # end handle unknown dependencies
@@ -980,7 +983,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         self._executable_path = alias_package.executable(self._environ)
 
         # We also have to resolve all values, unconditionally.
-        for evar, value in self._environ.iteritems():
+        for evar, value in self._environ.items():
             if '$' not in value:
                 continue
             self._environ[evar] = delegate.resolve_value(value, self._environ)

@@ -6,10 +6,12 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 # Allow better imports !
 from __future__ import absolute_import
 
-from butility import Version
+from butility import (Version,
+                      Path)
 __version__ = Version("0.1.0")
 
 import sys
@@ -24,15 +26,14 @@ def _init_yaml_persistence():
         import yaml
     except ImportError:
         # use our version
+        import zipimport
         try:
-            from . import yaml_builtin as yaml
+            yaml_archive = Path(__file__).dirname() / ('py%i_yaml.zip' % sys.version_info[0])
+            zipimport.zipimporter(yaml_archive).load_module('yaml')
         except ImportError:
             raise ImportError("Failed to import yaml, even using our own library at bkvstore.yaml")
         #end handle yaml
     # end handle exception
-    
-    # set the module to be part of us
-    sys.modules['yaml'] = yaml
     
     # Setup persistence
     from . import persistence

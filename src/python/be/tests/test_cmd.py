@@ -5,6 +5,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import print_function
 __all__ = []
 
 from . import BeTestCase
@@ -23,7 +25,7 @@ class TestBeSubCommand(BeSubCommand, bapp.plugin_type()):
     description = "prints hello world"
 
     def execute(self, args, remaining_args):
-        print "hello world"
+        print("hello world")
         return self.SUCCESS
 
 # end class TestBeSubCommand

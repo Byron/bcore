@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import print_function
 __all__ = []
 
 import sys
@@ -45,11 +46,11 @@ class ExampleCommand(bcmd.Command):
     def execute(self, args, remaining_args):
         """Be verbose or not"""
         if args.verbosity > 0:
-            print 'executing example'
+            print('executing example')
         if args.verbosity > 1:
-            print 'Its my first time ...'
+            print('Its my first time ...')
         if args.verbosity > 2:
-            print 'and it feels great'
+            print('and it feels great')
         
         return 0
         

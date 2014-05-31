@@ -21,7 +21,7 @@ Among the additional features are
 
 The requirements are kept minimal, which is why you need nothing more than:
 
-* a python 2.6 or 2.7 interpreter running on Linux, OSX, Solaris or Windows
+* a python 2.6, 2.7, 3.2, 3.3 or 3.4 interpreter running on Linux, OSX, Solaris or Windows
 
 Optionally, you may need the following
 
@@ -45,6 +45,7 @@ Once the first release is out of the door, the API will stabilize though, yet I 
 
 * [yaml](http://yaml.org)
 * [parse](https://github.com/r1chardj0n3s/parse)
+* [future](https://github.com/PythonCharmers/python-future)
 
 ### LICENSE
 

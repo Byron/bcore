@@ -6,12 +6,20 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
+
+
+from minifuture import with_metaclass
+import sys
+
 __all__ = ['ElementNode', 'ElementNodeList', 'ElementNodeTree', 'ValidatedElementNode']
 
 
 from butility import  ( Meta,
                         DictObject, 
-                        LazyMixin )
+                        LazyMixin,
+                        string_types )
 
 from bkvstore import ( RelaxedKeyValueStoreProviderDiffDelegate,
                        KeyValueStoreProvider )
@@ -58,7 +66,7 @@ class ValidatedElementNodeMetaClass(Meta):
         
         if isinstance(slots, tuple):
             slots = list(slots)
-        elif isinstance(slots, basestring):
+        elif isinstance(slots, string_types):
             slots = [slots]
         #end convert slots to list
         
@@ -182,7 +190,7 @@ class ElementNode(LazyMixin):
         if isinstance(data, (tuple, list)):
             data_dict = dict()
             for item in data:
-                assert isinstance(item, basestring), "invalid item type: %s" % type(item)
+                assert isinstance(item, string_types), "invalid item type: %s" % type(item)
                 # emulate empty items more directly. This conversion makes code further down 
                 # easier as it can assume a dictionary
                 data_dict[item] = dict()
@@ -249,7 +257,7 @@ class ElementNode(LazyMixin):
         """@return a list of ElementNode instances which represent our children.
         May be empty if this is a leaf node"""
         out = list()
-        for key, value in self._data.iteritems():
+        for key, value in self._data.items():
             if key == self.attr_metadata:
                 continue
             #end skip metadata
@@ -297,7 +305,7 @@ class ElementNode(LazyMixin):
 # end class ElementNode
 
 
-class ValidatedElementNode(ElementNode):
+class ValidatedElementNode(with_metaclass(ValidatedElementNodeMetaClass, ElementNode)):
     """An ElementNode implementation which allows direct, attribute access against a simple, flat, schema.
     
     Even though the base implementation is able to provide simple type checking, we make additional calls to our 
@@ -334,7 +342,6 @@ class ValidatedElementNode(ElementNode):
     
     @snippet bsemantic/tests/test_inference.py name-handling-extension
     """
-    __metaclass__ = ValidatedElementNodeMetaClass
     __slots__ = ()
     
     ## Your subclass provides a tuple of pairs, where the first value is the name of the designated property, 

@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
+
 __all__ = [ 'KeyValueStoreProviderDiffDelegate', 'KeyValueStoreModifierDiffDelegate', 
             'KeyValueStoreModifierBaseSwapDelegate', 'AnyKey', 'RelaxedKeyValueStoreProviderDiffDelegate']
 
@@ -159,8 +162,8 @@ class _KeyValueStoreDiffDelegateBase(MergeDelegate):
             # Either we don't have the string-key in question, or it tries to use AnyKey as key during 
             # recursive removals
             assert len(tree) == 1, "should have only one key/value pair"
-            assert tree.keys()[0] == AnyKey, "single key must be AnyKey"
-            return tree.values()[0]
+            assert list(tree.keys())[0] == AnyKey, "single key must be AnyKey"
+            return list(tree.values())[0]
         # end handle anykey
         
 # end class _KeyValueStoreDiffDelegateBase
@@ -276,7 +279,7 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
                             actual_value = type(right_value)(left_value)
                     # end handle list packing
                 # handle value type - special handling for None
-            except Exception, err:
+            except Exception as err:
                 # Assure we have a real value for error printing and value handling
                 actual_value = right_value_inst
                 
@@ -301,7 +304,7 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
         """@return a resolved single scalar string value"""
         # Actually, all of the values we see should be strings
         # however, the caller is and may be 'stupid', so we handle it here
-        if not isinstance(value, basestring):
+        if not isinstance(value, str):
             return value
         # end ignore non-string types
 
@@ -322,7 +325,7 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
                 # end 
             # end recursive resolution
             return value
-        except (KeyError, AttributeError, ValueError, TypeError), err:
+        except (KeyError, AttributeError, ValueError, TypeError) as err:
             msg = "Failed to resolve value '%s' at key '%s' with error: %s"
             self._log.warn(msg, value, key, str(err))
             # if we can't resolve, we have to resolve substitute to an empty value. Otherwise
@@ -384,7 +387,7 @@ class KeyValueStoreModifierDiffDelegate(_KeyValueStoreDiffDelegateBase):
                 return right_value
             else:
                 return type(left_value)(right_value)
-        except Exception, err:
+        except Exception as err:
             # ignore this one - for now we just suck it up
             # NOTE: is it worth having an external handler for this to allow throwing exceptions ?
             msg = "Could not convert new value '%s' at key '%s' of type %s to the desired type %s, with error: %s"

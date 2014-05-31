@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
+
 __all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
             'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',
             'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath', 'KVPathList',
@@ -142,7 +145,7 @@ class TypedList(list):
         # end handle value is valid already
         try:
             return cls.MemberType(value)
-        except Exception, err:
+        except Exception as err:
             msg = "Conversion of '%s' (%s) to type %s failed with error: %s"
             log.error(msg, value, type(value).__name__, cls.MemberType.__name__, str(err))
             return cls.MemberType()
@@ -276,8 +279,8 @@ class ValidateSchemaMergeDelegate(AdditiveMergeDelegate):
         """@note Similar to _KeyValueStoreDiffDelegateBase - couldn't derive from it directly though."""
         if key is AnyKey:
             assert len(tree) == 1, "should have only one key/value pair"
-            assert tree.keys()[0] == AnyKey, "single key must be AnyKey"
-            return tree.values()[0]
+            assert list(tree.keys())[0] == AnyKey, "single key must be AnyKey"
+            return list(tree.values())[0]
         else:
             return super(ValidateSchemaMergeDelegate, self).value_by_key(tree, key)
         # end handle anykey

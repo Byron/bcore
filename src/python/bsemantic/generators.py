@@ -8,6 +8,9 @@ Generators are commonly provided as small base implementations which can be used
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
+
 __all__ = ['StringFormatNode', 'StringFormatNodeTree', 'StringFormatNodeList']
 
 import re

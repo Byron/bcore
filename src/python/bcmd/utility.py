@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
+
 __all__ = ['CommandArgumentParser', 'ArgparserHandledCall', 'CommandlineOverridesMixin', 'InputError', 
            'SuccessfulBreak']
 

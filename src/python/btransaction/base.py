@@ -10,6 +10,8 @@ order.
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+
 __all__ = ['Transaction', 'Operation', 'StoringProgressIndicator']
 
 import weakref
@@ -324,7 +326,7 @@ class Transaction(IOperation):
 				# we don't want 'holes' as we will roll back in a short moment
 				self._progress = None
 				self.log.debug("'%s' transaction done" % self.name)
-			except Exception, e:
+			except Exception as e:
 				if isinstance(e, AbortedExplicitly):
 					# show where it was aborted, just for further info
 					self.log.warn("%s->%s: operation aborted", self.name, op.name, exc_info=True)

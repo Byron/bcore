@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import division
 __all__ = ['DeleteOperation', 'CreateFSItemOperation', 'MoveFSItemOperation', ]
 
 from ..base import Operation
@@ -37,12 +39,22 @@ class FSOperationBase(Operation):
         """Set the uid and/or gid of the given path. If one of the items is None, 
         it will deal properly with the issue and only change what needs to be changed """
         if uid is not None or gid is not None:
+            stat = None
             if not (uid and gid):
                 stat = os.stat(path)
                 uid = uid is not None and uid or stat.st_uid
                 gid = gid is not None and gid or stat.st_gid
             #END get info
-            path.chown(uid, gid)
+
+            if os.getuid() == 0:
+                path.chown(uid, gid)
+            else:
+                stat = stat or os.stat(path)
+                if stat.st_uid != uid or stat.st_gid != gid:
+                    # Try to workaround permissions issues, but try in any case
+                    path.chown(uid, gid)
+                # end 
+            # end verify the target groups are set
         #END if we should change the access mode
 
 

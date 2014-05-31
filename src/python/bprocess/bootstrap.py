@@ -36,7 +36,7 @@ for item in chain([logging.root], logging.root.handlers):
 
 
 
-class Bootstrapper(object):
+class Bootstrapper:
     """Contains for logic required to import bapp and launch the actual implementation from our root package.
     It implements the following algorithm
     
@@ -176,7 +176,7 @@ class Bootstrapper(object):
         module_for_import = self.root_package_name
         try:
             imported_module = __import__(module_for_import, globals(), locals(), [module_for_import])
-        except ImportError, err:
+        except ImportError as err:
             import traceback
             traceback.print_exc()
             raise ImportError("Failed to import root package %s from path %s - cannot proceed without main \
@@ -193,7 +193,7 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         @note use this method if you want to behave similarly to the standard bootstrapper"""
         try:
             return controller_call()
-        except bprocess_mod.DisplayHelpException, err:
+        except bprocess_mod.DisplayHelpException as err:
             sys.stderr.write(err.help_string)
         except bprocess_mod.DisplayContextException:
             sys.stderr.write(controller.application().context().pformat())
@@ -207,7 +207,7 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
                     # end for each path
                 # end if context compatible
             # end for each environment
-        except Exception, err:
+        except Exception as err:
             if controller.is_debug_mode():
                 # sys.stderr.write(controller.application().context().pformat())
                 sys.stderr.write("AN UNHANDLED EXCEPTION OCCURRED WHEN TRYING TO LAUNCH PROGRAM\n")

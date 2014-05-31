@@ -70,6 +70,7 @@ Additional Reading
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 #! A module-level __all__ is required to make from module import * save, which 
 #! may be by parent-packages exclusively. For anything else, we need to be 
 #! explicit.

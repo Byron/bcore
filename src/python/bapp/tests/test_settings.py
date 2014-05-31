@@ -6,6 +6,11 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import division
+from minifuture import str
+
+
 __all__ = []
 
 import bapp
@@ -45,6 +50,7 @@ class TestSettingsClient(PersistentApplicationSettingsMixin):
         dog.friends = ['cat', 'bunny']
         dog.location.x = 1.0
         dog.location.y = 2.0
+        
         self.save_settings()
         
     def assert_values(self):
@@ -95,7 +101,7 @@ class TestSettings(TestCase):
         assert settings.changes()
         assert 'foz' not in settings.changes().foo
         assert settings.save_changes(open(target, 'w')) is settings, "It should be easy to save changes"
-        assert settings.settings_data(open(target)), "should have something to work with"
+        assert settings.settings_data(open(target, 'r')), "should have something to work with"
         settings_data = settings.value_by_schema(schema)
         
         prev_size = target.stat().st_size
@@ -141,7 +147,7 @@ class TestSettings(TestCase):
         """Test settings client"""
         client = TestSettingsClient(rw_dir)
         client.set_values()
-        
+
         other_client = TestSettingsClient(rw_dir)
         other_client.assert_values()
         

@@ -6,11 +6,16 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
-__all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator', 'PythonFileLoader',
-           'SpellingCorrector']
+from __future__ import unicode_literals
+from __future__ import division
 
-from UserDict import DictMixin
-import imp
+
+from minifuture import str
+
+
+__all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator',
+           'SpellingCorrector', 'string_types']
+
 import sys
 import os
 import re
@@ -19,6 +24,14 @@ import pprint
 import logging
 from copy import deepcopy
 from .path import Path
+
+if sys.version_info[0] < 3:
+    from UserDict import DictMixin
+    string_types = (str, __builtins__['str'])
+else:
+    string_types = str
+    from collections import MutableMapping as DictMixin
+# end py3 compat
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +75,7 @@ class Version(object):
         """Intiialize this instance
         @param version_string a string of pretty much any format that resembles a version. Usually, it consists
         of digits and/or names"""
-        assert isinstance(version_string, basestring), '%s was %s, require string' % (version_string, type(version_string))
+        assert isinstance(version_string, string_types), '%s was %s, require string' % (version_string, type(version_string))
         self._version = version_string
         
         
@@ -77,8 +90,16 @@ class Version(object):
     def __hash__(self):
         """brief docs"""
         return hash(self._version)
+
+    def __eq__(self, rhs):
+        """@retutn True if rhs equals lhs"""
+        if not isinstance(rhs, type(self)):
+            # assume type is str
+            return self._version == rhs
+        # handle type differences
+        return self._version == rhs._version
     
-    def __cmp__(self, rhs):
+    def __lt__(self, rhs):
         """Compare ourselves with the other version or string using 
         [RPM comparison algorithm](http://fedoraproject.org/wiki/Archive:Tools/RPM/VersionComparison)"""
         if not isinstance(rhs, type(self)):
@@ -92,34 +113,28 @@ class Version(object):
                     if lt == rt:
                         continue
                     else:
-                        return cmp(lt, rt)
+                        return lt < rt
                     # handle int comparison
                 else:
                     # strings are always older compared to ints
-                    return 1
+                    return False
                 # handle rt type
             else:
-                if isinstance(rt, basestring):
+                if isinstance(rt, str):
                     if lt == rt:
                         continue
                     else:
-                        return cmp(lt, rt)
+                        return lt < rt
                     # end string handle comparison
                 else:
                     # ints are always newer
-                    return -1
+                    return True
                 # end handle rt type
             # end handle lt type
         # end for each token
         
         # still here ? compare the length - more tokens are better
-        cmp_len = cmp(len(lts), len(rts))
-        if cmp_len != 0:
-            return cmp_len
-        # end 
-        
-        # equality !
-        return 0
+        return len(lts) < len(rts)
         
     def __str__(self):
         return self._version
@@ -258,7 +273,7 @@ class DictObject(object):
             return
         #END handle special case, be a reference
         dct = indict
-        for key, val in dct.iteritems():
+        for key, val in dct.items():
             if isinstance(val, self._unpackable_types):
                 dct = None
                 break
@@ -274,7 +289,7 @@ class DictObject(object):
                     val = type(val)(unpack(item) for item in val)
                 return val
             #END unpack
-            for key, val in dct.iteritems():
+            for key, val in dct.items():
                 dct[key] = unpack(val)
             #END for each k,v pair
         #END handle recursive copy
@@ -348,7 +363,7 @@ class DictObject(object):
             #end unpack
             
             needs_copy = False
-            for value in self.__dict__.itervalues():
+            for value in self.__dict__.values():
                 if obtain_needs_copy(value):
                     needs_copy = True
                     break
@@ -357,7 +372,7 @@ class DictObject(object):
             
             if needs_copy:
                 new_dict = dict()
-                for key, val in self.__dict__.iteritems():
+                for key, val in self.__dict__.items():
                     new_dict[key] = unpack(val)
                 #END for each key, value pair
                 return new_dict
@@ -376,7 +391,7 @@ class DictObject(object):
         """@return new dictionary which uses this dicts keys as values, and values as keys
         @note duplicate values will result in just a single key, effectively drupping items.
         Use this only if you have unique key-value pairs"""
-        return dict(zip(self.__dict__.values(), self.__dict__.keys()))
+        return dict(list(zip(list(self.__dict__.values()), list(self.__dict__.keys()))))
     
     def get(self, name, default=None):
         """as dict.get"""
@@ -384,19 +399,19 @@ class DictObject(object):
         
     def keys(self):
         """as dict.keys"""
-        return self.__dict__.keys()
+        return list(self.__dict__.keys())
         
     def values(self):
         """as dict.values"""
-        return self.__dict__.values()
+        return list(self.__dict__.values())
         
     def items(self):
         """as dict.items"""
-        return self.__dict__.items()
+        return list(self.__dict__.items())
         
     def iteritems(self):
         """as dict.iteritems"""
-        return self.__dict__.iteritems()
+        return iter(self.__dict__.items())
 
     def pop(self, key, default=re):
         """as dict.pop"""
@@ -409,187 +424,228 @@ class DictObject(object):
 
 # end class DictObject
 
+def _ordered_ict_format_string(odict, indent=1):
+    """utility for producing a human readable string from a dict"""
+    indent_str = '    '*indent
+    ret_str = "\n"
+    for key, value in odict.items():
+        if isinstance(value, OrderedDict):
+            ret_str += "%s%s: %s" % (indent_str, key, _ordered_ict_format_string(value, indent=indent+1))
+        elif isinstance(value, (tuple, list)):
+            # for now, without recursion, assuming simple scalar values
+            ret_str += "%s%s:\n" % (indent_str, key)
+            for item in value:
+                ret_str += "%s - %s\n" % (indent_str, item)
+            # end for each item
+        else:
+            ret_str += "%s%s: %s\n" % (indent_str, key, value)
+        # end handle value type
+    # end for each item in dict
+    return ret_str
 
-class OrderedDict(dict, DictMixin):
-    """@copyright (c) 2009 Raymond Hettinger
+def _to_dict(d):
+    """@return a recursive copy of this dict, except that the dict type is just dict.
+    @note useful for pretty-printing"""
+    out = dict()
+    for key, value in d.items():
+        if isinstance(value, d.__class__):
+            value = value.to_dict()
+        out[key] = value
+    #end for each key-value pair
+    return out
 
-    Permission is hereby granted, free of charge, to any person
-    obtaining a copy of this software and associated documentation files
-    (the "Software"), to deal in the Software without restriction,
-    including without limitation the rights to use, copy, modify, merge,
-    publish, distribute, sublicense, and/or sell copies of the Software,
-    and to permit persons to whom the Software is furnished to do so,
-    subject to the following conditions:
-    
-    The above copyright notice and this permission notice shall be
-    included in all copies or substantial portions of the Software.
-    
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-    OTHER DEALINGS IN THE SOFTWARE.
-    
-    @note: Unfortunately, there is no unit test for this available or I didn't
-    find it. As its the default python implementation though, I believe it
-    should be working pretty well.
-    """
-    __slots__ = ('_map', '_end')
-    
-    def __init__(self, *args, **kwds):
-        if len(args) > 1:
-            raise TypeError('expected at most 1 arguments, got %d' % len(args))
-        self.clear() # reset
-        self.update(*args, **kwds)
 
-    def clear(self):
-        end = list()
-        object.__setattr__(self, '_end', end)
-        object.__setattr__(self, '_map', dict()) # key --> [key, prev, next]
-        end += [None, end, end]         # sentinel node for doubly linked list
-        dict.clear(self)
+if sys.version_info[0] < 3:
 
-    def __setitem__(self, key, value):
-        if key not in self:
+    class OrderedDict(dict, DictMixin):
+        """@copyright (c) 2009 Raymond Hettinger
+
+        Permission is hereby granted, free of charge, to any person
+        obtaining a copy of this software and associated documentation files
+        (the "Software"), to deal in the Software without restriction,
+        including without limitation the rights to use, copy, modify, merge,
+        publish, distribute, sublicense, and/or sell copies of the Software,
+        and to permit persons to whom the Software is furnished to do so,
+        subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be
+        included in all copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+        EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+        OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+        NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+        HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+        WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+        FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+        OTHER DEALINGS IN THE SOFTWARE.
+        
+        @note: Unfortunately, there is no unit test for this available or I didn't
+        find it. As its the default python implementation though, I believe it
+        should be working pretty well.
+        """
+        __slots__ = ('_map', '_end')
+        
+        def __init__(self, *args, **kwds):
+            if len(args) > 1:
+                raise TypeError('expected at most 1 arguments, got %d' % len(args))
+            self.clear() # reset
+            self.update(*args, **kwds)
+
+        def clear(self):
+            end = list()
+            object.__setattr__(self, '_end', end)
+            object.__setattr__(self, '_map', dict()) # key --> [key, prev, next]
+            end += [None, end, end]         # sentinel node for doubly linked list
+            dict.clear(self)
+
+        def __setitem__(self, key, value):
+            if key not in self:
+                end = self._end
+                curr = end[1]
+                curr[2] = end[1] = self._map[key] = [key, curr, end]
+            dict.__setitem__(self, key, value)
+
+        def __delitem__(self, key):
+            dict.__delitem__(self, key)
+            key, prev, next_item = self._map.pop(key)
+            prev[2] = next_item
+            next_item[1] = prev
+
+        def __iter__(self):
+            end = self._end
+            curr = end[2]
+            while curr is not end:
+                yield curr[0]
+                curr = curr[2]
+
+        def __reversed__(self):
             end = self._end
             curr = end[1]
-            curr[2] = end[1] = self._map[key] = [key, curr, end]
-        dict.__setitem__(self, key, value)
+            while curr is not end:
+                yield curr[0]
+                curr = curr[1]
 
-    def __delitem__(self, key):
-        dict.__delitem__(self, key)
-        key, prev, next_item = self._map.pop(key)
-        prev[2] = next_item
-        next_item[1] = prev
-
-    def __iter__(self):
-        end = self._end
-        curr = end[2]
-        while curr is not end:
-            yield curr[0]
-            curr = curr[2]
-
-    def __reversed__(self):
-        end = self._end
-        curr = end[1]
-        while curr is not end:
-            yield curr[0]
-            curr = curr[1]
-
-    def popitem(self, last=True):
-        """same as in dict"""
-        if not self:
-            raise KeyError('dictionary is empty')
-        if last:
-            key = reversed(self).next()
-        else:
-            key = iter(self).next()
-        value = self.pop(key)
-        return key, value
-
-    def __reduce__(self):
-        items = [[k, self[k]] for k in self]
-        tmp = (self._map, self._end)
-        del self._map, self._end
-        inst_dict = vars(self).copy()
-        self._map, self._end = tmp
-        if inst_dict:
-            return (self.__class__, (items,), inst_dict)
-        return self.__class__, (items,)
-        
-    def __getattr__(self, name):
-        """provides read access"""
-        try:
-            return self[name]
-        except KeyError:
-            raise AttributeError("No attribute named '%s'" % name)
-        #end handle getitem
-        
-    def __setattr__(self, name, value):
-        """Set the given value into our dict"""
-        if name in self.__slots__:
-            return super(OrderedDict, self).__setattr__(name, value)
-        self[name] = value
-
-    def keys(self):
-        """same as in dict"""
-        return list(self)
-
-    setdefault = DictMixin.setdefault
-    update = DictMixin.update
-    pop = DictMixin.pop
-    values = DictMixin.values
-    items = DictMixin.items
-    iterkeys = DictMixin.iterkeys
-    itervalues = DictMixin.itervalues
-    iteritems = DictMixin.iteritems
-
-    def __str__(self):
-        return self.__unicode__().encode('utf-8')
-
-    def __unicode__(self, indent=1):
-        indent_str = '    '*indent
-        ret_str = u"\n"
-        for key, value in self.iteritems():
-            if isinstance(value, OrderedDict):
-                ret_str += u"%s%s: %s" % (indent_str, key, value.__unicode__(indent=indent+1))
-            elif isinstance(value, (tuple, list)):
-                # for now, without recursion, assuming simple scalar values
-                ret_str += u"%s%s:\n" % (indent_str, key)
-                for item in value:
-                    ret_str += u"%s - %s\n" % (indent_str, item)
-                # end for each item
+        def popitem(self, last=True):
+            """same as in dict"""
+            if not self:
+                raise KeyError('dictionary is empty')
+            if last:
+                key = next(reversed(self))
             else:
-                ret_str += u"%s%s: %s\n" % (indent_str, key, unicode(value))
-            # end handle value type
-        # end for each item in dict
-        return ret_str
+                key = next(iter(self))
+            value = self.pop(key)
+            return key, value
 
-    def __repr__(self):
-        if not self:
-            return '%s()' % (self.__class__.__name__,)
-        return '%s(%r)' % (self.__class__.__name__, self.items())
+        def __reduce__(self):
+            items = [[k, self[k]] for k in self]
+            tmp = (self._map, self._end)
+            del self._map, self._end
+            inst_dict = vars(self).copy()
+            self._map, self._end = tmp
+            if inst_dict:
+                return (self.__class__, (items,), inst_dict)
+            return self.__class__, (items,)
+            
+        def __getattr__(self, name):
+            """provides read access"""
+            try:
+                return self[name]
+            except KeyError:
+                raise AttributeError("No attribute named '%s'" % name)
+            #end handle getitem
+            
+        def __setattr__(self, name, value):
+            """Set the given value into our dict"""
+            if name in self.__slots__:
+                return super(OrderedDict, self).__setattr__(name, value)
+            self[name] = value
 
-    def copy(self):
-        """same as in dict"""
-        return self.__class__(self)
-        
-    def to_dict(self):
-        """@return a recursive copy of this dict, except that the dict type is just dict.
-        @note useful for pretty-printing"""
-        out = dict()
-        for key, value in self.iteritems():
-            if isinstance(value, self.__class__):
-                value = value.to_dict()
-            out[key] = value
-        #end for each key-value pair
-        return out
+        def keys(self):
+            """same as in dict"""
+            return list(self)
 
-    @classmethod
-    def fromkeys(cls, iterable, value=None):
-        """same as in dict"""
-        new_dict = cls()
-        for key in iterable:
-            new_dict[key] = value
-        return new_dict
+        setdefault = DictMixin.setdefault
+        update = DictMixin.update
+        pop = DictMixin.pop
+        values = DictMixin.values
+        items = DictMixin.items
+        if sys.version_info[0] < 3:
+            iterkeys = DictMixin.iterkeys
+            itervalues = DictMixin.itervalues
+            iteritems = DictMixin.iteritems
+        else:
+            iterkeys = DictMixin.keys
+            itervalues = DictMixin.values
+            iteritems = DictMixin.items
+        # end
 
-    def __eq__(self, other):
-        if isinstance(other, OrderedDict):
-            if len(self) != len(other):
-                return False
-            for left, right in  zip(self.items(), other.items()):
-                if left != right:
+        def __str__(self):
+            return self.__unicode__().encode('utf-8')
+
+        __unicode__ = _ordered_ict_format_string
+
+        def __repr__(self):
+            if not self:
+                return '%s()' % (self.__class__.__name__,)
+            return '%s(%r)' % (self.__class__.__name__, list(self.items()))
+
+        def copy(self):
+            """same as in dict"""
+            return self.__class__(self)
+            
+        to_dict = _to_dict
+
+        @classmethod
+        def fromkeys(cls, iterable, value=None):
+            """same as in dict"""
+            new_dict = cls()
+            for key in iterable:
+                new_dict[key] = value
+            return new_dict
+
+        def __eq__(self, other):
+            if isinstance(other, OrderedDict):
+                if len(self) != len(other):
                     return False
-            return True
-        return dict.__eq__(self, other)
+                for left, right in  zip(list(self.items()), list(other.items())):
+                    if left != right:
+                        return False
+                return True
+            return dict.__eq__(self, other)
 
-    def __ne__(self, other):
-        return not self == other
+        def __ne__(self, other):
+            return not self == other
 
-# end class OrderedDict
+    # end class OrderedDict
+else:
+    from collections import OrderedDict as OrderedDictPy3
+
+    class OrderedDict(OrderedDictPy3):
+        """Add some compatiblity for our custom API"""
+        __reserved__ = set(('_OrderedDict__marker', '_OrderedDict__update', '__weakref__', '_OrderedDict__root',
+                            '_OrderedDict__map', '_OrderedDict__hardroot'))
+
+        to_dict = _to_dict
+
+        __str__ = _ordered_ict_format_string
+
+        def __setattr__(self, name, value):
+            """Set the given value into our dict"""
+            if name in self.__reserved__:
+                return OrderedDictPy3.__setattr__(self, name, value)
+            self[name] = value
+
+        def __getattr__(self, name):
+            """provides read access"""
+            try:
+                return self[name]
+            except KeyError:
+                raise AttributeError("No attribute named '%s'" % name)
+            #end handle getitem
+    
+    # end class OrderedDict
+# end handle py2/3 compatibility
     
 
 class ProgressIndicator(object):
@@ -770,83 +826,6 @@ class ProgressIndicator(object):
     #} END query
 
 # end clas ProgressIndicator
-
-
-class PythonFileLoader(object):
-    """ loads .py files from a given directory or load the given file, with recursion if desired
-        @note it just loads the .py files"""
-    __slots__ = ()
-        
-    @classmethod
-    def _load_files(cls, path, files, on_error):
-        """load all python \a files from \a path
-        @return list of loaded files as full paths"""
-        res = list()
-        def py_filter(f):
-            return f.endswith('.py') and not \
-                   f.startswith('__')
-        # end filter
-
-        for filename in filter(py_filter, files):
-            py_file = os.sep.join([path, filename])
-            (mod_name, _) = os.path.splitext(os.path.basename(py_file))
-            try:
-                cls.load_file(py_file, mod_name)
-            except Exception:
-                log.error("Failed to load %s from %s", mod_name, py_file, exc_info=True)
-                on_error(py_file, mod_name)
-            else:
-                log.info("loaded %s into module %s", py_file, mod_name)
-                res.append(py_file)
-            # end handle result
-        # end for eahc file to load
-        return res
-
-    # -------------------------
-    ## @name Interface
-    # @{
-    
-    @classmethod
-    def load_files(cls, path, recurse=False, on_error=lambda f, m: None):
-        """Load all .py files found in the given directory, or load the file it points to
-        @param path either path to directory, or path to py file.
-        @param recurse if True, path will be searched for usable files recursively
-        @param on_error f(py_file, module_name) => None to perform an action when importing a module 
-        fails. It may raise to abort the entire operation. Note that an exception is set when called.
-        @return a list of files loaded successfully"""
-        # if we should recurse, we just use the standard dirwalk.
-        # we use topdown so top directories should be loaded before their
-        # subdirectories and we follow symlinks, since it seems likely that's
-        # what people will expect
-        res = list()
-        path = Path(path)
-        if path.isfile():
-            res += cls._load_files(path.dirname(), [path.basename()], on_error)
-        else:
-            seen = None
-            for seen, (path, dirs, files) in enumerate(os.walk(path, topdown=True, followlinks=True)):
-                res += cls._load_files(path, files, on_error)
-                if not recurse:
-                    break
-                # end handle recursion
-            # end for each directory to walk
-            if seen is None:
-                log.log(logging.TRACE, "Didn't find any plugin files at '%s'", path)
-            # end 
-        # end handle file or directory
-        return res
-        
-    @classmethod
-    def load_file(cls, python_file, module_name):
-        """Load the contents of the given python file into a module of the given name.
-        If the module is already loaded, it will be reloaded
-        @return the loaded module object
-        @throws Exception any exception raised when trying to load the module"""
-        imp.load_source(module_name, python_file)
-        return sys.modules[module_name]
-
-    ## -- End Interface -- @}
-# end class PythonFileLoader
 
 
 class SpellingCorrector(object):

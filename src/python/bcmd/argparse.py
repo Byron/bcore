@@ -62,6 +62,11 @@ considered public as object names -- the API of the formatter objects is
 still considered an implementation detail.)
 """
 
+
+from minifuture import str
+
+
+
 __version__ = '1.2.1'
 __all__ = [
     'ArgumentParser',
@@ -99,9 +104,9 @@ except NameError:
     from sets import Set as set
 
 try:
-    basestring
+    str
 except NameError:
-    basestring = str
+    str = str
 
 try:
     sorted
@@ -1728,7 +1733,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 if not hasattr(namespace, action.dest):
                     if action.default is not SUPPRESS:
                         default = action.default
-                        if isinstance(action.default, basestring):
+                        if isinstance(action.default, str):
                             default = self._get_value(action, default)
                         setattr(namespace, action.dest, default)
 
@@ -1894,7 +1899,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                             
                             choices = a.choices
                             if isinstance(choices, dict):
-                                choices = choices.keys()
+                                choices = list(choices.keys())
                             # end handle choice types
                             
                             # see if one argument is also a choice. If so, adjust argcount
@@ -2240,7 +2245,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 value = action.const
             else:
                 value = action.default
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 value = self._get_value(action, value)
                 self._check_value(action, value)
 

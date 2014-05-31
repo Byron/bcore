@@ -6,6 +6,12 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import division
+from minifuture import str
+from minifuture import PY2
+from minifuture import with_metaclass
+
 __all__ = []
 
 from .base import TestCase
@@ -78,6 +84,20 @@ class TestUtility(TestCase):
         
         # default value
         assert Version() == Version() == Version.UNKNOWN
+        assert not (Version.UNKNOWN > Version.UNKNOWN)
+        assert not (Version.UNKNOWN < Version.UNKNOWN)
+        assert Version.UNKNOWN >= Version.UNKNOWN
+        assert Version.UNKNOWN <= Version.UNKNOWN
+        assert not (Version.UNKNOWN != Version.UNKNOWN)
+
+    def test_ordered_dict_special_api(self):
+        """Assert on custom API methods"""
+        odict = OrderedDict()
+        odict.foo = 'bar'
+        assert odict.foo is odict['foo'], "setattr should work, as well as getattr"
+
+        assert isinstance(str(odict), str)
+
         
     def test_chunker(self):
         """Verify the chunker works as expected"""
@@ -88,7 +108,7 @@ class TestUtility(TestCase):
             iteration += 1
             prev_size = len(out)
             string = 'abcdefghijklmnopqrstuvwxyz' * 123 * iteration
-            cs = len(string) / 40
+            cs = int(len(string) / 40)
             
 
             keys = chunker.split(string, cs, out)
@@ -111,8 +131,8 @@ class TestUtility(TestCase):
         assert isinstance(str(dobj), str)
         assert repr(dobj) == str(dobj)
         
-        assert len(dobj.keys()) == 2
-        assert len(dobj.keys()) == len(dobj.values())
+        assert len(list(dobj.keys())) == 2
+        assert len(list(dobj.keys())) == len(list(dobj.values()))
         assert 'first' in dobj
         
         self.failUnlessRaises(AttributeError, getattr, dobj, 'unknown')
@@ -142,6 +162,8 @@ class TestUtility(TestCase):
         dobj.first = 2
         assert dobj.first == 2
         
+        del dobj.sub
+        del dobj.nested_dict
         dobj_inv = dobj.inversed_dict()
         assert len(dobj_inv) == len(dobj) - 1, "Expected one item to be dropped due to duplicate value"
         assert 2 not in dobj
@@ -164,15 +186,13 @@ class TestUtility(TestCase):
             assert dct.pop(attr) == desired_value
         # end for each sample
 
-
-
     def test_python_file_loader(self):
         mod_name = 'test_module'
-        mod = PythonFileLoader.load_file(self.fixture_path('module.py'), mod_name)
+        mod = load_file(self.fixture_path('module.py'), mod_name)
         assert mod
         assert mod.Foo.hello() == 'world'
 
-        res = PythonFileLoader.load_files(self.fixture_path(''), recurse=True)
+        res = load_files(self.fixture_path(''), recurse=True)
         assert len(res) == 2
         assert res[0].endswith('module.py')
         assert res[1].endswith('submodule.py')
@@ -180,11 +200,19 @@ class TestUtility(TestCase):
         del sys.modules[mod_name]
         del sys.modules['submodule']
 
-    def test_native_path(self):
-        if os.name == 'nt':
-            assert NativePath('/foo/bar') == r'\foo\bar'
-        else:
-            assert NativePath(r'\foo\bar') == '/foo/bar'
-        # end 
+    def test_octal(self):
+        """test octal conversion"""
+        assert octal('0777') == 511
+        assert octal('777') == 511
+        assert octal('0003') == 3
+
+    def test_meta(self):
+        """verify meta-classes work as expected"""
+        class TestInterface(Interface):
+            pass
+        # end classs
+
+        assert(hasattr(TestInterface, '__metaclass__') == PY2)
+        
 
 # end class TestUtility

@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import division
 __all__ = [ 'OSContext', 'ApplicationContext']
 
 import sys
@@ -26,8 +28,7 @@ from butility import (OrderedDict,
 from bkvstore import (YAMLKeyValueStoreModifier,
                       KeyValueStoreSchema )
 
-from butility import (Path,
-                      PythonFileLoader )
+from butility import Path
 
 
 
@@ -41,7 +42,8 @@ class OSContext(Context, ApplicationSettingsMixin):
     ## @name Configuration
     # @{
 
-    platform_service_type = dict(   linux2 = services.LinuxPlatformService,
+    platform_service_type = dict(   linux = services.LinuxPlatformService,
+                                    linux2 = services.LinuxPlatformService,
                                     sunos5 = services.LinuxPlatformService,
                                     darwin = services.MacPlatformService,
                                     win32 = services.WindowsPlatformService

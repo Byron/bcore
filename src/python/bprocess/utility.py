@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import division
+
 __all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment',
            'ProcessControllerPackageSpecification', 'PackageDataIteratorMixin',
            'ExecutableContext', 'PythonPackageIterator', 'CommandlineOverridesContext', 
@@ -28,7 +31,7 @@ from bkvstore import (KeyValueStoreModifier,
                       PathList)
 from butility import ( OrderedDict,
                        Path,
-                       PythonFileLoader,
+                       load_files,
                        LazyMixin )
 
 
@@ -293,7 +296,7 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsMixin,
                 # Data can be empty if there is a read-error
                 try:
                     data = self.settings_kvstore().settings_data(open(path))
-                except Exception, err:
+                except Exception as err:
                     # usually program startup fails if we fail here, lets be verbose, but forgiving
                     log.error("Failed to load file at '%s' - discarding it", path, exc_info=True)
                 # end empty files cause it to fail
@@ -435,7 +438,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
 
             # If we have variables in the path, we can't assume anything (nor resolve) as it might be too early 
             # for that. In that case, we assume the best. Otherwise, the executable must exist
-            if not executable_path.containsvars() and not executable.isfile():
+            if not executable_path.containsvars() and not executable_path.isfile():
                 continue
             # end 
 
@@ -540,7 +543,7 @@ class PythonPackageIterator(ApplicationSettingsMixin, PackageDataIteratorMixin):
                         if not plugin_path.isabs():
                             plugin_path = package.to_abs_path(plugin_path)
                         # end make plugin path absolute
-                        PythonFileLoader.load_files(plugin_path.expand_or_raise())
+                        load_files(plugin_path.expand_or_raise())
                     except Exception as err:
                         # plugin's shouldn't be essential, and make a program fail to startup (at least until
                         # we make it a configuration flag)
@@ -613,7 +616,7 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
         self._hash_map = ppi.config_hashmap()
 
         seen_dirs = set()
-        self._config_files = self._hash_map.values()
+        self._config_files = list(self._hash_map.values())
         self._config_dirs = list()
 
         # Be a good citizen, and rebuild the internal structure

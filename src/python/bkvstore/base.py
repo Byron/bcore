@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from minifuture import str
+
 __all__ = ['KeyValueStoreProvider', 'KeyValueStoreModifier', 'Error', 'NoSuchKeyError', 
            'UnorderedKeyValueStoreModifier', 'ChangeTrackingKeyValueStoreModifier']
 
@@ -194,7 +197,7 @@ class KeyValueStoreProvider(object):
         if base_dict is NoValue:
             return list()
         #end handle missing key
-        return base_dict.keys()
+        return list(base_dict.keys())
         
     def data(self):
         """@return a copy of our data dictionary

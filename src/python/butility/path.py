@@ -26,6 +26,10 @@ TODO
    - Could add split() and join() methods that generate warnings.
 """
 from __future__ import generators
+from __future__ import division
+from __future__ import unicode_literals
+from minifuture import str
+
 __docformat__ = "restructuredtext"
 
 __license__='Freeware'
@@ -38,10 +42,13 @@ import glob
 import shutil
 import codecs
 import re
+
+from .system import octal
+
 log = logging.getLogger("bapp.path")
 
 __version__ = '3.0'
-__all__ = ['Path', 'BasePath', 'NativePath']
+__all__ = ['Path', 'NativePath', 'ConversionPath']
 
 # Platform-specific support for path.owner
 if os.name == 'nt':
@@ -56,25 +63,11 @@ else:
         pwd = None
 
 # We just assume it supports unicode, as pre-python 2.4 support isn't needed
-_base = unicode
-_getcwd = os.getcwdu
-
-# Pre-2.3 workaround for booleans
-try:
-    True, False
-except NameError:
-    True, False = 1, 0
-
-# Pre-2.3 workaround for basestring.
-try:
-    basestring
-except NameError:
-    basestring = (str, unicode)
+_base = str
+_getcwd = os.getcwd
 
 # Universal newline support
 _textmode = 'r'
-if hasattr(file, 'newlines'):
-    _textmode = 'U'
 
 
 # cache used for path expansion
@@ -110,7 +103,7 @@ class Path( _base ):
         return self.__class__(resultStr)
 
     def __radd__(self, other):
-        if isinstance(other, basestring):
+        if isinstance(other, str):
             return self.__class__(other.__add__(self))
         else:
             return NotImplemented
@@ -130,14 +123,14 @@ class Path( _base ):
     def __eq__( self, other ):
         """Comparison method with expanded variables, just to assure
         the comparison yields the results we would expect"""
-        return unicode(self._expandvars(self)) == unicode(self._expandvars(unicode(other)))
+        return str(self._expandvars(self)) == str(self._expandvars(str(other)))
 
     def __ne__( self, other ):
         return not self.__eq__( other )
 
     def __hash__( self ):
         """Expanded hash method"""
-        return hash(unicode(self._expandvars(self)))
+        return hash(str(self._expandvars(self)))
 
     #} END Special Python methods
 
@@ -149,14 +142,6 @@ class Path( _base ):
         cls.sep = sep
         cls.osep = (sep == '/' and '\\') or "/"
         
-        # setup path conversion as necessary
-        global Path
-        if os.path.sep != cls.sep:
-            Path = ConversionPath
-        else:
-            Path = BasePath
-        # END handle Path type
-
     @classmethod
     def getcwd(cls):
         """@return the current working directory as a path object. """
@@ -632,7 +617,11 @@ class Path( _base ):
         # END handle encoding
         
         try:
-            return f.read()
+            if sys.version_info[0] < 3:
+                return str(f.read())
+            else:
+                return f.read()
+            # end assure type is correct
         finally:
             f.close()
         # END handle file read
@@ -700,16 +689,16 @@ class Path( _base ):
         @return self
         """
         bytes = ""
-        if isinstance(text, unicode):
+        if isinstance(text, str):
             if linesep is not None:
                 # Convert all standard end-of-line sequences to
                 # ordinary newline characters.
-                text = (text.replace(u'\r\n', u'\n')
-                            .replace(u'\r\x85', u'\n')
-                            .replace(u'\r', u'\n')
-                            .replace(u'\x85', u'\n')
-                            .replace(u'\u2028', u'\n'))
-                text = text.replace(u'\n', linesep)
+                text = (text.replace('\r\n', '\n')
+                            .replace('\r\x85', '\n')
+                            .replace('\r', '\n')
+                            .replace('\x85', '\n')
+                            .replace('\u2028', '\n'))
+                text = text.replace('\n', linesep)
             if encoding is None:
                 encoding = sys.getdefaultencoding()
             bytes = text.encode(encoding, errors)
@@ -768,15 +757,15 @@ class Path( _base ):
         f = self.open(mode)
         try:
             for line in lines:
-                isUnicode = isinstance(line, unicode)
+                isUnicode = isinstance(line, str)
                 if linesep is not None:
                     # Strip off any existing line-end and add the
                     # specified linesep string.
                     if isUnicode:
-                        if line[-2:] in (u'\r\n', u'\x0d\x85'):
+                        if line[-2:] in ('\r\n', '\x0d\x85'):
                             line = line[:-2]
-                        elif line[-1:] in (u'\r', u'\n',
-                                           u'\x85', u'\u2028'):
+                        elif line[-1:] in ('\r', '\n',
+                                           '\x85', '\u2028'):
                             line = line[:-1]
                     else:
                         if line[-2:] == '\r\n':
@@ -894,7 +883,7 @@ class Path( _base ):
                 self, win32security.OWNER_SECURITY_INFORMATION)
             sid = desc.GetSecurityDescriptorOwner()
             account, domain, typecode = win32security.LookupAccountSid(None, sid)
-            return domain + u'\\' + account
+            return domain + '\\' + account
         else:
             if pwd is None:
                 raise NotImplementedError("path.owner is not implemented on this platform.")
@@ -970,14 +959,14 @@ class Path( _base ):
 
     #{ Create/delete operations on directories
 
-    def mkdir(self, mode=0777):
+    def mkdir(self, mode=octal('0777')):
         """Make this directory, fail if it already exists
         
         @return self"""
         os.mkdir(self._expandvars(self), mode)
         return self
 
-    def makedirs(self, mode=0777):
+    def makedirs(self, mode=octal('0777')):
         """Smarter makedir, see os.makedirs
         
         @return self"""
@@ -1002,7 +991,7 @@ class Path( _base ):
 
     #{ Modifying operations on files
 
-    def touch(self, flags = os.O_WRONLY | os.O_CREAT, mode = 0666):
+    def touch(self, flags = os.O_WRONLY | os.O_CREAT, mode = octal('0666')):
         """ Set the access/modified times of this file to the current time.
         Create the file if it does not exist.
         
@@ -1162,16 +1151,16 @@ def _to_os_path(path):
     
 #} END utilities
 
-# backup original class
-BasePath = Path
 
-class ConversionPath(BasePath):
+class ConversionPath(Path):
     """On windows, python represents paths with backslashes, within maya though, 
     these are slashes We want to keep the original representation, but allow
     the methods to work nonetheless."""
     def __div__(self, rel):
         return self.joinpath(rel)
-        
+
+    __truediv__ = __div__
+
     @classmethod
     def _expandvars(cls, path):
         # when expanding, we might get operating system separators into the path, which

@@ -6,6 +6,9 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+from __future__ import division
+from minifuture import str
 __all__ = ['HierarchicalContext']
 
 import sys
@@ -14,7 +17,7 @@ import logging
 from butility import (LazyMixin,
                       int_bits,
                       Path,
-                      PythonFileLoader,
+                      load_files,
                       tagged_file_paths,
                       OrderedDict)
 from bkvstore import YAMLKeyValueStoreModifier
@@ -51,7 +54,8 @@ class HierarchicalContext(Context, LazyMixin):
     config_dir_name = 'etc'
 
     # A mapping of long to short platform names
-    platform_names_map = { 'linux2': 'lnx',
+    platform_names_map = { 'linux': 'lnx',
+                           'linux2': 'lnx',
                            'sunos5': 'sun',
                            'darwin': 'mac',
                            'win32':  'win'}
@@ -238,7 +242,7 @@ class HierarchicalContext(Context, LazyMixin):
             if subdirectory is not None:
                 path /= subdirectory
             # end amend plugin dir
-            PythonFileLoader.load_files(path, recurse=recurse)
+            load_files(path, recurse=recurse)
         # end load all plugins
     
     ## -- End Interface -- @}

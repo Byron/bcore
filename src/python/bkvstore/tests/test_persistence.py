@@ -6,6 +6,7 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
 __all__ = []
 
 import yaml
@@ -37,15 +38,15 @@ class TestConfigurationCore(TestConfiguration):
             assert isinstance(section, OrderedDict)
             assert len(section) == 6
             isection = iter(section)
-            assert isection.next() == 'string'
-            assert isection.next() == 'int'
-            assert isection.next() == 'float'
-            assert isection.next() == 'list'
-            assert isection.next() == 'subsection'
+            assert next(isection) == 'string'
+            assert next(isection) == 'int'
+            assert next(isection) == 'float'
+            assert next(isection) == 'list'
+            assert next(isection) == 'subsection'
             section = section['subsection']
             assert len(section) == 2
             isection = iter(section)
-            assert isection.next() == 'string'
+            assert next(isection) == 'string'
         #end verify data
         verify_data(data)
         

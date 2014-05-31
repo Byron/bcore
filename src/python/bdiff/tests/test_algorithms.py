@@ -6,6 +6,8 @@
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
+from __future__ import unicode_literals
+
 __all__ = []
 
 from unittest import TestCase
@@ -95,7 +97,7 @@ class TestDiffAlgorithms(TestCase):
         self.twoway.diff(self.delegate, self.item_a, self.item_b)
         didx = self.delegate.result()
         assert len(didx) == 1, "Expected the only item to be different"
-        assert didx.values()[0].change_type() == self.delegate.modified
+        assert list(didx.values())[0].change_type() == self.delegate.modified
         
     def test_check_similar_items(self):
         """Assure similar trees or non-trees don't have differences"""
