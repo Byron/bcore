@@ -16,16 +16,23 @@ __all__ = ['ChangeTrackingSerializingKeyValueStoreModifier', 'SerializingKeyValu
 import logging
 import tempfile
 import hashlib
+import sys
+
 try:
     # for Py2
     import cPickle as pickle
-    from cStringIO import StringIO
+
+    if sys.version_info < (2,7):
+        # wow ! in py 2.6, cStringIO is broken and can't handle unicode - something we can easily throw at it
+        # ARGH !
+        from StringIO import StringIO
+    else:
+        from cStringIO import StringIO
 except ImportError:
     # for Py3
     import pickle
     from io import StringIO
 # end 
-import sys
 
 
 from butility import (Path,
