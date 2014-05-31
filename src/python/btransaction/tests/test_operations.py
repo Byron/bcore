@@ -17,6 +17,8 @@ import time
 import os
 import logging
 
+from nose import SkipTest
+
 from butility.tests import (TestCase,
                             with_rw_directory,
                             skip_on_travis_ci)
@@ -66,6 +68,7 @@ class TestOperations(TestCase):
     def test_rsync(self, dest_dir):
         # Need to copy a bigger amount of files ... however it's dependent on time anyway, so this one
         # might fail in a few years
+        raise SkipTest("This test is too slow and depends on timing, making it unreliable")
         source = Path(__file__).dirname().dirname()
         for subdir in (None, "rsync_destination"): 
             destination = dest_dir
