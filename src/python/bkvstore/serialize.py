@@ -14,10 +14,23 @@ from minifuture import str
 __all__ = ['ChangeTrackingSerializingKeyValueStoreModifier', 'SerializingKeyValueStoreModifier']
 
 import logging
+import tempfile
+import hashlib
+try:
+    # for Py2
+    import cPickle as pickle
+    from cStringIO import StringIO
+except ImportError:
+    # for Py3
+    import pickle
+    from io import StringIO
+# end 
+import sys
 
 
 from butility import (Path,
                       Interface,
+                      login_name,
                       abstractmethod)
 
 from bdiff import (NoValue,
@@ -129,6 +142,10 @@ class _SerializingKeyValueStoreModifierMixin(object):
             # end handle type
             self._input_paths.append(path_or_stream)
         #end for each path
+
+    def _cache_dir(self):
+        """@return an existing directory into which caches can be written safely. Doesn't necessarily exist"""
+        return Path(tempfile.gettempdir()) / ('bkvstore-py%i%i-%s' % (sys.version_info[:2] + (login_name(),)))
         
     # -------------------------
     ## @name Serialization Interface
@@ -159,6 +176,14 @@ class _SerializingKeyValueStoreModifierMixin(object):
         delegate = self.SerializingKeyValueStoreModifierDiffDelegateType()
         streamer = self.StreamSerializerType()
 
+        cache_base = self._cache_dir()
+        try:
+            cache_base.mkdir()
+        except OSError:
+            pass
+        # end assure cache dir exists
+
+
         def load_and_merge_safely(path_or_stream):
             """Load a file and merge the result using our delegate"""
             try:
@@ -169,7 +194,17 @@ class _SerializingKeyValueStoreModifierMixin(object):
                     stream_path = path_or_stream
                     stream = open(path_or_stream, 'r')
                 # end open stream as needed
-                data = streamer.deserialize(stream)
+
+                data = stream.read()
+                cache_file = cache_base / hashlib.md5(data.encode()).hexdigest()
+
+                try:
+                    data = pickle.load(open(cache_file, 'rb'))
+                except (OSError, IOError):
+                    data = streamer.deserialize(StringIO(data))
+                    open(cache_file, 'wb').write(pickle.dumps(data))
+                # end handle minimal IO caches
+                
                 if hasattr(stream, 'close'):
                     stream.close()
                 # end handle stream close
