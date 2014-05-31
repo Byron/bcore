@@ -176,7 +176,8 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                     '_resolve_args',      # if True, we will resolve arguments in some way
                     '_logging_override',  # log level we parsed from the commandline, or None
                     '_debug_mode',        # a flag to indicate we are in debug mode
-                    '_next_exception'     # type of exception to throw if something goes wrong during preparation
+                    '_next_exception',    # type of exception to throw if something goes wrong during preparation
+                    '_profile_info'           # optionally holds a running profiling instance
                 )
     
     # -------------------------
@@ -222,6 +223,11 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         Print the settings, which are a fully merged result of the context
     ---debug-yaml
         Print paths to all yaml files in order of appearance on the context stack
+    ---with-boot-profile[=sort-field[,field]]
+        Run the profiler from the moment arguments are parsed, right before the application is executed, and
+        print the results to stderr..
+        The optional sort field can be tottime, filename, and basically any column you see in the report.
+        Defaults to 'cumtime'
     ---help
         Prints this help and exits.
 
@@ -310,6 +316,8 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         self._next_exception = None
         self._debug_mode = False
         self._logging_override = None
+        self._profile_info = None
+
         # NOTE: We can't set the _app attribute right away, as we rely on lazy mechanisms to initialize ourselves
         # when needed. The latter wouldn't work if we set the attribute directly
         self._prebuilt_app = application
@@ -591,6 +599,23 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
             arg = narg
             if arg == 'help':
                 raise DisplayHelpException(self._wrapper_arg_help)
+            elif arg.startswith('with-boot-profile'):
+                try:
+                    import cProfile as profile
+                except ImportError:
+                    import profile
+                # end handle profiler import
+
+                field = 'cumtime'
+                if self.wrapper_arg_kvsep in arg:
+                    _, field = parse_key_value_string(arg, self.wrapper_arg_kvsep)
+                # end parse sorting
+
+                field = field.split(',')
+
+                self._profile_info = profile.Profile(), field
+                self._profile_info[0].enable()
+                log.debug("ENABLED PROFILING")
             elif arg == 'dry-run':
                 self._dry_run = True
             elif arg in self.wrapper_logging_levels:
@@ -1046,6 +1071,16 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         # And be sure we have a list, in case people return tuples
         args = list(args)
         args.insert(0, str(executable))
+
+        if self._profile_info:
+            import pstats
+            pr, field = self._profile_info
+            try:
+                st = pstats.Stats(pr, stream=sys.stderr).sort_stats(*field)
+            except Exception:
+                raise ValueError("unknown sort field: %s" % field)
+            st.print_stats()
+        # end print profile results
         
         if not self._dry_run:
             return delegate.start(args, cwd, env, launch_mode)            
