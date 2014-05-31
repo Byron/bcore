@@ -183,7 +183,7 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
             # end handle not started that way
             # just return it without regarding the order
             keys = os.environ[self.storage_environment_variable].split(self.key_sep)
-            self._data = self._decode(''.join(os.environ[k] for k in keys))
+            self._data = self._decode(''.join(os.environ[k] for k in keys).encode())
         elif name == '_kvstore':
             data = self.data()
             self._kvstore = None
@@ -202,7 +202,7 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
         elif name == '_hash_map':
             self._hash_map = None
             if self.config_file_hash_map_environment_variable in os.environ:
-                self._hash_map = self._decode(os.environ[self.config_file_hash_map_environment_variable])
+                self._hash_map = self._decode(os.environ[self.config_file_hash_map_environment_variable].encode())
             # end decode value if present
         else:
             return super(ControlledProcessInformation, self)._set_cache_(name)

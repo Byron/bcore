@@ -693,12 +693,12 @@ class Path( _base ):
             if linesep is not None:
                 # Convert all standard end-of-line sequences to
                 # ordinary newline characters.
-                text = (text.replace(u'\r\n', u'\n')
-                            .replace(u'\r\x85', u'\n')
-                            .replace(u'\r', u'\n')
-                            .replace(u'\x85', u'\n')
-                            .replace(u'\u2028', u'\n'))
-                text = text.replace(u'\n', linesep)
+                text = (text.replace('\r\n', '\n')
+                            .replace('\r\x85', '\n')
+                            .replace('\r', '\n')
+                            .replace('\x85', '\n')
+                            .replace('\u2028', '\n'))
+                text = text.replace('\n', linesep)
             if encoding is None:
                 encoding = sys.getdefaultencoding()
             bytes = text.encode(encoding, errors)
@@ -762,10 +762,10 @@ class Path( _base ):
                     # Strip off any existing line-end and add the
                     # specified linesep string.
                     if isUnicode:
-                        if line[-2:] in (u'\r\n', u'\x0d\x85'):
+                        if line[-2:] in ('\r\n', '\x0d\x85'):
                             line = line[:-2]
-                        elif line[-1:] in (u'\r', u'\n',
-                                           u'\x85', u'\u2028'):
+                        elif line[-1:] in ('\r', '\n',
+                                           '\x85', '\u2028'):
                             line = line[:-1]
                     else:
                         if line[-2:] == '\r\n':
@@ -883,7 +883,7 @@ class Path( _base ):
                 self, win32security.OWNER_SECURITY_INFORMATION)
             sid = desc.GetSecurityDescriptorOwner()
             account, domain, typecode = win32security.LookupAccountSid(None, sid)
-            return domain + u'\\' + account
+            return domain + '\\' + account
         else:
             if pwd is None:
                 raise NotImplementedError("path.owner is not implemented on this platform.")

@@ -428,18 +428,18 @@ class DictObject(object):
 def _ordered_ict_format_string(odict, indent=1):
     """utility for producing a human readable string from a dict"""
     indent_str = '    '*indent
-    ret_str = u"\n"
+    ret_str = "\n"
     for key, value in odict.items():
         if isinstance(value, OrderedDict):
-            ret_str += u"%s%s: %s" % (indent_str, key, _ordered_ict_format_string(value, indent=indent+1))
+            ret_str += "%s%s: %s" % (indent_str, key, _ordered_ict_format_string(value, indent=indent+1))
         elif isinstance(value, (tuple, list)):
             # for now, without recursion, assuming simple scalar values
-            ret_str += u"%s%s:\n" % (indent_str, key)
+            ret_str += "%s%s:\n" % (indent_str, key)
             for item in value:
-                ret_str += u"%s - %s\n" % (indent_str, item)
+                ret_str += "%s - %s\n" % (indent_str, item)
             # end for each item
         else:
-            ret_str += u"%s%s: %s\n" % (indent_str, key, str(value))
+            ret_str += "%s%s: %s\n" % (indent_str, key, str(value))
         # end handle value type
     # end for each item in dict
     return ret_str

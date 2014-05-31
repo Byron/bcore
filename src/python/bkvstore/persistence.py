@@ -50,8 +50,8 @@ class OrderedDictYAMLLoader(Loader):
     def __init__(self, *args, **kwargs):
         Loader.__init__(self, *args, **kwargs)
  
-        self.add_constructor(u'tag:yaml.org,2002:map', type(self).construct_yaml_map)
-        self.add_constructor(u'tag:yaml.org,2002:omap', type(self).construct_yaml_map)
+        self.add_constructor('tag:yaml.org,2002:map', type(self).construct_yaml_map)
+        self.add_constructor('tag:yaml.org,2002:omap', type(self).construct_yaml_map)
  
     def construct_yaml_map(self, node):
         data = OrderedDict()
@@ -111,13 +111,13 @@ class OrderedDictRepresenter(yaml.representer.Representer):
 
 def represent_dictobject(dumper, data):
     return yaml.representer.Representer.represent_mapping(dumper,
-                                                u'tag:yaml.org,2002:map', data)
+                                                'tag:yaml.org,2002:map', data)
 
 def represent_ordereddict(dumper, data):
     """Represents and ordered dict like a dict
     @note: what's usually self is a dumper, which is not an instance of our
     type though. Therefore we explicitly call our code through a classmethod."""
     return OrderedDictRepresenter.represent_ordered_mapping(dumper,
-                                                u'tag:yaml.org,2002:map', data)
+                                                'tag:yaml.org,2002:map', data)
 
 ## -- End Yaml Tools -- \}
