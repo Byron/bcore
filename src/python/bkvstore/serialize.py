@@ -196,12 +196,12 @@ class _SerializingKeyValueStoreModifierMixin(object):
                 # end open stream as needed
 
                 data = stream.read()
-                cache_file = cache_base / hashlib.md5(data.encode()).hexdigest()
+                cache_file = cache_base / hashlib.md5(isinstance(data, str) and data.encode() or data).hexdigest()
 
                 try:
                     data = pickle.load(open(cache_file, 'rb'))
                 except (OSError, IOError):
-                    data = streamer.deserialize(StringIO(data))
+                    data = streamer.deserialize(StringIO(isinstance(data, bytes) and data.decode() or data))
                     open(cache_file, 'wb').write(pickle.dumps(data))
                 # end handle minimal IO caches
                 
