@@ -96,6 +96,8 @@ def with_rw_directory(func):
             if prev_val is not None:
                 os.environ['RW_DIR'] = prev_val
             # end restore state
+            os.chdir(prev_cwd)
+            
             # Need to collect here to be sure all handles have been closed. It appears
             # a windows-only issue. In fact things should be deleted, as well as
             # memory maps closed, once objects go out of scope. For some reason
@@ -104,8 +106,6 @@ def with_rw_directory(func):
                 gc.collect()
                 shutil.rmtree(path)
             #end if not keep
-            
-            os.chdir(prev_cwd)
         #end handle exception
     #end wrapper
     return wrapper
