@@ -29,6 +29,7 @@ from butility import ( Path,
                        DictObject,
                        set_log_level, 
                        parse_key_value_string)
+from butility.compat import profile
 
 from bcontext import Context
 from bkvstore import KeyValueStoreModifier
@@ -600,12 +601,6 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
             if arg == 'help':
                 raise DisplayHelpException(self._wrapper_arg_help)
             elif arg.startswith('with-boot-profile'):
-                try:
-                    import cProfile as profile
-                except ImportError:
-                    import profile
-                # end handle profiler import
-
                 field = 'cumtime'
                 if self.wrapper_arg_kvsep in arg:
                     _, field = parse_key_value_string(arg, self.wrapper_arg_kvsep)
