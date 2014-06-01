@@ -22,7 +22,8 @@ import os
 from butility import (Path,
                       Interface,
                       login_name,
-                      abstractmethod)
+                      abstractmethod,
+                      DEFAULT_ENCODING)
 
 from butility.compat import (pickle,
                              PyStringIO)
@@ -105,9 +106,6 @@ class _SerializingKeyValueStoreModifierMixin(object):
     # If None or empty, no setting files will be stored
     settings_key='settings-files'
 
-    ## The encoding we assume for files on disk - should this better be contained in files we try to read ;) ?
-    default_encoding = 'utf-8'
-    
     ## -- End Subclass Configuration -- @}
 
     ## our logging instance
@@ -202,12 +200,12 @@ class _SerializingKeyValueStoreModifierMixin(object):
                 data = stream.read()
                 use_cache = self._use_cache()
                 if use_cache:
-                    cache_file = cache_base / hashlib.md5(isinstance(data, str) and data.encode(self.default_encoding) or data).hexdigest()
+                    cache_file = cache_base / hashlib.md5(isinstance(data, str) and data.encode(DEFAULT_ENCODING) or data).hexdigest()
                 # end
 
                 if isinstance(data, bytes):
                     # usually, this would be the case, but we don't always open the stream ourselves
-                    data = data.decode(self.default_encoding)
+                    data = data.decode(DEFAULT_ENCODING)
                 # end 
 
                 try:

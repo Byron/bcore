@@ -10,13 +10,17 @@ from __future__ import unicode_literals
 from butility.future import str
 __all__ = ['init_ipython_terminal', 'dylib_extension', 'login_name', 'uname', 'int_bits', 
            'system_user_id', 'update_env_path', 'Thread', 'ConcurrentRun', 'daemonize', 
-           'TerminatableThread', 'octal']
+           'TerminatableThread', 'octal', 'DEFAULT_ENCODING']
 
 import sys
 import os
 import threading
 import platform
 import getpass
+
+
+## This is the encoding all code should use when reading and writing files (unless this is configured elsewhere)
+DEFAULT_ENCODING = 'utf-8'
 
 # ==============================================================================
 ## @name System Related Functions
