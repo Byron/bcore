@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 from __future__ import division
 
-from minifuture import with_metaclass
+from butility.future import with_metaclass
 __all__ = ['Error', 'Interface', 'Meta', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIterator',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',

@@ -10,7 +10,7 @@
 """
 from __future__ import unicode_literals
 
-from minifuture import str
+from butility.future import str
 __all__ = ['ChangeTrackingSerializingKeyValueStoreModifier', 'SerializingKeyValueStoreModifier']
 
 import logging

@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 
-from minifuture import with_metaclass
+from butility.future import with_metaclass
 __all__ = ['PropertyError', 'NotWritableError', 'NoSuchPropertyError', 'NotDeletableError', 
            'Property', 'CompoundProperty', 
            'PropertyDescriptor', 'CompoundPropertyDescriptor',

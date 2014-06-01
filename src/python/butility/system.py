@@ -7,7 +7,7 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from minifuture import str
+from butility.future import str
 __all__ = ['init_ipython_terminal', 'dylib_extension', 'login_name', 'uname', 'int_bits', 
            'system_user_id', 'update_env_path', 'Thread', 'ConcurrentRun', 'daemonize', 
            'TerminatableThread', 'octal']

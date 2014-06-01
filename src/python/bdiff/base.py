@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 
-from minifuture import with_metaclass
+from butility.future import with_metaclass
 __all__ = ['NoValue', 'TreeItem', 'RootKey', 'TwoWayDiffDelegateInterface']
 
 from butility import  (NonInstantiatable,

@@ -63,7 +63,7 @@ still considered an implementation detail.)
 """
 
 
-from minifuture import str
+from butility.future import str
 
 
 

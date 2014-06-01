@@ -14,7 +14,7 @@ from butility.tests import TestCase
 
 # test * import
 from bproperty import *
-from minifuture import with_metaclass
+from butility.future import with_metaclass
 
 
 # ==============================================================================

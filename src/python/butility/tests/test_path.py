@@ -8,7 +8,7 @@ import os
 import sys
 
 
-from minifuture import str
+from butility.future import str
 
 # test * import
 from butility.path import *

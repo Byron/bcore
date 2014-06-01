@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from minifuture import str
+from butility.future import str
 __all__ = ['RsyncOperation']
 
 import os

@@ -8,9 +8,9 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from minifuture import str
-from minifuture import PY2
-from minifuture import with_metaclass
+from butility.future import str
+from butility.future import PY2
+from butility.future import with_metaclass
 
 __all__ = []
 

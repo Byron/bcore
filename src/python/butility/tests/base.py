@@ -6,9 +6,9 @@
 """
 from __future__ import division
 from __future__ import print_function
-from minifuture import str
+from butility.future import str
 
-from minifuture import with_metaclass
+from butility.future import with_metaclass
 __all__ = ['unittest', 'with_rw_directory', 'TestCase', 'TestInterface',
             'TempRWDirProvider', 'skip_not_implemented', 'skip_on_travis_ci']
 

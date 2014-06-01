@@ -21,7 +21,7 @@ from bproperty import    ( PropertySchemaMeta,
                            Property,
                            NotDeletableError,
                            NotWritableError )
-from minifuture import with_metaclass
+from butility.future import with_metaclass
 
 
 class ContextPropertyDescriptor(PropertyDescriptor):

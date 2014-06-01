@@ -28,7 +28,7 @@ TODO
 from __future__ import generators
 from __future__ import division
 from __future__ import unicode_literals
-from minifuture import str
+from butility.future import str
 
 __docformat__ = "restructuredtext"
 

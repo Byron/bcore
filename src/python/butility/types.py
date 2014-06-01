@@ -10,7 +10,7 @@ from __future__ import unicode_literals
 from __future__ import division
 
 
-from minifuture import str
+from butility.future import str
 
 
 __all__ = ['StringChunker', 'Version', 'OrderedDict', 'DictObject', 'ProgressIndicator',
