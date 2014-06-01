@@ -18,27 +18,13 @@ import tempfile
 import hashlib
 import sys
 
-try:
-    # for Py2
-    import cPickle as pickle
-
-    if sys.version_info < (2,7):
-        # wow ! in py 2.6, cStringIO is broken and can't handle unicode - something we can easily throw at it
-        # ARGH !
-        from StringIO import StringIO
-    else:
-        from cStringIO import StringIO
-except ImportError:
-    # for Py3
-    import pickle
-    from io import StringIO
-# end 
-
-
 from butility import (Path,
                       Interface,
                       login_name,
                       abstractmethod)
+
+from butility.compat import (pickle,
+                             StringIO)
 
 from bdiff import (NoValue,
                    AutoResolveAdditiveMergeDelegate)

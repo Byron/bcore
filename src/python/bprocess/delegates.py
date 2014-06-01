@@ -27,9 +27,6 @@ import yaml
 import binascii
 import zlib
 
-from pickle import (loads,
-                     dumps)
-
 import logging
 
 from bapp import StackAwareHierarchicalContext
@@ -59,6 +56,8 @@ from .schema import ( controller_schema,
 
 from butility import ( Path,
                        OrderedDict )
+
+from butility.compat import pickle
 
 log = logging.getLogger('bprocess.delegate')
 
@@ -234,16 +233,13 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
         # make sure we pickle with protocol 2, to allow running python3 for bootstrap, 
         # which launches python2
         # We also have to be sure it's a string object, in order to be working in an environment dict
-        return binascii.b2a_base64(zlib.compress(dumps(data, 2), 9)).decode()
+        return binascii.b2a_base64(zlib.compress(pickle.dumps(data, 2), 9)).decode()
         
     @classmethod
     def _decode(cls, data_string):
         """@return decoded version of the previously encoded data_string"""
-        if sys.version_info[0] < 3:
-            return loads(zlib.decompress(binascii.a2b_base64(data_string)))
-        else:
-            return loads(zlib.decompress(binascii.a2b_base64(data_string)), encoding='utf-8')
-        # end
+        kwargs = (sys.version_info[0] > 2) and dict(encoding = 'utf-8') or dict()
+        return pickle.loads(zlib.decompress(binascii.a2b_base64(data_string)), **kwargs)
 
     # -------------------------
     ## @name Interface
