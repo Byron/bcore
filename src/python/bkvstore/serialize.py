@@ -25,7 +25,7 @@ from butility import (Path,
                       abstractmethod)
 
 from butility.compat import (pickle,
-                             StringIO)
+                             PyStringIO)
 
 from bdiff import (NoValue,
                    AutoResolveAdditiveMergeDelegate)
@@ -104,6 +104,9 @@ class _SerializingKeyValueStoreModifierMixin(object):
     ## A key under which all loaded settings files will be stored in the kvstore
     # If None or empty, no setting files will be stored
     settings_key='settings-files'
+
+    ## The encoding we assume for files on disk - should this better be contained in files we try to read ;) ?
+    default_encoding = 'utf-8'
     
     ## -- End Subclass Configuration -- @}
 
@@ -193,14 +196,19 @@ class _SerializingKeyValueStoreModifierMixin(object):
                 stream_path = None
                 if not hasattr(path_or_stream, 'read'):
                     stream_path = path_or_stream
-                    stream = open(path_or_stream, 'r')
+                    stream = open(path_or_stream, 'rb')
                 # end open stream as needed
 
                 data = stream.read()
                 use_cache = self._use_cache()
                 if use_cache:
-                    cache_file = cache_base / hashlib.md5(isinstance(data, str) and data.encode() or data).hexdigest()
+                    cache_file = cache_base / hashlib.md5(isinstance(data, str) and data.encode(self.default_encoding) or data).hexdigest()
                 # end
+
+                if isinstance(data, bytes):
+                    # usually, this would be the case, but we don't always open the stream ourselves
+                    data = data.decode(self.default_encoding)
+                # end 
 
                 try:
                     if not use_cache:
@@ -208,7 +216,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
                     # end 
                     data = pickle.load(open(cache_file, 'rb'))
                 except (OSError, IOError):
-                    data = streamer.deserialize(StringIO(isinstance(data, bytes) and data.decode() or data))
+                    data = streamer.deserialize(PyStringIO(data))
                     if use_cache:
                         open(cache_file, 'wb').write(pickle.dumps(data))
                 # end handle minimal IO caches

@@ -256,6 +256,6 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
 
 
 if __name__ == '__main__':
-    Bootstrapper().main(__file__, sys.argv[1:])
+    Bootstrapper().main(getattr(sys, 'frozen', False) and sys.executable or __file__, sys.argv[1:])
     
 

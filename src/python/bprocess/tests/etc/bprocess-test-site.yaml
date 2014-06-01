@@ -18,6 +18,8 @@ packages:
     # Use python's executable as ours
     requires: test-environment
     alias: python
+    description: |
+      And here comes some unicode öä
     boot:
       python_paths: '{delegate_python_path}'
       import: delegate
