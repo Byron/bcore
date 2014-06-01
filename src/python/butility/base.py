@@ -151,15 +151,14 @@ def parse_string_value(string):
 
 def parse_key_value_string(string, separator='='):
     """@return tuple(key, value), whereas key is what's on the left side of the separator, and value 
-    is either a numerical value, string, or list of scalars
+    is either a numerical value, string, or list of scalars.
+    If separator is not in string, value will be None
     @param string the k{separator}v string to parse
     @param separator
     @throws ValueError if string is malformatted"""
-    if len(string) < 2 or separator not in string:
-        raise ValueError("expected k=v string, got '%s'" % string)
-    # end 
-
-    k, v = string.split(separator)
+    if separator not in string:
+        return string, None
+    k, v = string.split(separator, 1)
     return k, parse_string_value(v)
 
 

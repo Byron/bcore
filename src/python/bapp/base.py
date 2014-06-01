@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 
 __all__ = ['Application', 'TypeNotFound', 'InstanceNotFound']
 
+import os
 from itertools import chain
 
 from bcontext import (ContextStack,
@@ -19,6 +20,8 @@ from .utility import (LogConfigurator,
                       StackAwareHierarchicalContext)
 
 import bcontext
+from butility import parse_key_value_string
+from butility.compat import profile
 
 
 
@@ -106,6 +109,10 @@ class Application(object):
     # See above
     ApplicationContextType = None
 
+    ## Environment variable specifying the comma separated fields to use for sorting profile data
+    # It will automatically be enabled if this variable is set
+    profile_fields_evar = 'BAPP_PROFILE_FIELDS'
+
     
     ## -- End Subclass Configuration -- @}
 
@@ -165,6 +172,8 @@ class Application(object):
 
         self.Plugin = ApplicationPlugin
 
+        self._setup_profiler()
+
     # -------------------------
     ## @name Subclass Interface
     # @{
@@ -190,7 +199,34 @@ class Application(object):
         # end set main only if we are the first
 
         return inst
+
+    def _setup_profiler(self):
+        """If we should profile as determined by an environment variable, initialize a profiler and assure 
+        we print profiling stats when the program terminates
+        @note currently we do not track how many profilers have been setup already - this only works if there
+        is a single Application instance per process. However, we remove the env var to not react to it again """
+        fields = os.environ.get(self.profile_fields_evar)
+        if not fields:
+            return
+        fields = fields.split(',')
+
+        pr = profile.Profile()
+        pr.enable()
+
+        import pstats
+        import sys
+        import atexit
+
+        def print_profile_stats():
+            try:
+                st = pstats.Stats(pr, stream=sys.stderr).sort_stats(*fields)
+            except Exception:
+                raise ValueError("unknown sort field: %s" % field)
+            st.print_stats()
+        # end handler
         
+        atexit.register(print_profile_stats)
+
     ## -- End Subclass Interface -- @}
 
     # -------------------------

@@ -229,6 +229,9 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         print the results to stderr..
         The optional sort field can be tottime, filename, and basically any column you see in the report.
         Defaults to 'cumtime'
+    ---with-profile[=sort-field[,field]]
+        Similar to ---with-boot-profile, but enables profiling the launched Application, profiling everything
+        within the python interpreter until application exit. At this time, stats will be printed to stderr.
     ---help
         Prints this help and exits.
 
@@ -601,16 +604,23 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
             if arg == 'help':
                 raise DisplayHelpException(self._wrapper_arg_help)
             elif arg.startswith('with-boot-profile'):
-                field = 'cumtime'
+                fields = 'cumtime'
                 if self.wrapper_arg_kvsep in arg:
-                    _, field = parse_key_value_string(arg, self.wrapper_arg_kvsep)
+                    _, fields = parse_key_value_string(arg, self.wrapper_arg_kvsep)
                 # end parse sorting
 
-                field = field.split(',')
+                fields = fields.split(',')
 
-                self._profile_info = profile.Profile(), field
+                self._profile_info = profile.Profile(), fields
                 self._profile_info[0].enable()
-                log.debug("ENABLED PROFILING")
+                log.debug("ENABLED BOOT PROFILING")
+            elif arg.startswith('with-profile'):
+                fields = 'cumtime'
+                if self.wrapper_arg_kvsep in arg:
+                    _, fields = arg.split(self.wrapper_arg_kvsep, 1)
+                assert fields, "Fields must be set"
+                self._environ[Application.profile_fields_evar] = fields
+                log.debug("ENABLED APPLICATION PROFILING")
             elif arg == 'dry-run':
                 self._dry_run = True
             elif arg in self.wrapper_logging_levels:
