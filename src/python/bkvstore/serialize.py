@@ -17,6 +17,7 @@ import logging
 import tempfile
 import hashlib
 import sys
+import os
 
 from butility import (Path,
                       Interface,
@@ -85,6 +86,9 @@ class _SerializingKeyValueStoreModifierMixin(object):
     #                '_input_paths', # a tuple of input paths
     #            )
 
+    ## We will cache all settings if this variable is set
+    use_cache_evar = 'BKVSTORE_USE_CACHE'
+
     # -------------------------
     ## @name Subclass Configuration
     # @{
@@ -139,6 +143,10 @@ class _SerializingKeyValueStoreModifierMixin(object):
     def _cache_dir(self):
         """@return an existing directory into which caches can be written safely. Doesn't necessarily exist"""
         return Path(tempfile.gettempdir()) / ('bkvstore-py%i%i-%s' % (sys.version_info[:2] + (login_name(),)))
+
+    def _use_cache(self):
+        """@return True if we may use the settings cache"""
+        return self.use_cache_evar in os.environ
         
     # -------------------------
     ## @name Serialization Interface
@@ -189,13 +197,20 @@ class _SerializingKeyValueStoreModifierMixin(object):
                 # end open stream as needed
 
                 data = stream.read()
-                cache_file = cache_base / hashlib.md5(isinstance(data, str) and data.encode() or data).hexdigest()
+                use_cache = self._use_cache()
+                if use_cache:
+                    cache_file = cache_base / hashlib.md5(isinstance(data, str) and data.encode() or data).hexdigest()
+                # end
 
                 try:
+                    if not use_cache:
+                        raise OSError
+                    # end 
                     data = pickle.load(open(cache_file, 'rb'))
                 except (OSError, IOError):
                     data = streamer.deserialize(StringIO(isinstance(data, bytes) and data.decode() or data))
-                    open(cache_file, 'wb').write(pickle.dumps(data))
+                    if use_cache:
+                        open(cache_file, 'wb').write(pickle.dumps(data))
                 # end handle minimal IO caches
                 
                 if hasattr(stream, 'close'):
