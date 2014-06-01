@@ -7,7 +7,8 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from butility.future import str
+from butility.future import (str,
+                             string_types)
 
 __all__ = [ 'KeyValueStoreProviderDiffDelegate', 'KeyValueStoreModifierDiffDelegate', 
             'KeyValueStoreModifierBaseSwapDelegate', 'AnyKey', 'RelaxedKeyValueStoreProviderDiffDelegate']
@@ -304,7 +305,7 @@ class KeyValueStoreProviderDiffDelegate(_KeyValueStoreDiffDelegateBase):
         """@return a resolved single scalar string value"""
         # Actually, all of the values we see should be strings
         # however, the caller is and may be 'stupid', so we handle it here
-        if not isinstance(value, str):
+        if not isinstance(value, string_types):
             return value
         # end ignore non-string types
 

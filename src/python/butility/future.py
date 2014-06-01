@@ -38,6 +38,8 @@ if PY3:
 if PY3:
     import builtins
     str = builtins.str
+    string_types = str
 else:
     str = unicode
+    string_types = (str, __builtins__['str'])
 
