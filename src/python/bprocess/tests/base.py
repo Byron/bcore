@@ -86,7 +86,7 @@ class NosetestDelegate(ProcessControllerDelegate):
             def set_context_override(schema, value):
                 value.args.extend(noseargs)
             # end 
-            self.DelegateContextOverrideType('NosetestsOverride').setup(self._app.context().settings(), 
+            self.DelegateContextOverrideType('NosetestsOverride').setup(self._app.context(),
                                                                         set_context_override, 
                                                                         self.nose_schema)
             args = args[sep_index+1:]

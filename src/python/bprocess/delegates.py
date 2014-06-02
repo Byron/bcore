@@ -123,7 +123,7 @@ class DelegateContextOverride(Context):
     kvstore.
     It knows our base schema and uses it to obtain the unresolved datablock, for being changed by the 
     delegate in a relatively save manner. It will then be written into the contexts kvstore
-    @note This context puts itself on the stack to take that burden off the caller !"""
+    """
     _category = 'DelegateOverride'
     
     class DifferenceDelegate(ApplyDifferenceMergeDelegate):
@@ -137,15 +137,17 @@ class DelegateContextOverride(Context):
     
     # end class DifferenceDelegate
     
-    def setup(self, kvstore, value_provider, schema, *args, **kwargs):
-        """Configure a value override, storing only changes done accoridng to a given schema
-        @param kvstore from which to retrieve values by schema
+    def setup(self, stack, value_provider, schema, *args, **kwargs):
+        """Configure a value override, storing only changes done accoridng to a given schema. It will put itself
+        onto the given context stack right away
+        @param stack the ContextStack to put ourselves onto, and to retrieve the initial settings from
         @param value_provider a function f(schema, current_value, *args, **kwargs), which changes current_value 
         according to it's own needs. Only the changed values will make it into this Context's kvstore
         @param schema the schema to use for the override
         @param args arguments to be passed to value_provider()
         @param kwargs kwargs to be passed to value_provider()
         @return self """
+        kvstore = stack.settings()
         new_value = kvstore.value(schema.key(), schema)
         value_provider(schema, new_value, *args, **kwargs)
         
@@ -155,6 +157,7 @@ class DelegateContextOverride(Context):
         TwoWayDiff().diff(diff_delegate, prev_value, new_value)
         
         self._kvstore.set_value(schema.key(), diff_delegate.result())
+        stack.push(self)
         return self
         
 # end class ProcessControllerEnvironment
@@ -525,11 +528,10 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         @param args passed to set_context_override()
         @param kwargs passed to set_context_override()
         @return newly created DelegateContextOverride instance"""
-        ctx = self.DelegateContextOverrideType(type(self).__name__ + ' Override').setup(self._app.context().settings(),
-                                                                                        self.set_context_override,
-                                                                                        controller_schema,
-                                                                                        *args, **kwargs)
-        return self._app.context().push(ctx)
+        return self.DelegateContextOverrideType(type(self).__name__ + ' Override').setup(self._app.context(),
+                                                                                         self.set_context_override,
+                                                                                         controller_schema,
+                                                                                         *args, **kwargs)
         
     def handle_argument(self, arg, kvstore):
         """Method called whenver an argument seen by the delegate is to be evaluated.
