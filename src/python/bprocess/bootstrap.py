@@ -63,9 +63,6 @@ class Bootstrapper:
     ## a per-directory file carrying information on where to find the bootstrapper
     boot_info_file = '.bprocess_path'
 
-    ## By default, the wrapper itself enforces using a configuration cache
-    use_cache_evar = 'BKVSTORE_USE_CACHE'
-
     ## -- End Configuration -- @}
 
     # -------------------------
@@ -239,9 +236,6 @@ implementation: %s" % (module_for_import, root_package_path, str(err)))
         # No special handling though to assure similar operation on all platforms
         executable = os.path.splitext(executable)[0]
         controller = process_controller_type(executable, args, context_paths = hops)
-
-
-        os.environ[self.use_cache_evar] = 'yes'
 
         # if we are spawned, we return with whatever the spawned process says. Otherwise, this 
         # will not return

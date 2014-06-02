@@ -17,7 +17,6 @@ import logging
 import tempfile
 import hashlib
 import sys
-import os
 
 from butility import (Path,
                       Interface,
@@ -87,9 +86,6 @@ class _SerializingKeyValueStoreModifierMixin(object):
     #                '_input_paths', # a tuple of input paths
     #            )
 
-    ## We will cache all settings if this variable is set
-    use_cache_evar = 'BKVSTORE_USE_CACHE'
-
     # -------------------------
     ## @name Subclass Configuration
     # @{
@@ -147,7 +143,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
 
     def _use_cache(self):
         """@return True if we may use the settings cache"""
-        return self.use_cache_evar in os.environ
+        return True
         
     # -------------------------
     ## @name Serialization Interface
