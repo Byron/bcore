@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 from butility.future import str
 
-__all__ = ['ProcessControllerDelegate', 'DelegateContextOverride', 'ControlledProcessInformation', 
+__all__ = ['ProcessControllerDelegate', 'ApplyChangeContext', 'ControlledProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate',
            'ProcessControllerDelegateProxy', 'MariControllerDelegate']
 
@@ -34,10 +34,10 @@ from bkvstore import ( RootKey,
                        KeyValueStoreProvider,
                        KeyValueStoreModifier )
 from bdiff import ( NoValue,
-                    TwoWayDiff,
-                    ApplyDifferenceMergeDelegate )
+                    TwoWayDiff )
 
-from bcontext import Context
+from bcontext import (Context, 
+                      ApplyChangeContext)
 from .interfaces import ( IProcessControllerDelegate,
                           IControlledProcessInformation )
 
@@ -116,52 +116,6 @@ class ProcessControllerDelegateProxy(object):
     
 # end class ProcessControllerDelegateProxy
         
-
-
-class DelegateContextOverride(Context):
-    """A context specifically designed to be used by a delegate to override particular values of our 
-    kvstore.
-    It knows our base schema and uses it to obtain the unresolved datablock, for being changed by the 
-    delegate in a relatively save manner. It will then be written into the contexts kvstore
-    """
-    _category = 'DelegateOverride'
-    
-    class DifferenceDelegate(ApplyDifferenceMergeDelegate):
-        """Handle special types"""
-        __slots__ = ()
-    
-        def _resolve_conflict(self, key, left_value, right_value):
-            if isinstance(right_value, NamedServiceProcessControllerDelegate):
-                return NoValue
-            return super(DelegateContextOverride.DifferenceDelegate, self)._resolve_conflict(key, left_value, right_value)
-    
-    # end class DifferenceDelegate
-    
-    def setup(self, stack, value_provider, schema, *args, **kwargs):
-        """Configure a value override, storing only changes done accoridng to a given schema. It will put itself
-        onto the given context stack right away
-        @param stack the ContextStack to put ourselves onto, and to retrieve the initial settings from
-        @param value_provider a function f(schema, current_value, *args, **kwargs), which changes current_value 
-        according to it's own needs. Only the changed values will make it into this Context's kvstore
-        @param schema the schema to use for the override
-        @param args arguments to be passed to value_provider()
-        @param kwargs kwargs to be passed to value_provider()
-        @return self """
-        kvstore = stack.settings()
-        new_value = kvstore.value(schema.key(), schema)
-        value_provider(schema, new_value, *args, **kwargs)
-        
-        # find only the changed values and write them as kvstore
-        prev_value = kvstore.value(schema.key(), schema)
-        diff_delegate = self.DifferenceDelegate()
-        TwoWayDiff().diff(diff_delegate, prev_value, new_value)
-        
-        self._kvstore.set_value(schema.key(), diff_delegate.result())
-        stack.push(self)
-        return self
-        
-# end class ProcessControllerEnvironment
-
 
 class ControlledProcessInformation(IControlledProcessInformation, Singleton, LazyMixin):
     """Store the entire kvstore (after cleanup) in a data string in the environment and allow to retrieve it
@@ -329,6 +283,24 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
 
 # end class ControlledProcessInformation
 
+
+class DelegateAwareApplyChangeContext(ApplyChangeContext):
+    """@todo documentation"""
+    __slots__ = ()
+
+    class DifferenceDelegateType(ApplyChangeContext.DifferenceDelegateType):
+        """Handle special types"""
+        __slots__ = ()
+    
+        def _resolve_conflict(self, key, left_value, right_value):
+            if isinstance(right_value, NamedServiceProcessControllerDelegate):
+                return NoValue
+            return super(ApplyChangeContext.DifferenceDelegate, self)._resolve_conflict(key, left_value, right_value)
+    
+    # end class DifferenceDelegate
+
+# end class DelegateAwareApplyChangeContext
+
 ## -- End Utilities -- @}
 
 
@@ -366,7 +338,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     # @{
     
     ## Type used when instanating an environment to keep delegate configuration overrides
-    DelegateContextOverrideType = DelegateContextOverride
+    ApplyChangeContextType = DelegateAwareApplyChangeContext
     
     ## -- End Configuration -- @}
 
@@ -514,7 +486,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         
     def set_context_override(self, schema, value, *args, **kwargs):
         """Use the given ProcessController schema to safely alter the given context value.
-        @note only called by the utility type, DelegateContextOverride .
+        @note only called by the utility type, ApplyChangeContext .
         @param schema defined by the ProcessController who is driving the process
         @param value obtained from the global context, matching the schema, with entirely unresolved values.
         @param args defined by the caller
@@ -522,13 +494,13 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         raise NotImplementedError("To be defined by subclass")
     
     def new_environment_override(self, *args, **kwargs):
-        """Initialize a DelegateContextOverride instance to allow making selective version overrides. The
+        """Initialize a ApplyChangeContext instance to allow making selective version overrides. The
         schema used is the one of the ProcessController, allowing full access to all package data
         @note Must be called during prepare_context() to have an effect
         @param args passed to set_context_override()
         @param kwargs passed to set_context_override()
-        @return newly created DelegateContextOverride instance"""
-        return self.DelegateContextOverrideType(type(self).__name__ + ' Override').setup(self._app.context(),
+        @return newly created ApplyChangeContext instance"""
+        return self.ApplyChangeContextType(type(self).__name__ + ' Override').setup(self._app.context(),
                                                                                          self.set_context_override,
                                                                                          controller_schema,
                                                                                          *args, **kwargs)

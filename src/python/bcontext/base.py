@@ -11,8 +11,7 @@ from butility.future import str
 
 
 from butility.future import with_metaclass
-__all__ = ['Context', 'ContextStack',
-           'StackAutoResolveAdditiveMergeDelegate']
+__all__ = ['Context', 'ContextStack', 'StackAutoResolveAdditiveMergeDelegate', 'ApplyChangeContext']
 
 import re
 import logging
@@ -26,7 +25,8 @@ from butility import ( OrderedDict,
 
 from bdiff import ( NoValue,
                     TwoWayDiff,
-                    AutoResolveAdditiveMergeDelegate )
+                    AutoResolveAdditiveMergeDelegate,
+                    ApplyDifferenceMergeDelegate )
 
 from bkvstore import ( KeyValueStoreSchemaValidator,
                        KeyValueStoreModifier,
@@ -535,3 +535,46 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
     ## -- End Edit Interface -- @}
 # end class ContextStack
 
+
+# ==============================================================================
+## @name Utilities
+# ------------------------------------------------------------------------------
+## @{
+
+
+class ApplyChangeContext(Context):
+    """A context specifically designed to allow you to make changes to values, and override only the changed 
+    values using this context.
+    It knows your base schema and uses it to obtain the unresolved datablock, for being changed by the 
+    delegate in a relatively save manner. It will then be written into the contexts kvstore to serve as 
+    selectiv override.
+    """
+
+    DifferenceDelegateType = ApplyDifferenceMergeDelegate
+    
+    def setup(self, stack, value_provider, schema, *args, **kwargs):
+        """Configure a value override, storing only changes done accoridng to a given schema. It will put itself
+        onto the given context stack right away
+        @param stack the ContextStack to put ourselves onto, and to retrieve the initial settings from
+        @param value_provider a function f(schema, current_value, *args, **kwargs), which changes current_value 
+        according to it's own needs. Only the changed values will make it into this Context's kvstore
+        @param schema the schema to use for the override
+        @param args arguments to be passed to value_provider()
+        @param kwargs kwargs to be passed to value_provider()
+        @return self """
+        kvstore = stack.settings()
+        new_value = kvstore.value(schema.key(), schema)
+        value_provider(schema, new_value, *args, **kwargs)
+        
+        # find only the changed values and write them as kvstore
+        prev_value = kvstore.value(schema.key(), schema)
+        diff_delegate = self.DifferenceDelegateType()
+        TwoWayDiff().diff(diff_delegate, prev_value, new_value)
+        
+        self._kvstore.set_value(schema.key(), diff_delegate.result())
+        stack.push(self)
+        return self
+        
+# end class ProcessControllerEnvironment
+
+## -- End Utilities -- @}
