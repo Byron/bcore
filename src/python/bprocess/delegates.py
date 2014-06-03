@@ -7,7 +7,8 @@
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 from __future__ import unicode_literals
-from butility.future import str
+from butility.future import (str,
+                             PY3)
 
 __all__ = ['ProcessControllerDelegate', 'ApplyChangeContext', 'ControlledProcessInformation', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate',
@@ -45,7 +46,8 @@ from butility import ( update_env_path,
                        DictObject,
                        Singleton,
                        LazyMixin,
-                       StringChunker )
+                       StringChunker,
+                       DEFAULT_ENCODING )
 
 from .actions import ActionDelegateMixin
 
@@ -523,6 +525,22 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         # Its unbuffered, be sure we see whats part of our process before replacement
         sys.__stdout__.flush()
 
+    def _santitize_environment(self, env):
+        """When in py2/3 compatibility mode, unicode can easily sneak into the env dict keys.
+        For some reason, this is forbidden on windows on PY2, but totally fine on posix.
+        """
+        if os.name != 'nt' or PY3:
+            return env
+        # end
+
+        str = __builtins__['str']
+        new_env = dict()
+        for k, v in env.items():
+            new_env[k.encode(DEFAULT_ENCODING)] = v.encode(DEFAULT_ENCODING)
+        # end for each value to convert
+
+        return new_env
+
     def start(self, args, cwd, env, launch_mode):
         """Called to actually launch the process using the given arguments. Unless launch_mode is 'replace, this 
         method will not return. Otherwise it returns the Subprocess.popen process
@@ -536,6 +554,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             launch_mode = self.LAUNCH_MODE_CHILD
         # end windows special handling
         
+        env = self._santitize_environment(env)
 
         if launch_mode == self.LAUNCH_MODE_CHILD:
             stdin, stdout, stderr = self.process_filedescriptors()
