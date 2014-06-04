@@ -4,7 +4,7 @@
 		{
 			"follow_symlinks": true,
 			"path": "../..",
-			"folder_exclude_patterns" : [ "cover", "pages", "doc", ".git", "yaml_builtin"],
+			"folder_exclude_patterns" : [ "cover", "pages", "doc", ".git", "yaml_builtin", "build", "dist", "sdist"],
 			"file_exclude_patterns" : [".coverage"]
 		}
 	]

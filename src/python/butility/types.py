@@ -332,8 +332,17 @@ class DictObject(object):
             return self.to_dict() == other
         # end handle type of other
         return self is other
-        
-    
+      
+    def update(self, other, **kwargs):
+        """Similar to dict.update"""
+        items = other
+        if hasattr(other, 'keys'):
+            items = other.items()
+        for item_list in (items, kwargs.items()):
+            for k,v in item_list:
+                setattr(self, k, v)
+        # end for each item list
+
     def to_dict(self, recursive = False):
         """@return ourselves as normal dict
         @param recursive if True, a recursive copy will be returned if required."""

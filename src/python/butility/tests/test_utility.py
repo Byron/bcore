@@ -186,6 +186,10 @@ class TestUtility(TestCase):
             assert dct.pop(attr) == desired_value
         # end for each sample
 
+        dct.update(dict(hi=5), foo=52)
+        dct.update((('baz', 54),))
+        assert dct.hi == 5 and dct.foo == 52 and dct.baz == 54
+
     def test_python_file_loader(self):
         mod_name = 'test_module'
         mod = load_file(self.fixture_path('module.py'), mod_name)
