@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 from __future__ import division
 
-__all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'file_environment',
+__all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'application_context',
            'ProcessControllerPackageSpecification', 'PackageDataIteratorMixin',
            'ExecutableContext', 'PythonPackageIterator', 'CommandlineOverridesContext', 
            'ControlledProcessContext']
@@ -58,7 +58,7 @@ from bapp import StackAwareHierarchicalContext
 ## @{
 
 @contextmanager
-def file_environment(*paths, **kwargs):
+def application_context(*paths, **kwargs):
     """A context manager which sets up a a context based on the given file paths. To achieve that, it will 
     alter the current global context as defined in bapp.main().context() to contain all environments obtained when
     creating StackAwareHierarchicalContext instances for all the given paths.
@@ -69,7 +69,7 @@ def file_environment(*paths, **kwargs):
     environment will not be altered. Each path should be a directory !
     @param kwargs valid keys are 
     + load_plugins default False, if True, plugins will be loaded for all given paths.
-    @note usage: file_environment(scene, executable, cwd) as env: env.context() ..."""
+    @note usage: application_context(scene, executable, cwd) as env: env.context() ..."""
     if not paths:
         yield bapp.main().context()
         raise StopIteration

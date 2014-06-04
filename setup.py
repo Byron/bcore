@@ -11,4 +11,5 @@ setup(name='bcore',
       url='https://github.com/Byron/bcore',
       packages=find_packages(pkg_root),
       package_dir={'' : pkg_root},
+      package_data={'' : ["*.zip"]}
      )
