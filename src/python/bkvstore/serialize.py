@@ -223,8 +223,6 @@ class _SerializingKeyValueStoreModifierMixin(object):
                 if stream_path and self.store_settings_paths:
                     kvpath = KVPath(stream_path.realpath())
                     data.setdefault(stream_path.ext()[1:], dict())[stream_path.namebase()] = kvpath
-                    #TODO: FOR BACKWARD COMPAT ONLY - remove next line
-                    data.setdefault('settings-files', dict())[stream_path.namebase()] = kvpath
                 # end place anchor
             except (OSError, IOError):
                 self.log.error("Could not load %s file at '%s'", streamer.file_extension, path_or_stream, exc_info=True)
