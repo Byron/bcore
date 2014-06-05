@@ -1,5 +1,5 @@
-core_python_path: '{settings-files.bprocess-test-site.dirname}/../../..'
-delegate_python_path: '{settings-files.bprocess-test-site.dirname}/..'
+core_python_path: '{yaml.bprocess-test-site.dirname}/../../..'
+delegate_python_path: '{yaml.bprocess-test-site.dirname}/..'
 plugin_load_command: from bprocess.tests.test_base import TestPluginLoading; TestPluginLoading().execute()
 
 packages:
@@ -51,7 +51,7 @@ packages:
       # for fun, just the same config again - it won't be loaded as we detect this
       - '{process.executable.dirname}/etc'
       # this one will override the delegate 
-      - '{settings-files.bprocess-test-site.dirname}/per-package/some-packages.yaml'
+      - '{yaml.bprocess-test-site.dirname}/per-package/some-packages.yaml'
       # non-existing
       - '/foobar'
 

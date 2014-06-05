@@ -1,7 +1,7 @@
 packages:
   bcore:
     trees:
-      - '{settings-files.bcore-package.dirname.dirname}'
+      - '{yaml.bcore-package.dirname.dirname}'
     name: BCore
     description: |
       An application framework providing a powerful settings and plugin framework.
@@ -33,7 +33,7 @@ packages:
   update-pages:
     name: update-pages
     trees:
-      - '{settings-files.bcore-package.dirname.dirname}'
+      - '{yaml.bcore-package.dirname.dirname}'
     description: |
       rebuild docs using mkdocs in a development repository, using gh-pages
     requires: bcore

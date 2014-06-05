@@ -98,9 +98,8 @@ class _SerializingKeyValueStoreModifierMixin(object):
     StreamSerializerType = None
 
 
-    ## A key under which all loaded settings files will be stored in the kvstore
-    # If None or empty, no setting files will be stored
-    settings_key='settings-files'
+    ## If True, absolute paths to settings files will be stored under ext.basename (e.g. yaml.bcore)
+    store_settings_paths=True
 
     ## -- End Subclass Configuration -- @}
 
@@ -221,8 +220,11 @@ class _SerializingKeyValueStoreModifierMixin(object):
 
                 # Add the path of the loaded configuration to allow referencing it in configuration.
                 # This allows configuration to be relative to the configuration file !
-                if stream_path and self.settings_key:
-                    data.setdefault(self.settings_key, dict())[stream_path.basename().split('.')[0]] = KVPath(stream_path.realpath())
+                if stream_path and self.store_settings_paths:
+                    kvpath = KVPath(stream_path.realpath())
+                    data.setdefault(stream_path.ext()[1:], dict())[stream_path.namebase()] = kvpath
+                    #TODO: FOR BACKWARD COMPAT ONLY - remove next line
+                    data.setdefault('settings-files', dict())[stream_path.namebase()] = kvpath
                 # end place anchor
             except (OSError, IOError):
                 self.log.error("Could not load %s file at '%s'", streamer.file_extension, path_or_stream, exc_info=True)

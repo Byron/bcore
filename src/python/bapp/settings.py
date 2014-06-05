@@ -51,7 +51,7 @@ class PersistentSettings(ChangeTrackingJSONKeyValueStoreModifier):
 
     ## When loading our jsons, we don't want their paths to show up in the data dict. It can disturb our 
     # change tracking
-    settings_key = None
+    store_settings_paths = False
     
     ## -- End Configuration -- @}
     
