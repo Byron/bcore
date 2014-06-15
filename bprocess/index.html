@@ -77,7 +77,11 @@
                         </li>
                     
                         <li >
-                            <a href="../bkvstore/">SETTINGS - for flexible apps only</a>
+                            <a href="../bkvstore/">SETTINGS - a nested dictionary with schema support</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bcontext/">CONTEXT - for flexible apps only</a>
                         </li>
                     
                         <li >
@@ -139,7 +143,10 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#requirements">Requirements</a></li>
+        <li class="main active"><a href="#todo">TODO</a></li>
+        
+    
+        <li class="main "><a href="#requirements">Requirements</a></li>
         
             <li><a href="#declarative-operations">Declarative operations</a></li>
         
@@ -161,6 +168,13 @@
             <div class="col-md-9" role="main">
 
 <p><img alt="under construction" src="https://raw.githubusercontent.com/Byron/bcore/master/src/images/wip.png" /></p>
+<h2 id="todo">TODO</h2>
+<ul>
+<li>describe inclusion order of configuration, and what a context is comprised of</li>
+<li>how to build complex assemblies with on-demand inclusion of configuration</li>
+<li>multi-hop bootstrapper links and why you would want that</li>
+<li>explain boot environment, and what can be done with it. Accessing a final env dict for the process to be started is quite powerful, as the delegate can use it to access code that wouldn't be available yet.</li>
+</ul>
 <h1 id="requirements">Requirements</h1>
 <h2 id="declarative-operations">Declarative operations</h2>
 <p>Using a standard KV store, a configuration tree is build providing all values the framework needs to perform specific operations. Those include setting environment variables in various ways, possibly filling in templates and copying the result to specific places. This can be used to prepare configuration files for example.</p>

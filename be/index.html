@@ -77,7 +77,11 @@
                         </li>
                     
                         <li >
-                            <a href="../bkvstore/">SETTINGS - for flexible apps only</a>
+                            <a href="../bkvstore/">SETTINGS - a nested dictionary with schema support</a>
+                        </li>
+                    
+                        <li >
+                            <a href="../bcontext/">CONTEXT - for flexible apps only</a>
                         </li>
                     
                         <li >
@@ -142,6 +146,9 @@
         <li class="main active"><a href="#a-universal-commandline-tool-utc">A universal commandline tool (UTC)</a></li>
         
     
+        <li class="main "><a href="#features-draft">FEATURES (DRAFT)</a></li>
+        
+    
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
@@ -152,6 +159,12 @@
 <p><strong>The context</strong> if the command is extremely important, as it defines its startup environment. After all, it is likely to be installed in a central and 'blank' location that doesn't do much by itself. Its context will provide it with the information about which plugins to load, and essentially what its functionality will look like.</p>
 <p>As <em>graphical environments</em> are fundamental different in requirements from a standard commandline application, a separately configurable variant of the <em>UCT</em> exists in the form of the <a href="link%20to%20bgui%20docs">beg</a>.</p>
 <p>The default UCT should be launched through the standard python interpreter, yet it must be trivially easy to make it launch through another interpreter.</p>
+<h1 id="features-draft">FEATURES (DRAFT)</h1>
+<ul>
+<li>configure all aspects of it in the settings </li>
+<li>sub-commands can have their own subcommands, and use the plugin system/base implementation to deal with it. That way (applause), you can take a previous main command, and make it a sub-command, therefore combine multiple commands into one if you are inclined to do so.</li>
+<li>thanks to be, departments can write a plugin that integrates their own subcommand into <code>be</code>, but only if they are within their own department context. That way, not everyone will see custom tools, whereas departments still get to see their own stuff through the company's main command. However, this would mean they have their own assembly, which could easily be the case for IT for instance.</li>
+</ul>
 </div>
         </div>
 
