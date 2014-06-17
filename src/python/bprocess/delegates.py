@@ -574,7 +574,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                     args.extend(app_args)
                 # end handle app_args
             elif sys.platform == 'win32':
-                args = ['start', '/B'] + args
+                args = ['start', '/B', 'App'] + args
             # end handle shell based forking
 
             # on posix, the shell behaviour is special, as such as args passed to the shell.
