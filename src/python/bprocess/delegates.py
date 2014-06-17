@@ -297,7 +297,7 @@ class DelegateAwareApplyChangeContext(ApplyChangeContext):
         def _resolve_conflict(self, key, left_value, right_value):
             if isinstance(right_value, NamedServiceProcessControllerDelegate):
                 return NoValue
-            return super(ApplyChangeContext.DifferenceDelegateType, self)._resolve_conflict(key, left_value, right_value)
+            return ApplyChangeContext.DifferenceDelegateType._resolve_conflict(self, key, left_value, right_value)
     
     # end class DifferenceDelegate
 
