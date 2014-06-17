@@ -127,7 +127,7 @@ class Bootstrapper:
         current_hop = executable
         while True:
             next_hop = self._resolve_link(current_hop)
-            if next_hop is None:
+            if next_hop is None or next_hop == current_hop:
                 break
             # end 
             hops.append(next_hop)
