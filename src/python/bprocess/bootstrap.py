@@ -72,10 +72,20 @@ class Bootstrapper:
     def _resolve_win_link(self, executable):
         """Read a path from a side-by-side file and resolve it like a symlink"""
         try:
-            link = open(os.path.join(os.path.dirname(executable), self.boot_info_file), 'rt').readline()
+            symlink_file = os.path.join(os.path.dirname(executable), self.boot_info_file)
+            for link in open(symlink_file, 'rt'):
+                abs_link = self._to_absolute_symlink(executable, link.strip())
+                # Checking for existence allows multiple symlinks to be placed in the same file
+                # This can be useful if multiple platforms have to use the same file as everything is 
+                # hosted on something like smb
+                if os.path.exists(abs_link):
+                    return abs_link
+                # end only return valid ones
+            # end 
         except IOError:
             raise OSError
-        return self._to_absolute_symlink(executable, link)
+        # end handle file inaccessible
+        raise OSError("Didn't find an accessbible link in '%s'" % symlink_file)
         
     def _to_absolute_symlink(self, executable, link_destination):
         """@return the resolved absolute symlink destination, similar to what the OS would do"""
