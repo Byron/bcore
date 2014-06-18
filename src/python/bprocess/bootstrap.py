@@ -73,7 +73,9 @@ class Bootstrapper:
         """Read a path from a side-by-side file and resolve it like a symlink"""
         try:
             symlink_file = os.path.join(os.path.dirname(executable), self.boot_info_file)
-            for link in open(symlink_file, 'rt'):
+            # This is our implementation of being newline independent - this should deal with all kinds of
+            # line-endings, namelin \r\n and \n
+            for link in open(symlink_file, 'rt').read().split('\n'):
                 abs_link = self._to_absolute_symlink(executable, link.strip())
                 # Checking for existence allows multiple symlinks to be placed in the same file
                 # This can be useful if multiple platforms have to use the same file as everything is 
