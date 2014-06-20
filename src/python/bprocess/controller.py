@@ -8,7 +8,8 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-from butility.future import str
+from butility.future import (str,
+                             PY2)
 __all__ = ['ProcessController', 'DisplayContextException', 'DisplaySettingsException', 
            'DisplayHelpException', 'DisplayLoadedYamlException']
 
@@ -28,7 +29,8 @@ from butility import ( Path,
                        load_files,
                        DictObject,
                        set_log_level, 
-                       parse_key_value_string)
+                       parse_key_value_string,
+                       DEFAULT_ENCODING)
 from butility.compat import profile
 
 from bcontext import Context
@@ -881,6 +883,23 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                 # this is useful if we are started from another wrapper, or if 
                 # Always copy the environment, never write it directly to assure we can do in-process launches
                 self._environ.update(os.environ)
+
+                if PY2:
+                    # Now we can easily get variable values with non-ascii characters in them, which breaks 
+                    # necks in py2.
+                    # Just be sure we get them into a usable format. Also note that unicode in environments
+                    # is ok on posix, but not on windows, and even on posix we have to be sure
+                    # there is nothing non-ascii, as python tries to do that for us otherwise. Py3 is fine !
+                    def convert_if_needed(item):
+                        if isinstance(item, bytes):
+                            return item.decode(DEFAULT_ENCODING, 'replace').encode('ascii', 'replace')
+                        return item
+                    # end utility
+
+                    for k, v in self._environ.items():
+                        self._environ[convert_if_needed(k)] = convert_if_needed(v)
+                    # end handle unicode conversion
+                # end 
             # end reuse full parent environment
             
             # PREPARE PROCESS ENVIRONMENT

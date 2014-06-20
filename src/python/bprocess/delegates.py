@@ -8,6 +8,7 @@
 """
 from __future__ import unicode_literals
 from butility.future import (str,
+                             PY2,
                              PY3)
 
 __all__ = ['ProcessControllerDelegate', 'ApplyChangeContext', 'ControlledProcessInformation', 
@@ -474,6 +475,14 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 continue
             # end ignore un-inheritable ones
             value = os.environ[evar]
+            if PY2:
+                # we operate in unicode, and have to be sure we don't get hit by the ascii default enoding !
+                # We just want to get it done, and hope the default encoding does it !
+                # Replace should mark characters that we can't do, which might help later debugging
+                if isinstance(value, bytes):
+                    value = value.decode(DEFAULT_ENCODING, 'replace').encode('ascii', 'replace')
+                # end
+            # end handle unicode
             if self.variable_is_path(evar):
                 update_env_path(evar, value, append = append, environment = env)
                 log.debug("Setting %s = %s, append = %i", evar, value, append) 
@@ -525,7 +534,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         # Its unbuffered, be sure we see whats part of our process before replacement
         sys.__stdout__.flush()
 
-    def _santitize_environment(self, env):
+    def _sanitize_environment(self, env):
         """When in py2/3 compatibility mode, unicode can easily sneak into the env dict keys.
         For some reason, this is forbidden on windows on PY2, but totally fine on posix.
         """
@@ -533,7 +542,6 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             return env
         # end
 
-        str = __builtins__['str']
         new_env = dict()
         for k, v in env.items():
             new_env[k.encode(DEFAULT_ENCODING)] = v.encode(DEFAULT_ENCODING)
@@ -554,7 +562,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
             launch_mode = self.LAUNCH_MODE_CHILD
         # end windows special handling
         
-        env = self._santitize_environment(env)
+        env = self._sanitize_environment(env)
 
         if launch_mode == self.LAUNCH_MODE_CHILD:
             stdin, stdout, stderr = self.process_filedescriptors()
