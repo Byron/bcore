@@ -364,7 +364,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
-                    self._app.context()(StackAwareHierarchicalContext(path.dirname()))
+                    self._app.context().push(StackAwareHierarchicalContext(path.dirname()))
                 # end handle valid directory
             # end handle path
             self.handle_argument(arg, kvstore_overrides)

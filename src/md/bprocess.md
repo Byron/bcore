@@ -6,6 +6,7 @@
 *   how to build complex assemblies with on-demand inclusion of configuration
 *   multi-hop bootstrapper links and why you would want that
 *   explain boot environment, and what can be done with it. Accessing a final env dict for the process to be started is quite powerful, as the delegate can use it to access code that wouldn't be available yet.
+*   explain how to build a 'real' executable in situations where you need it, using cxfreeze. Commandline that worked so far is `cxfreeze --include-modules=__future__,imp,glob,shutil,platform,getpass,cProfile,json,logging.config <bootstrapper>`
 
 Requirements
 ============
