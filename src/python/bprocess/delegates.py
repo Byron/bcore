@@ -342,6 +342,9 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     
     ## Type used when instanating an environment to keep delegate configuration overrides
     ApplyChangeContextType = DelegateAwareApplyChangeContext
+
+    ## The type we use when instantiating our own context types
+    StackAwareHierarchicalContextType = StackAwareHierarchicalContext
     
     ## -- End Configuration -- @}
 
@@ -364,7 +367,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
                 # ignore args that are not paths
                 path = Path(path)
                 if path.dirname().isdir():
-                    self._app.context().push(StackAwareHierarchicalContext(path.dirname()))
+                    self._app.context().push(self.StackAwareHierarchicalContextType(path.dirname()))
                 # end handle valid directory
             # end handle path
             self.handle_argument(arg, kvstore_overrides)
