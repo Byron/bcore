@@ -173,9 +173,26 @@ class TestProcessControl(TestCase):
 
     @with_application(from_file=__file__)
     def test_nosetest_delegate(self):
-        """brief docs"""
+        """Use the nosetest delegate"""
         pctrl = TestProcessController(pseudo_executable('nosetests-delegate'), ['---dry-run'], application=bapp.main())
         assert pctrl.execute().returncode == 0
+
+    @preserve_application
+    def test_delegate(self):
+        """Verify the standard delegate"""
+        dlg_type = ProcessControllerDelegate
+        for path in ('C:\\foo\\bar\\file.ext', '/mnt/share/subdir/file.ext'):
+            path = Path(path)
+            for p in (path, path.dirname()):
+                # can happen with windows paths dirname on posix
+                if not p:
+                    continue
+                m = dlg_type.re_find_path.match(p)
+                assert m and m.group(0) == p, "should have found a path in '%s'" % p
+                p = p.replace('/', '-').replace('\\', '-')
+                assert not dlg_type.re_find_path.match(p), "This should be no path '%s'" % p
+            # end 
+        # end for each path to test
 
     @preserve_application
     def test_process_plugin_loading(self):

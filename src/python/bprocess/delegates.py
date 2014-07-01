@@ -329,7 +329,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     context_from_path_arguments = False
     
     ## A regular expression to check if we have a path
-    re_find_path = re.compile(r"^.+[/\\][^/\\]+$")
+    re_find_path = re.compile(r"^.+[/\\][^/\\\n\t]+$")
 
     def __init__(self, application):
         super(ProcessControllerDelegate, self).__init__(application)
