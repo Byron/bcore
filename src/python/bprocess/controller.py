@@ -552,7 +552,8 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         default_name = package_schema.delegate.name()
         for package in (root_package, alias_package):
             if package.data().delegate.name() != default_name:
-                return package.data().delegate.instance(self._app.context(), self._app, package.name())
+                # We only initialize the delegate with the original package name
+                return package.data().delegate.instance(self._app.context(), self._app, root_package.name())
             # end check non-default one
         # end for each primary package
 
@@ -560,7 +561,9 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
             pd = self._package_data(package_name)
             if pd.delegate.name() != default_name:
-                return pd.delegate.instance(self._app.context(), self._app, package_name)
+                # note: we always provide the name of the original package, as this will yield more information 
+                # to the delegate
+                return pd.delegate.instance(self._app.context(), self._app, root_package.name())
             # end check delegate name
 
         # Finally, just return the default one. We assume it's just the standard one ProcessController
