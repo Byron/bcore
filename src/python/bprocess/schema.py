@@ -51,7 +51,7 @@ class NamedServiceProcessControllerDelegate(object):
             return
         # end handle value unset
         
-        delegates = context_stack.new_instances(IProcessControllerDelegate, 
+        delegates = context_stack.new_instances(IProcessControllerDelegate,
                         maycreate = lambda cls, instances: not instances and cls.__name__ == self._delegate_name,
                         args = args, kwargs = kwargs)
         if not delegates:
@@ -218,7 +218,11 @@ package_meta_data_schema = {
                            }
 
 proxy_delegate_package_schema = {
-                                    'proxied_delegate' : NamedServiceProcessControllerDelegate
+                                    # A package to use for retrieving the delegate to proxy. Will be resolved
+                                    # using standard traversal
+                                    'requires' : package_schema.requires,
+                                    'delegate' : NamedServiceProcessControllerDelegate(),
+                                    'proxy_package' : str,
                                 }
 
 controller_schema = KeyValueStoreSchema('packages', { package_schema.key() : package_schema })

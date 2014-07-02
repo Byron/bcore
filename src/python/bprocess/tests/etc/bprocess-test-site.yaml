@@ -104,4 +104,10 @@ packages:
       import: bprocess.tests.base
     delegate: PythonScriptNosetestDelegate
 
+  proxied_app:
+    delegate: ProxyProcessControllerDelegate
+    requires: intermediate-package
+    alias: py-program-delegate-via-requires
+    proxy_package: intermediate-package
+
   

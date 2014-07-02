@@ -48,6 +48,7 @@ def preserve_application(fun):
             # we need to be sure to put it back to where it was
             new_app = bapp.Application.main
             if not prev and new_app:
+                new_app = new_app.first_application()
                 default_ctx = None
                 for ctx in new_app.context().stack():
                     if ctx.name() == bapp.Application.PRE_APPLICATION_CONTEXT_NAME:

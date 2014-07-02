@@ -12,7 +12,7 @@ from butility.future import (str,
                              PY3,
                              with_metaclass)
 
-__all__ = ['ProcessControllerDelegate', 'ApplyChangeContext', 
+__all__ = ['ProcessControllerDelegate', 'ApplyChangeContext', 'ProxyProcessControllerDelegate',
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate',
            'ProcessControllerDelegateProxy', 'MariControllerDelegate']
 
@@ -163,8 +163,8 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     ## A regular expression to check if we have a path
     re_find_path = re.compile(r"^.+[/\\][^/\\\n\t]+$")
 
-    def __init__(self, application):
-        super(ProcessControllerDelegate, self).__init__(application)
+    def __init__(self, application, package_name):
+        super(ProcessControllerDelegate, self).__init__(application, package_name)
         self._controller_settings = \
             self._app.context().settings().value_by_schema(package_manager_schema, resolve=True).environment.variables
 
@@ -478,9 +478,56 @@ class ProxyProcessControllerDelegate(with_metaclass(_DelegateProxyMeta, ProcessC
     _proxy_attr = '_proxy'
 
     ## The schema used for our root package
-    proxy_delegate_package_schema = PackageDataIteratorMixin.new_controller_schema(proxy_delegate_package_schema)
+    proxy_delegate_package_schema = proxy_delegate_package_schema
 
     ## -- End Configuration -- @}
+
+
+    def __init__(self, application, package_name):
+        super(ProxyProcessControllerDelegate, self).__init__(application, package_name)
+        try:
+            self._proxy = self._find_proxy_delegate(package_name)
+        except AssertionError:
+            raise
+        except Exception as err:
+            msg = "Couldn't find valid proxy package delegate for package '%s' with error: %s" % (package_name, err)
+            raise ValueError(msg)
+        # end handle everything else as critical error
+
+    # -------------------------
+    ## @name Utilities
+    # @{
+
+    def _find_proxy_delegate(self, package_name):
+        """brief docs"""
+        def new_iterator(package_name):
+            return PackageDataIteratorMixin()._iter_package_data_by_schema(
+                                                                     self._app.context().settings(), 
+                                                                     package_name, 
+                                                                     self.proxy_delegate_package_schema)
+        # end utility
+
+        for data, name in new_iterator(package_name):
+            if not data.proxy_package:
+                continue
+            # end
+
+            # now within the proxy package chain, search for a package that has a delegate, which in turn is used as
+            # proxy
+            for pdata, pname in new_iterator(data.proxy_package):
+                delegate = pdata.delegate.instance(self._app.context(), self._app, pname)
+                if delegate is None:
+                    continue
+                # end
+                return delegate
+            # end for each proxy_package to look for
+            msg = "Couldn't find a single delegate in proxy package '%s' (found in '%s')" % (pname, name)
+            raise AssertionError(msg)
+        # end for each package to iterate
+
+        raise AssertionError("Didn't find a single proxy_package - please check your configuration")
+    
+    ## -- End Utilities -- @}
 
 # end class ProcessController
 

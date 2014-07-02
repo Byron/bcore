@@ -549,7 +549,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         default_name = package_schema.delegate.name()
         for package in (root_package, alias_package):
             if package.data().delegate.name() != default_name:
-                return package.data().delegate.instance(self._app.context(), self._app)
+                return package.data().delegate.instance(self._app.context(), self._app, package.name())
             # end check non-default one
         # end for each primary package
 
@@ -557,11 +557,11 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         for package_name, depth in self._iter_(self._name(), self.upstream, self.breadth_first):
             pd = self._package_data(package_name)
             if pd.delegate.name() != default_name:
-                return pd.delegate.instance(self._app.context(), self._app)
+                return pd.delegate.instance(self._app.context(), self._app, package_name)
             # end check delegate name
 
         # Finally, just return the default one. We assume it's just the standard one ProcessController
-        return ProcessControllerDelegate(self._app)
+        return ProcessControllerDelegate(self._app, root_package.name())
 
     def _handle_arguments(self, args):
         """Parse args for those that can be understood by us, and return a new list with all the args 

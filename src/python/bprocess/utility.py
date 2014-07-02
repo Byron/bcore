@@ -367,7 +367,8 @@ class PackageDataIteratorMixin(object):
         method should be preferred due to increased efficiency"""
         return self._internal_iter_package_data(kvstore, package_name, package_schema)
         
-    def _to_package(self, name, data):
+    @classmethod
+    def _to_package(cls, name, data):
         """@return A ProcessControllerPackageSpecification instance allowing you to query the root path of 
         the package, among other things
         @param name package name

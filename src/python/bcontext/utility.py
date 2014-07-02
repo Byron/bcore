@@ -32,7 +32,7 @@ class PluginMeta(Meta):
         
     def __new__(mcls, name, bases, clsdict):
         """Registers the plugin's type to allow it to be instantiated""" 
-        new_type = Meta.__new__(mcls, name, bases, clsdict)
+        new_type = super(PluginMeta, mcls).__new__(mcls, name, bases, clsdict)
         original_plugin_type = globals().get('Plugin')
 
         if original_plugin_type is not None and hasattr(new_type, '_auto_register_class_') and new_type._auto_register_class_:

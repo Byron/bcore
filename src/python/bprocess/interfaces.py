@@ -33,9 +33,11 @@ class IProcessControllerDelegate(Interface):
 
     ## -- End Constants -- @}
 
-    def __init__(self, application):
+    def __init__(self, application, package_name):
         """initialize this instance with an Application. It will may be used for querying settings.
         It's important to never use the global one at bapp.main() to keep everything contained
+        @param application Application instance, shared with parent ProcessController
+        @param package_name the name of the package we are used for. Useful for querying your own configuration
         @note our _app must be considered read-only, unless specified otherwise in the respecitve method"""
         super(IProcessControllerDelegate, self).__init__()
         self._app = application

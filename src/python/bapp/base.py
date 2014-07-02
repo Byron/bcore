@@ -66,6 +66,7 @@ class Application(object):
     """
     # slots just used as documentation to make instance-overrides of class members work
     # __slots__ = ('_stack',  # A ContextStack instance
+    #            '_prev_instance', # previously created application instance (the one we might have replaced)
     #            'Plugin'   # An instance level Plugin type, returning our own stack
     #             )
 
@@ -74,7 +75,7 @@ class Application(object):
     ## @name Constants
     # @{
 
-    ## A variable to keep the first created Application instance, see Application.new()
+    ## A variable to keep the most recent created Application instance, see Application.new()
     ## The very same instance will be placed in bapp.app
     main = None
 
@@ -151,10 +152,14 @@ class Application(object):
 
     ## -- End Types -- @}
 
-    def __init__(self, context_stack):
-        """Initialize this instance with it's own context stack"""
+    def __init__(self, context_stack, previous_application = None):
+        """Initialize this instance with it's own context stack.
+        @note as we keep a strong reference to the previous application, Applications never go out of scope
+        unless the last created one is removed (it's a single-linked chain after all)."""
         # If our type's Plugin's default stack still has anything in its registry, put it onto our stack.
         # It came first, and should thus be first. 
+        self._prev_instance = previous_application
+
         def_stack = type(self).Plugin.default_stack
         if len(def_stack) > 0:
             prev_contexts = def_stack.pop(until_size=0)
@@ -185,16 +190,14 @@ class Application(object):
         @return new instance of our type"""
         stack = cls.ContextStackType()
         stack.push('base')
-        inst = cls(stack)
+        inst = cls(stack, previous_application = Application.main)
 
-        # We always set the current application to the global one. 
         # This will fail in multi-threaded application, but that is not supposed to work anyway
         # There should only be one application per process
-        # NOTE: Doing this also means that someone creating a new application in the middle of a running application
-        # will be default get rid of all registered plugin types.
         # NOTE: In case someone overrides our base Application, cls.main would assign not to our 
         # Application.main, but to a new class member in our derived class. This in turn 
         # Would break anyone relying on Application.main, which is not intended
+        # if Application.main is None:
         Application.main = inst
         # end set main only if we are the first
 
@@ -350,6 +353,21 @@ class Application(object):
         @return the KeyValueStoreProvider representing our settings"""
         return self.context().settings()
         
+    def previous_application(self):
+        """@return the Application instance we might have replaced as process instance, or None if we are the 
+        first created one"""
+        return self._prev_instance
 
+    def first_application(self):
+        """@return the first instantiatedApplications, as seen from our instance, which usually
+        is the most recently created one
+        @note it will be the one keeping all types that have been created while there was no actual Application
+        instance, these types are usually created very early in the startup process"""
+        pa = npa = self
+        while npa:
+            npa = pa.previous_application()
+            pa = npa or pa
+        # end traverse chain
+        return pa
     ## -- End Interface -- @}
 # end class Application

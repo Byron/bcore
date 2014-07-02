@@ -95,7 +95,6 @@ class TestProcessControl(TestCase):
     
     @preserve_application
     def test_base(self):
-        """test fundamentals"""
         # Now we could nicely mock the environment - lets do this once we have a CWD environment
         # For now its not too easy though
         # failure as foo cannot be found
@@ -103,7 +102,6 @@ class TestProcessControl(TestCase):
 
     @preserve_application
     def test_python_execution(self):
-        """we should be able to execute any code directly using the delegate, without spawning"""
         pctrl = TestProcessController(pseudo_executable('py-program'), list())
         
         process = pctrl.execute()
@@ -117,7 +115,6 @@ class TestProcessControl(TestCase):
         
     @preserve_application
     def test_wrapper_args(self):
-        """verify we can handle custom arguments"""
         cmd_path = pseudo_executable('py-program-overrides')
         self.failUnlessRaises(DisplayHelpException, TestProcessController(cmd_path, '---foo=bar ---help'.split()).execute)
         
@@ -173,13 +170,11 @@ class TestProcessControl(TestCase):
 
     @with_application(from_file=__file__)
     def test_nosetest_delegate(self):
-        """Use the nosetest delegate"""
         pctrl = TestProcessController(pseudo_executable('nosetests-delegate'), ['---dry-run'], application=bapp.main())
         assert pctrl.execute().returncode == 0
 
     @preserve_application
     def test_delegate(self):
-        """Verify the standard delegate"""
         dlg_type = ProcessControllerDelegate
         for path in ('C:\\foo\\bar\\file.ext', '/mnt/share/subdir/file.ext'):
             path = Path(path)
@@ -194,9 +189,13 @@ class TestProcessControl(TestCase):
             # end 
         # end for each path to test
 
+    @with_application(from_file=__file__)
+    def test_proxy_delegate(self):
+        pctrl = TestProcessController(pseudo_executable('proxied_app'), application=bapp.main())
+        assert isinstance(pctrl.delegate(), ProxyProcessControllerDelegate)
+
     @preserve_application
     def test_process_plugin_loading(self):
-        """Assure plugins are loaded from trees and using the settings"""
         for program in ('load-from-settings', 'load-from-directories'):
             pctrl = TestProcessController(pseudo_executable(program))
             assert pctrl.execute_in_current_context().returncode == 0
@@ -204,7 +203,6 @@ class TestProcessControl(TestCase):
 
     @preserve_application
     def test_iteration(self):
-        """verify simple package iteration works (for those who want it)"""
         count = 0
         program = 'py-program-overrides'
         executable = pseudo_executable(program)
@@ -219,7 +217,6 @@ class TestProcessControl(TestCase):
         
     @preserve_application
     def test_post_launch_info(self):
-        """Just some basic tests"""
         info = ControlledProcessInformation()
         if not info.has_data():
             assert info.data() is None and info.process_data() is None
