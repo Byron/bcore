@@ -11,13 +11,13 @@ from butility.future import str
 __all__ = ['ProcessControlContextController', 'ProcessConfigurationIncompatibleError']
 
 import bapp
-from .delegates import ControlledProcessInformation
 from .schema import ( process_schema,
                       package_schema )
 
 from .utility import (FlatteningPackageDataIteratorMixin,
                       PythonPackageIterator,
-                      CommandlineOverridesContext)
+                      CommandlineOverridesContext,
+                      ControlledProcessInformation)
 from bapp import ( ApplicationSettingsMixin,
                    IContextController,
                    StackAwareHierarchicalContext )

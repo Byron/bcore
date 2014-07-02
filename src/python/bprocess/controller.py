@@ -40,14 +40,14 @@ from bapp import         ( Application,
                            StackAwareHierarchicalContext,
                            OSContext,
                            LogConfigurator)
-from .delegates import ( ControlledProcessInformation,
-                         ProcessControllerDelegateProxy,
+from .delegates import ( ProcessControllerDelegateProxy,
                          ProcessControllerDelegate )
 from .schema import ( controller_schema,
                       package_schema,
                       process_schema,
                       package_manager_schema )
 from .utility import  ( ProcessControllerPackageSpecification, 
+                        ControlledProcessInformation,
                         PythonPackageIterator )
 
 

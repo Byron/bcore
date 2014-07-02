@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 
 __all__ = ['controller_schema', 'process_schema', 'package_schema', 'python_package_schema',
-           'package_meta_data_schema', 'package_manager_schema']
+           'package_meta_data_schema', 'package_manager_schema', 'proxy_delegate_package_schema']
 
 import logging
 import sys
@@ -216,6 +216,10 @@ package_meta_data_schema = {
                                 'description' : str,
                                 'version': package_schema.version
                            }
+
+proxy_delegate_package_schema = {
+                                    'proxied_delegate' : NamedServiceProcessControllerDelegate
+                                }
 
 controller_schema = KeyValueStoreSchema('packages', { package_schema.key() : package_schema })
 

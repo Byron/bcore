@@ -11,8 +11,8 @@ __all__ = ['ProcessAwareApplication']
 
 import bapp
 
-from .delegates import ControlledProcessInformation
 from .utility import (ControlledProcessContext,
+                      ControlledProcessInformation,
                       PythonPackageIterator )
 
 from bcontext import HierarchicalContext

@@ -9,9 +9,10 @@
 from __future__ import unicode_literals
 from butility.future import (str,
                              PY2,
-                             PY3)
+                             PY3,
+                             with_metaclass)
 
-__all__ = ['ProcessControllerDelegate', 'ApplyChangeContext', 'ControlledProcessInformation', 
+__all__ = ['ProcessControllerDelegate', 'ApplyChangeContext', 
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate',
            'ProcessControllerDelegateProxy', 'MariControllerDelegate']
 
@@ -22,32 +23,21 @@ import logging
 import subprocess
 
 import bapp
-# This yaml import is save, as bkvstore will place it's own yaml module there just in case there is no 
-# installed one 
-import yaml
-
-import binascii
-import zlib
 
 import logging
 
 from bapp import StackAwareHierarchicalContext
 from bkvstore import ( RootKey,
-                       KeyValueStoreProvider,
                        KeyValueStoreModifier )
 from bdiff import ( NoValue,
                     TwoWayDiff )
 
 from bcontext import (Context, 
+                      PluginMeta,
                       ApplyChangeContext)
-from .interfaces import ( IProcessControllerDelegate,
-                          IControlledProcessInformation )
+from .interfaces import IProcessControllerDelegate
 
 from butility import ( update_env_path,
-                       DictObject,
-                       Singleton,
-                       LazyMixin,
-                       StringChunker,
                        DEFAULT_ENCODING )
 
 from .actions import ActionDelegateMixin
@@ -55,17 +45,17 @@ from .actions import ActionDelegateMixin
 from .schema import ( controller_schema,
                       process_schema,
                       package_manager_schema,
+                      proxy_delegate_package_schema,
                       NamedServiceProcessControllerDelegate )
 
+from .utility import PackageDataIteratorMixin
 from butility import ( Path,
-                       OrderedDict )
-
-from butility.compat import pickle
+                       ProxyMeta )
 
 log = logging.getLogger('bprocess.delegate')
 
 
-#ocio ==============================================================================
+# ==============================================================================
 ## @name Utilities
 # ------------------------------------------------------------------------------
 ## @{
@@ -108,183 +98,25 @@ class ProcessControllerDelegateProxy(object):
         return self._communicate_orig(process)
 
     def start(self, args, cwd, env, spawn):
+        # Actually, as the delegate makes these calls on itself, we have to override the instance implementation
+        # Currently we do this in a permanent fashion
         self._communicate_orig = self._delegate.communicate
-        # self._delegate.__dict__['communicate'] = self.communicate
         self._delegate.communicate = self.communicate
+
+        file_descriptors_orig = self._delegate.process_filedescriptors
         self._delegate.process_filedescriptors = self.process_filedescriptors
 
-        return self._delegate.start(args, cwd, env, spawn)
+        try:
+            return self._delegate.start(args, cwd, env, spawn)
+        finally:
+            # restore preview delegate state
+            self._delegate.communicate = self._communicate_orig
+            self._delegate.process_filedescriptors = file_descriptors_orig
+        # end
     ## -- End Overrides -- @}
     
     
 # end class ProcessControllerDelegateProxy
-        
-
-class ControlledProcessInformation(IControlledProcessInformation, Singleton, LazyMixin):
-    """Store the entire kvstore (after cleanup) in a data string in the environment and allow to retrieve it
-    @note this class uses a cache to assure we don't get data more often than necessary. It is all static and 
-    will not change"""
-    __slots__ = (
-                     '_data',       # all used as cache
-                     '_kvstore',     
-                     '_procdata',
-                     '_cmdline_overrides',
-                     '_hash_map',
-                )
-
-    key_sep = ','
-
-    def _set_cache_(self, name):
-        if name == '_data':
-            self._data = None
-            if not self.has_data():
-                return
-            # end handle not started that way
-            # just return it without regarding the order
-            keys = os.environ[self.storage_environment_variable].split(self.key_sep)
-            self._data = self._decode(''.join(os.environ[k] for k in keys).encode())
-        elif name == '_kvstore':
-            data = self.data()
-            self._kvstore = None
-            if data is None:
-                return
-            # end handle no data
-            self._kvstore = KeyValueStoreProvider(data)
-        elif name == '_procdata':
-            pdata = self._yaml_data(self.process_information_environment_variable)
-            if pdata is not None:
-                # Cleanup afterwards to prevent inheriting it to subprocesses
-                pdata = DictObject(pdata)
-            self._procdata = pdata
-        elif name == '_cmdline_overrides':
-            self._cmdline_overrides = self._yaml_data(self.commandline_overrides_environment_variable)
-        elif name == '_hash_map':
-            self._hash_map = None
-            if self.config_file_hash_map_environment_variable in os.environ:
-                self._hash_map = self._decode(os.environ[self.config_file_hash_map_environment_variable].encode())
-            # end decode value if present
-        else:
-            return super(ControlledProcessInformation, self)._set_cache_(name)
-        # end handle cached attributes
-
-    @classmethod        
-    def _yaml_data(cls, evar):
-        """@return object as loaded from the yaml string retrieved from the given environment variable,
-        or None if it was unset
-        @note sibling of _store_yaml_data()"""
-        yaml_string = os.environ.get(evar, None)
-        if yaml_string is None:
-            return None
-        # end handle uncontrolled process
-        return yaml.load(yaml_string)
-    
-    @classmethod    
-    def _store_yaml_data(cls, evar, env, data):
-        """Store the given piece of yaml data in the given environment dictionary
-        @param evar environment variable
-        @param env environment dict
-        @param data structure to store
-        @note sibling of _yaml_data()"""
-        env[evar] = yaml.dump(data)
-
-    @classmethod
-    def _encode(cls, data):
-        """@return encoded version of data, suitable to be stored in the environment"""
-        # make sure we pickle with protocol 2, to allow running python3 for bootstrap, 
-        # which launches python2
-        # We also have to be sure it's a string object, in order to be working in an environment dict
-        return binascii.b2a_base64(zlib.compress(pickle.dumps(data, 2), 9)).decode()
-        
-    @classmethod
-    def _decode(cls, data_string):
-        """@return decoded version of the previously encoded data_string"""
-        kwargs = (sys.version_info[0] > 2) and dict(encoding = 'utf-8') or dict()
-        return pickle.loads(zlib.decompress(binascii.a2b_base64(data_string)), **kwargs)
-
-    # -------------------------
-    ## @name Interface
-    # @{
-    
-    def data(self):
-        return self._data
-        
-    @classmethod
-    def has_data(cls, environ = None):
-        return cls.storage_environment_variable in (environ or os.environ)
-
-    def process_data(self):
-        return self._procdata
-        
-    def commandline_overrides(self):
-        return self._cmdline_overrides
-
-    def config_hashmap(self):
-        return self._hash_map
-        
-    ## -- End Interface -- @}
-    
-    
-    # -------------------------
-    ## @name Custom Interface
-    # @{
-    
-    def as_kvstore(self):
-        """@return a keyvalue store provider instance intialized with our data(), or None if this 
-        process wasn't launched using process control"""
-        return self._kvstore
-        
-    @classmethod
-    def store(cls, env, context_stack, chunk_size=1024):
-        """Store the data within the given application context within the environment dict for later retrieval
-        @param env the environment dict to be used for the soon-to-be-started process
-        @param context_stack a ContextStack instance from which to store all data
-        @param chunk_size the size of each chunk to be stored within the environment"""
-        source = cls._encode(context_stack.settings().data())
-
-        if source:
-            sc = StringChunker()
-
-            keys = sc.split(source, chunk_size, env)
-            env[cls.storage_environment_variable] = cls.key_sep.join(keys)
-        # end handle source too big to be stored
-        
-        # store process data as well
-        cls._store_yaml_data(cls.process_information_environment_variable, env, context_stack.settings().value_by_schema(process_schema))
-
-        # Store ConfigHierarchy hashmap for restoring it later
-        # merge and store
-        hash_map = OrderedDict()
-        for einstance in context_stack.stack():
-            if isinstance(einstance, StackAwareHierarchicalContext):
-                hash_map.update(einstance.hash_map())
-            # end update hash_map
-        # end for each env on stack
-
-        # Always store it, even if empty
-        env[cls.config_file_hash_map_environment_variable] = cls._encode(hash_map)
-        
-    @classmethod
-    def store_commandline_overrides(cls, env, data):
-        """Store the information in the given kvstore for the process that is about to be launched. He can 
-        retrieve the stored information.
-        @param env dict to store the data in
-        @param data a dictionary or data structure with the commandline overrides
-        """
-        cls._store_yaml_data(cls.commandline_overrides_environment_variable, env, data)
-        
-    def executable(self):
-        """@return executable wrapper as Path instance that was originally used to start the 
-        currently running process, or None if we are not in a controlled environment"""
-        process_data = self.process_data()
-        if process_data is None:
-            # Without a wrapper, we can only rely on our actual executable
-            return None
-        # end handle uncontrolled environment
-        return process_data.executable
-    
-    ## -- End Custom Interface -- @}
-
-# end class ControlledProcessInformation
 
 
 class DelegateAwareApplyChangeContext(ApplyChangeContext):
@@ -351,7 +183,6 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     def environment_storage_chunk_size(self):
         """@return chunk size in bytes, defining how many characters an environment variable value may help in total"""
         # Linux max-chunk size is actually not set, but now we chunk everything
-        # chunk_size = sys.platform == 'win32' and 1024 * 32 - 2 or 1024*1024
         return sys.platform == 'win32' and 1024 * 32 - 2 or 1024*1024
     
     def prepare_context(self, executable, env, args, cwd):
@@ -612,11 +443,46 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
         else:
             raise NotImplementedError("Unknown launch mode: %s" % launch_mode)
         # end 
-        
-        
     
     ## -- End Subclass Interface -- @}
+
 # end class ProcessControllerDelegate
+
+
+class _DelegateProxyMeta(ProxyMeta, PluginMeta):
+    """Allows us to use the ProxyMeta with Plugin types, which use a meta-class on their own"""
+    __slots__ = ()
+
+# end class _DelegateProxyMeta
+
+
+class ProxyProcessControllerDelegate(with_metaclass(_DelegateProxyMeta, ProcessControllerDelegate)):
+    """A standard delegate, which is general enough to proxy any other delegate as configured by the respective
+    package we are used in.
+
+    This is especially useful if you want to have a special delegate implementation for use in task-management,
+    which overrides the way the application is launched and communicated to, without losing any special implementation
+    by customized delegates that usually do the job.
+
+    This proxy mechanism can be seen as a way to partially override existing implementations, in a configurable 
+    fashion
+    """
+    __slots__ = ()
+
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+
+    ## Instance attribute at which we will keep our the delegate we are proxying
+    _proxy_attr = '_proxy'
+
+    ## The schema used for our root package
+    proxy_delegate_package_schema = PackageDataIteratorMixin.new_controller_schema(proxy_delegate_package_schema)
+
+    ## -- End Configuration -- @}
+
+# end class ProcessController
 
 
 class MayaProcessControllerDelegate(ProcessControllerDelegate):

@@ -14,7 +14,8 @@ __all__ = ['Error', 'Interface', 'Meta', 'abstractmethod',
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIterator',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
            'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value', 'size_to_int',
-           'frequncy_to_seconds', 'int_to_size_string', 'load_package', 'load_files', 'load_file']
+           'frequncy_to_seconds', 'int_to_size_string', 'load_package', 'load_files', 'load_file', 
+           'ProxyMeta']
 
 from functools import (wraps,
                        partial)
@@ -29,6 +30,7 @@ from abc import (abstractmethod,
 from copy import deepcopy
 from itertools import chain
 from collections import deque
+from inspect import isroutine
 
 from .path import Path
 
@@ -361,6 +363,95 @@ class Meta(ABCMeta):
         return None
         
     ## -- End Subclass Interface -- @}
+
+
+class ProxyMeta(Meta):
+    """Redirect all calls as defined in first base class to the configured proxy member.
+    It allows to aggregate existing implementations, while overriding only specific methods, which is useful 
+    to add or adjust behavriour generally, without having to alter existing implementations or create """
+    
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## Member to which to redirect calls, such as getattr(self._proxy, name)(*args, **kwargs)
+    proxy_class_attr = '_proxy_attr'
+    
+    ## An attribute with an iterable of names of read-write methods
+    ## Subclasses may then implement them differently
+    rw_methods_class_attr = '_rw_methods_'
+    
+    ## Class to use to obtain a list of methods to implement, as provided on the type using this meta-class
+    # If it is None, the first base (which is not a metaclass) will be used automatically
+    type_to_implement_attr = '_proxy_type'
+
+    ## As above, but allows the meta-class to define such a type. It will only be used if the type we are building
+    # doesn't set its own type to implement, using the type_to_implement_attr
+    type_to_implement = None
+    
+    ## -- End Configuration -- @}
+    
+    
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
+    
+    @classmethod
+    def _create_method(cls, method_name, is_readonly, proxy_attr):
+        """@return a new method named method_name that does not alter it's instance
+        @note all additional arguments are mainly for your information
+        @param cls this metaclass instance
+        @param method_name name of method that is to be created
+        @param is_readonly if True, the method must not change the underlying object
+        @param proxy_attr the name of the attribute on instance that keeps the proxy instance."""
+        def func(instance, *args, **kwargs):
+            return getattr(getattr(instance, proxy_attr), method_name)(*args, **kwargs)
+            
+        func.__name__ = method_name
+        return func
+
+    @classmethod
+    def _is_routine(cls, candidate):
+        """@return True if this item is a routine we should proxy in the newly created type"""
+        return isroutine(candidate)
+    
+    ## -- End Subclass Interface -- @}
+    
+    def __new__(metacls, clsname, bases, clsdict):
+        """Create a proxy-method for every method we have to re-implement if it is not overridden in the 
+        derived class"""
+        proxy_attr = metacls._class_attribute_value(clsdict, bases, metacls.proxy_class_attr)
+        assert proxy_attr, "A proxy attribute must be set in member %s" % metacls.proxy_class_attr
+        rw_method_names = metacls._class_attribute_value(clsdict, bases, metacls.rw_methods_class_attr) or tuple()
+        
+        type_to_implement = metacls._class_attribute_value(clsdict, bases, metacls.type_to_implement_attr) or \
+                            metacls.type_to_implement
+        if type_to_implement is None:
+            for base in bases:
+                if not issubclass(base, Meta):
+                    type_to_implement = base
+                    break
+                # end
+            # end for each base
+        # end search type to implement in bases
+
+        if type_to_implement is None:
+            msg = "Couldn't find type to implement, neither on new type '%s'" % clsname
+            msg += ", nor on the meta cls, or in the new type's bases"
+            raise AssertionError(msg)
+        # end 
+
+        for name, value in type_to_implement.__dict__.items():
+            if not metacls._is_routine(value) or name in clsdict:
+                continue
+            # for now, just create a simple varargs method that allows everything
+            # Could use new.code|new.function to do it dynamically, or make code to eval ... its overkill though
+            clsdict[name] = metacls._create_method(name, name not in rw_method_names, proxy_attr)
+        # end for each method to check for
+        
+        return super(ProxyMeta, metacls).__new__(metacls, clsname, bases, clsdict)
+
+# end class ProxyMeta
     
 # end class Meta
 
