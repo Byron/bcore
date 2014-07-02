@@ -261,6 +261,9 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
     ## The type to use for stack-aware hierarchical contexts
     StackAwareHierarchicalContextType = StackAwareHierarchicalContext
 
+    ## Type to use for standard process controllers
+    ProcessControllerDelegateType = ProcessControllerDelegate
+
     ## The kind of application we create if not provided during __init__
     ApplicationType = Application
     
@@ -391,7 +394,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
             # NOTE: We intentionally don't use the registry here, as we don't just want any delegate.
             # It's common, in ProcessControl, to specify exactly which delegate to use, in order to get
             # perfectly determined behaviour
-            return ProcessControllerDelegate(self.application())
+            return self.ProcessControllerDelegateType(self.application(), self._name())
         # end create default
         return self._delegate
         
@@ -561,7 +564,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
             # end check delegate name
 
         # Finally, just return the default one. We assume it's just the standard one ProcessController
-        return ProcessControllerDelegate(self._app, root_package.name())
+        return self.ProcessControllerDelegateType(self._app, root_package.name())
 
     def _handle_arguments(self, args):
         """Parse args for those that can be understood by us, and return a new list with all the args 
