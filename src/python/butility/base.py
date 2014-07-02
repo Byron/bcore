@@ -411,9 +411,11 @@ class ProxyMeta(Meta):
         return func
 
     @classmethod
-    def _is_routine(cls, candidate):
-        """@return True if this item is a routine we should proxy in the newly created type"""
-        return isroutine(candidate)
+    def _is_routine(cls, name, candidate):
+        """@return True if this item is a routine we should proxy in the newly created type.
+        @note this method should implement all filtering needed, and will get all members of the 
+        dict of the type we are to implement."""
+        return not name.startswith('_') and isroutine(candidate)
     
     ## -- End Subclass Interface -- @}
     
@@ -442,7 +444,7 @@ class ProxyMeta(Meta):
         # end 
 
         for name, value in type_to_implement.__dict__.items():
-            if not metacls._is_routine(value) or name in clsdict:
+            if not metacls._is_routine(name, value) or name in clsdict:
                 continue
             # for now, just create a simple varargs method that allows everything
             # Could use new.code|new.function to do it dynamically, or make code to eval ... its overkill though

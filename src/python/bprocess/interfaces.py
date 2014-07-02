@@ -31,6 +31,8 @@ class IProcessControllerDelegate(Interface):
     ## Indicate you want to fork the process, and maintain it as a sibling
     LAUNCH_MODE_SIBLING = 'sibling/fork'
 
+    launch_modes = (LAUNCH_MODE_REPLACE, LAUNCH_MODE_CHILD, LAUNCH_MODE_SIBLING)
+
     ## -- End Constants -- @}
 
     def __init__(self, application, package_name):

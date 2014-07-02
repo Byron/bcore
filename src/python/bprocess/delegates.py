@@ -14,7 +14,7 @@ from butility.future import (str,
 
 __all__ = ['ProcessControllerDelegate', 'ApplyChangeContext', 'ProxyProcessControllerDelegate',
            'MayaProcessControllerDelegate', 'KatanaControllerDelegate',
-           'ProcessControllerDelegateProxy', 'MariControllerDelegate']
+           'SimpleProxyProcessControllerDelegate', 'MariControllerDelegate']
 
 import os
 import sys
@@ -60,7 +60,7 @@ log = logging.getLogger('bprocess.delegate')
 # ------------------------------------------------------------------------------
 ## @{
 
-class ProcessControllerDelegateProxy(object):
+class SimpleProxyProcessControllerDelegate(object):
     """A simple proxy which behaves differently based on its input channel arguments"""
     __slots__ = (
                     '_delegate', # delegate we are proxying
@@ -116,7 +116,7 @@ class ProcessControllerDelegateProxy(object):
     ## -- End Overrides -- @}
     
     
-# end class ProcessControllerDelegateProxy
+# end class SimpleProxyProcessControllerDelegate
 
 
 class DelegateAwareApplyChangeContext(ApplyChangeContext):
@@ -465,9 +465,9 @@ class ProxyProcessControllerDelegate(with_metaclass(_DelegateProxyMeta, ProcessC
     by customized delegates that usually do the job.
 
     This proxy mechanism can be seen as a way to partially override existing implementations, in a configurable 
-    fashion
+    fashion.
     """
-    __slots__ = ()
+    __slots__ = ('_proxy')
 
     # -------------------------
     ## @name Configuration

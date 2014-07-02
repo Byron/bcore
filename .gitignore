@@ -5,6 +5,7 @@
 .coverage
 cover/
 
+.noseids
 build/
 pages/
 doc/

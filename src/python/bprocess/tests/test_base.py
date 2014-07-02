@@ -84,6 +84,16 @@ class TestProcessController(ProcessController):
 # end class TestProcessController
 
 
+class TestProxyProcessControllerDelegate(ProxyProcessControllerDelegate):
+    """Overrides a particular method to verify the proxy implementation gets called"""
+    __slots__ = ()
+
+    def launch_mode(self):
+        return 'doesntexist'
+
+# end class TestProxyProcessControllerDelegate
+
+
 def pseudo_executable(bin_name):
     """@return full path to pseudo_executable based on the given executable basename"""
     return Path(__file__).dirname() / bin_name
@@ -193,6 +203,8 @@ class TestProcessControl(TestCase):
     def test_proxy_delegate(self):
         pctrl = TestProcessController(pseudo_executable('proxied_app'), application=bapp.main())
         assert isinstance(pctrl.delegate(), ProxyProcessControllerDelegate)
+        assert pctrl.delegate().launch_mode() not in ProcessControllerDelegate.launch_modes
+        assert pctrl.delegate()._proxy.launch_mode() in ProcessControllerDelegate.launch_modes
 
     @preserve_application
     def test_process_plugin_loading(self):

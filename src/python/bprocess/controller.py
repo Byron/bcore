@@ -40,7 +40,7 @@ from bapp import         ( Application,
                            StackAwareHierarchicalContext,
                            OSContext,
                            LogConfigurator)
-from .delegates import ( ProcessControllerDelegateProxy,
+from .delegates import ( SimpleProxyProcessControllerDelegate,
                          ProcessControllerDelegate )
 from .schema import ( controller_schema,
                       package_schema,
@@ -437,7 +437,7 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
         # at this point, we have been initialized already and are ready to go.
         # We will smuggle in a proxy to ourselve which will return the given file-descriptors.
         # If all are None, it will communicate
-        self.set_delegate(ProcessControllerDelegateProxy(self.delegate(), 
+        self.set_delegate(SimpleProxyProcessControllerDelegate(self.delegate(), 
                                                          ProcessControllerDelegate.LAUNCH_MODE_CHILD, 
                                                          stdin, stdout, stderr))
         return self.execute()
