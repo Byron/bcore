@@ -15,7 +15,7 @@ import logging
 
 import bapp
 from bkvstore import KeyValueStoreSchema
-from bprocess import (ProcessControllerDelegate,
+from bprocess import (ProxyProcessControllerDelegate,
                       ProcessAwareApplication,
                       ControlledProcessInformation,
                       PythonPackageIterator)
@@ -68,7 +68,7 @@ class PluginLoadingProcessAwareApplication(ProcessAwareApplication):
 # end class PluginLoadingProcessAwareApplication
 
 
-class NosetestDelegate(ProcessControllerDelegate):
+class NosetestDelegate(ProxyProcessControllerDelegate):
     """This delegate does nothing more but to parse nose-specific arguments in the PostLaunch data structure.
     It also provides functionality to pick up the previously stored information and launch nose from it
     @note this requires nose to be available in the python path, ideally the wrapper provides it as well"""
