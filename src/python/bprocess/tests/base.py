@@ -118,6 +118,13 @@ class PythonScriptNosetestDelegate(NosetestDelegate):
     """Provides a path to the script that, if executed, starts up nose with the required arguments.
     Its interface facilitates injecting the script into the arguments of the called process"""
     __slots__ = ()
+
+    nose_package_options_schema = NosetestDelegate.proxy_delegate_package_schema.copy()
+    nose_package_options_schema.update({'nose' : 
+                                            # If True, program arguments will  be prepended
+                                            # Otherwise, they are appended
+                                            { 'prepend_args' : False }
+                                       })
     
     def entry_script_path(self):
         """@return path to python script that can serve as entrypoint"""
@@ -130,7 +137,12 @@ class PythonScriptNosetestDelegate(NosetestDelegate):
         @param script_path path to the script that is to be injected so that the program will execute it
         @note default implementation just returns script_path + args
         @note called from pre_start"""
-        return [script_path] + args
+        data, name = next(self._new_iterator(self._package_name, schema = self.nose_package_options_schema))
+        if data.nose.prepend_args:
+            return args + [script_path]
+        else:
+            return [script_path] + args
+        # end handle arguments
 
     def pre_start(self, executable, env, args, cwd, resolve):
         executable, env, args, cwd = super(PythonScriptNosetestDelegate , self).pre_start(executable, env, args, cwd, resolve)

@@ -154,7 +154,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
     It is possible to provide arguments that are interpreted only by the wrappers delegate. Those arguments
     start with a triple-dash ('---') and can be the following
     """
-    __slots__ = ('_controller_settings')
+    __slots__ = ('_controller_settings', '_package_name')
     
     ## if True, configuration will be parsed from paths given as commandline argument. This is useful
     # to extract context based on passed files (for instance, for rendering)
@@ -165,6 +165,7 @@ class ProcessControllerDelegate(IProcessControllerDelegate, ActionDelegateMixin,
 
     def __init__(self, application, package_name):
         super(ProcessControllerDelegate, self).__init__(application, package_name)
+        self._package_name = package_name
         self._controller_settings = \
             self._app.context().settings().value_by_schema(package_manager_schema, resolve=True).environment.variables
 
@@ -498,23 +499,24 @@ class ProxyProcessControllerDelegate(with_metaclass(_DelegateProxyMeta, ProcessC
     ## @name Utilities
     # @{
 
+    def _new_iterator(self, package_name, schema = None):
+        """@return an iterator yieliding all packages in standard order as (data, name) tuples, starting 
+        at and including the given package_name
+        @param schema if not None, it will be used instead of our standard proxy_delegate_package_schema"""
+        return PackageDataIteratorMixin()._iter_package_data_by_schema(self._app.context().settings(),
+                                                                       package_name, 
+                                                                       schema or self.proxy_delegate_package_schema)
+
     def _find_proxy_delegate(self, package_name):
         """brief docs"""
-        def new_iterator(package_name):
-            return PackageDataIteratorMixin()._iter_package_data_by_schema(
-                                                                     self._app.context().settings(), 
-                                                                     package_name, 
-                                                                     self.proxy_delegate_package_schema)
-        # end utility
-
-        for data, name in new_iterator(package_name):
+        for data, name in self._new_iterator(package_name):
             if not data.proxy_package:
                 continue
             # end
 
             # now within the proxy package chain, search for a package that has a delegate, which in turn is used as
             # proxy
-            for pdata, pname in new_iterator(data.proxy_package):
+            for pdata, pname in self._new_iterator(data.proxy_package):
                 delegate = pdata.delegate.instance(self._app.context(), self._app, pname)
                 if delegate is None:
                     continue

@@ -75,7 +75,7 @@ def with_rw_directory(func):
     @snippet bapp/tests/doc/test_examples.py with_rw_directory
     """
     @wraps(func)
-    def wrapper(self):
+    def wrapper(self, *args, **kwargs):
         path = Path(_maketemp(prefix=func.__name__))
         path.mkdir()
         keep = False
@@ -85,7 +85,7 @@ def with_rw_directory(func):
         os.chdir(path)
         try:
             try:
-                return func(self, path)
+                return func(self, path, *args, **kwargs)
             except Exception as err:
                 print(("Test %s.%s failed with error %s: '%s', output is at %r"
                             % (type(self).__name__, type(err), str(err), func.__name__, path)), file=sys.stderr)
