@@ -222,7 +222,7 @@ proxy_delegate_package_schema = {
                                     # using standard traversal
                                     'requires' : package_schema.requires,
                                     'delegate' : NamedServiceProcessControllerDelegate(),
-                                    'proxy_package' : str,
+                                    'proxy' : str,
                                 }
 
 controller_schema = KeyValueStoreSchema('packages', { package_schema.key() : package_schema })

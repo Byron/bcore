@@ -508,24 +508,27 @@ class ProxyProcessControllerDelegate(with_metaclass(_DelegateProxyMeta, ProcessC
     def _find_proxy_delegate(self, package_name):
         """brief docs"""
         for data, name in self._new_iterator(package_name):
-            if not data.proxy_package:
+            if not data.proxy:
                 continue
             # end
 
             # now within the proxy package chain, search for a package that has a delegate, which in turn is used as
             # proxy
-            for pdata, pname in self._new_iterator(data.proxy_package):
+            for pdata, pname in self._new_iterator(data.proxy):
                 delegate = pdata.delegate.instance(self._app.context(), self._app, pname)
                 if delegate is None:
                     continue
                 # end
                 return delegate
-            # end for each proxy_package to look for
+            # end for each proxy to look for
             msg = "Couldn't find a single delegate in proxy package '%s' (found in '%s')" % (pname, name)
             raise AssertionError(msg)
         # end for each package to iterate
 
-        raise AssertionError("Didn't find a single proxy_package - please check your configuration")
+        msg = "Didn't find a proxy delegate as no 'proxy' package was configured - defaulting"
+        msg +=" to ProcessControllerDelegate"
+        log.log(logging.TRACE, msg)
+        return ProcessControllerDelegate(self._app, package_name)
     
     ## -- End Utilities -- @}
 

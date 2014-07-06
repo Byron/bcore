@@ -103,12 +103,12 @@ packages:
       # needs to re-import the module with the respective delegate
       import: bprocess.tests.base
     delegate: PythonScriptNosetestDelegate
-    proxy_package: py-program
+    proxy: py-program
 
   proxied_app:
     delegate: TestProxyProcessControllerDelegate
     requires: intermediate-package
     alias: py-program-delegate-via-requires
-    proxy_package: intermediate-package
+    proxy: intermediate-package
 
   
