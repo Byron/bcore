@@ -519,13 +519,15 @@ class ProxyProcessControllerDelegate(with_metaclass(_DelegateProxyMeta, ProcessC
                 if delegate is None:
                     continue
                 # end
+                log.log(logging.TRACE, "'%s' in package '%s' uses proxied delegate of type '%s'", 
+                                        type(self).__name__, package_name, type(delegate).__name__)
                 return delegate
             # end for each proxy to look for
             msg = "Couldn't find a single delegate in proxy package '%s' (found in '%s')" % (pname, name)
             raise AssertionError(msg)
         # end for each package to iterate
 
-        msg = "Didn't find a proxy delegate for package '%s' as" % package_name
+        msg = "'%s' didn't find a proxy delegate for package '%s' as" % (type(self).__name__, package_name)
         msg +=" no 'proxy' package was configured - defaulting to ProcessControllerDelegate"
         log.log(logging.TRACE, msg)
         return ProcessControllerDelegate(self._app, package_name)
