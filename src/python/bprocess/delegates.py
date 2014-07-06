@@ -525,8 +525,8 @@ class ProxyProcessControllerDelegate(with_metaclass(_DelegateProxyMeta, ProcessC
             raise AssertionError(msg)
         # end for each package to iterate
 
-        msg = "Didn't find a proxy delegate as no 'proxy' package was configured - defaulting"
-        msg +=" to ProcessControllerDelegate"
+        msg = "Didn't find a proxy delegate for package '%s' as" % package_name
+        msg +=" no 'proxy' package was configured - defaulting to ProcessControllerDelegate"
         log.log(logging.TRACE, msg)
         return ProcessControllerDelegate(self._app, package_name)
     
