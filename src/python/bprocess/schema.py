@@ -128,7 +128,9 @@ _inherit_evars = ['PATH',         # Actually to allow other wrapper scripts to w
                            ]
 if sys.platform == 'win32':
     _inherit_evars.extend(('USERNAME',     # required to have user information (simple)
-                           'SystemRoot'    # required for most APIs to work !
+                           'SystemRoot',   # required for most APIs to work !
+                           'USERPROFILE',  # equals HOME
+                           'USERNAME',     # equals USER
                             ))
 else:
     _inherit_evars.extend(('XAUTHORITY',   # just here as a precaution 
