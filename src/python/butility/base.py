@@ -9,7 +9,8 @@
 from __future__ import unicode_literals
 from __future__ import division
 
-from butility.future import with_metaclass
+from butility.future import (with_metaclass,
+                             PY2)
 __all__ = ['Error', 'Interface', 'Meta', 'abstractmethod', 
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIterator',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
@@ -368,7 +369,9 @@ class Meta(ABCMeta):
 class ProxyMeta(Meta):
     """Redirect all calls as defined in first base class to the configured proxy member.
     It allows to aggregate existing implementations, while overriding only specific methods, which is useful 
-    to add or adjust behavriour generally, without having to alter existing implementations or create """
+    to add or adjust behavriour generally, without having to alter existing implementations or create
+    @note this meta-class will only be active the type using this metaclass. Therefore, subtypes will not be proxied
+    again, which makes no sense here"""
     
     # -------------------------
     ## @name Configuration
@@ -422,6 +425,25 @@ class ProxyMeta(Meta):
     def __new__(metacls, clsname, bases, clsdict):
         """Create a proxy-method for every method we have to re-implement if it is not overridden in the 
         derived class"""
+        found = False
+        
+        # In py3, metatypes are bases, in py2 they are sitting in a special class attribute
+        if PY2:
+            found |= issubclass(clsdict.get('__metaclass__', type), metacls)
+        else:
+            for base in bases:
+                if base and issubclass(base, metacls):
+                    found = True
+                    break
+                # end
+            # end for each base to check
+        # end 
+
+        # If we are not creating a direct subtype of this meta-class, don't do anything as it makes no sense 
+        # to have a multi-proxy
+        if not found:
+            return super(ProxyMeta, metacls).__new__(metacls, clsname, bases, clsdict)
+        # end
         proxy_attr = metacls._class_attribute_value(clsdict, bases, metacls.proxy_class_attr)
         assert proxy_attr, "A proxy attribute must be set in member %s" % metacls.proxy_class_attr
         rw_method_names = metacls._class_attribute_value(clsdict, bases, metacls.rw_methods_class_attr) or tuple()

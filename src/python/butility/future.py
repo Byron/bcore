@@ -19,13 +19,12 @@ def with_metaclass(meta, *bases):
         def __new__(cls, name, nbases, d):
             if nbases is None:
                 return type.__new__(cls, name, (), d)
-            nt = meta(name, bases, d)
             # There may be clients who rely on this attribute to be set to a reasonable value, which is why 
             # we set the __metaclass__ attribute explicitly
-            if PY2 and not hasattr(nt, '___metaclass__'):
-                nt.__metaclass__ = meta
+            if PY2 and '___metaclass__' not in d:
+                d['__metaclass__'] = meta
             # end 
-            return nt
+            return meta(name, bases, d)
         # end
     # end metaclass
     return metaclass(meta.__name__ + 'Helper', None, {})
