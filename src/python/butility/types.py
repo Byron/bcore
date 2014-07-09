@@ -390,6 +390,10 @@ class DictObject(object):
             
         #END handle recursion
         return self.__dict__
+
+    def copy(self):
+        """@return a (deep) copy of self"""
+        return type(self)(self.to_dict())
         
     def clone(self):
         """@return a deep copy of this dict. This onyl means that the key-sets are independent. However, the 

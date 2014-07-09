@@ -190,6 +190,10 @@ class TestUtility(TestCase):
         dct.update((('baz', 54),))
         assert dct.hi == 5 and dct.foo == 52 and dct.baz == 54
 
+        dctc = dct.copy()
+        dctc['something'] = 42
+        assert 'something' not in dct
+
     def test_python_file_loader(self):
         mod_name = 'test_module'
         mod = load_file(self.fixture_path('module.py'), mod_name)
