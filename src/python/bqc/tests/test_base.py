@@ -13,7 +13,7 @@ import bapp
 from butility.tests import TestCase
 from bqc import *
 
-from io import StringIO
+from butility.compat import StringIO
 
 # ==============================================================================
 ## @name TestTypes

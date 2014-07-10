@@ -23,7 +23,7 @@ from butility import (Path,
                     
 
 class DaemonCommandMixin(CommandlineOverridesMixin):
-    """Main Daemon command without subcommands. Just starts a thread which can be an EnvironmentStackContextClient
+    """Main Daemon command without subcommands. Just starts a thread which can be an ApplicationSettingsMixin
     """
 
     # -------------------------
