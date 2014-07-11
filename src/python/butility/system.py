@@ -43,14 +43,9 @@ def init_ipython_terminal():
 def dylib_extension():
     """@return extension used for dynamically loaded libraries on the current platform
     @throws EnvironmentError if platform is unknown"""
-    try:
-        return {    'linux'  : "so",
-                    'linux2' : "so",
-                    'darwin' : "bundle",
-                    'win32'   : "dll"}[sys.platform]
-    except KeyError:
-        raise EnvironmentError("Unknown platform: %s" % sys.platform)
-    #end convert key error to environment errror
+    # Assume .so 
+    return {    'darwin' : "bundle",
+                'win32'   : "dll"}.get(sys.platform, 'so')
 
 
 def login_name():

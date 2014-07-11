@@ -422,7 +422,9 @@ class TestPath( TestCase ):
         assert afile.chmod(octal('0777')) == afile
         if hasattr(afile, 'chown'):
             # we use something ridiculous to see we get an error at least
-            self.failUnlessRaises(OSError, afile.chown, 0, 1)
+            # Running as root would make this work of course
+            if os.getuid() != 0:
+                self.failUnlessRaises(OSError, afile.chown, 0, 1)
         # END chown handling
         
         # rename 

@@ -42,12 +42,9 @@ class OSContext(Context, ApplicationSettingsMixin):
     ## @name Configuration
     # @{
 
-    platform_service_type = dict(   linux = services.LinuxPlatformService,
-                                    linux2 = services.LinuxPlatformService,
-                                    sunos5 = services.LinuxPlatformService,
-                                    darwin = services.MacPlatformService,
+    platform_service_type = dict(   darwin = services.MacPlatformService,
                                     win32 = services.WindowsPlatformService
-                                    )[sys.platform]
+                                ).get(sys.platform, services.LinuxPlatformService)
 
     ## -- End Configuration -- @}
     
