@@ -1009,12 +1009,12 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                             debug.setdefault(evar, list()).append((str(value), package_name))
                             update_env_path(evar, value, append = True, environment = self._environ)
                         else:
-                            # Don't overwrite value with older/other values
-                            if evar not in self._environ:
-                                debug[evar] = (str(value), package_name)
-                                self._environ[evar] = str(value)
-                            else:
-                                log.debug("%s: can't set variable %s as its already set to %s", package_name, evar, self._environ[evar])
+                            # Packages coming in later will overwrite previous values, in any case
+                            if evar in self._environ:
+                                log.debug("%s: overwriting variable %s with previous value '%s'", package_name, evar, self._environ[evar])
+                            # end 
+                            debug[evar] = (str(value), package_name)
+                            self._environ[evar] = str(value)
                         #end handle path variables
                     # end for each value to set
                 # end for each variable,values tuple
