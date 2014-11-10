@@ -1002,17 +1002,17 @@ class ProcessController(GraphIterator, LazyMixin, ApplicationSettingsMixin):
                             if value is None:
                                 continue
                             # end handle invalid path
-                        # end prepare path's value
-                        
-                        if evar_is_path and delegate.variable_is_appendable(evar, value):
                             value = normpath(value)
+                        # end prepare path's value
+
+                        if evar_is_path and delegate.variable_is_appendable(evar, value):
                             debug.setdefault(evar, list()).append((str(value), package_name))
                             update_env_path(evar, value, append = True, environment = self._environ)
                         else:
                             # Packages coming in later will overwrite previous values, in any case
                             if evar in self._environ:
                                 log.debug("%s: overwriting variable %s with previous value '%s'", package_name, evar, self._environ[evar])
-                            # end 
+                            # end
                             debug[evar] = (str(value), package_name)
                             self._environ[evar] = str(value)
                         #end handle path variables
