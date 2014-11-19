@@ -31,11 +31,12 @@ import subprocess
 
 
 class TestCommand(object):
+
     """Create a marker file upon execution"""
     __slots__ = ()
-    
+
     marker = Path(tempfile.mktemp())
-    
+
     def execute(self):
         self.marker.touch()
         # Output for the delegate to receive
@@ -45,23 +46,24 @@ class TestCommand(object):
 
 
 class ITestMarkerInterface(object):
+
     """Just a marker to find something in the registry"""
     __slots__ = ()
 
-    
 
 # end class CustomTestInterface
 
 
 class TestPluginLoading(object):
+
     """Setup an application and try to use a very specific plugin"""
     __slots__ = ()
 
     def execute(self):
         assert len(sys.argv) == 2
         use_settings = sys.argv[1] == 'settings'
-        app = ProcessAwareApplication.new(load_plugins_from_settings = use_settings,
-                                          load_plugins_from_trees = not use_settings)
+        app = ProcessAwareApplication.new(load_plugins_from_settings=use_settings,
+                                          load_plugins_from_trees=not use_settings)
         # that would only work if the plugin was loaded
         app.new_instance(ITestMarkerInterface)
 
@@ -69,6 +71,7 @@ class TestPluginLoading(object):
 
 
 class TestProcessController(ProcessController):
+
     """A controller tuned not to 'break out' of the test-sandbox by traversing up the hierarchy.
     Doing it this way seems easier than creating a custom Application instance for each test-case, and passing
     it to the ProcessController instance"""
@@ -85,6 +88,7 @@ class TestProcessController(ProcessController):
 
 
 class TestProxyProcessControllerDelegate(ProxyProcessControllerDelegate):
+
     """Overrides a particular method to verify the proxy implementation gets called"""
     __slots__ = ()
 
@@ -100,36 +104,39 @@ def pseudo_executable(bin_name):
 
 
 class TestProcessControl(TestCase):
+
     """Tests for the process control engine"""
     __slots__ = ()
-    
+
     @preserve_application
     def test_base(self):
         # Now we could nicely mock the environment - lets do this once we have a CWD environment
         # For now its not too easy though
         # failure as foo cannot be found
-        self.failUnlessRaises(EnvironmentError, lambda: TestProcessController(pseudo_executable('foo'), ('hello', 'world')).application())
+        self.failUnlessRaises(EnvironmentError, lambda: TestProcessController(
+            pseudo_executable('foo'), ('hello', 'world')).application())
 
     @preserve_application
     def test_python_execution(self):
         pctrl = TestProcessController(pseudo_executable('py-program'), list())
-        
+
         process = pctrl.execute()
         assert process.returncode == 0
 
         prefix, at_prefix = TestProcessController.wrapper_arg_prefix, TestProcessController.wrapper_context_prefix
         args = ('---packages.py-program.delegate=ProcessControllerDelegate ----escaped-arg %s%s %s %s'
-                        % (at_prefix, at_prefix, at_prefix, prefix)).split()
+                % (at_prefix, at_prefix, at_prefix, prefix)).split()
         pctrl = TestProcessController(pseudo_executable('py-program'), args)
         pctrl.application()
-        
+
     @preserve_application
     def test_wrapper_args(self):
         cmd_path = pseudo_executable('py-program-overrides')
-        self.failUnlessRaises(DisplayHelpException, TestProcessController(cmd_path, '---foo=bar ---help'.split()).execute)
-        
+        self.failUnlessRaises(DisplayHelpException, TestProcessController(
+            cmd_path, '---foo=bar ---help'.split()).execute)
+
         self.failUnlessRaises(ValueError, TestProcessController(cmd_path, ['---foo']).execute)
-        
+
         pctrl = TestProcessController(cmd_path, '---foo=bar ---hello.world=42'.split())
         assert pctrl.execute().returncode == 0
 
@@ -146,17 +153,19 @@ class TestProcessControl(TestCase):
 
         # try list parsing
         TestProcessController(cmd_path, ("---foo=['some','list','items']").split()).executable()
-        
+
         # this one should fail, invalid value
         self.failUnlessRaises(ValueError, TestProcessController(cmd_path, ("---foo=[bar]").split()).executable)
-        
+
     @preserve_application
     def test_execute_in_context(self):
-        process = TestProcessController(pseudo_executable('py-program'), ['--hello', 'world']).execute_in_current_context()
+        process = TestProcessController(
+            pseudo_executable('py-program'), ['--hello', 'world']).execute_in_current_context()
         assert process.returncode == 1, "should not have understood our arguments"
-        
+
         # now with self-driven communication
-        process = TestProcessController(pseudo_executable('py-program')).execute_in_current_context(stdout=subprocess.PIPE)
+        process = TestProcessController(
+            pseudo_executable('py-program')).execute_in_current_context(stdout=subprocess.PIPE)
         assert process.returncode is None
         # delete the file it creates
         os.remove(process.stdout.readlines()[0].strip())
@@ -174,8 +183,8 @@ class TestProcessControl(TestCase):
         assert type(pctrl.delegate()).__name__ == tcd_name
 
         # This one really tests remote configuration
-        pctrl = TestProcessController(pseudo_executable('py-program-delegate-via-requires-in-remote-config'), ('---trace', 
-            '---foo=bar'))
+        pctrl = TestProcessController(pseudo_executable('py-program-delegate-via-requires-in-remote-config'), ('---trace',
+                                                                                                               '---foo=bar'))
         assert type(pctrl.delegate()).__name__ == 'TestOverridesDelegate'
 
     @with_application(from_file=__file__)
@@ -196,7 +205,7 @@ class TestProcessControl(TestCase):
                 assert m and m.group(0) == p, "should have found a path in '%s'" % p
                 p = p.replace('/', '-').replace('\\', '-')
                 assert not dlg_type.re_find_path.match(p), "This should be no path '%s'" % p
-            # end 
+            # end
         # end for each path to test
 
     @with_application(from_file=__file__)
@@ -224,9 +233,9 @@ class TestProcessControl(TestCase):
             assert isinstance(package, ProcessControllerPackageSpecification)
         # end for each package
         assert count > 1
-        
+
         self.failUnlessRaises(EnvironmentError, next, TestProcessController(executable, args).iter_packages('foobar'))
-        
+
     @preserve_application
     def test_post_launch_info(self):
         info = ControlledProcessInformation()
@@ -241,5 +250,5 @@ class TestProcessControl(TestCase):
             assert bapp.main().context().settings().value_by_schema(process_schema).executable == pinfo.executable
         # end handle data
         assert ProcessAwareApplication.process_information() is info, "process information should be a singleton"
-        
+
 # end class TestProcessControl

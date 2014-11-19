@@ -22,6 +22,7 @@ from bapp.interfaces import *
 
 
 class TestIPlatformService(TestInterface):
+
     """Check for interface correctness"""
     __slots__ = ()
 
@@ -29,27 +30,28 @@ class TestIPlatformService(TestInterface):
     def test_base(self):
         """Basic testing of all functions"""
         inst = self._instance
-        
+
         for id_name in ('ID_SHORT', 'ID_FULL'):
             assert isinstance(inst.id(getattr(inst, id_name)), str)
         # end for each id to test
         self.failUnlessRaises(ValueError, inst.id, 'something')
-        
+
         for variable_name in ('SEARCH_DYNLOAD', 'SEARCH_EXECUTABLES'):
             assert isinstance(inst.search_path_variable(getattr(inst, variable_name)), str)
         # end for each variable nam
         self.failUnlessRaises(ValueError, inst.search_path_variable, 'invalid')
-        
+
 
 # end class TestIPlatformService
 
 
 class TestDirectoryServicesMixin(object):
+
     """Tests for the default project-instances interface
     NOTE: We cannot be called alone, yet we want to be named after a valid test.
     All this is necessary as we want to use the same test implementation multiple times in the same module, 
     which doesn't natively work with the TestInterface subclasses"""
-    
+
     __slots__ = ()
 
     @with_application
@@ -65,7 +67,7 @@ class TestDirectoryServicesMixin(object):
         assert count
         self.failUnlessRaises(ValueError, inst.path, 'foobar')
         assert inst.id() is not None
-    
+
 # end class TestIDirectoryServices
 
 

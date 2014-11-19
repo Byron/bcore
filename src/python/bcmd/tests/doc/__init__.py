@@ -32,4 +32,3 @@ def myfeature():
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
 """
 __all__ = []
-

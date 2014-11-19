@@ -13,12 +13,13 @@ import bapp
 
 from .utility import (ControlledProcessContext,
                       ControlledProcessInformation,
-                      PythonPackageIterator )
+                      PythonPackageIterator)
 
 from bcontext import HierarchicalContext
 
 
 class ProcessAwareApplication(bapp.Application):
+
     """An application type which ignores all configuration, and initialized the application context 
     by loading it from the context previously saved by the bootstrapper.
 
@@ -27,13 +28,13 @@ class ProcessAwareApplication(bapp.Application):
     __slots__ = ()
 
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
 
-    ## The type to use a ControlledProcessContext
+    # The type to use a ControlledProcessContext
     ControlledProcessContextType = ControlledProcessContext
-    
-    ## -- End Configuration -- @}
+
+    # -- End Configuration -- @}
 
     @classmethod
     def new(cls, *args, **kwargs):
@@ -44,7 +45,7 @@ class ProcessAwareApplication(bapp.Application):
         Relevant keys are only 'load_plugins_from_settings', which is True by default, and setup_logging, which 
         is True as well
         'load_plugins_from_settings' will traverse all the python.* statements in our package configuration and
-        
+
         @return a new application instance"""
         # NOTE: you have to take off all custom options right here
         load_plugins_from_settings = kwargs.pop('load_plugins_from_settings', True)
@@ -63,11 +64,11 @@ class ProcessAwareApplication(bapp.Application):
         # We also have to load plug-ins from the plug-ins directory, as this would usually be done by each context
         if kwargs.get('load_plugins_from_trees', False):
             # At this stage, we only have this information in hash_maps, and of course the traditional contexts
-            lpkwargs = dict( recurse     =kwargs.get('recursive_plugin_loading', False),
-                             subdirectory=kwargs.get('plugins_subtree', 'plug-ins') )
+            lpkwargs = dict(recurse=kwargs.get('recursive_plugin_loading', False),
+                            subdirectory=kwargs.get('plugins_subtree', 'plug-ins'))
             proc_ctx.load_plugins(**lpkwargs)
-            
-            # We just load these as we 
+
+            # We just load these as we
             for ctx in inst.context().stack():
                 if isinstance(ctx, HierarchicalContext):
                     ctx.load_plugins(**lpkwargs)
@@ -81,7 +82,7 @@ class ProcessAwareApplication(bapp.Application):
         return inst
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     @classmethod
@@ -92,7 +93,7 @@ class ProcessAwareApplication(bapp.Application):
         applications we have.
         """
         return ControlledProcessInformation()
-    
-    ## -- End Interface -- @}
+
+    # -- End Interface -- @}
 
 # end class ProcessAwareApplication

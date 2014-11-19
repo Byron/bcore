@@ -14,9 +14,9 @@ from butility.tests import TestCase
 
 
 # ==============================================================================
-## @name Classes
+# @name Classes
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 class TestContext(TestCase):
     __slots__ = ()
@@ -25,5 +25,4 @@ class TestContext(TestCase):
 
 # end class TestContext
 
-## -- End Classes -- @}
-
+# -- End Classes -- @}

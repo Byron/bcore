@@ -32,7 +32,7 @@ from butility.future import str
 
 __docformat__ = "restructuredtext"
 
-__license__='Freeware'
+__license__ = 'Freeware'
 
 import sys
 import logging
@@ -73,11 +73,13 @@ _textmode = 'r'
 # cache used for path expansion
 _varprog = re.compile(r'\$(\w+|\{[^}]*\})')
 
+
 class TreeWalkWarning(Warning):
     pass
 
 
-class Path( _base ):
+class Path(_base):
+
     """ Represents a filesystem path.
 
     For documentation on individual methods, consult their
@@ -86,17 +88,17 @@ class Path( _base ):
     # Configuration
     sep = None
     osep = None
-    
+
     #{ Special Python methods
 
     def __repr__(self):
-        return '%s(%s)' % ( self.__class__.__name__, _base.__repr__(self) )
+        return '%s(%s)' % (self.__class__.__name__, _base.__repr__(self))
 
     # Adding a path and a string yields a path.
     def __add__(self, more):
         try:
             resultStr = _base.__add__(self, more)
-        except TypeError:  #Python bug
+        except TypeError:  # Python bug
             resultStr = NotImplemented
         if resultStr is NotImplemented:
             return resultStr
@@ -120,15 +122,15 @@ class Path( _base ):
     # Make the / operator work even when true division is enabled.
     __truediv__ = __div__
 
-    def __eq__( self, other ):
+    def __eq__(self, other):
         """Comparison method with expanded variables, just to assure
         the comparison yields the results we would expect"""
         return str(self._expandvars(self)) == str(self._expandvars(str(other)))
 
-    def __ne__( self, other ):
-        return not self.__eq__( other )
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
-    def __hash__( self ):
+    def __hash__(self):
         """Expanded hash method"""
         return hash(str(self._expandvars(self)))
 
@@ -141,7 +143,7 @@ class Path( _base ):
             raise ValueError("Invalid path separator", sep)
         cls.sep = sep
         cls.osep = (sep == '/' and '\\') or "/"
-        
+
     @classmethod
     def getcwd(cls):
         """@return the current working directory as a path object. """
@@ -149,41 +151,41 @@ class Path( _base ):
 
     #{ IDagItem Implementation
 
-    def parent( self ):
+    def parent(self):
         """@return the parent directory of this Path or None if this is the root"""
         parent = self.dirname()
         if parent == self:
             return None
         return parent
 
-    def children( self, predicate = lambda p: True, pattern = None ):
+    def children(self, predicate=lambda p: True, pattern=None):
         """@return child paths as retrieved by queryiing the file system.
         @note files cannot have children, and willl return an empty array accordingly
         @param predicate return p if predicate( p ) returns True
         @param pattern list only elements that match the given simple  pattern
             i.e. *.*"""
         try:
-            children = self.listdir( pattern )
+            children = self.listdir(pattern)
         except OSError:
             return list()
 
-        return [ c for c in children if predicate( c ) ]
+        return [c for c in children if predicate(c)]
 
     #} END IDagItem implementation
 
     #{ Operations on path strings.
-    
+
     @classmethod
     def _expandvars(cls, path, env=os.environ):
         """Internal version returning a string only representing the non-recursively
         expanded variable
-        
+
         @note It is a slightly changed copy of the version in posixfile
             as the windows version was implemented differently ( it expands
             variables to an empty space which is undesireable )"""
         if '$' not in path:
             return path
-        
+
         i = 0
         while True:
             m = _varprog.search(path, i)
@@ -202,7 +204,7 @@ class Path( _base ):
                 i = j
             # END handle variable exists in environ
         # END loop forever
-        return path 
+        return path
 
     @classmethod
     def _expandvars_deep(cls, path, env=os.environ):
@@ -215,19 +217,33 @@ class Path( _base ):
         return rval
 
     isabs = os.path.isabs
-    def abspath(self):       return self.__class__(os.path.abspath(self._expandvars(self)))
-    def normcase(self):      return self.__class__(os.path.normcase(self))
-    def normpath(self):      return self.__class__(os.path.normpath(self))
-    def realpath(self):      return self.__class__(os.path.realpath(self._expandvars(self)))
-    def expanduser(self):    return self.__class__(os.path.expanduser(self))
-    def expandvars(self):    return self.__class__(self._expandvars(self))
-    def dirname(self):       return self.__class__(os.path.dirname(self))
+
+    def abspath(self):
+        return self.__class__(os.path.abspath(self._expandvars(self)))
+
+    def normcase(self):
+        return self.__class__(os.path.normcase(self))
+
+    def normpath(self):
+        return self.__class__(os.path.normpath(self))
+
+    def realpath(self):
+        return self.__class__(os.path.realpath(self._expandvars(self)))
+
+    def expanduser(self):
+        return self.__class__(os.path.expanduser(self))
+
+    def expandvars(self):
+        return self.__class__(self._expandvars(self))
+
+    def dirname(self):
+        return self.__class__(os.path.dirname(self))
     basename = os.path.basename
 
     def expandvars_deep(self):
         """Expands all environment variables recursively"""
         return type(self)(self._expandvars_deep(self))
-        
+
     def expandvars_deep_or_raise(self):
         """Expands all environment variables recursively, and raises ValueError
         if the path still contains variables afterwards"""
@@ -241,20 +257,20 @@ class Path( _base ):
 
         This is commonly everything needed to clean up a filename
         read from a configuration file, for example.
-        
+
         If you are not interested in trailing slashes, you should call
         normpath() on the resulting Path as well.
         """
         return self.expandvars().expanduser()
 
-    def containsvars( self ):
+    def containsvars(self):
         """@return True if this path contains environment variables"""
-        return self.find( '$' ) != -1
-        
+        return self.find('$') != -1
+
     def expand_or_raise(self):
         """@return Copy of self with all variables expanded ( using `expand` )
         non-recursively !
-        
+
         :raise ValueError: If we could not expand all environment variables as
             their values where missing in the environment"""
         rval = self.expand()
@@ -371,27 +387,29 @@ class Path( _base ):
         # on windows, abspath returns \\ paths even if / paths are given.
         # On linux this is not the case ... thanks
         splitter = (os.name == 'nt' and _ossep) or self.sep
+
         def commonprefix(m):
-            if not m: return ''
+            if not m:
+                return ''
             s1 = min(m)
             s2 = max(m)
             for i, c in enumerate(s1):
                 if c != s2[i]:
                     return s1[:i]
             return s1
-        # END common prefix 
-        
+        # END common prefix
+
         start_list = os.path.abspath(dest).split(splitter)
         path_list = os.path.abspath(self._expandvars(self)).split(splitter)
-        
+
         # Work out how much of the filepath is shared by start and path.
         i = len(commonprefix([start_list, path_list]))
-    
-        rel_list = [os.pardir] * (len(start_list)-i) + path_list[i:]
+
+        rel_list = [os.pardir] * (len(start_list) - i) + path_list[i:]
         if not rel_list:
             return os.curdir
         return self.__class__(os.path.join(*rel_list))
-        
+
     def relpathfrom(self, dest):
         """ Return a relative path from dest to self"""
         return self.__class__(dest).relpathto(self)
@@ -405,17 +423,17 @@ class Path( _base ):
         """@return A path using only slashes as path separator"""
         return self.__class__(self.replace("\\", "/"))
 
-    def tonative( self ):
+    def tonative(self):
         r"""Convert the path separator to the type required by the current operating
         system - on windows / becomes \ and on linux \ becomes /
-        
+
         @return native version of self"""
         s = "\\"
         d = "/"
-        if sys.platform.startswith( "win" ):
+        if sys.platform.startswith("win"):
             s = "/"
             d = "\\"
-        return Path( self.replace( s, d ) )
+        return Path(self.replace(s, d))
 
     #} END Operations on path strings
 
@@ -498,9 +516,9 @@ class Path( _base ):
         # END listdir exception handling
 
         for child in childList:
-            if ( pattern is None or child.fnmatch(pattern) ) and predicate(child):
+            if (pattern is None or child.fnmatch(pattern)) and predicate(child):
                 yield child
-                
+
             try:
                 isdir = child.isdir()
             except Exception:
@@ -515,10 +533,10 @@ class Path( _base ):
                     raise
                 # END handle errors value
             # END directory access exception handling
-            
+
             if not isdir:
                 continue
-                
+
             for item in child.walk(pattern, errors, predicate):
                 yield item
             # END for each item
@@ -535,7 +553,7 @@ class Path( _base ):
         see `walk` for a parameter description"""
         pred = lambda p: p.isfile() and predicate(p)
         return self.walk(pattern, errors, pred)
-        
+
     def fnmatch(self, pattern):
         """ Return True if self.basename() matches the given pattern.
 
@@ -558,7 +576,6 @@ class Path( _base ):
         return [cls(s) for s in glob.glob(_base(pathexpanded / pattern))]
 
     #} END Listing, searching, walking and watching
-
 
     #{ Reading or writing an entire file at once
 
@@ -590,7 +607,7 @@ class Path( _base ):
             f.write(bytes)
         finally:
             f.close()
-            
+
         return self
 
     def text(self, encoding=None, errors='strict'):
@@ -608,14 +625,14 @@ class Path( _base ):
            for the options.  Default is 'strict'.
         """
         mode = 'U'  # we are in python 2.4 at least
-        
+
         f = None
         if encoding is None:
             f = self.open(mode)
         else:
             f = codecs.open(self, 'r', encoding, errors)
         # END handle encoding
-        
+
         try:
             if sys.version_info[0] < 3:
                 return str(f.read())
@@ -662,15 +679,15 @@ class Path( _base ):
             ("\n", "\\r", and "\\r\\n") to your platforms default end-of-line
             sequence (see os.linesep; on Windows, for example, the
             end-of-line marker is "\\r\\n").
-    
+
          - If you don't like your platform's default, you can override it
             using the "linesep=" keyword argument.  If you specifically want
             write_text() to preserve the newlines as-is, use "linesep=None".
-    
+
          - This applies to Unicode text the same as to 8-bit text, except
             there are additional standard Unicode end-of-line sequences, check 
             the code to see them.
-    
+
          - (This is slightly different from when you open a file for
             writing with fopen(filename, "w") in C or file(filename, "w")
             in Python.)
@@ -680,12 +697,12 @@ class Path( _base ):
             If "text" isn't Unicode, then apart from newline handling, the
             bytes are written verbatim to the file.  The "encoding" and
             'errors' arguments are not used and must be omitted.
-    
+
             If 'text' is Unicode, it is first converted to bytes using the
             specified 'encoding' (or the default encoding if 'encoding'
             isn't specified).  The 'errors' argument applies only to this
             conversion.
-        
+
         @return self
         """
         bytes = ""
@@ -747,7 +764,7 @@ class Path( _base ):
         you specify with the encoding= parameter, the result is
         mixed-encoding data, which can really confuse someone trying
         to read the file later.
-        
+
         @return self
         """
         if append:
@@ -780,7 +797,7 @@ class Path( _base ):
                 f.write(line)
         finally:
             f.close()
-            
+
         return self
 
     def lines(self, encoding=None, errors='strict', retain=True):
@@ -791,15 +808,15 @@ class Path( _base ):
                 the file.  The default is None, meaning the content
                 of the file is read as 8-bit characters and returned
                 as a list of (non-Unicode) str objects.
-                
+
              * errors: How to handle Unicode errors; see help(str.decode)
                 for the options.  Default is 'strict'
-                
+
              * retain: If true, retain newline characters; but all newline
                 character combinations ("\\r", "\\n", "\\r\\n") are
                 translated to "\n".  If false, newline characters are
                 stripped off.  Default is True.
-        
+
         This uses "U" mode in Python 2.3 and later.
         """
         if encoding is None and retain:
@@ -828,29 +845,29 @@ class Path( _base ):
         finally:
             f.close()
         # END assure file gets closed
-        
+
         return hashobject.digest()
 
     #} END Reading or writing an enitre file at once
 
     #{ Methods for querying the filesystem
 
-    exists = lambda self: os.path.exists( self._expandvars(self) )
+    exists = lambda self: os.path.exists(self._expandvars(self))
     if hasattr(os.path, 'lexists'):
-        lexists = lambda self: os.path.lexists( self._expandvars(self) )
-    isdir = lambda self: os.path.isdir( self._expandvars(self) )
-    isfile = lambda self: os.path.isfile( self._expandvars(self) )
-    islink = lambda self: os.path.islink( self._expandvars(self) )
-    ismount = lambda self: os.path.ismount( self._expandvars(self) )
+        lexists = lambda self: os.path.lexists(self._expandvars(self))
+    isdir = lambda self: os.path.isdir(self._expandvars(self))
+    isfile = lambda self: os.path.isfile(self._expandvars(self))
+    islink = lambda self: os.path.islink(self._expandvars(self))
+    ismount = lambda self: os.path.ismount(self._expandvars(self))
 
     if hasattr(os.path, 'samefile'):
-        samefile = lambda self, other: os.path.samefile( self._expandvars(self), other )
+        samefile = lambda self, other: os.path.samefile(self._expandvars(self), other)
 
-    atime = lambda self: os.path.getatime( self._expandvars(self) )
-    mtime = lambda self: os.path.getmtime( self._expandvars(self) )
+    atime = lambda self: os.path.getatime(self._expandvars(self))
+    mtime = lambda self: os.path.getmtime(self._expandvars(self))
     if hasattr(os.path, 'getctime'):
-        ctime = lambda self: os.path.getctime( self._expandvars(self) )
-    size = lambda self: os.path.getsize( self._expandvars(self) )
+        ctime = lambda self: os.path.getctime(self._expandvars(self))
+    size = lambda self: os.path.getsize(self._expandvars(self))
 
     if hasattr(os, 'access'):
         def access(self, mode):
@@ -900,13 +917,13 @@ class Path( _base ):
             """see os.pathconf"""
             return os.pathconf(self._expandvars(self), name)
 
-    def isWritable( self ):
+    def isWritable(self):
         """@return true if the file can be written to"""
         if not self.exists():
             return False        # assure we do not create anything not already there
 
         try:
-            fileobj = self.open( 'a' )
+            fileobj = self.open('a')
         except:
             return False
         else:
@@ -914,21 +931,20 @@ class Path( _base ):
             return True
         # END handle file open
 
-
     #} END Methods for querying the filesystem
 
     #{ Modifying operations on files and directories
 
     def setutime(self, times):
         """ Set the access and modified times of this file.
-        
+
         @return self"""
         os.utime(self._expandvars(self), times)
         return self
 
     def chmod(self, mode):
         """Change file mode
-        
+
         @return self"""
         os.chmod(self._expandvars(self), mode)
         return self
@@ -936,21 +952,21 @@ class Path( _base ):
     if hasattr(os, 'chown'):
         def chown(self, uid, gid):
             """Change file ownership
-            
+
             @return self"""
             os.chown(self._expandvars(self), uid, gid)
             return self
 
     def rename(self, new):
         """os.rename
-        
+
         @return Path to new file"""
         os.rename(self._expandvars(self), new)
         return type(self)(new)
 
     def renames(self, new):
         """os.renames, super rename
-        
+
         @return Path to new file"""
         os.renames(self._expandvars(self), new)
         return type(self)(new)
@@ -961,28 +977,28 @@ class Path( _base ):
 
     def mkdir(self, mode=octal('0777')):
         """Make this directory, fail if it already exists
-        
+
         @return self"""
         os.mkdir(self._expandvars(self), mode)
         return self
 
     def makedirs(self, mode=octal('0777')):
         """Smarter makedir, see os.makedirs
-        
+
         @return self"""
         os.makedirs(self._expandvars(self), mode)
         return self
 
     def rmdir(self):
         """Remove this empty directory
-        
+
         @return self"""
         os.rmdir(self._expandvars(self))
         return self
 
     def removedirs(self):
         """see os.removedirs
-        
+
         @return self"""
         os.removedirs(self._expandvars(self))
         return self
@@ -991,10 +1007,10 @@ class Path( _base ):
 
     #{ Modifying operations on files
 
-    def touch(self, flags = os.O_WRONLY | os.O_CREAT, mode = octal('0666')):
+    def touch(self, flags=os.O_WRONLY | os.O_CREAT, mode=octal('0666')):
         """ Set the access/modified times of this file to the current time.
         Create the file if it does not exist.
-        
+
         @return self
         """
         fd = os.open(self._expandvars(self), flags, mode)
@@ -1004,14 +1020,14 @@ class Path( _base ):
 
     def remove(self):
         """Remove this file
-        
+
         @return self"""
         os.remove(self._expandvars(self))
         return self
 
     def unlink(self):
         """unlink this file
-        
+
         @return self"""
         os.unlink(self._expandvars(self))
         return self
@@ -1023,16 +1039,15 @@ class Path( _base ):
     if hasattr(os, 'link'):
         def link(self, newpath):
             """ Create a hard link at 'newpath', pointing to this file. 
-            
+
             @return Path to newpath"""
             os.link(self._expandvars(self), newpath)
             return type(self)(newpath)
-            
 
     if hasattr(os, 'symlink'):
         def symlink(self, newlink):
             """ Create a symbolic link at 'newlink', pointing here. 
-            
+
             @return Path to newlink"""
             os.symlink(self._expandvars(self), newlink)
             return type(self)(newlink)
@@ -1062,72 +1077,71 @@ class Path( _base ):
 
     def copyfile(self, dest):
         """Copy self to dest
-        
+
         @return Path to dest"""
-        shutil.copyfile( self._expandvars(self), dest )
+        shutil.copyfile(self._expandvars(self), dest)
         return type(self)(dest)
-    
+
     def copymode(self, dest):
         """Copy our mode to dest
-        
+
         @return Path to dest"""
-        shutil.copymode( self._expandvars(self), dest )
+        shutil.copymode(self._expandvars(self), dest)
         return type(self)(dest)
-        
+
     def copystat(self, dest):
         """Copy our stats to dest
-        
+
         @return Path to dest"""
-        shutil.copystat( self._expandvars(self), dest )
+        shutil.copystat(self._expandvars(self), dest)
         return type(self)(dest)
-        
+
     def copy(self, dest):
         """Copy data and source bits to dest
-        
+
         @return Path to dest"""
-        shutil.copy( self._expandvars(self), dest )
+        shutil.copy(self._expandvars(self), dest)
         return type(self)(dest)
-    
+
     def copy2(self, dest):
         """Shutil.copy2 self to dest
-        
+
         @return Path to dest"""
-        shutil.copy2( self._expandvars(self), dest )
+        shutil.copy2(self._expandvars(self), dest)
         return type(self)(dest)
-        
+
     def copytree(self, dest, **kwargs):
         """Deep copy this file or directory to destination
-        
+
         @param kwargs passed to shutil.copytree
         @param dest destination directory into which to copy this tree
         @return Path to dest"""
-        shutil.copytree( self._expandvars(self), dest, **kwargs )
+        shutil.copytree(self._expandvars(self), dest, **kwargs)
         return type(self)(dest)
-        
+
     if hasattr(shutil, 'move'):
         def move(self, dest):
             """Move self to dest
-            
+
             @return Path to dest"""
-            shutil.move( self._expandvars(self), dest )
+            shutil.move(self._expandvars(self), dest)
             return type(self)(dest)
-            
+
     def rmtree(self, **kwargs):
         """Remove self recursively
-        
+
         @param kwargs passed to shutil.rmtree
         @return self"""
-        shutil.rmtree( self._expandvars(self),  **kwargs )
+        shutil.rmtree(self._expandvars(self),  **kwargs)
         return self
-            
-    #} END High-Level
 
+    #} END High-Level
 
     #{ Special stuff from os
     if hasattr(os, 'chroot'):
         def chroot(self):
             """Change the root directory path
-            
+
             @return self"""
             os.chroot(self._expandvars(self))
             return self
@@ -1135,27 +1149,30 @@ class Path( _base ):
     if hasattr(os, 'startfile'):
         def startfile(self):
             """see os.startfile
-            
+
             @return self"""
             os.startfile(self._expandvars(self))
             return self
     #} END Special stuff from os
-    
+
 #{ utilities
 _ossep = os.path.sep
 _oossep = (_ossep == "/" and "\\") or "/"
 
+
 def _to_os_path(path):
     """@return string being an os compatible path"""
     return path.replace(_oossep, _ossep)
-    
+
 #} END utilities
 
 
 class ConversionPath(Path):
+
     """On windows, python represents paths with backslashes, within maya though, 
     these are slashes We want to keep the original representation, but allow
     the methods to work nonetheless."""
+
     def __div__(self, rel):
         return self.joinpath(rel)
 
@@ -1166,39 +1183,39 @@ class ConversionPath(Path):
         # when expanding, we might get operating system separators into the path, which
         # have to be replaced to our actual one
         return super(ConversionPath, cls)._expandvars(path).replace(cls.osep, cls.sep)
-        
+
     def _from_os_path(self, path):
         """@return path with separators matching to our configuration"""
         return path.replace(self.osep, self.sep)
-        
+
     def abspath(self):
         return self.__class__(self._from_os_path(_to_os_path(os.path.abspath(self))))
-        
+
     def normpath(self):
         return self.__class__(self._from_os_path(os.path.normpath(self)))
-        
+
     def joinpath(self, *args):
         return self.__class__(self._from_os_path(os.path.join(self, *args)))
-        
+
     def relpathto(self, dest):
         rval = super(ConversionPath, self).relpathto(dest)
         return type(self)(self._from_os_path(rval))
-    
+
     def dirname(self):
         return self.__class__(self._from_os_path(os.path.dirname(_to_os_path(self))))
-        
+
     def basename(self):
         return type(self)(self._from_os_path(os.path.basename(_to_os_path(self))))
-        
+
     def splitpath(self):
         parent, child = os.path.split(_to_os_path(self))
         return type(self)(self._from_os_path(parent)), child
-    
+
     # { Special Methods
     if hasattr(os.path, 'splitunc'):
         def splitunc(self):
             return super(ConversionPath, self).splitunc()
-            
+
         def isunshared(self):
             return super(ConversionPath, self).isunshared()
     # } END special methods
@@ -1207,6 +1224,7 @@ class ConversionPath(Path):
 
 
 class NativePath(Path):
+
     """Any input will be converted to the native version on spot, which means backslashes on windows, and 
     slashes on a proper OS"""
     __slots__ = ()

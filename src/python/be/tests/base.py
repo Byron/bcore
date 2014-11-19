@@ -14,10 +14,10 @@ from butility import Path
 
 
 class BeTestCase(TestCase):
+
     """Base for all be test cases"""
     __slots__ = ()
 
     fixture_root = Path(__file__).dirname()
 
 # end class BeTestCase
-

@@ -13,8 +13,8 @@ import bapp
 from butility import Path
 from butility.tests import TestCase
 from bapp.tests import with_application
-from bprocess import ( ProcessControlContextController,
-                       ProcessConfigurationIncompatibleError )
+from bprocess import (ProcessControlContextController,
+                      ProcessConfigurationIncompatibleError)
 from bkvstore import YAMLKeyValueStoreModifier
 
 
@@ -28,29 +28,30 @@ class TestProcessController(ProcessControlContextController):
 
 
 class TestProcessControlContextController(TestCase):
+
     """Verify the context controller, triggering a few of its functions manually"""
 
     fixture_root = Path(__file__).dirname()
-   
+
     @with_application(from_file=__file__)
     def test_base(self):
-       """verify basic functionality"""
-       ctrl = TestProcessController(bapp.main().context())
-       ctrl.set_static_stack_len()
-       
-       assert len(ctrl.pop_asset_context()) == 0, 'should have popped nothing, but its okay'
-       
-       kv_a = YAMLKeyValueStoreModifier([self.fixture_path('process_config_a.yaml')])
-       kv_a_changed_version = YAMLKeyValueStoreModifier([self.fixture_path('process_config_a_changed_version.yaml')])
-       kv_a_changed_requires = YAMLKeyValueStoreModifier([self.fixture_path('process_config_a_changed_requires.yaml')])
-       
-       # this shouldn't raise anything
-       ctrl._check_process_compatibility(kv_a, kv_a, program = 'foo')
-       
-       self.failUnlessRaises(ProcessConfigurationIncompatibleError, ctrl._check_process_compatibility, kv_a_changed_version, kv_a, 'foo')
-       self.failUnlessRaises(ProcessConfigurationIncompatibleError, ctrl._check_process_compatibility, kv_a_changed_requires, kv_a, 'foo')
-       
-       
-   
-# end class TestProcessControlContextController
+        """verify basic functionality"""
+        ctrl = TestProcessController(bapp.main().context())
+        ctrl.set_static_stack_len()
 
+        assert len(ctrl.pop_asset_context()) == 0, 'should have popped nothing, but its okay'
+
+        kv_a = YAMLKeyValueStoreModifier([self.fixture_path('process_config_a.yaml')])
+        kv_a_changed_version = YAMLKeyValueStoreModifier([self.fixture_path('process_config_a_changed_version.yaml')])
+        kv_a_changed_requires = YAMLKeyValueStoreModifier([self.fixture_path('process_config_a_changed_requires.yaml')])
+
+        # this shouldn't raise anything
+        ctrl._check_process_compatibility(kv_a, kv_a, program='foo')
+
+        self.failUnlessRaises(
+            ProcessConfigurationIncompatibleError, ctrl._check_process_compatibility, kv_a_changed_version, kv_a, 'foo')
+        self.failUnlessRaises(
+            ProcessConfigurationIncompatibleError, ctrl._check_process_compatibility, kv_a_changed_requires, kv_a, 'foo')
+
+
+# end class TestProcessControlContextController

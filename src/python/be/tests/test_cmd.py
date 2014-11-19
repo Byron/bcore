@@ -17,6 +17,7 @@ from be import *
 
 
 class TestBeSubCommand(BeSubCommand, bapp.plugin_type()):
+
     """@todo documentation"""
     __slots__ = ()
 
@@ -40,9 +41,8 @@ class TestCmd(BeTestCase):
         assert cmd.parse_and_execute('foo'.split()) != 0, "command didn't exist"
         assert cmd.parse_and_execute([TestBeSubCommand.name]) == 0, "command did exist"
 
-
         configured_name = 'new-name'
         assert cmd.info_data().name == configured_name, \
-                                                    "it's possible to rename a be command"
+            "it's possible to rename a be command"
 
 # end class TestCmd

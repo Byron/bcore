@@ -24,10 +24,8 @@ def _initialize():
     """Add some utilities"""
     # Set debug logging for test cases
     logging.root.setLevel(logging.DEBUG)
-    
-#end _initialize
+
+# end _initialize
 
 
 _initialize()
-    
-

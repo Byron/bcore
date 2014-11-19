@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 from butility.future import str
 
-__all__ = ['CommandArgumentParser', 'ArgparserHandledCall', 'CommandlineOverridesMixin', 'InputError', 
+__all__ = ['CommandArgumentParser', 'ArgparserHandledCall', 'CommandlineOverridesMixin', 'InputError',
            'SuccessfulBreak']
 
 import sys
@@ -20,18 +20,20 @@ from .argparse import ArgumentParser
 
 
 # ==============================================================================
-## @name Exceptions
+# @name Exceptions
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 class InputError(Exception):
+
     """Thrown if one of the inputs to the commands turned out to be invalid"""
     __slots__ = ()
-    
+
 # end class InputError
 
 
 class SuccessfulBreak(Exception):
+
     """An exception indicating that everything is alright.
     Useful if particular implementations want to break out of a call"""
     __slots__ = ()
@@ -39,23 +41,26 @@ class SuccessfulBreak(Exception):
 
 # end class SuccessfulBreak
 
-## -- End Exceptions -- @}
+# -- End Exceptions -- @}
 
 
 # ==============================================================================
-## @name Types
+# @name Types
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 class ArgparserHandledCall(Exception):
+
     """An exception to indicate the arg parser handled the logic already.
     This usually happens if the commandline was called in help mode, or when showing the version"""
     __slots__ = 'message'
+
     def __init__(self, message):
         self.message = message
-        
+
 
 class CommandArgumentParser(ArgumentParser):
+
     """Our version of the argument parser which will not exit on error, but raise instead"""
     __slots__ = ()
 
@@ -63,8 +68,8 @@ class CommandArgumentParser(ArgumentParser):
         """Raise on error, instead of exiting
         @return status in case there is no message (i.e. the parser just wanted to exit)"""
         if status == 0:
-            raise ArgparserHandledCall(message) 
-            
+            raise ArgparserHandledCall(message)
+
         # reraise if possible
         exc_type, value, traceback = sys.exc_info()
         if value:
@@ -73,12 +78,13 @@ class CommandArgumentParser(ArgumentParser):
             assert message, "should have gotten an argparser message"
             raise Exception(message)
         # END options
-    
+
 
 # end class CommandArgumentParser
 
 
 class CommandlineOverridesMixin(object):
+
     """Subtypes will allow very straight-forward overrides to their context values, which looks nicer 
     than using the wrapper.
 
@@ -102,19 +108,19 @@ class CommandlineOverridesMixin(object):
     """
 
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
 
-    ## the arguments we take on the commandline    
+    # the arguments we take on the commandline
     set_args = ['--set']
 
-    ## If set, and if we have a schema, our configuration
+    # If set, and if we have a schema, our configuration
     show_config_args = ['-c', '--show-settings']
 
-    ## separator between keys and values
+    # separator between keys and values
     key_value_separator = '='
 
-    ## -- End Configuration -- @}
+    # -- End Configuration -- @}
 
     def setup_overrides_argparser(self, parser):
         help = "Override any settings value, relative to your command's settings."
@@ -123,17 +129,16 @@ class CommandlineOverridesMixin(object):
 
         if self.show_config_args:
             help = "Show the daemons effective configuration and exit"
-            parser.add_argument(*self.show_config_args, default=False, 
-                                    dest='show_settings', action='store_true', help=help)
+            parser.add_argument(*self.show_config_args, default=False,
+                                dest='show_settings', action='store_true', help=help)
         # end handle commandargs
 
         return self
 
-
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # @{
-    
+
     def apply_overrides(self, schema, args):
         """Parse overrides and set them into a new context
         @param schema KeyValueStoreSchema of your command
@@ -153,8 +158,8 @@ class CommandlineOverridesMixin(object):
             sys.stdout.write(str(self.application().context().settings().value_by_schema(schema)))
             raise SuccessfulBreak
         # end handle settings
-    ## -- End Subclass Interface -- @}
+    # -- End Subclass Interface -- @}
 
 # end class CommandlineOverridesMixin
 
-## -- End Types -- @}
+# -- End Types -- @}

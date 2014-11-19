@@ -9,12 +9,10 @@
 from __future__ import unicode_literals
 __all__ = ['action_schema']
 
-from bkvstore import ( KeyValueStoreSchema,
-                       AnyKey )
+from bkvstore import (KeyValueStoreSchema,
+                      AnyKey)
 
 from butility import Path
 
 
-action_schema = KeyValueStoreSchema('package-actions', {AnyKey : dict()})
-
-
+action_schema = KeyValueStoreSchema('package-actions', {AnyKey: dict()})

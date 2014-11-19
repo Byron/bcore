@@ -27,14 +27,14 @@ class PluginsTestCase(TestCase):
     def test_launcher(self):
         # This makes sure we can resolve the configuration file. It's internal use only !
         # test import *
-        # Must be done here, otherwise we can 'loose' the plugin for our invocation due to 
+        # Must be done here, otherwise we can 'loose' the plugin for our invocation due to
         # changing Application states
         mod = 'bprocess.plugins.be_go'
         mod = __import__(mod, globals(), locals(), [mod])
 
         go = mod.LauncherBeSubCommand.name
         go_exec = pseudo_executable(go)
-        bapp.main().context().push(_ProcessControllerContext(go, 
+        bapp.main().context().push(_ProcessControllerContext(go,
                                                              go_exec,
                                                              'doesntmatter', []))
         cmd = BeCommand(application=bapp.main()).parse_and_execute
@@ -50,7 +50,6 @@ class PluginsTestCase(TestCase):
         finally:
             os.chdir(cwd)
         # end cwd handling
-
 
 
 # end class PluginsTestCase

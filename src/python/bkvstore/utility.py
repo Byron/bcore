@@ -18,6 +18,7 @@ if sys.version_info[0] > 2:
 
 
 class KVStringFormatter(Formatter):
+
     """A formatter which introduces a way to specify the type to convert to. That way, it is possible to use
     more native attribute-access semantics in format strings.
 
@@ -53,13 +54,13 @@ class KVStringFormatter(Formatter):
     """
     __slots__ = ()
 
-    ## Mapping from type-name to type
+    # Mapping from type-name to type
     _type_cache = dict()
-    ## Mapping from key name to type (configured by users)
+    # Mapping from key name to type (configured by users)
     _custom_types = dict()
 
     # -------------------------
-    ## @name Utilities
+    # @name Utilities
     # @{
 
     @classmethod
@@ -84,7 +85,7 @@ class KVStringFormatter(Formatter):
             raise ValueError("No type found matching name '%s'" % name)
         # end handle cache
 
-    ## -- End Utilities -- @}
+    # -- End Utilities -- @}
 
     def get_field(self, field_name, args, kwargs):
         """This is just a copy of the base implementation, re-implementing the portion we need"""
@@ -127,7 +128,7 @@ class KVStringFormatter(Formatter):
         return obj, first
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     @classmethod
@@ -158,15 +159,13 @@ class KVStringFormatter(Formatter):
                 typ = type(typ())
             else:
                 typ = type(typ)
-            # end 
+            # end
             assert isinstance(typ, type), "failed to resolve schema type: %s" % typ
             cls.set_key_type(token, typ)
         # end for each key
         return cls
-    
-    ## -- End Interface -- @}
 
+    # -- End Interface -- @}
 
-    
 
 # end class KVStringFormatter

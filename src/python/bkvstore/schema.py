@@ -9,20 +9,20 @@
 from __future__ import unicode_literals
 from butility.future import str
 
-__all__ = [ 'KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
-            'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',
-            'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath', 'KVPathList',
-            'FrequencyStringAsSeconds']
+__all__ = ['KeyValueStoreSchema', 'ValidatedKeyValueStoreSchema', 'KeyValueStoreSchemaValidator', 'SchemaError',
+           'InvalidSchema', 'RootKey', 'StringList', 'IntList', 'FloatList', 'TypedList', 'PathList',
+           'ValidateSchemaMergeDelegate', 'ValidatedKeyValueStoreSchema', 'KVPath', 'KVPathList',
+           'FrequencyStringAsSeconds']
 
 import os
 import logging
 
-from bdiff import ( DiffRecord,
-                    DiffIndexDelegate,
-                    AdditiveMergeDelegate,
-                    TwoWayDiff,
-                    NoValue,
-                    RootKey )
+from bdiff import (DiffRecord,
+                   DiffIndexDelegate,
+                   AdditiveMergeDelegate,
+                   TwoWayDiff,
+                   NoValue,
+                   RootKey)
 
 from butility import (Path,
                       NativePath,
@@ -32,41 +32,44 @@ from butility import (Path,
 from .diff import (transform_value,
                    AnyKey)
 
-from .base import ( Error,
-                    KeyValueStoreProvider )
-
+from .base import (Error,
+                   KeyValueStoreProvider)
 
 
 log = logging.getLogger('bkvstore.schema')
 
 # ==============================================================================
-## \name Exceptions
+# \name Exceptions
 # ------------------------------------------------------------------------------
-## \{
+# \{
+
 
 class SchemaError(Error):
+
     """Base for all schema errors"""
     __slots__ = ()
-    
+
 # end class Error
 
 
 class InvalidSchema(SchemaError):
+
     """Thrown if the schema used for validation is invalid"""
 
-## -- End Exceptions -- @}
+# -- End Exceptions -- @}
 
 
 # ==============================================================================
-## \name Utility Structures
+# \name Utility Structures
 # ------------------------------------------------------------------------------
-## \{
+# \{
 
 class SchemaDiffRecord(DiffRecord):
+
     """A simple structure containing additional information about why the schema is not correct in this case"""
     __slots__ = (
-                    '_message'          # a message describing the issue - for now its just for the end-user
-                )
+        '_message'          # a message describing the issue - for now its just for the end-user
+    )
 
     def __init__(self, key, value_left, value_right, change_type, message):
         """Initialize the instance """
@@ -74,43 +77,45 @@ class SchemaDiffRecord(DiffRecord):
         self._message = message
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     def message(self):
         """@return a message indicating the nature of the schema issue"""
         return self._message
 
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 
 # end class SchemaDiffRecord
 
 
 class KVPath(NativePath):
+
     """The version of the path which allows to access most common path operations as property.
     That way, it is suitable for substitution within the kvstore."""
     __slots__ = ()
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
     def _mk_property(name):
         return property(lambda self: getattr(Path, name)(self))
 
-    for method in ('dirname', 'basename', 'parent', 'abspath', 'normpath', 'realpath', 'namebase', 'ext', 
-                   'stripext', 'relpath', 'tonative', 'tolinuxpath', 'listdir', 'dirs', 'files', 'bytes', 
+    for method in ('dirname', 'basename', 'parent', 'abspath', 'normpath', 'realpath', 'namebase', 'ext',
+                   'stripext', 'relpath', 'tonative', 'tolinuxpath', 'listdir', 'dirs', 'files', 'bytes',
                    'text', 'lines', 'stat', 'lstat', 'owner'):
         locals()[method] = _mk_property(method)
     # end for each method to create
     del method
     del _mk_property
 
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 
 # end class KVPath
 
 
 class TypedList(list):
+
     """A list which only allows objects of a specific type, or of a list-subtype.
     If the conversion failed, the failed value will be represented by a default-constructed instance of the
     desired type
@@ -118,26 +123,26 @@ class TypedList(list):
     __slots__ = ()
 
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # documentation
     # @{
-    
-    ## Type each member of the list should have
+
+    # Type each member of the list should have
     MemberType = None
-    
-    ## -- End Configuration -- @}
-    
+
+    # -- End Configuration -- @}
+
     def __new__(cls, *args):
         assert cls.MemberType is not None
         if args:
             args = (transform_value(args[0], cls._transform),)
         return list.__new__(cls, *args)
-        
+
     @classmethod
     def _is_valid_member(cls, value):
         """@return True if the given value would be a valid member"""
         return isinstance(value, cls.MemberType)
-    
+
     @classmethod
     def _transform(cls, value):
         if cls._is_valid_member(value):
@@ -150,53 +155,56 @@ class TypedList(list):
             log.error(msg, value, type(value).__name__, cls.MemberType.__name__, str(err))
             return cls.MemberType()
         # end handle conversion
-        
+
     def append(self, value):
         """Append a type-checked value
         @return actually added value"""
         value = transform_value(value, self._transform)
         list.append(self, value)
         return value
-        
+
 # end class TypedList
 
 
 class StringList(TypedList):
+
     """A list just for Strings - for use in KeyValueStoreSchema instances only"""
     __slots__ = ()
-    
+
     MemberType = str
-        
+
 # end class StringList
 
 
 class IntList(TypedList):
+
     """A list just for Integers - for use in KeyValueStoreSchema instances only"""
     __slots__ = ()
-    
+
     MemberType = int
-        
+
 # end class IntList
 
 
 class FloatList(TypedList):
+
     """A list just for floats - for use in KeyValueStoreSchema instances only"""
     __slots__ = ()
-    
+
     MemberType = float
-    
+
 # end class IntList
 
 
 class PathList(TypedList):
+
     """A list just for Paths - for use in KeyValueStoreSchema instances only"""
     __slots__ = ()
-    
+
     MemberType = NativePath
 
-
     # -------------------------
-    ## @name Properties
+    # @name Properties
     # For use in KVStore substitution
     # @{
 
@@ -209,11 +217,12 @@ class PathList(TypedList):
                 return p
         # end for each path
         raise ValueError("Not a single contained path was accessible")
-    
-    ## -- End Properties -- @}
+
+    # -- End Properties -- @}
 
 
 class KVPathList(PathList):
+
     """uses KVPaths instead"""
     __slots__ = ()
 
@@ -223,11 +232,12 @@ class KVPathList(PathList):
 
 
 class FrequencyStringAsSeconds(object):
+
     """Converts a frequency into seconds
     Defaults to 0"""
     __slots__ = ('seconds', 'frequency')
-    
-    def __init__(self, value = None):
+
+    def __init__(self, value=None):
         self.frequency = value
         self.seconds = value and frequncy_to_seconds(value) or 0
 
@@ -237,20 +247,21 @@ class FrequencyStringAsSeconds(object):
 # end class FrequencyStringAsSeconds
 
 
-## -- End Utility Structures -- @}
+# -- End Utility Structures -- @}
 
 
 # ==============================================================================
-## \name Schema Diff Delegates
+# \name Schema Diff Delegates
 # ------------------------------------------------------------------------------
 # Custom Delegates to help verifying the schema in various ways.
-## \{
+# \{
 
 class ValidateSchemaMergeDelegate(AdditiveMergeDelegate):
+
     """Records clashes, and builds up a merged value of individual schemas"""
     __slots__ = (
-                    '_clashing_keys'         # list of qualified keys which happen to clash with existing keys
-                )
+        '_clashing_keys'         # list of qualified keys which happen to clash with existing keys
+    )
 
     def reset(self):
         super(ValidateSchemaMergeDelegate, self).reset()
@@ -273,7 +284,7 @@ class ValidateSchemaMergeDelegate(AdditiveMergeDelegate):
             return '____ANY____'
         else:
             return super(ValidateSchemaMergeDelegate, cls)._to_string_key(key)
-        #end  handle AnyKey
+        # end  handle AnyKey
 
     def value_by_key(self, tree, key):
         """@note Similar to _KeyValueStoreDiffDelegateBase - couldn't derive from it directly though."""
@@ -289,6 +300,7 @@ class ValidateSchemaMergeDelegate(AdditiveMergeDelegate):
 
 
 class ValidateKeyValueStoreDiffIndexDelegate(DiffIndexDelegate):
+
     """Records issues found when diffing the information in a KeyValueStore provider with a collected schema"""
     __slots__ = ()
 
@@ -310,31 +322,32 @@ class ValidateKeyValueStoreDiffIndexDelegate(DiffIndexDelegate):
             except Exception:
                 msg = "Stored value %s('%s') at key '%s' could not be converted to the desired schema type %s"
                 msg %= (type(left_value), left_value, qualified_key, type(right_value))
-            #end test conversion
-        #end handle change_type
+            # end test conversion
+        # end handle change_type
 
         if msg is not None:
             record = self.DiffRecordType(qualified_key, left_value, right_value, change_type, msg)
             self._diff_index[qualified_key] = record
-        #end handle record creation
+        # end handle record creation
 
 # end class ValidateKeyValueStoreDiffIndexDelegate
-## -- End Schema Diff Delegates -- @}
+# -- End Schema Diff Delegates -- @}
 
 
 # ==============================================================================
-## \name Base Classes
+# \name Base Classes
 # ------------------------------------------------------------------------------
-## \{
+# \{
 
 class KeyValueStoreSchemaValidator(list):
+
     """collects a bunch of schemas when they are created, which allows them to be verified"""
     __slots__ = (
-                    '_key_separator'        # separator between the keys
-                )
-    
+        '_key_separator'        # separator between the keys
+    )
+
     ValidateSchemaMergeDelegateType = ValidateSchemaMergeDelegate
-    
+
     def __new__(cls, *args, **kwargs):
         """Initialize a new instance with an optional provider type.
         @param cls
@@ -361,7 +374,7 @@ class KeyValueStoreSchemaValidator(list):
             base = delegate.result()
             if base is NoValue:
                 base = make_dict()
-            #end handle base
+            # end handle base
             # put the schema temporarily to the right spot in the hierarchy according to its key information
             if schema.key() is not RootKey:
                 root_tree = parent_tree = make_dict()
@@ -370,11 +383,11 @@ class KeyValueStoreSchemaValidator(list):
                     child_tree = make_dict()
                     parent_tree[tokens.pop(0)] = child_tree
                     parent_tree = child_tree
-                #end while we have tokens
+                # end while we have tokens
                 parent_tree[tokens[0]] = schema
             else:
                 root_tree = schema
-            #end require parent
+            # end require parent
             TwoWayDiff().diff(delegate, base, root_tree)
         # end for each schema
         return (delegate.result(), delegate.clashing_keys())
@@ -401,9 +414,9 @@ class KeyValueStoreSchemaValidator(list):
         TwoWayDiff().diff(delegate, kvs_provider._data(), schema_data)
 
         return delegate.result()
-        
+
     @classmethod
-    def merge_schemas(cls, schemas, merge_root_keys = True):
+    def merge_schemas(cls, schemas, merge_root_keys=True):
         """@return a merged schema, being a combination of all given schemas.
         @param cls
         @param schemas a tuple or list of schema
@@ -415,22 +428,23 @@ class KeyValueStoreSchemaValidator(list):
         self = cls(schemas)
         merged_schema, clashing_keys = self.validate_schema()
         if clashing_keys:
-            raise AssertionError("Schema's have overlapping keys with different types at keys: %s" % ', '.join(clashing_keys))
+            raise AssertionError("Schema's have overlapping keys with different types at keys: %s" %
+                                 ', '.join(clashing_keys))
         # end check for clashes
-        
-        
+
         if merge_root_keys and len(all_roots) == 1:
             root_key = schemas[0].key()
             return KeyValueStoreSchema(root_key, merged_schema[root_key])
         else:
             return KeyValueStoreSchema(RootKey, merged_schema)
         # end re-obtain Root Key
-        
-        
+
+
 # end class KeyValueStoreSchemaValidator
 
 
 class KeyValueStoreSchema(DictObject, dict):
+
     """Defines the default types and values of dictionaries to be used as default value when querying
     stored values.
 
@@ -441,13 +455,13 @@ class KeyValueStoreSchema(DictObject, dict):
 
     You should assign your schemas to a variable that can be used as default when querying the your actual
     stored value. It will be used as template to verify the stored value against.
-    
+
     @attention the `dict` base is unused, it merely serves as a marker to allow the diffing engine to work 
     with it more natively.
     """
     __slots__ = (
-                    '_key'  # key at which our data is positioned
-                )
+        '_key'  # key at which our data is positioned
+    )
 
     def __init__(self, key, in_dict):
         """Initialize this instance with the given key and data
@@ -461,26 +475,27 @@ class KeyValueStoreSchema(DictObject, dict):
         self._key = key
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     def key(self):
         """@return the schema's key"""
         return self._key
 
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 
 # end class KeyValueStoreSchema
 
 
 class ValidatedKeyValueStoreSchema(KeyValueStoreSchema):
+
     """Similar to KeyValueStoreSchema, but is tied to a validator instance to simplifiy validation"""
     __slots__ = ()
-    
-    ## Shared instance of the current validator, used by all instances of this type
+
+    # Shared instance of the current validator, used by all instances of this type
     _validator = None
 
-    def __init__(self, key, in_dict, validator = None):
+    def __init__(self, key, in_dict, validator=None):
         """Initialize this instance with the given key and data
 
         Additionally it will register ourselves with the currently set collector
@@ -489,15 +504,15 @@ class ValidatedKeyValueStoreSchema(KeyValueStoreSchema):
         @param key
         @param in_dict"""
         super(ValidatedKeyValueStoreSchema, self).__init__(key, in_dict)
-        
+
         if validator is None:
             validator = self._validator
-        #end handle validator instance
+        # end handle validator instance
         assert validator is not None, "no validator set - use KeyValueStoreSchema.set_validator(...) to do that"
         validator.append(self)
-        
+
     # -------------------------
-    ## @name Class Interface
+    # @name Class Interface
     # Methods to configure all schemas at once
     # @{
 
@@ -516,11 +531,9 @@ class ValidatedKeyValueStoreSchema(KeyValueStoreSchema):
         """@return the collector which is currently set. Can be None if it was not yet set"""
         return cls._validator
 
-    ## -- End Class Interface -- @}
+    # -- End Class Interface -- @}
 
-
-    
 
 # end class ValidatedKeyValueStoreSchema
 
-## -- End Base Classes -- @}
+# -- End Base Classes -- @}

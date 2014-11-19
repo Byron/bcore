@@ -20,14 +20,14 @@ except ImportError:
     from yaml import Loader
 # end get fastest loader
 
-from butility import ( OrderedDict,
-                       DictObject )
+from butility import (OrderedDict,
+                      DictObject)
 
 # ==============================================================================
-## \name Yaml Tools
+# \name Yaml Tools
 # ------------------------------------------------------------------------------
 # Yaml specific tools and overrides
-## \{
+# \{
 
 
 def initialize_yaml_overrides():
@@ -43,29 +43,30 @@ def initialize_yaml_overrides():
 
 
 class OrderedDictYAMLLoader(Loader):
+
     """
     A YAML loader that loads mappings into ordered dictionaries.
     """
- 
+
     def __init__(self, *args, **kwargs):
         Loader.__init__(self, *args, **kwargs)
- 
+
         self.add_constructor('tag:yaml.org,2002:map', type(self).construct_yaml_map)
         self.add_constructor('tag:yaml.org,2002:omap', type(self).construct_yaml_map)
- 
+
     def construct_yaml_map(self, node):
         data = OrderedDict()
         yield data
         value = self.construct_mapping(node)
         data.update(value)
- 
+
     def construct_mapping(self, node, deep=False):
         if isinstance(node, yaml.MappingNode):
             self.flatten_mapping(node)
         else:
             raise yaml.constructor.ConstructorError(None, None,
-                'expected a mapping node, but found %s' % node.id, node.start_mark)
- 
+                                                    'expected a mapping node, but found %s' % node.id, node.start_mark)
+
         mapping = OrderedDict()
         for key_node, value_node in node.value:
             key = self.construct_object(key_node, deep=deep)
@@ -73,13 +74,14 @@ class OrderedDictYAMLLoader(Loader):
                 hash(key)
             except TypeError as exc:
                 raise yaml.constructor.ConstructorError('while constructing a mapping',
-                    node.start_mark, 'found unacceptable key (%s)' % exc, key_node.start_mark)
+                                                        node.start_mark, 'found unacceptable key (%s)' % exc, key_node.start_mark)
             value = self.construct_object(value_node, deep=deep)
             mapping[key] = value
         return mapping
 
 
 class OrderedDictRepresenter(yaml.representer.Representer):
+
     """Provide a standard-dict representation for ordered dicts as well.
     This assumes that we are automatically serializing into ordered dicts"""
 
@@ -106,18 +108,20 @@ class OrderedDictRepresenter(yaml.representer.Representer):
             else:
                 node.flow_style = best_style
         return node
-    #end represent_ordered_mapping
+    # end represent_ordered_mapping
 # end class OrderedDictRepresenter
+
 
 def represent_dictobject(dumper, data):
     return yaml.representer.Representer.represent_mapping(dumper,
-                                                'tag:yaml.org,2002:map', data)
+                                                          'tag:yaml.org,2002:map', data)
+
 
 def represent_ordereddict(dumper, data):
     """Represents and ordered dict like a dict
     @note: what's usually self is a dumper, which is not an instance of our
     type though. Therefore we explicitly call our code through a classmethod."""
     return OrderedDictRepresenter.represent_ordered_mapping(dumper,
-                                                'tag:yaml.org,2002:map', data)
+                                                            'tag:yaml.org,2002:map', data)
 
-## -- End Yaml Tools -- \}
+# -- End Yaml Tools -- \}

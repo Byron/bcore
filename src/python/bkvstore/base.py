@@ -9,33 +9,34 @@
 from __future__ import unicode_literals
 from butility.future import str
 
-__all__ = ['KeyValueStoreProvider', 'KeyValueStoreModifier', 'Error', 'NoSuchKeyError', 
+__all__ = ['KeyValueStoreProvider', 'KeyValueStoreModifier', 'Error', 'NoSuchKeyError',
            'UnorderedKeyValueStoreModifier', 'ChangeTrackingKeyValueStoreModifier']
 
 import copy
 import logging
 
-from bdiff import ( ApplyDifferenceMergeDelegate,
-                    TwoWayDiff,
-                    RootKey,
-                    NoValue,
-                    merge_data)
+from bdiff import (ApplyDifferenceMergeDelegate,
+                   TwoWayDiff,
+                   RootKey,
+                   NoValue,
+                   merge_data)
 
-from butility import  (OrderedDict,
-                       smart_deepcopy)
+from butility import (OrderedDict,
+                      smart_deepcopy)
 
-from .diff import ( KeyValueStoreProviderDiffDelegate,
-                    KeyValueStoreModifierDiffDelegate,
-                    KeyValueStoreModifierBaseSwapDelegate )
+from .diff import (KeyValueStoreProviderDiffDelegate,
+                   KeyValueStoreModifierDiffDelegate,
+                   KeyValueStoreModifierBaseSwapDelegate)
 
 
 # ==============================================================================
-## \name Exceptions
+# \name Exceptions
 # ------------------------------------------------------------------------------
 # Basic exceptions thrown by the configuration system
-## \{
+# \{
 
 class Error(Exception):
+
     """Base Type for all exceptions of the configuration system"""
     __slots__ = ()
 
@@ -43,6 +44,7 @@ class Error(Exception):
 
 
 class NoSuchKeyError(Error, KeyError):
+
     """Thrown if a value is missing for a given key,"""
 
     def __init__(self, key):
@@ -58,18 +60,19 @@ class NoSuchKeyError(Error, KeyError):
     def __str__(self):
         return "No value for key '%s'" % self.key()
 
-#end class NoDefaultValueForKeyError
+# end class NoDefaultValueForKeyError
 
-## -- End Exceptions -- \}
+# -- End Exceptions -- \}
 
 
 # ==============================================================================
-## \name Base Implementation
+# \name Base Implementation
 # ------------------------------------------------------------------------------
 # A foundational implementation which operates on simple nested data-structures
-## \{
+# \{
 
 class KeyValueStoreProvider(object):
+
     """Implements the KeyValueStoreProviderInterface to read nested values from some storage location.
 
     These values are assumed to live in a key-value based structure, where the
@@ -93,16 +96,16 @@ class KeyValueStoreProvider(object):
     """
     __slots__ = ('_value_dict')
 
-    ## Our class-wide logging facility
+    # Our class-wide logging facility
     log = logging.getLogger("bkvstore.base")
 
-    ## our default key separator
+    # our default key separator
     key_separator = KeyValueStoreProviderDiffDelegate.key_separator
 
-    ## The algorithm we use to diff trees
+    # The algorithm we use to diff trees
     TwoWayDiffAlgorithmType = TwoWayDiff
 
-    ## The delegate for the diff algorithm
+    # The delegate for the diff algorithm
     DiffProviderDelegateType = KeyValueStoreProviderDiffDelegate
 
     def __init__(self, value_dict, take_ownership=True):
@@ -113,12 +116,12 @@ class KeyValueStoreProvider(object):
         @param take_ownership if True, we will assume the dict will only be handled by us, so we assume ownership.
         This is the default. Otherwise we will copy the dicts contents."""
         for attr in ('__getitem__', 'keys'):
-            assert hasattr(value_dict, attr), "Dictionary type (%s) needs to implement %s" % (value_dict, attr)    
-        #end for each attr
+            assert hasattr(value_dict, attr), "Dictionary type (%s) needs to implement %s" % (value_dict, attr)
+        # end for each attr
         self._value_dict = NoValue
         self._set_data(value_dict, take_ownership)
-              
-    def __str__(self, path = [], indention = 0):
+
+    def __str__(self, path=[], indention=0):
         import yaml
         return yaml.dump(self._value_dict)
 
@@ -126,7 +129,7 @@ class KeyValueStoreProvider(object):
         return "%s(%s)" % (self.__class__.__name__, str(self._value_dict))
 
     # -------------------------
-    ## @name Interface Implementation
+    # @name Interface Implementation
     # @{
 
     def value(self, key, default, resolve=False):
@@ -141,7 +144,7 @@ class KeyValueStoreProvider(object):
         If you don't expect any default, set it to an empty dict, e.g. dict()
         @param resolve if True, format specifications within the value string will be resolved using all
         data available within this kvstore.
-        
+
         For example, this allows to resolve formats like {site.name}, and many more.
         See http://docs.python.org/2/library/string.html#formatstrings for more information.
         @return a deep copy of the stored value or a read-only deep copy
@@ -163,7 +166,7 @@ class KeyValueStoreProvider(object):
         if resolve:
             args.append(self._value_dict)
         # end handle resolver
-        
+
         delegate = self.DiffProviderDelegateType(*args)
         self.TwoWayDiffAlgorithmType().diff(delegate, value, default)
 
@@ -171,18 +174,18 @@ class KeyValueStoreProvider(object):
         if value is NoValue:
             # neither the default nor the stored value provided a value
             raise NoSuchKeyError(key)
-        #end handle no value
+        # end handle no value
         return value
-        
+
     def value_by_schema(self, schema, resolve=False):
         """Similar to value(), but a single schema is enough to obain the value
         @return a deep copy of data conforming to the given schema"""
         return self.value(schema.key(), schema, resolve=resolve)
-        
+
     def has_value(self, key):
         """@return true if there is a value stored for the given key"""
         return self._resolve_value(key, self._value_dict) is not NoValue
-        
+
     def keys(self, base_key=RootKey):
         """@return a list of key-names available under the given base. If the base didn't exist, the returned
         list is empty.
@@ -193,22 +196,22 @@ class KeyValueStoreProvider(object):
         base_dict = self._value_dict
         if base_key is not RootKey:
             base_dict = self._resolve_value(base_key, base_dict)
-        #end resolve base
+        # end resolve base
         if base_dict is NoValue:
             return list()
-        #end handle missing key
+        # end handle missing key
         return list(base_dict.keys())
-        
+
     def data(self):
         """@return a copy of our data dictionary
         @note the copy is required only to prevent modifications
         """
         return copy.deepcopy(self._data())
 
-    ## -- End Interface Implementation -- @}
+    # -- End Interface Implementation -- @}
 
     # -------------------------
-    ## @name Subclass Utilities
+    # @name Subclass Utilities
     # @{
 
     @classmethod
@@ -235,10 +238,10 @@ class KeyValueStoreProvider(object):
                 value_dict = value_dict[token]
             except KeyError:
                 return NoValue
-            #end handle missing key
-        #end while there are tokens to resolve
+            # end handle missing key
+        # end while there are tokens to resolve
         return value_dict
-        
+
     def _set_data(self, data_dict, take_ownership=True):
         """Set ourselves to represent the given data
         @param data_dict a dictionary type keeping our data
@@ -251,10 +254,10 @@ class KeyValueStoreProvider(object):
         self._value_dict = value_dict
         return self
 
-    ## -- End Subclass Utilities -- @}
+    # -- End Subclass Utilities -- @}
 
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # @{
 
     def _data(self):
@@ -264,11 +267,12 @@ class KeyValueStoreProvider(object):
         """
         return self._value_dict
 
-    ## -- End Subclass Interface -- @}
+    # -- End Subclass Interface -- @}
 # end class KeyValueStoreProvider
 
 
 class KeyValueStoreModifier(KeyValueStoreProvider):
+
     """Allows to change existing storage by setting values or removing them
     entirely.
 
@@ -314,11 +318,11 @@ class KeyValueStoreModifier(KeyValueStoreProvider):
         value = initial_tree_value
         while len(tokens) > 1:
             value = value.setdefault(tokens.pop(0), type(initial_tree_value)())
-        #end while we have n - 1 tokens
+        # end while we have n - 1 tokens
         return value, tokens[0]
 
     # -------------------------
-    ## @name Interface Implementation
+    # @name Interface Implementation
     # @{
 
     def set_value(self, key, new_value):
@@ -352,7 +356,7 @@ class KeyValueStoreModifier(KeyValueStoreProvider):
             value[leaf_key] = delegate.result()
 
         return self
-        
+
     def set_value_by_schema(self, schema, new_value):
         """Similar to set_value, but the key will be taken from the given schema directly using schema.key().
         @note counterpart of value_by_schema
@@ -374,44 +378,44 @@ class KeyValueStoreModifier(KeyValueStoreProvider):
             # just ignore cases where the key doesn't exist as this is what the user wants anyway
             self.log.debug("Value at key '%s' didn't exist for deletion - ignoring it", key)
             return self
-        #end if there is no value
+        # end if there is no value
         value, leaf_key = self._resolve_value_with_dict(key, self._value_dict)
         del(value[leaf_key])
 
         return self
 
-    ## -- End Interface Implementation -- @}
+    # -- End Interface Implementation -- @}
 
 # end class KeyValueStoreModifier
 
 
 class ChangeTrackingKeyValueStoreModifier(KeyValueStoreModifier):
+
     """A base tracking changes to allow to query and re-apply them if the underlying data changes
-    
+
     @note Make sure it is listed before the KeyValueStore base in your base class array
     """
     __slots__ = (
-                    '_base_value_dict'          # copy of the _value_dict
-                )
-    
-    ## A delegate to pick up changes and re-apply them to a different base data structure
+        '_base_value_dict'          # copy of the _value_dict
+    )
+
+    # A delegate to pick up changes and re-apply them to a different base data structure
     KeyValueStoreModifierBaseSwapDiffDelegateType = KeyValueStoreModifierBaseSwapDelegate
-    ## A delegate to find differences between a base and actual values, which is used to find changes
+    # A delegate to find differences between a base and actual values, which is used to find changes
     KeyValueStoreModifierApplyDifferenceDelegateType = ApplyDifferenceMergeDelegate
-    
-    
+
     def __init__(self, value_dict, take_ownership=True):
         """Initialize this instance and keep a copy of the original value for later comparison"""
         # need initialization here as super call will call our set-data
         self._base_value_dict = NoValue
         super(ChangeTrackingKeyValueStoreModifier, self).__init__(value_dict, take_ownership=take_ownership)
         assert self.KeyValueStoreModifierApplyDifferenceDelegateType
-        
+
         # We must not call our base, otherwise python detects a chain and doesn't get back here
-        self._set_data(self._value_dict, take_ownership = take_ownership)
+        self._set_data(self._value_dict, take_ownership=take_ownership)
 
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # Subclasses may use this to update the data contained in the modifier
     # @{
 
@@ -434,17 +438,17 @@ class ChangeTrackingKeyValueStoreModifier(KeyValueStoreModifier):
         if not isinstance(data_dict, self.KeyValueStoreModifierDiffDelegateType.DictType):
             raise TypeError("Input data was of type %s, we expected %s"
                             % (type(data_dict), self.KeyValueStoreModifierDiffDelegateType.DictType))
-        #end instance type check
-        
+        # end instance type check
+
         if self._value_dict is NoValue:
             super(ChangeTrackingKeyValueStoreModifier, self)._set_data(data_dict, take_ownership)
         # end initialize value dict
-        
+
         if not take_ownership or data_dict is self._value_dict:
             # The data_dict check has to be done in case someone feeds us our own data dict to make an update
             data_dict = copy.deepcopy(data_dict)
         # end handle ownership
-        
+
         # initial value ? Then we don't have to diff anything
         if self._base_value_dict is NoValue:
             # Need to copy here, as this dict is already owned by our provider - thus is a requirement
@@ -458,17 +462,17 @@ class ChangeTrackingKeyValueStoreModifier(KeyValueStoreModifier):
 
             self._base_value_dict = data_dict
             self._value_dict = delegate.result()
-        #end handle base value dict
+        # end handle base value dict
         assert self._value_dict is not self._base_value_dict
-        
+
         return self
-    
-    ## -- End Subclass Interface -- @}
-    
+
+    # -- End Subclass Interface -- @}
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     def changes(self):
         """@return a dictionary which contains all added and changed values
         @note deleted values are, for obvious reasons, not included
@@ -477,7 +481,7 @@ class ChangeTrackingKeyValueStoreModifier(KeyValueStoreModifier):
         assert self._base_value_dict is not NoValue and self._value_dict is not NoValue
         self.TwoWayDiffAlgorithmType().diff(delegate, self._base_value_dict, self._value_dict)
         return delegate.result()
-    
+
     def set_changes(self, data):
         """Set the given data structure as changes, so that changes() would return that exact structure
         This will also discard any previous changes that might currently exist.
@@ -486,30 +490,30 @@ class ChangeTrackingKeyValueStoreModifier(KeyValueStoreModifier):
             self._value_dict = merge_data(data, self._value_dict)
         # end handle re-apply changes
         return self
-    
-    ## -- End Interface -- @}
-    
+
+    # -- End Interface -- @}
+
 # end class ChangeTrackingKeyValueStoreModifier
 
 
 class UnorderedKeyValueStoreModifier(KeyValueStoreModifier):
+
     """Same as KeyValueStoreModifier, but uses without an ordered dictionary type.
     @note its just a utility type for now, it requires quite a bit of boiler plate to change the dictionary
     type, which might want to be improved."""
     __slots__ = ()
-    
+
     class DiffDelegate(KeyValueStoreModifierDiffDelegate):
+
         """Uses an unordered Dict"""
         __slots__ = ()
-    
+
         DictType = dict
     # end class DiffDelegate
-    
-    KeyValueStoreModifierDiffDelegateType = DiffDelegate 
-    
+
+    KeyValueStoreModifierDiffDelegateType = DiffDelegate
+
 # end class UnorderedKeyValueStoreModifier
-    
-
-## -- End Base Implementation -- \}
 
 
+# -- End Base Implementation -- \}

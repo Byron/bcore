@@ -11,6 +11,7 @@ __all__ = []
 
 
 class Foo:
+
     """Implements nothing"""
     __slots__ = ()
 

@@ -19,24 +19,24 @@ from bprocess import (ProxyProcessControllerDelegate,
                       ProcessAwareApplication,
                       ControlledProcessInformation,
                       PythonPackageIterator)
-from butility import ( abstractmethod,
-                       wraps,
-                       Path )
+from butility import (abstractmethod,
+                      wraps,
+                      Path)
 from bapp.tests import preserve_application
 
 
 log = logging.getLogger('bprocess.tests.base')
 
 
-
 # ==============================================================================
 # @name Base Classes
 # ------------------------------------------------------------------------------
 # Classes to use for all test-cases
-# # @{
+# @{
 
 
 class PluginLoadingProcessAwareApplication(ProcessAwareApplication):
+
     """An application to load Plugins in any case, even if we have not been started by the wrapper.
     This works by specifying the entrypoint package, and it will do the right thing depending on 
     whether or not a wrapper was involved.
@@ -46,7 +46,7 @@ class PluginLoadingProcessAwareApplication(ProcessAwareApplication):
     __slots__ = ('_package_name')
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     @classmethod
@@ -60,22 +60,23 @@ class PluginLoadingProcessAwareApplication(ProcessAwareApplication):
         inst = super(PluginLoadingProcessAwareApplication, cls).new(*args, **kwargs)
         if not ControlledProcessInformation.has_data():
             PythonPackageIterator().import_modules(store=inst.context().settings(), package_name=package_name)
-        # end 
+        # end
         return inst
-    
-    ## -- End Interface -- @}
+
+    # -- End Interface -- @}
 
 # end class PluginLoadingProcessAwareApplication
 
 
 class NosetestDelegate(ProxyProcessControllerDelegate):
+
     """This delegate does nothing more but to parse nose-specific arguments in the PostLaunch data structure.
     It also provides functionality to pick up the previously stored information and launch nose from it
     @note this requires nose to be available in the python path, ideally the wrapper provides it as well"""
     __slots__ = ()
-    
-    nose_schema = KeyValueStoreSchema('nosetests', { 'args' : list })
-    
+
+    nose_schema = KeyValueStoreSchema('nosetests', {'args': list})
+
     def pre_start(self, executable, env, args, cwd, resolve):
         """Parse out all arguments until '--' and place them into extra process information.
         @note will place a new environment to assure we get those arguments over into the launched application"""
@@ -85,23 +86,23 @@ class NosetestDelegate(ProxyProcessControllerDelegate):
 
             def set_context_override(schema, value):
                 value.args.extend(noseargs)
-            # end 
+            # end
             self.ApplyChangeContextType('NosetestsOverride').setup(self._app.context(),
-                                                                        set_context_override, 
-                                                                        self.nose_schema)
-            args = args[sep_index+1:]
-            
+                                                                   set_context_override,
+                                                                   self.nose_schema)
+            args = args[sep_index + 1:]
+
             log.info("Starting nosetest with args: %s", ' '.join(noseargs))
         except ValueError:
             log.info('No nosetests arguments found - specify them using <nosetest flags> -- <hostapplication flags>')
         # end handle no special nosetests args
-        
+
         return super(NosetestDelegate, self).pre_start(executable, env, args, cwd, resolve)
-        
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     @classmethod
     def start_nose(cls):
         """Start nose with the arguments previously specified on the commandline
@@ -109,27 +110,28 @@ class NosetestDelegate(ProxyProcessControllerDelegate):
         kvstore = ControlledProcessInformation().as_kvstore()
         value = kvstore.value_by_schema(cls.nose_schema)
 
-        import nose        
+        import nose
         return nose.main(argv=['nosetests'] + value.args)
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 
 
 class PythonScriptNosetestDelegate(NosetestDelegate):
+
     """Provides a path to the script that, if executed, starts up nose with the required arguments.
     Its interface facilitates injecting the script into the arguments of the called process"""
     __slots__ = ()
 
     nose_package_options_schema = NosetestDelegate.proxy_delegate_package_schema.copy()
-    nose_package_options_schema.update({'nose' : 
-                                            # If True, program arguments will  be prepended
-                                            # Otherwise, they are appended
-                                            { 'prepend_args' : False }
-                                       })
-    
+    nose_package_options_schema.update({'nose':
+                                        # If True, program arguments will  be prepended
+                                        # Otherwise, they are appended
+                                        {'prepend_args': False}
+                                        })
+
     def entry_script_path(self):
         """@return path to python script that can serve as entrypoint"""
         return Path(__file__).dirname() / 'start-nose.py'
-        
+
     def modify_args(self, args, script_path):
         """@return modified argument list containing entry_script_path() in a way that causes the hostapplication
         to execute it
@@ -137,7 +139,7 @@ class PythonScriptNosetestDelegate(NosetestDelegate):
         @param script_path path to the script that is to be injected so that the program will execute it
         @note default implementation just returns script_path + args
         @note called from pre_start"""
-        data, name = next(self._new_iterator(self._package_name, schema = self.nose_package_options_schema))
+        data, name = next(self._new_iterator(self._package_name, schema=self.nose_package_options_schema))
         if data.nose.prepend_args:
             return args + [script_path]
         else:
@@ -145,12 +147,12 @@ class PythonScriptNosetestDelegate(NosetestDelegate):
         # end handle arguments
 
     def pre_start(self, executable, env, args, cwd, resolve):
-        executable, env, args, cwd = super(PythonScriptNosetestDelegate , self).pre_start(executable, env, args, cwd, resolve)
+        executable, env, args, cwd = super(PythonScriptNosetestDelegate, self).pre_start(
+            executable, env, args, cwd, resolve)
         args = self.modify_args(args, self.entry_script_path())
         assert isinstance(args, (list, tuple))
         return (executable, env, args, cwd)
 
 # end class PythonScriptNosetestDelegate
 
-## -- End Base Classes -- @}
-
+# -- End Base Classes -- @}

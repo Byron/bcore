@@ -23,7 +23,7 @@ if sys.version_info[0] < 3:
         PyStringIO = StringIO
     else:
         from cStringIO import StringIO
-        # for unicode support 
+        # for unicode support
         from StringIO import StringIO as PyStringIO
     # end string io special handling
     import cProfile as profile
@@ -33,4 +33,4 @@ else:
     from io import StringIO
     PyStringIO = StringIO
     import profile
-# end 
+# end

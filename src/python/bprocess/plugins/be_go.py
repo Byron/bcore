@@ -25,10 +25,9 @@ import bprocess
 from bprocess.bootstrap import Bootstrapper
 
 
-
-
-class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIteratorMixin, 
+class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIteratorMixin,
                            bapp.plugin_type()):
+
     """A progam to launch arbitrary configured bprocess executables"""
     __slots__ = ('_parser')
 
@@ -55,7 +54,7 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIt
         compared to the custom one we implement, which is why we go for a special syntax to reduce 
         chance of clashes"""
         parser.add_argument('+spawn',
-                            action='store_true', 
+                            action='store_true',
                             default=False,
                             help='If set, the program will be launched as separate process')
 
@@ -64,7 +63,6 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIt
         # NOTE: need to generate full name here - currently only known to parsers
         parser.usage = '... %s [+spawn] program [args]' % self.name
         return self
-        
 
     def _executable_package_names(self):
         """@return a list of program names that are executable, based on our context
@@ -88,7 +86,7 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIt
             # end handle no executable configured
         # end for each package
         return res
-        
+
     def execute(self, args, remaining_args):
         programs = self._executable_package_names()
 
@@ -101,7 +99,7 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIt
             sys.stdout.write('Please choose one of the following:\n\n')
             for name in programs:
                 sys.stdout.write(name + '\n')
-            # end 
+            # end
             return self.SUCCESS
         # end handle query mode
 
@@ -117,16 +115,16 @@ class LauncherBeSubCommand(BeSubCommand, ApplicationSettingsMixin, PackageDataIt
 
         # Also we let it build it's Context from scratch, and won't pass ours
         # It's important to pass the CWD as major context provider to the called program
-        pctrl = ProcessController(program, remaining_args[1:], cwd = os.getcwd())
+        pctrl = ProcessController(program, remaining_args[1:], cwd=os.getcwd())
         if args.spawn:
             process = Bootstrapper.handle_controller_call(bprocess, pctrl, pctrl.execute_in_current_context)
         else:
             # This will possibly never return, spawn is off (unless the delegate overrides it)
             process = Bootstrapper.handle_controller_call(bprocess, pctrl, pctrl.execute)
         # If the delegate wanted something else, we use the return code of the program
-        
+
         if process is None:
             return self.ERROR
-        # end 
+        # end
 
         return process.returncode

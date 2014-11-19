@@ -13,14 +13,14 @@ __all__ = []
 from .base import (preserve_application,
                    with_application,
                    AppTestCase)
-                            
+
 from butility import (Interface,
                       abstractmethod)
 
 import bapp
 
 from bapp import (InstanceNotFound,
-                   TypeNotFound)
+                  TypeNotFound)
 
 from bapp.contexts import (ApplicationContext,
                            OSContext)
@@ -28,7 +28,7 @@ from bapp.contexts import (ApplicationContext,
 
 class TestCore(AppTestCase):
     __slots__ = ()
-    
+
     @with_application
     def test_application(self):
         """Test BApplication functionality"""
@@ -37,7 +37,7 @@ class TestCore(AppTestCase):
 
         class ICustomInterface(Interface):
             __slots__ = ()
-            
+
             @abstractmethod
             def hello(self):
                 return str()
@@ -46,12 +46,13 @@ class TestCore(AppTestCase):
 
         # It is possible to setup plugins even without an Application
         class CustomPluginType(ICustomInterface, bapp.plugin_type()):
+
             """Works without application"""
             __slots__ = ()
-        
+
             def hello(self):
                 return "world"
-                
+
         # end class CustomPluginType
 
         # we don't have access to the stack without an application, so lets make one
@@ -66,7 +67,7 @@ class TestCore(AppTestCase):
         # the custom type can already be found
         assert bapp.main().type(ICustomInterface) is CustomPluginType
 
-        # instance is cought by the associated context automatically. Early types will always go to the 
+        # instance is cought by the associated context automatically. Early types will always go to the
         # current main application
         inst = CustomPluginType()
         assert bapp.main().instance(ICustomInterface) is inst
@@ -80,13 +81,13 @@ class TestCore(AppTestCase):
     def test_hierarchical_loading(self):
         """See the hierarchical yaml loader in action"""
         assert bapp.Application.main is None
-        app = bapp.Application.new(setup_logging=False, 
-                                    settings_trees=(self.fixture_path(''),),
-                                    settings_hierarchy=True)
+        app = bapp.Application.new(setup_logging=False,
+                                   settings_trees=(self.fixture_path(''),),
+                                   settings_hierarchy=True)
 
         assert len(app.settings().data())
 
-       
+
 # end class TestCore
 
 
@@ -101,9 +102,8 @@ class TestContext(AppTestCase):
         app = bapp.main()
         app.context().push(pbe)
         app.context().push(ose)
-        
+
         # Test Validation
         validator = app.context().schema_validator()
         assert len(validator) > 0
         assert len(validator.validate_schema()[1]) == 0, "default schema's should have no clashes"
-    

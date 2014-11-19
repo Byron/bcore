@@ -26,47 +26,46 @@ from .base import Context
 log = logging.getLogger(__name__)
 
 
-
-
 class HierarchicalContext(Context, LazyMixin):
+
     """A Context which is finding configuration paths in the directory hierarchy based on some root, 
     and which loads one or more yaml files into its own kvstore.
-    
+
     Additionally, it can load plug-ins from the very same folders, however, this should be triggerd once
     the environment was put onto the stack.
-    
+
     As a main feature, the loader will find other loaders on the same stack and prevent the same file to 
     be laoded multiple times, just in case multiple loaders are created on different levels of the same
     hierarchy.
     """
     __slots__ = (
-                    '_trees',       ## Directory from were to start the search for configuartion directories
-                    '_config_dirs',     ## Cache for all located configuration directories
-                    '_config_files',    ## All files we have loaded so far, in loading-order
-                    '_additional_config_files', ## Files provided by the caller, they will be added on top
-                )
-    
+        '_trees',  # Directory from were to start the search for configuartion directories
+        '_config_dirs',  # Cache for all located configuration directories
+        '_config_files',  # All files we have loaded so far, in loading-order
+        '_additional_config_files',  # Files provided by the caller, they will be added on top
+    )
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
-    
-    ## the name of the directory in which we expect configuration files
+
+    # the name of the directory in which we expect configuration files
     config_dir_name = 'etc'
 
     # A mapping of long to short platform names
-    platform_names_map = { 'linux' : 'lnx',
-                          'linux2' : 'lnx',
-                          'sunos5' : 'sun',
-                          'darwin' : 'mac',
-                       'freebsd10' : 'bsd',
-                        'freebsd9' : 'bsd',
-                        'freebsd8' : 'bsd',
-                        'freebsd7' : 'bsd',
-                           'win32' : 'win' }
-    
-    ## -- End Configuration -- @}
-    
-    def __init__(self, tree, load_config = True, traverse_settings_hierarchy = True, config_files = list()):
+    platform_names_map = {'linux': 'lnx',
+                          'linux2': 'lnx',
+                          'sunos5': 'sun',
+                          'darwin': 'mac',
+                          'freebsd10': 'bsd',
+                          'freebsd9': 'bsd',
+                          'freebsd8': 'bsd',
+                          'freebsd7': 'bsd',
+                          'win32': 'win'}
+
+    # -- End Configuration -- @}
+
+    def __init__(self, tree, load_config=True, traverse_settings_hierarchy=True, config_files=list()):
         """Initialize the instance with a directory from which it should search for configuration paths 
         and plug-ins.
         @param tree from which to start finding directories to laod values from. It may either be the 
@@ -123,7 +122,7 @@ class HierarchicalContext(Context, LazyMixin):
             self._config_files = self._find_config_files()
         else:
             return super(HierarchicalContext, self)._set_cache_(name)
-        #end handle name
+        # end handle name
 
     @classmethod
     def _platform_id_short(cls):
@@ -132,26 +131,28 @@ class HierarchicalContext(Context, LazyMixin):
         try:
             return cls.platform_names_map[sys.platform]
         except KeyError:
-            raise EnvironmentError("Please add the key '%s' to the HierarchicalContext.platform_names_map" % sys.platform)
+            raise EnvironmentError(
+                "Please add the key '%s' to the HierarchicalContext.platform_names_map" % sys.platform)
         # end handle unknown platforms
 
     def _find_config_files(self):
         """Traverse our configuration directories and obtain all yaml files, which are returned as list"""
         tags = (self._platform_id_short(), str(int_bits()))
         config_paths = list()
-        
+
         for path in self._filter_trees(self.config_trees()):
-            config_paths.extend(tagged_file_paths(path, tags, '*' + YAMLKeyValueStoreModifier.StreamSerializerType.file_extension))
+            config_paths.extend(
+                tagged_file_paths(path, tags, '*' + YAMLKeyValueStoreModifier.StreamSerializerType.file_extension))
         # end for each path in directories
 
         # Finally, add additional ones on top to allow them to override everything
         config_paths.extend(self._additional_config_files)
-        
+
         # We may have no configuration files left here, as the filter could remove them all (in case they
         # are non-unique)
         # for now, no writer
         return tuple(self._filter_files(config_paths))
-        
+
     def _load_configuration(self):
         """Load all configuration files from our directories.
         Right now we implement it using tagged configuration files
@@ -159,7 +160,7 @@ class HierarchicalContext(Context, LazyMixin):
         have to do it at some later point"""
         if self._config_files:
             log.debug("Context '%s' initializes its paths", self.name())
-            #end for each path
+            # end for each path
             self._kvstore = YAMLKeyValueStoreModifier(self._config_files)
         else:
             self._kvstore = self.KeyValueStoreModifierType(OrderedDict())
@@ -195,9 +196,9 @@ class HierarchicalContext(Context, LazyMixin):
                 # end less loop
         # end for each directory to traverse
         return dirs
-        
+
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # @{
 
     def _filter_trees(self, directories):
@@ -206,19 +207,19 @@ class HierarchicalContext(Context, LazyMixin):
         @note base implementation does nothing
         """
         return directories
-        
+
     def _filter_files(self, files):
         """Filter the given files which are supposed to be loaded by YAMLKeyValueStoreModifier
         @return a sorted list of files that should actually be loaded
         @note base implementation does nothing"""
         return files
-    
-    ## -- End Subclass Interface -- @}
-        
+
+    # -- End Subclass Interface -- @}
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     def config_trees(self):
         """@return a list of directories, least significant, highest-level directory first, directories 
         deeper down the hierarchy follow, i.e. [/foo, /foo/bar, /foo/bar/baz/feps] that will be used to load 
@@ -226,13 +227,13 @@ class HierarchicalContext(Context, LazyMixin):
         @note returned list is a reference
         """
         return self._config_dirs
-        
+
     def config_files(self):
         """@return a tuple of all configuration files loaded by this instance as tuple. May be empty if 
         nothing was loaded yet"""
         return self._config_files
 
-    def load_plugins(self, recurse = False, subdirectory = 'plug-ins'):
+    def load_plugins(self, recurse=False, subdirectory='plug-ins'):
         """Call this method explicitly once this instance was pushed onto the top of the context stack.
         This assures that new instances are properly registered with this Context, and not the previous one
         on the stack
@@ -248,7 +249,7 @@ class HierarchicalContext(Context, LazyMixin):
             # end amend plugin dir
             load_files(path, recurse=recurse)
         # end load all plugins
-    
-    ## -- End Interface -- @}
-    
+
+    # -- End Interface -- @}
+
 # end class HierarchicalContext

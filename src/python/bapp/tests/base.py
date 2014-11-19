@@ -23,9 +23,9 @@ log = logging.getLogger('bapp.tests')
 
 
 # ==============================================================================
-## @name Decorators
+# @name Decorators
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 def with_application(fun=None, **dkwargs):
     """similar to preserve_application(), but will create a new application object that will 
@@ -68,11 +68,11 @@ def with_application(fun=None, **dkwargs):
 
         if default_ctx is None and len(bapp.Application.Plugin.default_stack):
             # We have incredible knowledge about this implementation, and probably shouldn't use it !
-            # We know there is a default stack which shuold  
+            # We know there is a default stack which shuold
             assert len(bapp.Application.Plugin.default_stack) == 1
             default_ctx = bapp.Application.Plugin.default_stack.stack()[0]
             app.context().insert(0, default_ctx)
-        # end 
+        # end
 
         try:
             return fun(*args, **kwargs)
@@ -89,15 +89,15 @@ def with_application(fun=None, **dkwargs):
         # end assure original application is put back
     # end wrapper
     return wrapper
-    
 
-## -- End Decorators -- @}
+
+# -- End Decorators -- @}
 
 
 # ==============================================================================
-## @name Types
+# @name Types
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 class AppTestCase(TestCase):
     __slots__ = ()
@@ -106,9 +106,4 @@ class AppTestCase(TestCase):
 
 # end class TestCase
 
-## -- End Types -- @}
-
-
-
-
-
+# -- End Types -- @}

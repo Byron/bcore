@@ -23,16 +23,16 @@ from butility import *
 
 
 # ==============================================================================
-## \name TestTypes
+# \name TestTypes
 # ------------------------------------------------------------------------------
-## \{
+# \{
 
 class TestNonInstantiatable(NonInstantiatable):
     __slots__ = ()
 
 # end class TestNonInstantiatable
 
-## -- End TestTypes -- \}
+# -- End TestTypes -- \}
 
 
 class TestUtility(TestCase):
@@ -44,22 +44,22 @@ class TestUtility(TestCase):
         assert isinstance(int_bits(), int)
         assert isinstance(dylib_extension(), str)
         assert '@' in system_user_id()
-    
+
     def test_non_instantiatble(self):
         """check non-instantiation base class"""
         self.failUnlessRaises(TypeError, TestNonInstantiatable)
-        
+
     def test_version(self):
         """test version implementation"""
         v1str = '2012.2.0-R1.SP2'
         v1 = Version(v1str)
-        
+
         assert str(v1) == v1str
         assert repr(v1) == 'Version(%s)' % v1str
-        
+
         assert len(v1.tokens(v1.TOKEN_NUMBER)) == 5
         assert len(v1.tokens(v1.TOKEN_STRING)) == 2
-        
+
         assert v1[0] == 2012
         assert v1[1] == 2
         assert v1[2] == 0
@@ -67,21 +67,21 @@ class TestUtility(TestCase):
         assert v1[4] == 1
         assert v1[5] == 'SP'
         assert v1[6] == 2
-        
+
         # we are really loose on the comparison testing here, assuming that the RPM algorithm is just what
         # we implemented ... .
         vnewer = Version('2012.3.0')
         volder = Version('2012.2.0-R0')
-        
+
         assert vnewer > v1
         assert v1 < vnewer
         assert v1 != vnewer
         assert not (v1 == vnewer)
         assert v1 == v1
-        
+
         assert vnewer > volder
         assert volder < v1
-        
+
         # default value
         assert Version() == Version() == Version.UNKNOWN
         assert not (Version.UNKNOWN > Version.UNKNOWN)
@@ -98,7 +98,6 @@ class TestUtility(TestCase):
 
         assert isinstance(str(odict), str)
 
-        
     def test_chunker(self):
         """Verify the chunker works as expected"""
         chunker = StringChunker()
@@ -109,7 +108,6 @@ class TestUtility(TestCase):
             prev_size = len(out)
             string = 'abcdefghijklmnopqrstuvwxyz' * 123 * iteration
             cs = int(len(string) / 40)
-            
 
             keys = chunker.split(string, cs, out)
             assert len(keys) + prev_size == len(out)
@@ -127,53 +125,53 @@ class TestUtility(TestCase):
         assert dobj['first'] is dobj.first
         assert dobj.get('first') is 1
         assert dobj.get('something', None) is None
-        
+
         assert isinstance(str(dobj), str)
         assert repr(dobj) == str(dobj)
-        
+
         assert len(list(dobj.keys())) == 2
         assert len(list(dobj.keys())) == len(list(dobj.values()))
         assert 'first' in dobj
-        
+
         self.failUnlessRaises(AttributeError, getattr, dobj, 'unknown')
-        
+
         # references dict if possible
         dct = dict(one=1, two=2)
         dobj = DictObject(dct)
         assert dobj.__dict__ is dct
         assert dobj.__dict__ is dobj.to_dict()
-        
+
         # no copy if not necessary
         assert dobj.__dict__ is dobj.to_dict(recursive=True)
         dobj.nested_dict = DictObject(dict(key="value"))
         assert dobj.nested_dict.key == "value"
         assert isinstance(dobj.to_dict()["nested_dict"], DictObject)
         assert isinstance(dobj.to_dict(recursive=True)["nested_dict"], dict)
-        
+
         # copy dicts, resolve subdicts, keep them as references if possible
         sdct = dict(subone=11, subtwo=12)
         dct['sub'] = sdct
         dobj = DictObject(dct)
-        
+
         assert dobj.__dict__ is not dct
         assert dobj.sub.__dict__ is sdct
-        
+
         # set attr
         dobj.first = 2
         assert dobj.first == 2
-        
+
         del dobj.sub
         del dobj.nested_dict
         dobj_inv = dobj.inversed_dict()
         assert len(dobj_inv) == len(dobj) - 1, "Expected one item to be dropped due to duplicate value"
         assert 2 not in dobj
         assert 2 in dobj_inv
-        
+
         # nesting
-        dobj = DictObject(dict(hello=[1, 2, dict(something = 3)], world = (5, 6), there = dict(other=7)))
+        dobj = DictObject(dict(hello=[1, 2, dict(something=3)], world=(5, 6), there=dict(other=7)))
         assert dobj.hello[0] == 1
         assert isinstance(dobj.hello[2], DictObject)
-        
+
         dobjclone = dobj.clone()
         dobjclone.newone = 42
         assert 'newone' not in dobj
@@ -221,6 +219,6 @@ class TestUtility(TestCase):
         # end classs
 
         assert(hasattr(TestInterface, '__metaclass__') == PY2)
-        
+
 
 # end class TestUtility

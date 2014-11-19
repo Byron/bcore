@@ -281,6 +281,7 @@ def int_convert(base):
     It may also have other non-numeric characters that we can ignore.
     '''
     CHARS = '0123456789abcdefghijklmnopqrstuvwxyz'
+
     def f(string, match, base=base):
         if string[0] == '-':
             sign = -1
@@ -309,10 +310,12 @@ def percentage(string, match):
 
 
 class FixedTzOffset(tzinfo):
+
     """Fixed offset in minutes east from UTC.
     """
+
     def __init__(self, offset, name):
-        self._offset = timedelta(minutes = offset)
+        self._offset = timedelta(minutes=offset)
         self._name = name
 
     def __repr__(self):
@@ -352,8 +355,9 @@ TIME_PAT = r'(\d{1,2}:\d{1,2}(:\d{1,2}(\.\d+)?)?)'
 AM_PAT = r'(\s+[AP]M)'
 TZ_PAT = r'(\s+[-+]\d\d?:?\d\d)'
 
+
 def date_convert(string, match, ymd=None, mdy=None, dmy=None,
-        d_m_y=None, hms=None, am=None, tz=None):
+                 d_m_y=None, hms=None, am=None, tz=None):
     '''Convert the incoming string containing some date / time info into a
     datetime instance.
     '''
@@ -434,7 +438,7 @@ REGEX_SAFETY = re.compile(r'([\\.[\]()*+\^$!])')
 
 # allowed field types
 ALLOWED_TYPES = set(list('nbox%fegwWdDsS') +
-   ['t'+c for c in 'ieahgct'])
+                    ['t' + c for c in 'ieahgct'])
 
 
 def extract_format(format, extra_types):
@@ -473,12 +477,12 @@ PARSE_RE = re.compile(r'({{|}}|{}|{:[^}]+?}|{\w+?(?:\.\w+?)*}|{\w+?(?:\.\w+?)*:[
 
 
 class Parser(object):
-    
+
     default_re_flags = re.IGNORECASE
-    
+
     def __init__(self, format, extra_types={}, re_flags=default_re_flags):
         # a mapping of a name as in {hello.world} to a regex-group compatible name, like hello__world
-        # Its used to prevent the transformation of name-to-group and group to name to fail subtly, such 
+        # Its used to prevent the transformation of name-to-group and group to name to fail subtly, such
         # as in: hello_.world-> hello___world->hello._world
         # re_flags are additional flags to be parsed to the regular expression.
         self._re_flags = re_flags
@@ -502,12 +506,12 @@ class Parser(object):
     def _search_re(self):
         if self.__search_re is None:
             try:
-                self.__search_re = re.compile(self._expression, self._re_flags|re.DOTALL)
+                self.__search_re = re.compile(self._expression, self._re_flags | re.DOTALL)
             except AssertionError:
                 e = sys.exc_info()[1]   # to keep py3k and backward compat
                 if str(e).endswith('this version only supports 100 named groups'):
                     raise TooManyFields('sorry, you are attempting to parse too '
-                        'many complex fields')
+                                        'many complex fields')
         return self.__search_re
 
     @property
@@ -515,14 +519,15 @@ class Parser(object):
         if self.__match_re is None:
             expression = '^%s$' % self._expression
             try:
-                self.__match_re = re.compile(expression, self._re_flags|re.DOTALL)
+                self.__match_re = re.compile(expression, self._re_flags | re.DOTALL)
             except AssertionError:
                 e = sys.exc_info()[1]   # to keep py3k and backward compat
                 if str(e).endswith('this version only supports 100 named groups'):
                     raise TooManyFields('sorry, you are attempting to parse too '
-                        'many complex fields')
+                                        'many complex fields')
             except re.error:
-                raise NotImplementedError("Group names (e.g. (?P<name>) can cause failure, as they are not esacped properly: '%s'" % expression)
+                raise NotImplementedError(
+                    "Group names (e.g. (?P<name>) can cause failure, as they are not esacped properly: '%s'" % expression)
         return self.__match_re
 
     def parse(self, string):
@@ -587,7 +592,7 @@ class Parser(object):
 
         # now figure the match spans
         spans = dict((n, m.span(self._to_group_name(n))) for n in named_fields)
-        spans.update((i, m.span(n+1)) for i, n in enumerate(self._fixed_fields))
+        spans.update((i, m.span(n + 1)) for i, n in enumerate(self._fixed_fields))
 
         # and that's our result
         return Result(fixed_fields, named_fields, spans)
@@ -612,13 +617,13 @@ class Parser(object):
                 # just some text to match
                 e.append(REGEX_SAFETY.sub(self._regex_replace, part))
         return ''.join(e)
-        
+
     def _to_group_name(self, field):
         # return a version of field which can be used as capture group, even though it might contain '.'
         group = field.replace('.', '_')
         self._group_to_name_map[group] = field
         return group
-        
+
     def _from_group_name(self, group):
         return self._group_to_name_map[group]
 
@@ -644,7 +649,7 @@ class Parser(object):
             if ':' in field:
                 format = field[1:]
             group = self._group_index
-        
+
         # simplest case: a bare {}
         if not format:
             self._group_index += 1
@@ -658,6 +663,7 @@ class Parser(object):
         is_numeric = type and type in 'n%fegdobh'
         if type in self._extra_types:
             s = '.+?'
+
             def f(string, m, type=type):
                 return self._extra_types[type](string)
             self._type_conversions[group] = f
@@ -698,7 +704,7 @@ class Parser(object):
             s = r'(\d{4}-\d\d-\d\d)((\s+|T)%s)?(Z|[-+]\d\d:\d\d)?' % TIME_PAT
             n = self._group_index
             self._type_conversions[group] = partial(date_convert, ymd=n,
-                hms=n+3, tz=n+6)
+                                                    hms=n + 3, tz=n + 6)
             self._group_index += 7
             wrap = ''
         elif type == 'tg':
@@ -706,7 +712,7 @@ class Parser(object):
                 ALL_MONTHS_PAT, TIME_PAT, AM_PAT, TZ_PAT)
             n = self._group_index
             self._type_conversions[group] = partial(date_convert, dmy=n,
-                hms=n+4, am=n+7, tz=n+8)
+                                                    hms=n + 4, am=n + 7, tz=n + 8)
             self._group_index += 9
             wrap = ''
         elif type == 'ta':
@@ -714,25 +720,25 @@ class Parser(object):
                 ALL_MONTHS_PAT, TIME_PAT, AM_PAT, TZ_PAT)
             n = self._group_index
             self._type_conversions[group] = partial(date_convert, mdy=n,
-                hms=n+4, am=n+7, tz=n+8)
+                                                    hms=n + 4, am=n + 7, tz=n + 8)
             self._group_index += 9
             wrap = ''
         elif type == 'te':
             # this will allow microseconds through if they're present, but meh
             s = r'(%s,\s+)?(\d{1,2}\s+%s\s+\d{4})\s+%s%s' % (DAYS_PAT,
-                MONTHS_PAT, TIME_PAT, TZ_PAT)
+                                                             MONTHS_PAT, TIME_PAT, TZ_PAT)
             n = self._group_index
-            self._type_conversions[group] = partial(date_convert, dmy=n+2,
-                hms=n+4, tz=n+7)
+            self._type_conversions[group] = partial(date_convert, dmy=n + 2,
+                                                    hms=n + 4, tz=n + 7)
             self._group_index += 8
             wrap = ''
         elif type == 'th':
             # slight flexibility here from the stock Apache format
             s = r'(\d{1,2}[-/]%s[-/]\d{4}):%s%s' % (MONTHS_PAT, TIME_PAT,
-                TZ_PAT)
+                                                    TZ_PAT)
             n = self._group_index
             self._type_conversions[group] = partial(date_convert, dmy=n,
-                hms=n+2, tz=n+5)
+                                                    hms=n + 2, tz=n + 5)
             self._group_index += 6
             wrap = ''
         elif type == 'tc':
@@ -740,14 +746,14 @@ class Parser(object):
                 DAYS_PAT, MONTHS_PAT, TIME_PAT)
             n = self._group_index
             self._type_conversions[group] = partial(date_convert,
-                d_m_y=(n+3,n+2,n+7), hms=n+4)
+                                                    d_m_y=(n + 3, n + 2, n + 7), hms=n + 4)
             self._group_index += 8
             wrap = ''
         elif type == 'tt':
             s = r'%s?%s?%s?' % (TIME_PAT, AM_PAT, TZ_PAT)
             n = self._group_index
             self._type_conversions[group] = partial(date_convert, hms=n,
-                am=n+3, tz=n+4)
+                                                    am=n + 3, tz=n + 4)
             self._group_index += 5
             wrap = ''
         elif type:
@@ -805,11 +811,13 @@ class Parser(object):
 
 
 class Result(object):
+
     '''The result of a parse() or search().
 
     Fixed results may be looked up using result[index]. Named results may be
     looked up using result['name'].
     '''
+
     def __init__(self, fixed, named, spans):
         self.fixed = fixed
         self.named = named
@@ -822,14 +830,16 @@ class Result(object):
 
     def __repr__(self):
         return '<%s %r %r>' % (self.__class__.__name__, self.fixed,
-            self.named)
+                               self.named)
 
 
 class ResultIterator(object):
+
     '''The result of a findall() operation.
 
     Each element is a Result instance.
     '''
+
     def __init__(self, parser, string, pos, endpos):
         self.parser = parser
         self.string = string

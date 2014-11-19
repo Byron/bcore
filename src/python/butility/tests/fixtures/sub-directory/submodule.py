@@ -12,6 +12,7 @@ __all__ = []
 
 
 class Bar(object):
+
     """Implements nothing"""
     __slots__ = ()
 

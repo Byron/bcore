@@ -105,19 +105,19 @@ class TestPlugin(TestContext):
 
     def test_stack_settings(self):
         """test settings aggregation"""
-        kv1 = KeyValueStoreModifier({'one' : {'one' : 1,
-                                              'two' : 2},
-                                     'two' : 2})
+        kv1 = KeyValueStoreModifier({'one': {'one': 1,
+                                             'two': 2},
+                                     'two': 2})
 
         stack = ContextStack()
         ctx = Context('first')
         ctx.set_settings(kv1)
         stack.push(ctx)
 
-        kv2 = KeyValueStoreModifier({'one' : {'one' : '1',
-                                              'three' : 3},
-                                     'two' : {'one' : 1, 'foo' : 2},
-                                     'three' : 3})
+        kv2 = KeyValueStoreModifier({'one': {'one': '1',
+                                             'three': 3},
+                                     'two': {'one': 1, 'foo': 2},
+                                     'three': 3})
 
         assert stack.settings().data().to_dict() == kv1.data()
 
@@ -143,6 +143,7 @@ class TestPlugin(TestContext):
         stack.push('base')
 
         class MyPlugin(Plugin):
+
             """A plugin, for our stack"""
             __slots__ = ()
             _stack_ = stack
@@ -157,7 +158,7 @@ class TestPlugin(TestContext):
             def __init__(self):
                 self.id = self.count
                 type(self).count += 1
-        
+
         # end class PluginType
 
         assert len(stack.types(PluginType)) == 1, "Expected to have caught type"
@@ -170,7 +171,7 @@ class TestPlugin(TestContext):
         for count in range(2):
             PluginType()
             instances = stack.instances(PluginType)
-            assert len(instances) == count+1, "There should be exactly %i instance(s)" % count
+            assert len(instances) == count + 1, "There should be exactly %i instance(s)" % count
             assert instances[0].id == count, "First service should always be the latest created one"
         # end check instantiation and order
 

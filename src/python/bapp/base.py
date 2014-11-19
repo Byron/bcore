@@ -24,13 +24,12 @@ from butility import parse_key_value_string
 from butility.compat import profile
 
 
-
-
 # -------------------------
-## @name Exceptions
+# @name Exceptions
 # @{
 
 class TypeNotFound(ValueError):
+
     """Thrown if a type cannot be found in the context"""
     __slots__ = ()
 
@@ -38,15 +37,17 @@ class TypeNotFound(ValueError):
 
 
 class InstanceNotFound(TypeNotFound):
+
     """Thrown if a requested instance could not be found in the context"""
     __slots__ = ()
 
 # end class InstanceNotFound
 
-## -- End Exceptions -- @}
+# -- End Exceptions -- @}
 
 
 class Application(object):
+
     """An application contains all state for a particular application.
 
     Even though it is valid to have multiple instances in one process, the first created Application instance
@@ -66,65 +67,64 @@ class Application(object):
     """
     # slots just used as documentation to make instance-overrides of class members work
     # __slots__ = ('_stack',  # A ContextStack instance
-    #            '_prev_instance', # previously created application instance (the one we might have replaced)
-    #            'Plugin'   # An instance level Plugin type, returning our own stack
+    # '_prev_instance', # previously created application instance (the one we might have replaced)
+    # 'Plugin'   # An instance level Plugin type, returning our own stack
     #             )
 
-
     # -------------------------
-    ## @name Constants
+    # @name Constants
     # @{
 
-    ## A variable to keep the most recent created Application instance, see Application.new()
-    ## The very same instance will be placed in bapp.app
+    # A variable to keep the most recent created Application instance, see Application.new()
+    # The very same instance will be placed in bapp.app
     main = None
 
-    ## -- End Constants -- @}
+    # -- End Constants -- @}
 
     # -------------------------
-    ## @name Subclass Configuration
+    # @name Subclass Configuration
     # Variables for overrides by subclasses
     # @{
 
-    ## Type used when building the ContextStack (settings, registry)
+    # Type used when building the ContextStack (settings, registry)
     HierarchicalContextType = StackAwareHierarchicalContext
 
-    ## The name of the sub-directory to consider when loading plugins from all settings directories
+    # The name of the sub-directory to consider when loading plugins from all settings directories
     # May be None to load plugins from the settings directories directly
     plugins_subtree = 'plug-ins'
 
-    ## The kind of Plugin we use
+    # The kind of Plugin we use
     PluginType = bcontext.Plugin
 
-    ## The type of ContextStack we create
+    # The type of ContextStack we create
     ContextStackType = ContextStack
 
-    ## A utility to setup the logging system
+    # A utility to setup the logging system
     LogConfiguratorType = LogConfigurator
 
-    ## The default OS context type
+    # The default OS context type
     # Lazliy imported, but may be overridden by subclass
     OSContextType = None
 
-    ## The default application context type
+    # The default application context type
     # See above
     ApplicationContextType = None
 
-    ## Environment variable specifying the comma separated fields to use for sorting profile data
+    # Environment variable specifying the comma separated fields to use for sorting profile data
     # It will automatically be enabled if this variable is set
     profile_fields_evar = 'BAPP_PROFILE_FIELDS'
 
-    
-    ## -- End Subclass Configuration -- @}
+    # -- End Subclass Configuration -- @}
 
     # Just a marker for the context which exists while there is no official Application instance
     PRE_APPLICATION_CONTEXT_NAME = "early-startup-intermediary"
 
     # -------------------------
-    ## @name Types
+    # @name Types
     # @{
 
     class Plugin(PluginType):
+
         """This is an intermediat Plugin type implementation which may be used by code 
         which is run even though there is no Application yet.
         Instead of dealing with this directly, you should use bapp.plugin_type()"""
@@ -147,17 +147,17 @@ class Application(object):
                 return cls.default_stack
             # end handle default stack
             return Application.main.context()
-    
+
     # end class Plugin
 
-    ## -- End Types -- @}
+    # -- End Types -- @}
 
-    def __init__(self, context_stack, previous_application = None):
+    def __init__(self, context_stack, previous_application=None):
         """Initialize this instance with it's own context stack.
         @note as we keep a strong reference to the previous application, Applications never go out of scope
         unless the last created one is removed (it's a single-linked chain after all)."""
         # If our type's Plugin's default stack still has anything in its registry, put it onto our stack.
-        # It came first, and should thus be first. 
+        # It came first, and should thus be first.
         self._prev_instance = previous_application
 
         def_stack = type(self).Plugin.default_stack
@@ -180,7 +180,7 @@ class Application(object):
         self._setup_profiler()
 
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # @{
 
     @classmethod
@@ -190,12 +190,12 @@ class Application(object):
         @return new instance of our type"""
         stack = cls.ContextStackType()
         stack.push('base')
-        inst = cls(stack, previous_application = Application.main)
+        inst = cls(stack, previous_application=Application.main)
 
         # This will fail in multi-threaded application, but that is not supposed to work anyway
         # There should only be one application per process
-        # NOTE: In case someone overrides our base Application, cls.main would assign not to our 
-        # Application.main, but to a new class member in our derived class. This in turn 
+        # NOTE: In case someone overrides our base Application, cls.main would assign not to our
+        # Application.main, but to a new class member in our derived class. This in turn
         # Would break anyone relying on Application.main, which is not intended
         # if Application.main is None:
         Application.main = inst
@@ -227,21 +227,21 @@ class Application(object):
                 raise ValueError("unknown sort field: %s" % field)
             st.print_stats()
         # end handler
-        
+
         atexit.register(print_profile_stats)
 
-    ## -- End Subclass Interface -- @}
+    # -- End Subclass Interface -- @}
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     @classmethod
-    def new(cls, settings_trees=tuple(), settings_hierarchy=False, 
-                 load_plugins_from_trees = False, recursive_plugin_loading = False, plugins_subtree='plug-ins',
-                 user_settings = True,
-                 setup_logging = True,
-                 with_default_contexts = True ):
+    def new(cls, settings_trees=tuple(), settings_hierarchy=False,
+            load_plugins_from_trees=False, recursive_plugin_loading=False, plugins_subtree='plug-ins',
+            user_settings=True,
+            setup_logging=True,
+            with_default_contexts=True):
         """Create a new Application instance, configured with all items an application needs to function.
         This is mainly a registry for settings, types and instances providing particular instances.
 
@@ -275,7 +275,7 @@ class Application(object):
         inst = cls._init_instance()
 
         # This needs lazy import
-        from .contexts import (OSContext, 
+        from .contexts import (OSContext,
                                ApplicationContext)
 
         if with_default_contexts:
@@ -284,16 +284,16 @@ class Application(object):
 
             typ = cls.ApplicationContextType or ApplicationContext
             inst.context().push(typ('app', user_settings=user_settings,
-                                           traverse_settings_hierarchy=settings_hierarchy))
+                                    traverse_settings_hierarchy=settings_hierarchy))
         # end handle ApplicationContext
 
         if settings_trees:
             ctx = inst.context().push(cls.HierarchicalContextType(settings_trees,
-                                                            traverse_settings_hierarchy=settings_hierarchy,
-                                                            application=inst))
+                                                                  traverse_settings_hierarchy=settings_hierarchy,
+                                                                  application=inst))
             if load_plugins_from_trees:
-                ctx.load_plugins(recurse = recursive_plugin_loading,
-                                 subdirectory = plugins_subtree)
+                ctx.load_plugins(recurse=recursive_plugin_loading,
+                                 subdirectory=plugins_subtree)
         # end for each path to push
 
         if setup_logging:
@@ -302,7 +302,7 @@ class Application(object):
 
         return inst
 
-    def instance(self, interface, predicate = lambda service: True):
+    def instance(self, interface, predicate=lambda service: True):
         """@return the first found instance implementing the given interface. 
         The instance is persistent and owned by the Application's context.
         @param interface a class/type, that the instance should support
@@ -312,7 +312,7 @@ class Application(object):
         @note use this function assuming that you will receive a service, no checking necessary. 
         Of course using it that way is only possible if your code is in an application that may make such 
         assumptions. Otherwise, see Application.context().instances()"""
-        instances = self.context().instances(interface, predicate = predicate)
+        instances = self.context().instances(interface, predicate=predicate)
         if not instances:
             raise InstanceNotFound(interface)
         # end handle no instance
@@ -325,20 +325,20 @@ class Application(object):
         @param args given to new instance
         @param kwargs given to new instance
         @throws InstanceNotFound"""
-        new_instances = self.context().new_instances(interface, take_ownership=False, 
-                                                     maycreate = lambda cls, instances: not instances,
+        new_instances = self.context().new_instances(interface, take_ownership=False,
+                                                     maycreate=lambda cls, instances: not instances,
                                                      args=args, kwargs=kwargs)
         if not new_instances:
             raise InstanceNotFound(interface)
         # end handle no instance
         return new_instances[0]
-        
-    def type(self, interface, predicate = lambda type: True):
+
+    def type(self, interface, predicate=lambda type: True):
         """@return a type which implements the given interface. You can use it to create a new instance
         @param interface which must be supported by the returned type
         @param predicate f(type) => Bool, returning True for each type which seems usable
         @throws TypeNotFound"""
-        types = self.context().types(interface, predicate = predicate)
+        types = self.context().types(interface, predicate=predicate)
         if not types:
             raise TypeNotFound(interface)
         # end handle no type
@@ -352,7 +352,7 @@ class Application(object):
         """A shortcut to context().settings()
         @return the KeyValueStoreProvider representing our settings"""
         return self.context().settings()
-        
+
     def previous_application(self):
         """@return the Application instance we might have replaced as process instance, or None if we are the 
         first created one"""
@@ -369,5 +369,5 @@ class Application(object):
             pa = npa or pa
         # end traverse chain
         return pa
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 # end class Application

@@ -16,6 +16,7 @@ from butility.tests import TestCase
 from butility import Path
 from bkvstore import OrderedDictYAMLLoader
 
+
 class TestConfiguration(TestCase):
     __slots__ = ()
 
@@ -25,8 +26,6 @@ class TestConfiguration(TestCase):
     def config_data(cls, name):
         """@return deserialized yaml dictionary with data from the given file
         using the OrderedDictYAMLLoader"""
-        return yaml.load(open(cls.fixture_path(name)), Loader = OrderedDictYAMLLoader)
-        
-# end class TestConfiguration
+        return yaml.load(open(cls.fixture_path(name)), Loader=OrderedDictYAMLLoader)
 
-    
+# end class TestConfiguration

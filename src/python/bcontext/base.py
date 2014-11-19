@@ -16,30 +16,29 @@ __all__ = ['Context', 'ContextStack', 'StackAutoResolveAdditiveMergeDelegate', '
 import re
 import logging
 
-from butility import ( OrderedDict,
-                       LazyMixin,
-                       Interface,
-                       Meta,
-                       Error,
-                       Path )
+from butility import (OrderedDict,
+                      LazyMixin,
+                      Interface,
+                      Meta,
+                      Error,
+                      Path)
 
-from bdiff import ( NoValue,
-                    TwoWayDiff,
-                    AutoResolveAdditiveMergeDelegate,
-                    ApplyDifferenceMergeDelegate )
+from bdiff import (NoValue,
+                   TwoWayDiff,
+                   AutoResolveAdditiveMergeDelegate,
+                   ApplyDifferenceMergeDelegate)
 
-from bkvstore import ( KeyValueStoreSchemaValidator,
-                       KeyValueStoreModifier,
-                       KeyValueStoreSchema,
-                       RootKey )
+from bkvstore import (KeyValueStoreSchemaValidator,
+                      KeyValueStoreModifier,
+                      KeyValueStoreSchema,
+                      RootKey)
 
 
 log = logging.getLogger(__name__)
 
 
-
-
 class StackAutoResolveAdditiveMergeDelegate(AutoResolveAdditiveMergeDelegate):
+
     """A delegate which implements special rules for handling of values which are not supposed 
     to be overridden. Additional behaviour could be implemented as needed"""
     __slots__ = ()
@@ -51,14 +50,15 @@ class StackAutoResolveAdditiveMergeDelegate(AutoResolveAdditiveMergeDelegate):
             return left_value[:-1]
         # end handle override
         return res
-    
-# end class StackAutoResolveAdditiveMergeDelegate 
+
+# end class StackAutoResolveAdditiveMergeDelegate
 
 
-## -- End Utilities -- @}
+# -- End Utilities -- @}
 
 
 class Context(object):
+
     """ A context is defined by its kvstore, holding configuration values, and a list of instances or 
     types. An class is an implementation of a particlar interface, by which it may be retrieved or instantiated.
 
@@ -67,33 +67,32 @@ class Context(object):
     A Context maintains a strong pointer to all Plugin instances by default.
     """
     __slots__ = (
-                    '_name',     # name of the Context
-                    '_registry', # a list of instances and types 
-                    '_kvstore'   # the contexts context as kvstore
-                )
-    
-    # -------------------------
-    ## @name Configuration
-    # @{
-    
-    ## Type used to instantiate a kv store modifier
-    KeyValueStoreModifierType = KeyValueStoreModifier
-    
-    ## -- End Configuration -- @}
+        '_name',     # name of the Context
+        '_registry',  # a list of instances and types
+        '_kvstore'   # the contexts context as kvstore
+    )
 
-    
+    # -------------------------
+    # @name Configuration
+    # @{
+
+    # Type used to instantiate a kv store modifier
+    KeyValueStoreModifierType = KeyValueStoreModifier
+
+    # -- End Configuration -- @}
+
     def __init__(self, name):
         """ @param name of this context"""
-        self._name  = name
+        self._name = name
         self.reset()
-        
+
     def __repr__(self):
         return "%s('%s')" % (type(self).__name__, self._name)
 
     # -------------------------
-    ## @name Utilities
+    # @name Utilities
     # @{
-    
+
     def _filter_registry(self, interface, predicate):
         """Iterate the registry and return a list of matching items, but only consider registrees for which 
         predicate(item) returns True"""
@@ -101,12 +100,12 @@ class Context(object):
         # Items that came later will be used first - this way items that came later can override newer ones
         for item in reversed(self._registry):
             if (isinstance(item, interface) or (isinstance(item, type) and issubclass(item, interface))) \
-            and predicate(item):
+                    and predicate(item):
                 items.append(item)
             # end if registree is suitable
         # end for each registered item
         return items
-    
+
     def pformat(self):
         """Display the contents of the Context primarily for debugging purposes
         @return string indicating the human-readable contents
@@ -120,26 +119,25 @@ class Context(object):
         otp += re.sub(r"(^|\n)", r"\1\t", str(self.settings())) + '\n'
         return otp
 
-    ## -- End Utilities -- @}
-        
-    
+    # -- End Utilities -- @}
+
     # -------------------------
-    ## @name Query Interface
+    # @name Query Interface
     # @{
 
     def name(self):
         """@return our name, which helps to visualize this Context"""
         return self._name
 
-    def types(self, interface, predicate = lambda cls: True):
+    def types(self, interface, predicate=lambda cls: True):
         """@return all types implementing \a interface
         @param interface the interface to search for
         @param predicate f(cls) => Bool, return True for each class supporting the interface 
         you want to have returned
         """
         return self._filter_registry(interface, lambda x: isinstance(x, type) and predicate(x))
-    
-    def instances(self, interface, predicate = lambda service: True):
+
+    def instances(self, interface, predicate=lambda service: True):
         """@return all instances implementing \a interface
         @param interface the interface to search for
         @param predicate f(service) => Bool, return True for each service having the interface 
@@ -155,13 +153,13 @@ class Context(object):
         modifications.
         """
         return self._kvstore
-        
-    ## -- End Query Interface -- @}
+
+    # -- End Query Interface -- @}
 
     # -------------------------
-    ## @name Edit Interface
+    # @name Edit Interface
     # @{
-            
+
     def reset(self):
         """Discard all stored types, instances and settings
         @return self"""
@@ -189,42 +187,43 @@ class Context(object):
         prev = self._kvstore
         self._kvstore = kvstore
         return prev
-    
-    ## -- End Edit Interface -- @}
+
+    # -- End Edit Interface -- @}
 
 # end class Context
 
 
 class ContextStack(with_metaclass(Meta, LazyMixin)):
+
     """ Keeps a stack of Context instances.
         returns instances (instances of Plugins) or types for instantiation by searching through this stack
         registers instances in the current Context.
         Will always have (and keep) a base Context that serves as 'catch all' Context.
     """
-    __slots__ = (   
-                    '_stack',                               # multiple context instances
-                    '_kvstore',                             # a cached and combined kvstore
-                    '_num_aggregated_kvstores'              # number contexts aggregated in our current cache
-                )
-    
+    __slots__ = (
+        '_stack',                               # multiple context instances
+        '_kvstore',                             # a cached and combined kvstore
+        '_num_aggregated_kvstores'              # number contexts aggregated in our current cache
+    )
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
 
-    ## The type of context we instantiate, for example during push("name")
+    # The type of context we instantiate, for example during push("name")
     ContextType = Context
 
-    ## The type of validator we create, for example during schema_validator()
+    # The type of validator we create, for example during schema_validator()
     KeyValueStoreValidatorType = KeyValueStoreSchemaValidator
-    
-    ## -- End Configuration -- @}
+
+    # -- End Configuration -- @}
 
     def __init__(self):
         """Initialize this instance
         @param context if not None, it will be used as default context"""
-        self._stack = list() # the stack itself
+        self._stack = list()  # the stack itself
         self.reset()
-        
+
     def _set_cache_(self, name):
         if name == '_kvstore':
             self._kvstore = self._aggregated_kvstore()
@@ -234,7 +233,7 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
 
     def __str__(self):
         return '\n'.join(str(ctx) for ctx in reversed(self._stack))
-    
+
     def pformat(self):
         """ print a comprehensive representation of the stack 
             @todo convert this into returning a data structure which would be useful and printable            
@@ -245,7 +244,7 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
             otp += env.pformat()
         # for each env on stack
         return otp
-        
+
     def _mark_rebuild_changed_context(self):
         """Keep our changes and re-apply them to a rebuilt copy
         @todo implement the change-re-application similar to what the YAMLstore does"""
@@ -256,27 +255,27 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
             pass
         # ignore missing context
         self._num_aggregated_kvstores = 0
-        
+
     # -------------------------
-    ## @name Protocols
+    # @name Protocols
     # @{
-    
+
     def __len__(self):
         """@return the length of the Context stack """
         return len(self._stack)
-    
-    ## -- End Protocols -- @}
-    
+
+    # -- End Protocols -- @}
+
     # -------------------------
     # Internal Query Interface
     #
-    
-    def _aggregated_kvstore(self, aggregated_base=None, start_at = 0):
+
+    def _aggregated_kvstore(self, aggregated_base=None, start_at=0):
         """@return new context as aggregate of all contexts on our stack, bottom up"""
         # This delegate makes sure we don't let None values override non-null values
         delegate = StackAutoResolveAdditiveMergeDelegate()
         alg = TwoWayDiff()
-        
+
         for eid in range(start_at, len(self._stack)):
             ctx = self._stack[eid]
             base = delegate.result()
@@ -294,13 +293,13 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
             res = aggregated_base
         # end handle special case with empty dicts
         return self.ContextType.KeyValueStoreModifierType(res)
-        
+
     # -- End Internal Query Interface --
-    
+
     # -------------------------
-    ## @name Edit Interface
+    # @name Edit Interface
     # @{
-    
+
     def push(self, context):
         """ push a context on to the stack
         @param context if string, push newly created empty Context with string as name.
@@ -319,7 +318,7 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
         # NOTE: for pushes, no rebuild is needed, we are smart enough to merge in what needs to be merged
         return context
 
-    def pop(self, until_size = -1):
+    def pop(self, until_size=-1):
         """@return top of stack Context after popping it off
         If until_size is larger -1, return value will be a correctly sorted list of contexts, which can 
         be used to put the popped contexts on again
@@ -343,10 +342,10 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
             # don't count the base Context
             if not self._stack:
                 raise ValueError("pop attempted on empty stack")
-            # end 
+            # end
             res = self._stack.pop()
         # end handle pop-until
-        
+
         if res:
             self._mark_rebuild_changed_context()
         # end assure we handle no-pop scenario with until_size == len(self._stack)
@@ -382,13 +381,13 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
         self._mark_rebuild_changed_context()
         return self
 
-    ## -- End Edit Interface -- @}
-    
+    # -- End Edit Interface -- @}
+
     # -------------------------
-    ## @name Query Interface
+    # @name Query Interface
     # @{
-    
-    def types(self, interface, predicate = lambda cls: True):
+
+    def types(self, interface, predicate=lambda cls: True):
         """@return a list of all registered plugin types supporting the given interface
         @param predicate f(service) => Bool, returns True for each class implementing
         interface that should be returned
@@ -398,8 +397,8 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
             res += ctx.types(interface, predicate)
         # end for each context
         return res
-    
-    def instances(self, interface, predicate = lambda service: True, find_all = False):
+
+    def instances(self, interface, predicate=lambda service: True, find_all=False):
         """@return a list of instances implementing \a interface, or an empty list.
         The obtained instances are persistent, owned by one of our contexts and will keep their state as long as their context is on the stack
         @param interface the interface a service must implement
@@ -433,11 +432,11 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
         # end update kvstore
 
         return kvstore
-    
+
     def top(self):
         """@return the Context on the top of stack """
         return self._stack[-1]
-    
+
     def schema_validator(self):
         """@return a KeyValueStoreSchemaValidator instance initialized with all our Context's schemas 
         as well as those types presenting KeyValueStoreSchema instances through a schema() method
@@ -461,23 +460,23 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
             # end for each client instance
         # end for each context
         return validator
-        
+
     def stack(self):
         """@return our Context stack
         @note not for general use, as you should not try to find individual Context instances. It can 
         be useful for closely bonded functions that whish to temporarily alter the stack though"""
         return self._stack
-        
-    ## -- End Query Interface -- @}
-    
+
+    # -- End Query Interface -- @}
+
     # -------------------------
-    ## @name Edit Interface
+    # @name Edit Interface
     # @{
-    
+
     def new_instances(self, interface,
-                      maycreate = lambda cls, instances: True, 
-                      take_ownership = False,
-                      args = list(), kwargs = dict()):
+                      maycreate=lambda cls, instances: True,
+                      take_ownership=False,
+                      args=list(), kwargs=dict()):
         """Create instances matching the given interface. For each available matching class in our registry, 
         an instance will be created.
         Existing matching instances will \b not be considered.
@@ -521,7 +520,7 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
                     cls._auto_register_instance_ = pv
                 # end handle auto-register
             # end handle value reset, no matter what
-            
+
         # end for each class
         return instances
 
@@ -531,18 +530,19 @@ class ContextStack(with_metaclass(Meta, LazyMixin)):
         """
         assert self._stack, "Application has to push at least one context"
         self._stack[-1].register(plugin)
-        
-    ## -- End Edit Interface -- @}
+
+    # -- End Edit Interface -- @}
 # end class ContextStack
 
 
 # ==============================================================================
-## @name Utilities
+# @name Utilities
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 
 class ApplyChangeContext(Context):
+
     """A context specifically designed to allow you to make changes to values, and override only the changed 
     values using this context.
     It knows your base schema and uses it to obtain the unresolved datablock, for being changed by the 
@@ -551,7 +551,7 @@ class ApplyChangeContext(Context):
     """
 
     DifferenceDelegateType = ApplyDifferenceMergeDelegate
-    
+
     def setup(self, stack, value_provider, schema, *args, **kwargs):
         """Configure a value override, storing only changes done accoridng to a given schema. It will put itself
         onto the given context stack right away
@@ -565,16 +565,16 @@ class ApplyChangeContext(Context):
         kvstore = stack.settings()
         new_value = kvstore.value(schema.key(), schema)
         value_provider(schema, new_value, *args, **kwargs)
-        
+
         # find only the changed values and write them as kvstore
         prev_value = kvstore.value(schema.key(), schema)
         diff_delegate = self.DifferenceDelegateType()
         TwoWayDiff().diff(diff_delegate, prev_value, new_value)
-        
+
         self._kvstore.set_value(schema.key(), diff_delegate.result())
         stack.push(self)
         return self
-        
+
 # end class ProcessControllerEnvironment
 
-## -- End Utilities -- @}
+# -- End Utilities -- @}

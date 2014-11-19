@@ -8,27 +8,29 @@
 """
 from __future__ import unicode_literals
 
-__all__ = ['IQualityCheck', 'IQualityCheckProvider', 'IQualityCheckRunnerDelegate', 'IQualityCheckRunner', 
-            'QualityCheckCategory']
+__all__ = ['IQualityCheck', 'IQualityCheckProvider', 'IQualityCheckRunnerDelegate', 'IQualityCheckRunner',
+           'QualityCheckCategory']
 
-from butility import ( abstractmethod,
-                       Interface )
+from butility import (abstractmethod,
+                      Interface)
 
 # -------------------------
-## @name Utility
+# @name Utility
 # @{
 
+
 class QualityCheckCategory(object):
-    """ Serves as group for `QualityCheck` implementations, and provides additional static information """   
-    
+
+    """ Serves as group for `QualityCheck` implementations, and provides additional static information """
+
     # -------------------------
-    ## @name Subclass Overrides
+    # @name Subclass Overrides
     # @{
-    
+
     _name = None
     _description = None
-    
-    ## -- End Subclass Overrides -- @}
+
+    # -- End Subclass Overrides -- @}
 
     def __init__(self, name, description):
         self._name = name
@@ -38,55 +40,56 @@ class QualityCheckCategory(object):
     def name(cls):
         """ @returns the gui friendly name of the category """
         return cls._name
-        
+
     @classmethod
     def description(cls):
         """ @returns a descriptive text further describing the anticipated contents of the category """
         return cls._description
-        
+
 # end class QualityCheckCategory
 
-## -- End Utility -- @}
+# -- End Utility -- @}
 
 
 class IQualityCheckProvider(Interface):
+
     """A simple interface implementing an algorithm to select checks for the current context"""
     __slots__ = ()
-    
+
     @abstractmethod
     def checks(self):
         """@return an iterable of IQualityCheck compatible instances. It is valid for it to yield no quality check"""
-        
+
 # end class IQualityCheckProvider
 
 
 class IQualityCheck(Interface):
+
     """A base class providing the foundation for all actual QualityCheck implementations."""
-    __slots__ = ()      
-   
-   
-    ## @name Interface
+    __slots__ = ()
+
+    # @name Interface
     # -------------------------
     # @{
-    
+
     @abstractmethod
     def run(self):
         """ @return this instance, which should be used to obtain the result by calling the `result()` method.
         @attention implementations must set the `_result` member of this instance to the respective result constant.
         """
-    
-    @abstractmethod    
+
+    @abstractmethod
     def result(self):
         """@returns the result of the previous `run()` call, which may be `success` or `failure`. 
         If the check didn't yet run, it is `no_result`.
         """
-    
-    @abstractmethod    
+
+    @abstractmethod
     def reset_result(self):
         """Reset the result of the previous run
         @return this instance"""
-   
-    @abstractmethod    
+
+    @abstractmethod
     def fix(self):
         """@returns this instance to facilitate re-checking the issue. If it is truly fixed, the check should 
         confirm this.
@@ -98,33 +101,33 @@ class IQualityCheck(Interface):
         its value as it will  perform some sanity checks.
         The result will remain failed (unless the sub-class is sure it fixed the issue and sets the result) so
         that the check would have to be re-run to verify it"""
-    
-    @abstractmethod            
+
+    @abstractmethod
     def can_fix(self):
         """@returns true if the implementation supports fixing of the detected issue
         @note this state can be dependent on the actual run, therefore it should be validated right before
         trying to call the `fix()` method.
         """
-    
-    ## -- Interface -- @}
-    
+
+    # -- Interface -- @}
+
     # -------------------------
-    ## @name Information
+    # @name Information
     # methods to provide static information about this check
     # @{
-    
+
     @classmethod
     @abstractmethod
     def uid(cls):
         """@returns a hashable id which is unique for this type of check.
         @note you could use it as a key to attach additional data with items of this type
         """
-        
+
     @classmethod
     @abstractmethod
     def name(cls):
         """@returns the name of the check, as suitable for UI purposes."""
-    
+
     @classmethod
     @abstractmethod
     def description(cls):
@@ -133,29 +136,30 @@ class IQualityCheck(Interface):
         - **the problems common causes**
         - **solutions for the problem** in case it doesn't implement a fix.
         """
-    
+
     @classmethod
     @abstractmethod
     def category(cls):
         """@returns an instance of `QualityCheckCategory` which serves as group. The same instance is used by multiple
         quality checks.
-        
+
         Can be the special constant `IQualityCheck.no_category`, which is the default.
         """
 
-    ## -- Information -- @}
-# end class IQualityCheck    
+    # -- Information -- @}
+# end class IQualityCheck
 
 
 class IQualityCheckRunner(list, Interface):
+
     """Is a list of `QualityCheck` compatible instances which can be run safely, providing just-in-time information
     about the results of this run.
-    
+
     For this, it uses a delegate which will receive respective calls. The client can implement one, but even 
     without a default delegate is used which does nothing
     """
     __slots__ = ()
-    
+
     @abstractmethod
     def __init__(self, quality_checks, delegate=None):
         """Initialize this instance with an iterable of quality checks and an (optional) delegate.
@@ -175,12 +179,12 @@ class IQualityCheckRunner(list, Interface):
         is part of an actual iteration)
         @note our delegate will be called accordingly
         """
-       
+
     @abstractmethod
     def run_all(self, auto_fix=False):
         """Safely run all quality check instances contained in this instance and provide progress information 
         to our delegate.
-        
+
         @param auto_fix see `run_one(...)` method for more information
         @return this instance
         """
@@ -190,35 +194,36 @@ class IQualityCheckRunner(list, Interface):
                 self.run_one(qci, auto_fix=auto_fix)
             except StopIteration:
                 break
-            #end handle stop iteration
-        #end for each quality check instance
+            # end handle stop iteration
+        # end for each quality check instance
         return self
-        
+
     @abstractmethod
     def delegate(self):
         """@return our delegate instance"""
-        
+
 # end class IQualityCheckRunner
 
 
 class IQualityCheckRunnerDelegate(Interface):
+
     """Defines a callback interface to be used by `QualityCheckRunner` instances
-    
+
     The delegate may control the runner by returning codes for the runner to interpret.
     @note the delegate is assumed to perform logging duties if this is required.
     """
     __slots__ = ()
-    
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     def handle_error(self, quality_check):
         """Called if an exception occurs when performing the `run()` or when performing the `fix()`
         @param quality_check the involved quality check instance
         @note use `sys.exc_info()` to obtain the active exception
         """
-    
+
     def pre_run(self, quality_check):
         """Called before running the given quality check
         @return None or one of the constants:
@@ -230,7 +235,7 @@ class IQualityCheckRunnerDelegate(Interface):
         @param quality_check the check that is about to run 
         @note default implementation has no effect
         """
-        
+
     def post_run(self, quality_check):
         """Called after the given quality_check ran
         @return None or 
@@ -239,12 +244,12 @@ class IQualityCheckRunnerDelegate(Interface):
         @param quality_check the quality check that just ran
         @note default implementation has no effect
         """
-        
+
     def pre_fix(self, quality_check):
         """Called before a previously failed check is to be fixed, after `pre_run()`, before `post_run()`
         @param quality_check the quality check which failed and which claims it `can_fix()` itself
         """
-        
+
     def post_fix(self, quality_check):
         """Called after the check attempted to fix the issue
         @param quality_check that previously failed, right after the fix was applied. 
@@ -252,7 +257,7 @@ class IQualityCheckRunnerDelegate(Interface):
         is still failed.
         @note is not called if the quality check threw an exception when trying to fix it. In this case, 
         `post_run(...)` will receive it accordingly"""
-        
-    ## -- End Interface -- @}
-    
+
+    # -- End Interface -- @}
+
 # end class IQualityCheckProvider

@@ -37,18 +37,19 @@ log = logging.getLogger(__name__)
 
 
 class Version(object):
+
     """An RPM-like version implementation, which doesn't make assumptions, yet allows comparison of arbitraty 
     strings.
     This type will also allow to analyse version strings and could server as a base class for more constraint
     version types.
-    
+
     Non-alphanumeric characters are used as separator between tokens, each token serving as sub-version
-    
+
     Comparisons are implemented using the 
     [RPM comparison algorithm](http://fedoraproject.org/wiki/Archive:Tools/RPM/VersionComparison)
-    
+
     ## Examples ####
-    
+
     * 2012.2.0
     * 1.2.3-R1
     * 20
@@ -57,36 +58,36 @@ class Version(object):
     __slots__ = ('_version')
 
     _re_tokens = re.compile('[0-9]+|[a-zA-Z]+')
-    
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
-    
+
     TOKEN_ANY = "any"
     TOKEN_STRING = "string"
     TOKEN_NUMBER = "number"
-    
-    ## Represents an unknown version, and default instance are intiialized with it
+
+    # Represents an unknown version, and default instance are intiialized with it
     UNKNOWN = 'unknown'
-    
-    ## -- End Configuration -- @}
-    
-    def __init__(self, version_string = UNKNOWN):
+
+    # -- End Configuration -- @}
+
+    def __init__(self, version_string=UNKNOWN):
         """Intiialize this instance
         @param version_string a string of pretty much any format that resembles a version. Usually, it consists
         of digits and/or names"""
-        assert isinstance(version_string, string_types), '%s was %s, require string' % (version_string, type(version_string))
+        assert isinstance(version_string, string_types), '%s was %s, require string' % (
+            version_string, type(version_string))
         self._version = version_string
-        
-        
+
     def _tokens(self):
         """@return a list of all tokens, dot separated"""
         return self._re_tokens.findall(self._version)
-        
+
     # -------------------------
-    ## @name Protocols
+    # @name Protocols
     # @{
-    
+
     def __hash__(self):
         """brief docs"""
         return hash(self._version)
@@ -98,14 +99,14 @@ class Version(object):
             return self._version == rhs
         # handle type differences
         return self._version == rhs._version
-    
+
     def __lt__(self, rhs):
         """Compare ourselves with the other version or string using 
         [RPM comparison algorithm](http://fedoraproject.org/wiki/Archive:Tools/RPM/VersionComparison)"""
         if not isinstance(rhs, type(self)):
             rhs = type(self)(rhs)
         # assure type
-        
+
         lts, rts = self._tokens(), rhs._tokens()
         for lt, rt in zip(lts, rts):
             if isinstance(lt, int):
@@ -132,32 +133,32 @@ class Version(object):
                 # end handle rt type
             # end handle lt type
         # end for each token
-        
+
         # still here ? compare the length - more tokens are better
         return len(lts) < len(rts)
-        
+
     def __str__(self):
         return self._version
-    
+
     def __repr__(self):
         return '%s(%s)' % (type(self).__name__, self._version)
-        
+
     def __getitem__(self, index):
         """@return version token at the given index. Type can be integer or string"""
         return self.tokens()[index]
-        
-    ## -- End Protocols -- @}
-    
+
+    # -- End Protocols -- @}
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
-    def tokens(self, token_type = TOKEN_ANY):
+
+    def tokens(self, token_type=TOKEN_ANY):
         """@return list of tokens of the given type that this version is comprised of
         @note any number will be returned, even if it is part of a string"""
         assert token_type in (self.TOKEN_ANY, self.TOKEN_STRING, self.TOKEN_NUMBER)
         tokens = self._tokens()
-        
+
         res = list()
         for token in self._tokens():
             try:
@@ -182,33 +183,34 @@ class Version(object):
     def minor(self):
         """@return our minor version"""
         return self[1]
-        
+
     @property
     def patch(self):
         """@return our patch level"""
         return self[2]
 
-    ## -- End Interface -- @}
-    
+    # -- End Interface -- @}
+
 # end class Version
 
 
 class StringChunker(object):
+
     """A utility to split an indexed object into chunks of a given size and distribute them
     in named keys of a dictionary"""
 
     __slots__ = (
-                    '_last_key'
-                )
+        '_last_key'
+    )
 
-    ## Characters we use for string generation
+    # Characters we use for string generation
     chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
     def __init__(self):
         self._last_key = self.chars[0]
 
     # -------------------------
-    ## @name Utilities
+    # @name Utilities
     # @{
 
     def _gen_key(self, out):
@@ -224,9 +226,8 @@ class StringChunker(object):
         # end increment key
         self._last_key = key
         return key
-        
-    
-    ## -- End Utilities -- @}
+
+    # -- End Utilities -- @}
 
     def split(self, string, chunk_size, out):
         """Split string into chunks of size chunk_size and place them into unique keys of the out 
@@ -247,19 +248,20 @@ class StringChunker(object):
 
 
 class DictObject(object):
+
     """An object which wraps a dictionary to allow object.key access.
     If the source dictionary doesn't contain any sub-dictionaries, the input 
     dict will be referenced. Otherwise it will be copied.
-    
+
     An attribute error is raised if a value is not accessible.
-    
+
     Please note that you cannot access dict keys which are not valid attribute names.
     """
-    
+
     _default_dict = dict()
     _unpackable_types = (dict, tuple, list)
-    
-    def __init__(self, indict = _default_dict):
+
+    def __init__(self, indict=_default_dict):
         """Initialize this instance from an input dictionary. If it contains other dictionaries, those will 
         trigger their parent dictionaries to be copied, as they will be used as DictObject themselves and 
         placed in the copy accordingly.
@@ -271,16 +273,17 @@ class DictObject(object):
         if isinstance(indict, DictObject):
             self.__dict__ = indict.__dict__
             return
-        #END handle special case, be a reference
+        # END handle special case, be a reference
         dct = indict
         for key, val in dct.items():
             if isinstance(val, self._unpackable_types):
                 dct = None
                 break
-        #END for each key-value pair
-        
+        # END for each key-value pair
+
         if dct is None:
             dct = dict(indict)
+
             def unpack(val):
                 """unpack helper"""
                 if isinstance(val, dict):
@@ -288,41 +291,41 @@ class DictObject(object):
                 elif isinstance(val, (tuple, list)):
                     val = type(val)(unpack(item) for item in val)
                 return val
-            #END unpack
+            # END unpack
             for key, val in dct.items():
                 dct[key] = unpack(val)
-            #END for each k,v pair
-        #END handle recursive copy
+            # END for each k,v pair
+        # END handle recursive copy
         self.__dict__ = dct
-        
+
     def __str__(self):
         return pprint.pformat(self.__dict__)
-        
+
     def __repr__(self):
         return str(self)
-        
+
     def __getattr__(self, name):
         return object.__getattribute__(self, name)
-        
+
     def __getitem__(self, name):
         try:
             return getattr(self, name)
         except AttributeError:
             raise KeyError(name)
-        #end convert exception
-        
+        # end convert exception
+
     def __setitem__(self, name, value):
         setattr(self, name, value)
-        
+
     def __contains__(self, name):
         return name in self.__dict__
-    
+
     def __len__(self):
         return len(self.__dict__)
-        
+
     def __iter__(self):
         return iter(self.__dict__)
-        
+
     def __eq__(self, other):
         """Compares a possibly expensive comparison"""
         if isinstance(other, DictObject):
@@ -332,18 +335,18 @@ class DictObject(object):
             return self.to_dict() == other
         # end handle type of other
         return self is other
-      
+
     def update(self, other, **kwargs):
         """Similar to dict.update"""
         items = other
         if hasattr(other, 'keys'):
             items = other.items()
         for item_list in (items, kwargs.items()):
-            for k,v in item_list:
+            for k, v in item_list:
                 setattr(self, k, v)
         # end for each item list
 
-    def to_dict(self, recursive = False):
+    def to_dict(self, recursive=False):
         """@return ourselves as normal dict
         @param recursive if True, a recursive copy will be returned if required."""
         if recursive:
@@ -355,73 +358,73 @@ class DictObject(object):
                     for item in value:
                         if obtain_needs_copy(item):
                             return True
-                        #end check needs copy
-                    #end for each item in value
-                #end if instance is iterable
+                        # end check needs copy
+                    # end for each item in value
+                # end if instance is iterable
                 return False
-            #end check needs copy
-            
+            # end check needs copy
+
             def unpack(val):
                 """unpack val recursively and copy it gently"""
                 if isinstance(val, DictObject):
                     val = val.to_dict(recursive)
                 elif isinstance(val, (tuple, list, set)):
                     val = type(val)(unpack(item) for item in val)
-                #end handle type resolution
+                # end handle type resolution
                 return val
-            #end unpack
-            
+            # end unpack
+
             needs_copy = False
             for value in self.__dict__.values():
                 if obtain_needs_copy(value):
                     needs_copy = True
                     break
-                #end check value
-            #END for each value
-            
+                # end check value
+            # END for each value
+
             if needs_copy:
                 new_dict = dict()
                 for key, val in self.__dict__.items():
                     new_dict[key] = unpack(val)
-                #END for each key, value pair
+                # END for each key, value pair
                 return new_dict
             # else:
             #   just fall through and return ourselves as dictionary
-            
-        #END handle recursion
+
+        # END handle recursion
         return self.__dict__
 
     def copy(self):
         """@return a (deep) copy of self"""
         return type(self)(self.to_dict())
-        
+
     def clone(self):
         """@return a deep copy of this dict. This onyl means that the key-sets are independent. However, the 
         values are still shared, which matters in case of lists for instance"""
         return type(self)(deepcopy(self.to_dict(recursive=True)))
-        
+
     def inversed_dict(self):
         """@return new dictionary which uses this dicts keys as values, and values as keys
         @note duplicate values will result in just a single key, effectively drupping items.
         Use this only if you have unique key-value pairs"""
         return dict(list(zip(list(self.__dict__.values()), list(self.__dict__.keys()))))
-    
+
     def get(self, name, default=None):
         """as dict.get"""
         return self.__dict__.get(name, default)
-        
+
     def keys(self):
         """as dict.keys"""
         return list(self.__dict__.keys())
-        
+
     def values(self):
         """as dict.values"""
         return list(self.__dict__.values())
-        
+
     def items(self):
         """as dict.items"""
         return list(self.__dict__.items())
-        
+
     def iteritems(self):
         """as dict.iteritems"""
         return iter(self.__dict__.items())
@@ -433,17 +436,17 @@ class DictObject(object):
         else:
             return self.__dict__.pop(key, default)
         # end assure semantics are kept
-        
+
 
 # end class DictObject
 
 def _ordered_ict_format_string(odict, indent=1):
     """utility for producing a human readable string from a dict"""
-    indent_str = '    '*indent
+    indent_str = '    ' * indent
     ret_str = "\n"
     for key, value in odict.items():
         if isinstance(value, OrderedDict):
-            ret_str += "%s%s: %s" % (indent_str, key, _ordered_ict_format_string(value, indent=indent+1))
+            ret_str += "%s%s: %s" % (indent_str, key, _ordered_ict_format_string(value, indent=indent + 1))
         elif isinstance(value, (tuple, list)):
             # for now, without recursion, assuming simple scalar values
             ret_str += "%s%s:\n" % (indent_str, key)
@@ -456,6 +459,7 @@ def _ordered_ict_format_string(odict, indent=1):
     # end for each item in dict
     return ret_str
 
+
 def _to_dict(d):
     """@return a recursive copy of this dict, except that the dict type is just dict.
     @note useful for pretty-printing"""
@@ -464,13 +468,14 @@ def _to_dict(d):
         if isinstance(value, d.__class__):
             value = value.to_dict()
         out[key] = value
-    #end for each key-value pair
+    # end for each key-value pair
     return out
 
 
 if sys.version_info[0] < 3:
 
     class OrderedDict(dict, DictMixin):
+
         """@copyright (c) 2009 Raymond Hettinger
 
         Permission is hereby granted, free of charge, to any person
@@ -480,10 +485,10 @@ if sys.version_info[0] < 3:
         publish, distribute, sublicense, and/or sell copies of the Software,
         and to permit persons to whom the Software is furnished to do so,
         subject to the following conditions:
-        
+
         The above copyright notice and this permission notice shall be
         included in all copies or substantial portions of the Software.
-        
+
         THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
         EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
         OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -492,23 +497,23 @@ if sys.version_info[0] < 3:
         WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
         FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
         OTHER DEALINGS IN THE SOFTWARE.
-        
+
         @note: Unfortunately, there is no unit test for this available or I didn't
         find it. As its the default python implementation though, I believe it
         should be working pretty well.
         """
         __slots__ = ('_map', '_end')
-        
+
         def __init__(self, *args, **kwds):
             if len(args) > 1:
                 raise TypeError('expected at most 1 arguments, got %d' % len(args))
-            self.clear() # reset
+            self.clear()  # reset
             self.update(*args, **kwds)
 
         def clear(self):
             end = list()
             object.__setattr__(self, '_end', end)
-            object.__setattr__(self, '_map', dict()) # key --> [key, prev, next]
+            object.__setattr__(self, '_map', dict())  # key --> [key, prev, next]
             end += [None, end, end]         # sentinel node for doubly linked list
             dict.clear(self)
 
@@ -559,15 +564,15 @@ if sys.version_info[0] < 3:
             if inst_dict:
                 return (self.__class__, (items,), inst_dict)
             return self.__class__, (items,)
-            
+
         def __getattr__(self, name):
             """provides read access"""
             try:
                 return self[name]
             except KeyError:
                 raise AttributeError("No attribute named '%s'" % name)
-            #end handle getitem
-            
+            # end handle getitem
+
         def __setattr__(self, name, value):
             """Set the given value into our dict"""
             if name in self.__slots__:
@@ -606,7 +611,7 @@ if sys.version_info[0] < 3:
         def copy(self):
             """same as in dict"""
             return self.__class__(self)
-            
+
         to_dict = _to_dict
 
         @classmethod
@@ -621,7 +626,7 @@ if sys.version_info[0] < 3:
             if isinstance(other, OrderedDict):
                 if len(self) != len(other):
                     return False
-                for left, right in  zip(list(self.items()), list(other.items())):
+                for left, right in zip(list(self.items()), list(other.items())):
                     if left != right:
                         return False
                 return True
@@ -635,6 +640,7 @@ else:
     from collections import OrderedDict as OrderedDictPy3
 
     class OrderedDict(OrderedDictPy3):
+
         """Add some compatiblity for our custom API"""
         __reserved__ = set(('_OrderedDict__marker', '_OrderedDict__update', '__weakref__', '_OrderedDict__root',
                             '_OrderedDict__map', '_OrderedDict__hardroot'))
@@ -655,33 +661,33 @@ else:
                 return self[name]
             except KeyError:
                 raise AttributeError("No attribute named '%s'" % name)
-            #end handle getitem
-    
+            # end handle getitem
+
     # end class OrderedDict
 # end handle py2/3 compatibility
-    
+
 
 class ProgressIndicator(object):
+
     """A base allowing to track progress information
     The default implementation just prints the respective messages
     Additionally you may query whether the computation has been cancelled by the user
-    
+
     @note this interface is a simple progress indicator itself, and can do some computations
     for you if you use the get() method yourself"""
 
     __slots__ = (
-                    '_progress_value',
-                    '_min',
-                    '_max',
-                    '_rr',
-                    '_relative',
-                    '_may_abort'
-                )
-
+        '_progress_value',
+        '_min',
+        '_max',
+        '_rr',
+        '_relative',
+        '_may_abort'
+    )
 
     #{ Initialization
 
-    def __init__(self, min = 0, max = 100, is_relative = True, may_abort = False, round_robin=False, **kwargs):
+    def __init__(self, min=0, max=100, is_relative=True, may_abort=False, round_robin=False, **kwargs):
         """@param min the minimum progress value
         @param max the maximum progress value
         @param is_relative if True, the values given will be scaled to a range of 0-100,
@@ -707,16 +713,16 @@ class ProgressIndicator(object):
     #} END initialization
 
     #{ Edit
-    
-    def refresh(self, message = None):
+
+    def refresh(self, message=None):
         """Refresh the progress indicator so that it represents its values on screen.
-        
+
         @param message message passed along by the user"""
         # To be implemented in subclass
 
-    def set(self, value, message = None , omit_refresh=False):
+    def set(self, value, message=None, omit_refresh=False):
         """Set the progress of the progress indicator to the given value
-        
+
         @param value progress value (min<=value<=max)
         @param message optional message you would like to give to the user
         @param omit_refresh by default, the progress indicator refreshes on set,
@@ -724,17 +730,17 @@ class ProgressIndicator(object):
         self._progress_value = value
 
         if not omit_refresh:
-            self.refresh(message = message)
+            self.refresh(message=message)
 
     def set_range(self, min, max):
         """set the range within we expect our progress to occour"""
         self._min = min
         self._max = max
-        
+
     def set_round_robin(self, round_robin):
         """Set if round-robin mode should be used. 
         If True, values exceeding the maximum range will be wrapped and 
-        start at the minimum range""" 
+        start at the minimum range"""
         self._rr = round_robin
 
     def set_relative(self, state):
@@ -749,7 +755,7 @@ class ProgressIndicator(object):
     def setup(self, range=None, relative=None, abortable=None, begin=True, round_robin=None):
         """Multifunctional, all in one convenience method setting all important attributes
         at once. This allows setting up the progress indicator with one call instead of many
-        
+
         @note If a kw argument is None, it will not be set
         @param range Tuple(min, max) - start ane end of progress indicator range
         @param relative equivalent to `set_relative`
@@ -764,7 +770,7 @@ class ProgressIndicator(object):
 
         if abortable is not None:
             self.set_abortable(abortable)
-            
+
         if round_robin is not None:
             self.set_round_robin(round_robin)
 
@@ -777,26 +783,26 @@ class ProgressIndicator(object):
 
     def get(self):
         """@return the current progress value
-        
+
         @note if set to relative mode, values will range
             from 0.0 to 100.0.
             Values will always be within the ones returned by `range`"""
         p = self.value()
-        mn,mx = self.range()
+        mn, mx = self.range()
         if self.round_robin():
             p = p % mx
-                
+
         if not self.is_relative():
             return min(max(p, mn), mx)
-        # END relative handling 
-        
+        # END relative handling
+
         # compute the percentage
         return min(max((p - mn) / float(mx - mn), 0.0), 1.0) * 100.0
-        
+
     def value(self):
         """@return current progress as it is stored internally, without regarding 
             the range or round-robin options.
-            
+
         @note This allows you to use this instance as a counter without concern to 
             the range and round-robin settings"""
         return self._progress_value
@@ -817,7 +823,7 @@ class ProgressIndicator(object):
         if self.is_relative():
             prefix = "%i%%" % value
         else:
-            mn,mx = self.range()
+            mn, mx = self.range()
             prefix = "%i/%i" % (value, mx)
 
         return prefix
@@ -842,6 +848,7 @@ class ProgressIndicator(object):
 
 
 class SpellingCorrector(object):
+
     """A Type based on code by Peter Norvig (http://norvig.com/spell-correct.html)
 
     I have no clou how it works, but wanted that functionality.
@@ -858,7 +865,7 @@ class SpellingCorrector(object):
         self._model = model
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     def correct(self, word):
@@ -866,21 +873,22 @@ class SpellingCorrector(object):
         alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
         def edits1(word):
-           splits     = [(word[:i], word[i:]) for i in range(len(word) + 1)]
-           deletes    = [a + b[1:] for a, b in splits if b]
-           transposes = [a + b[1] + b[0] + b[2:] for a, b in splits if len(b)>1]
-           replaces   = [a + c + b[1:] for a, b in splits for c in alphabet if b]
-           inserts    = [a + c + b     for a, b in splits for c in alphabet]
-           return set(deletes + transposes + replaces + inserts)
+            splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
+            deletes = [a + b[1:] for a, b in splits if b]
+            transposes = [a + b[1] + b[0] + b[2:] for a, b in splits if len(b) > 1]
+            replaces = [a + c + b[1:] for a, b in splits for c in alphabet if b]
+            inserts = [a + c + b for a, b in splits for c in alphabet]
+            return set(deletes + transposes + replaces + inserts)
 
         def known_edits2(word):
             return set(e2 for e1 in edits1(word) for e2 in edits1(e1) if e2 in self._model)
 
-        def known(words): return set(w for w in words if w in self._model)
+        def known(words):
+            return set(w for w in words if w in self._model)
 
         candidates = known([word]) or known(edits1(word)) or known_edits2(word) or [word]
         return max(candidates, key=self._model.get)
-    
-    ## -- End Interface -- @}
+
+    # -- End Interface -- @}
 
 # end class SpellingCorrector

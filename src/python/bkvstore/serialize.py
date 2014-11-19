@@ -36,27 +36,27 @@ from .base import (KeyValueStoreModifier,
 from .schema import KVPath
 
 
-
 # ==============================================================================
-## @name Interfaces
+# @name Interfaces
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 class IStreamSerializer(Interface):
+
     """An interface to allow serialization of objects to a stream
     @todo these classes are so general, they should move somewhere more general too !"""
     __slots__ = ()
 
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
-    
-    ## the extension of files we can read or write
+
+    # the extension of files we can read or write
     # Can be None if we don't have a specific extension, for instance because we are only writing
     # to sockets
     file_extension = None
-    
-    ## -- End Configuration -- @}
+
+    # -- End Configuration -- @}
 
     @abstractmethod
     def deserialize(self, stream):
@@ -64,7 +64,7 @@ class IStreamSerializer(Interface):
         @param stream an object providing the read() method
         @return deserialized data structure"""
         return yaml.load(stream, Loader=OrderedDictYAMLLoader) or dict()
-    
+
     @abstractmethod
     def serialize(self, data, stream):
         """Serialize the given data structure into the given stream
@@ -74,39 +74,38 @@ class IStreamSerializer(Interface):
 # end class YAMLKeyValueStoreModifier
 
 
-## -- End Interfaces -- @}
-
+# -- End Interfaces -- @}
 
 
 # NOTE: unfortunately, we cannot make an absolute import here due to cyclic dependencies
 class _SerializingKeyValueStoreModifierMixin(object):
+
     """A base to share common functionality between the base that tracks changes, and the one that doesn't"""
     # Slots don't work anymore, as this type is used in multi-inheritance scenarios
     #__slots__ = (
-    #                '_input_paths', # a tuple of input paths
+    # '_input_paths', # a tuple of input paths
     #            )
 
     # -------------------------
-    ## @name Subclass Configuration
+    # @name Subclass Configuration
     # @{
-    
-    ## A delegate taking care of merging multiple read files into one dataset
+
+    # A delegate taking care of merging multiple read files into one dataset
     SerializingKeyValueStoreModifierDiffDelegateType = AutoResolveAdditiveMergeDelegate
-    
-    ## A type to use for serialization
-    ## To be set by subclass
+
+    # A type to use for serialization
+    # To be set by subclass
     StreamSerializerType = None
 
+    # If True, absolute paths to settings files will be stored under ext.basename (e.g. yaml.bcore)
+    store_settings_paths = True
 
-    ## If True, absolute paths to settings files will be stored under ext.basename (e.g. yaml.bcore)
-    store_settings_paths=True
+    # -- End Subclass Configuration -- @}
 
-    ## -- End Subclass Configuration -- @}
-
-    ## our logging instance
+    # our logging instance
     log = logging.getLogger("bkvstore.serializer")
 
-    def __init__(self, input_paths, take_ownership = True):
+    def __init__(self, input_paths, take_ownership=True):
         """Initialize this instance with a set of paths from which to read values and to which to write the
         changed values.
 
@@ -117,11 +116,12 @@ class _SerializingKeyValueStoreModifierMixin(object):
         @param take_ownership has no effect, we always have ownership
         """
         assert self.StreamSerializerType and self.SerializingKeyValueStoreModifierDiffDelegateType
-        
+
         # init with empty dict
-        super(_SerializingKeyValueStoreModifierMixin, self).__init__(self.KeyValueStoreModifierDiffDelegateType.DictType())
+        super(_SerializingKeyValueStoreModifierMixin, self).__init__(
+            self.KeyValueStoreModifierDiffDelegateType.DictType())
         self._set_input_paths(input_paths)
-        
+
         # force updating our data
         self.reload()
 
@@ -134,7 +134,7 @@ class _SerializingKeyValueStoreModifierMixin(object):
                 path_or_stream = Path(path_or_stream)
             # end handle type
             self._input_paths.append(path_or_stream)
-        #end for each path
+        # end for each path
 
     def _cache_dir(self):
         """@return an existing directory into which caches can be written safely. Doesn't necessarily exist"""
@@ -143,9 +143,9 @@ class _SerializingKeyValueStoreModifierMixin(object):
     def _use_cache(self):
         """@return True if we may use the settings cache"""
         return True
-        
+
     # -------------------------
-    ## @name Serialization Interface
+    # @name Serialization Interface
     # Functionality to control reading and writing of value data
     # @{
 
@@ -165,11 +165,11 @@ class _SerializingKeyValueStoreModifierMixin(object):
         """
         if input_paths is not None:
             self._set_input_paths(input_paths)
-        #end change input paths
+        # end change input paths
 
         # merge all the data into one base
 
-        ##! [additive example]
+        # ! [additive example]
         delegate = self.SerializingKeyValueStoreModifierDiffDelegateType()
         streamer = self.StreamSerializerType()
 
@@ -179,7 +179,6 @@ class _SerializingKeyValueStoreModifierMixin(object):
         except OSError:
             pass
         # end assure cache dir exists
-
 
         def load_and_merge_safely(path_or_stream):
             """Load a file and merge the result using our delegate"""
@@ -195,25 +194,26 @@ class _SerializingKeyValueStoreModifierMixin(object):
                 data = stream.read()
                 use_cache = self._use_cache()
                 if use_cache:
-                    cache_file = cache_base / hashlib.md5(isinstance(data, str) and data.encode(DEFAULT_ENCODING) or data).hexdigest()
+                    cache_file = cache_base / \
+                        hashlib.md5(isinstance(data, str) and data.encode(DEFAULT_ENCODING) or data).hexdigest()
                 # end
 
                 if isinstance(data, bytes):
                     # usually, this would be the case, but we don't always open the stream ourselves
                     data = data.decode(DEFAULT_ENCODING)
-                # end 
+                # end
 
                 try:
                     if not use_cache:
                         raise OSError
-                    # end 
+                    # end
                     data = pickle.load(open(cache_file, 'rb'))
                 except (OSError, IOError):
                     data = streamer.deserialize(PyStringIO(data))
                     if use_cache:
                         open(cache_file, 'wb').write(pickle.dumps(data))
                 # end handle minimal IO caches
-                
+
                 if hasattr(stream, 'close'):
                     stream.close()
                 # end handle stream close
@@ -230,18 +230,18 @@ class _SerializingKeyValueStoreModifierMixin(object):
             except Exception:
                 self.log.error("Invalid %s file at '%s'", streamer.file_extension, path_or_stream, exc_info=True)
                 return
-            #end handle exceptions
+            # end handle exceptions
             # only in the first run, we have no result as basis yet
             self.log.debug("loaded and merged %s file '%s'", streamer.file_extension, path_or_stream)
             base = delegate.result()
             if base is NoValue:
                 base = self.KeyValueStoreModifierDiffDelegateType.DictType()
-            #end set base
+            # end set base
             self.TwoWayDiffAlgorithmType().diff(delegate, base, data)
-        #end load_and_merge_safely
+        # end load_and_merge_safely
         for path_or_stream in self._input_paths:
             load_and_merge_safely(path_or_stream)
-        #end for each input path
+        # end for each input path
 
         # tell our base class to non-destructively update with the new data
         res = delegate.result()
@@ -249,15 +249,15 @@ class _SerializingKeyValueStoreModifierMixin(object):
             # happens if we had no input, and no valid file to read from, just be empty then
             res = self.KeyValueStoreModifierDiffDelegateType.DictType()
         # end handle no value
-        
+
         self._set_data(res)
         return self
-        ##! [additive example]
-        
-    ## -- End Serialization Interface -- @}
+        # ! [additive example]
+
+    # -- End Serialization Interface -- @}
 
     # -------------------------
-    ## @name Query Interface
+    # @name Query Interface
     # Allow to access some of the state of the modifier
     # @{
 
@@ -265,15 +265,15 @@ class _SerializingKeyValueStoreModifierMixin(object):
         """@return tuple of input paths that we use to read the documentation from"""
         return self._input_paths
 
-    ## -- End Query Interface -- @}
+    # -- End Query Interface -- @}
 # end class _SerializingKeyValueStoreModifierMixin
-
 
 
 # NOTE: unfortunately, we cannot make an absolute import here due to cyclic dependencies
 class SerializingKeyValueStoreModifier(_SerializingKeyValueStoreModifierMixin, KeyValueStoreModifier):
+
     """From an iterable of files, merge all obtained documentation into one.
-    
+
     The idea is that the storage can be decomposed into multiple files, which are provided conditionally
     by the owner of this instance. We will merge the resulting data structures into one and provide that to clients.
 
@@ -288,21 +288,21 @@ class SerializingKeyValueStoreModifier(_SerializingKeyValueStoreModifierMixin, K
 # end class SerializingKeyValueStoreModifier
 
 
-
 # NOTE: unfortunately, we cannot make an absolute import here due to cyclic dependencies
-class ChangeTrackingSerializingKeyValueStoreModifier(_SerializingKeyValueStoreModifierMixin, 
-                                                         ChangeTrackingKeyValueStoreModifier):
+class ChangeTrackingSerializingKeyValueStoreModifier(_SerializingKeyValueStoreModifierMixin,
+                                                     ChangeTrackingKeyValueStoreModifier):
+
     """Similar to the SerializingKeyValueStoreModifier, but additionally it will track changes (duplicating
     the required amount of memory), and allow you to write back just the changed values.
     """
     __slots__ = ()
 
     # -------------------------
-    ## @name Serialization Interface
+    # @name Serialization Interface
     # Functionality to control reading and writing of value data
     # @{
 
-    def save_changes(self, output_stream, sparse = True):
+    def save_changes(self, output_stream, sparse=True):
         """Save changed values to the given stream.
 
         @param output_stream if set to a stream like object (having a write method).
@@ -320,22 +320,21 @@ class ChangeTrackingSerializingKeyValueStoreModifier(_SerializingKeyValueStoreMo
         else:
             changes = self._data()
         # end handle sparse
-        
+
         if not changes:
             return self
-        #end handle unchanged changes
-        
+        # end handle unchanged changes
+
         self.StreamSerializerType().serialize(changes, output_stream)
         return self
-        
+
     def load_changes(self, input_stream):
         """Load changes previously saved using save_changes(), so another call to save_changes() will 
         save exactly what you have just loaded
         @param input_stream a stream to deserialize data from
         @return self"""
-        return self.set_changes(self.StreamSerializerType().deserialize(input_stream)) 
+        return self.set_changes(self.StreamSerializerType().deserialize(input_stream))
 
-    ## -- End Serialization Interface -- @}
+    # -- End Serialization Interface -- @}
 
 # end class SerializingKeyValueStoreModifier
-

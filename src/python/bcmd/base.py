@@ -19,105 +19,104 @@ from butility import (LazyMixin,
                       DictObject)
 from bprocess import ProcessAwareApplication
 
-from .argparse import ( ArgumentError,
-                        ArgumentTypeError,
-                        ParserError )
-from .interfaces import ( ICommand,
-                          ISubCommand )
-from .utility import ( CommandArgumentParser,
-                       ArgparserHandledCall,
-                       InputError,
-                       SuccessfulBreak)
-
+from .argparse import (ArgumentError,
+                       ArgumentTypeError,
+                       ParserError)
+from .interfaces import (ICommand,
+                         ISubCommand)
+from .utility import (CommandArgumentParser,
+                      ArgparserHandledCall,
+                      InputError,
+                      SuccessfulBreak)
 
 
 class Command(ICommand, LazyMixin):
+
     """Implements a simple command which is easily configured through overridable class members.
-    
+
     It has built-in support for plugin-subcommands
     """
     __slots__ = (
-                    '_log',         # our logging instance, lazy
-                    '_info',        # info kv store, lazy
-                    '_app',         # the application to use when querying the registry, or settings
-                    '_level'        # the depth within the sub-command chain
-                )
-    
-    ArgumentParserType = CommandArgumentParser 
-    
+        '_log',         # our logging instance, lazy
+        '_info',        # info kv store, lazy
+        '_app',         # the application to use when querying the registry, or settings
+        '_level'        # the depth within the sub-command chain
+    )
+
+    ArgumentParserType = CommandArgumentParser
+
     # -------------------------
-    ## @name Information
+    # @name Information
     # Subclasses should override those values
     # @{
-    
-    ## Name of our program
+
+    # Name of our program
     name = None
-    ## A version string
+    # A version string
     version = None
-    ## Logging prefix, may be None
+    # Logging prefix, may be None
     log_id = None
-    ## command description
+    # command description
     description = None
-    
-    ## If True, unknown or remaining arguments are allowed.
-    ## This can be useful for variable argument list parsing.
-    ## However, sometimes its just typos which lead to this, causing unexpected behaviour if incought
+
+    # If True, unknown or remaining arguments are allowed.
+    # This can be useful for variable argument list parsing.
+    # However, sometimes its just typos which lead to this, causing unexpected behaviour if incought
     allow_unknown_args = False
 
-    ## -- End Information -- @}
-    
+    # -- End Information -- @}
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
-    
-    ## If not None, a title to be used for the subcommand description
-    ## It will also enable subcommand search.
+
+    # If not None, a title to be used for the subcommand description
+    # It will also enable subcommand search.
     subcommands_title = None
-    
-    ## The description to be used for all subcommands
-    ## If not None, it will also enable subcommand search
+
+    # The description to be used for all subcommands
+    # If not None, it will also enable subcommand search
     subcommands_description = None
-    
-    ## Help for all found subcommands
-    ## If not None, it will also enable subcommand search 
+
+    # Help for all found subcommands
+    # If not None, it will also enable subcommand search
     subcommands_help = None
 
-    ## If not None, and if no application instance is provided during initialization, we will create a default one
+    # If not None, and if no application instance is provided during initialization, we will create a default one
     # when instantiated.
     # Set this to the application type you want to intantiate, most commonly
     # If you want to override arguments, provide your own type and re-implement `new()`
     ApplicationType = ProcessAwareApplication
 
-    
-    ## -- End Configuration -- @}
-    
+    # -- End Configuration -- @}
+
     # -------------------------
-    ## @name Constants
+    # @name Constants
     # @{
-    
-    ## A constant to indicate success of our command. Useful as return value of the execute() method
+
+    # A constant to indicate success of our command. Useful as return value of the execute() method
     SUCCESS = 0
-    
-    ## A constant indicating a general error
+
+    # A constant indicating a general error
     ERROR = 1
-    
-    ## A constant indicating an error related to file-io or accessibility
+
+    # A constant indicating an error related to file-io or accessibility
     IO_ERROR = 2
-    
-    ## A constant indicating an error with argument parsing or handling
+
+    # A constant indicating an error with argument parsing or handling
     ARGUMENT_ERROR = 3
-    
-    ## A constant indicating signal 15/SIGTERM, keyboard interrupt with Ctrl+C
+
+    # A constant indicating signal 15/SIGTERM, keyboard interrupt with Ctrl+C
     KEYBOARD_INTERRUPT = 4
-    
-    ## A constant indicating that the argument was handled by the argument parser itself, usually for 
+
+    # A constant indicating that the argument was handled by the argument parser itself, usually for
     # low-level built-in flags
     ARGUMENT_HANDLED = 5
-    
-    ## A constant indicating an unhandled exception, which is usually a programming bug
+
+    # A constant indicating an unhandled exception, which is usually a programming bug
     UNHANDLED_ERROR = 255
-    
-    ## -- End Constants -- @}
+
+    # -- End Constants -- @}
 
     def __init__(self, application=None):
         """Initialize this instance
@@ -128,8 +127,8 @@ class Command(ICommand, LazyMixin):
         self._level = 0
         if self._app is None and self.ApplicationType:
             self._app = self.ApplicationType.new()
-        # end 
-    
+        # end
+
     def _set_cache_(self, name):
         if name == '_log':
             lid = self.log_id or self.name
@@ -140,45 +139,45 @@ class Command(ICommand, LazyMixin):
         elif name == '_info':
             assert self.name and self.version and self.description
             log_id = self.log_id or self.name
-            self._info = DictObject(              {
-                                                    'name' : self.name,
-                                                    'version' : self.version,
-                                                    'log_id' : log_id,
-                                                    'description' : self.description
-                                                  })
+            self._info = DictObject({
+                'name': self.name,
+                'version': self.version,
+                'log_id': log_id,
+                'description': self.description
+            })
         else:
             return super(Command, self)._set_cache_(name)
         # end handle name
-        
+
     def _has_subcommands(self):
         """@return True if we have subcommands"""
         return any((self.subcommands_title, self.subcommands_description, self.subcommands_help))
-       
+
     def _is_subcommand(self):
         """@return True if we are a subcommand"""
         return hasattr(self, 'main_command_name') and self.main_command_name
 
-    def _subcommand_slot_name(self, level = None):
+    def _subcommand_slot_name(self, level=None):
         """@return a name to access the args namespace, matching our level.
         That way, arbitrary depth command hierachies can be supported
         @param level if None, self._level will be used"""
         if level is None:
             level = self._level
-        # end 
-        # unify it, also by type. That way commands can define their own set of additional 
+        # end
+        # unify it, also by type. That way commands can define their own set of additional
         # subcommands
-        return "__%s__%i" % (type(self).__name__,level)
-        
+        return "__%s__%i" % (type(self).__name__, level)
+
     # -------------------------
-    ## @name Interface Implementation
+    # @name Interface Implementation
     # @{
-    
+
     def info_data(self):
         return self._info
-    
+
     def log(self):
         return self._log
-        
+
     def setup_argparser(self, parser):
         """Default implementation adds nothing. This is common if you use subcommands primarily"""
         try:
@@ -186,7 +185,7 @@ class Command(ICommand, LazyMixin):
         except AttributeError:
             return self
         # end support mixins
-        
+
     def execute(self, args, remaining_args):
         """Base implementation will just execute the selected subcommand
         @throws NotImplementedError if this command has no subcommands"""
@@ -196,24 +195,23 @@ class Command(ICommand, LazyMixin):
         cmd = getattr(args, self._subcommand_slot_name())
         assert cmd is not self
         return cmd.execute(args, remaining_args)
-            
-        
-    ## -- End Interface Implementation -- @}        
+
+    # -- End Interface Implementation -- @}
     # -------------------------
 
-    ## @name Subclass Methods
+    # @name Subclass Methods
     # Methods that can be overridden by subclasses
     # @{
-    
+
     def _find_compatible_subcommands(self):
         """@return a list or tuple of compatible ISubCommand instances. Must contain at least one subcommand instance
         @note the base implementation searches the current environment stack for it"""
         res = list()
         ctx = (self.application() or bapp.main()).context()
-        for scmd in ctx.new_instances(ISubCommand, kwargs={'application' : self.application()}):
+        for scmd in ctx.new_instances(ISubCommand, kwargs={'application': self.application()}):
             if scmd.is_compatible(self):
                 res.append(scmd)
-            # end 
+            # end
         # end for each command
         return res
 
@@ -236,14 +234,14 @@ class Command(ICommand, LazyMixin):
         @note see https://docs.python.org/dev/library/argparse.html#sub-commands for details
         """
         return add_parser(*args, **kwargs)
-    
-    ## -- End Subclass Methods -- @}
-    
+
+    # -- End Subclass Methods -- @}
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
-    def argparser(self, parser = None):
+
+    def argparser(self, parser=None):
         """@return a fully initialized arg-parser instance, ready for parsing arguments
         @param parser if set, you are called as neseted subcomand. Parser was initialized for you and 
         should be altered with your subcommands accordingly."""
@@ -257,7 +255,7 @@ class Command(ICommand, LazyMixin):
         self.setup_argparser(parser)
         if self._has_subcommands():
             subcommands = self._find_compatible_subcommands()
-            if subcommands:            
+            if subcommands:
                 scmds_dict = dict()
                 if self.subcommands_title:
                     scmds_dict['title'] = self.subcommands_title
@@ -265,16 +263,17 @@ class Command(ICommand, LazyMixin):
                     scmds_dict['description'] = self.subcommands_description
                 if self.subcommands_help:
                     scmds_dict['help'] = self.subcommands_help
-                
+
                 subparsers = parser.add_subparsers(**scmds_dict)
                 for cmd in subcommands:
                     cmd_info = cmd.info_data()
-                    subparser = cmd._add_subparser(subparsers.add_parser, cmd_info.name, description=cmd_info.description, help=cmd_info.description)
-                    subparser.set_defaults(**{self._subcommand_slot_name() : cmd})
+                    subparser = cmd._add_subparser(
+                        subparsers.add_parser, cmd_info.name, description=cmd_info.description, help=cmd_info.description)
+                    subparser.set_defaults(**{self._subcommand_slot_name(): cmd})
                     # Allow recursion - there can be a hierarchy of subcommands
                     assert cmd is not self, 'picked up myself as subcommand - check your name'
                     if cmd._has_subcommands():
-                        # that way, the new subcommand master will be able to 
+                        # that way, the new subcommand master will be able to
                         cmd._level = self._level + 1
                         cmd.argparser(subparser)
                     else:
@@ -286,7 +285,7 @@ class Command(ICommand, LazyMixin):
             # end have subcommands
         # end handle subcommands
         return parser
-        
+
     def parse_and_execute(self, args=None):
         """Parses the given argument list and executes the command.
         @note will catch exceptions and translates them into exit codes and logging output
@@ -297,10 +296,10 @@ class Command(ICommand, LazyMixin):
         if args is None:
             args = sys.argv[1:]
         # end handle args default
-        
+
         parser = self.argparser()
         try:
-            if self._has_subcommands() and not args: 
+            if self._has_subcommands() and not args:
                 parser.print_usage()
                 return self.ERROR
             # print usage if nothing was specified
@@ -348,7 +347,7 @@ class Command(ICommand, LazyMixin):
             self.log().error("An unhandled exception occurred", exc_info=True)
             return self.UNHANDLED_ERROR
         # end exception handling
-        
+
     @classmethod
     def main(cls):
         """Convenience method to instantiate this type and run its parse_and_execute().
@@ -359,45 +358,45 @@ class Command(ICommand, LazyMixin):
         """@return the Application instance we should use for plugin queries, or None if it is unset
         and the global one will be used"""
         return self._app
-        
-            
-    ## -- End Interface -- @}
+
+    # -- End Interface -- @}
 # end class Command
 
 
 class SubCommand(Command, ISubCommand):
+
     """Base implementation for SubCommands to work with any compatible main command.
-    
+
     Compatibility is determined by comparing the name of the given command with the name we see in 
     our configuration.
-    
+
     The SubCommand's name will also serve as name used to refer to it. For example, a subcommand named 'list'
     will be accessible through 'main list ...' .
     """
     __slots__ = ()
-    
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # To be configured by subtypes
     # @{
-    
-    ## The name of the main command we should be compatible with
+
+    # The name of the main command we should be compatible with
     main_command_name = None
 
-    ## We never want to create an application, and assume it's done in the main command
+    # We never want to create an application, and assume it's done in the main command
     ApplicationType = None
-    
-    ## -- End Configuration -- @}
-    
+
+    # -- End Configuration -- @}
+
     # -------------------------
-    ## @name Interface Implementation
+    # @name Interface Implementation
     # @{
-    
+
     def is_compatible(self, command):
         """@return True if the given command's name"""
         assert self.main_command_name
         return command.info_data().name == self.main_command_name
-    
-    ## -- End Interface Implementation -- @}
+
+    # -- End Interface Implementation -- @}
 
 # end class SubCommand

@@ -11,11 +11,11 @@ from __future__ import division
 
 from butility.future import (with_metaclass,
                              PY2)
-__all__ = ['Error', 'Interface', 'Meta', 'abstractmethod', 
+__all__ = ['Error', 'Interface', 'Meta', 'abstractmethod',
            'NonInstantiatable', 'is_mutable', 'smart_deepcopy', 'wraps', 'GraphIterator',
            'Singleton', 'LazyMixin', 'capitalize', 'equals_eps', 'tagged_file_paths', 'TRACE',
            'set_log_level', 'partial', 'parse_key_value_string', 'parse_string_value', 'size_to_int',
-           'frequncy_to_seconds', 'int_to_size_string', 'load_package', 'load_files', 'load_file', 
+           'frequncy_to_seconds', 'int_to_size_string', 'load_package', 'load_files', 'load_file',
            'ProxyMeta']
 
 from functools import (wraps,
@@ -39,24 +39,24 @@ log = logging.getLogger('butility.base')
 
 
 # ==============================================================================
-## @name Constants
+# @name Constants
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
-container_types = (list , set, tuple)
+container_types = (list, set, tuple)
 
-## The TRACE log level, between DEBUG and INFO
+# The TRACE log level, between DEBUG and INFO
 TRACE = int((logging.INFO + logging.DEBUG) / 2)
 
-## -- End Constants -- @}
+# -- End Constants -- @}
 
 
 # ==============================================================================
-## @name Logging
+# @name Logging
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
-## Adjust logging configuration
+# Adjust logging configuration
 # It's basically setup that will be there whenever someone uses the basic parts of the core package#
 # That's how it should be though, TRACE should be there, and code relies on it.
 setattr(logging, 'TRACE', TRACE)
@@ -66,55 +66,55 @@ logging.addLevelName(TRACE, 'TRACE')
 def set_log_level(logger, level):
     """Set the loggers and its handlers log level to the given one"""
     for handler in logger.handlers:
-         handler.setLevel(level)
+        handler.setLevel(level)
     logger.setLevel(level)
 
-## -- End Logging -- @}
-
-
+# -- End Logging -- @}
 
 
 # ==============================================================================
-## \name Exceptions
+# \name Exceptions
 # ------------------------------------------------------------------------------
 # Basic Exception Types
-## \{
+# \{
 
 class Error(Exception):
+
     """Most foundational framework exception"""
     __slots__ = ()
 
 # end class Error
-## -- End Exceptions -- \}
+# -- End Exceptions -- \}
 
 
 # ==============================================================================
-## @name Routines
+# @name Routines
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
-def is_mutable( value):
+def is_mutable(value):
     """Recursively check if the given value is mutable.
-    
+
     A value is considered mutable if at least one contained value is mutable
     @param value a possibly nested value of built-in types
     @return true if value is mutable"""
     if isinstance(value, (str, int, float, type(None))):
         return False
-    #end check immutable
+    # end check immutable
     if isinstance(value, (list, dict)):
         return True
-    #end check mutable
-    
+    # end check mutable
+
     if isinstance(value, tuple):
         for item in value:
             if is_mutable(item):
                 return True
-            #end abort recursion if item is mutable
-        #end for each item to check in tuple
-    #end handle tuple value
-    
+            # end abort recursion if item is mutable
+        # end for each item to check in tuple
+    # end handle tuple value
+
     return False
+
 
 def smart_deepcopy(value):
     """Create a deep copy of value only if this is necessary as its value has mutable parts.
@@ -125,13 +125,16 @@ def smart_deepcopy(value):
         return deepcopy(value)
     return value
 
+
 def capitalize(self):
     """@return self with first letter capitalized"""
     return self[0].upper() + self[1:]
 
-def equals_eps(float_left, float_right, epsilon = sys.float_info.epsilon):
+
+def equals_eps(float_left, float_right, epsilon=sys.float_info.epsilon):
     """@return True if float_left equals float_right within an error of epsilon"""
     return abs(float_left - float_right) <= epsilon
+
 
 def parse_string_value(string):
     """@return the actual numeric instance the value string represents. May be a list, if it starts 
@@ -148,9 +151,10 @@ def parse_string_value(string):
         return True
     if string in ('off', 'no', 'false', 'False'):
         return False
-    
+
     # more conversions are not required, as they are handled by the schema
     return string
+
 
 def parse_key_value_string(string, separator='='):
     """@return tuple(key, value), whereas key is what's on the left side of the separator, and value 
@@ -166,13 +170,13 @@ def parse_key_value_string(string, separator='='):
 
 
 # ==============================================================================
-## \name Filesystem Utilities
+# \name Filesystem Utilities
 # ------------------------------------------------------------------------------
-## \{
+# \{
 
 def tagged_file_paths(directory, taglist, pattern=None):
     """Finds tagged files in given directories and return them.
-    
+
     The files retrieved can be files like "file.ext" or can be files that contain tags. Tags are '.'
     separated tokens that are to be matched with the tags in taglist in order.
 
@@ -193,19 +197,18 @@ def tagged_file_paths(directory, taglist, pattern=None):
     @return list of matches file paths (as mrv Path)
     """
     log.debug('obtaining tagged files from %s, tags = %s', directory, ', '.join(taglist))
-    
+
     # verify input
     ###############
     directory_list = directory
     if not isinstance(directory, container_types):
         directory_list = [directory]
-    #end convert to type we require
-    
+    # end convert to type we require
+
     pattern_list = pattern
     if not isinstance(pattern, container_types):
         pattern_list = [pattern]
     # end convert pattern type
-
 
     # GET ALL FILES IN THE GIVEN DIRECTORY_LIST
     ########################################
@@ -213,7 +216,7 @@ def tagged_file_paths(directory, taglist, pattern=None):
     for folder in directory_list:
         for pattern in pattern_list:
             matched_files.extend(Path(folder).files(pattern))
-        # END for each pattern/glob 
+        # END for each pattern/glob
     # end for each directory
 
     # APPLY THE PATTERN SEARCH
@@ -252,9 +255,10 @@ def _load_files(path, files, on_error):
     """load all python \a files from \a path
     @return list of loaded files as full paths"""
     res = list()
+
     def py_filter(f):
         return f.endswith('.py') and not \
-               f.startswith('__')
+            f.startswith('__')
     # end filter
 
     for filename in filter(py_filter, files):
@@ -271,6 +275,7 @@ def _load_files(path, files, on_error):
         # end handle result
     # end for eahc file to load
     return res
+
 
 def load_files(path, recurse=False, on_error=lambda f, m: None):
     """Load all .py files found in the given directory, or load the file it points to
@@ -297,10 +302,11 @@ def load_files(path, recurse=False, on_error=lambda f, m: None):
         # end for each directory to walk
         if seen is None:
             log.log(logging.TRACE, "Didn't find any plugin files at '%s'", path)
-        # end 
+        # end
     # end handle file or directory
     return res
-    
+
+
 def load_file(python_file, module_name):
     """Load the contents of the given python file into a module of the given name.
     If the module is already loaded, it will be reloaded
@@ -309,34 +315,35 @@ def load_file(python_file, module_name):
     imp.load_source(module_name, str(python_file))
     return sys.modules[module_name]
 
-## -- End Filesystem Utilities -- @}
+# -- End Filesystem Utilities -- @}
 
-## -- End Routines -- @}
+# -- End Routines -- @}
 
 
 # ==============================================================================
-## \name Meta-Classes
+# \name Meta-Classes
 # ------------------------------------------------------------------------------
 # Our basic meta classes which allow us to manipulate all class level functions
 # at will to automated otherwise tedious processes.
-## \{
+# \{
 
 class Meta(ABCMeta):
+
     """A base class for all other meta-classes used in the @ref bapp package.
-    
+
     It provides facilities to automatically wrap methods into decorators which 
     perform certain tasks, like additional logging for improved debugging.
-    
+
     * All subclasses of Interface are put into bapp as well, allowing their access
       through bapp.InterfaceName.
     * Puts new types into bapp if the type itself (not its subtype) has the 'place_into_root_package' set to True
     """
-    
+
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # Methods for use by subclasses
     # @{
-    
+
     @classmethod
     def _class_attribute_value(cls, clsdict, bases, attribute):
         """@return value found at clsdict[attribute] or bases.mro().__dict__[attribute] in standard search
@@ -352,53 +359,53 @@ class Meta(ABCMeta):
                 for mro_cls in base.mro():
                     yield mro_cls.__dict__
             # end for each base
-        # end for each 
-        
+        # end for each
+
         # iterate top down
         for cls_dict in reversed(list(chain(iterate_clsdicts(), (clsdict, )))):
             rval = cls_dict.get(attribute)
             if rval:
                 return rval
         # end for each clsdict to iterate
-        
+
         return None
-        
-    ## -- End Subclass Interface -- @}
+
+    # -- End Subclass Interface -- @}
 
 
 class ProxyMeta(Meta):
+
     """Redirect all calls as defined in first base class to the configured proxy member.
     It allows to aggregate existing implementations, while overriding only specific methods, which is useful 
     to add or adjust behavriour generally, without having to alter existing implementations or create
     @note this meta-class will only be active the type using this metaclass. Therefore, subtypes will not be proxied
     again, which makes no sense here"""
-    
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
-    
-    ## Member to which to redirect calls, such as getattr(self._proxy, name)(*args, **kwargs)
+
+    # Member to which to redirect calls, such as getattr(self._proxy, name)(*args, **kwargs)
     proxy_class_attr = '_proxy_attr'
-    
-    ## An attribute with an iterable of names of read-write methods
-    ## Subclasses may then implement them differently
+
+    # An attribute with an iterable of names of read-write methods
+    # Subclasses may then implement them differently
     rw_methods_class_attr = '_rw_methods_'
-    
-    ## Class to use to obtain a list of methods to implement, as provided on the type using this meta-class
+
+    # Class to use to obtain a list of methods to implement, as provided on the type using this meta-class
     # If it is None, the first base (which is not a metaclass) will be used automatically
     type_to_implement_attr = '_proxy_type'
 
-    ## As above, but allows the meta-class to define such a type. It will only be used if the type we are building
+    # As above, but allows the meta-class to define such a type. It will only be used if the type we are building
     # doesn't set its own type to implement, using the type_to_implement_attr
     type_to_implement = None
-    
-    ## -- End Configuration -- @}
-    
-    
+
+    # -- End Configuration -- @}
+
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # @{
-    
+
     @classmethod
     def _create_method(cls, method_name, is_readonly, proxy_attr):
         """@return a new method named method_name that does not alter it's instance
@@ -409,7 +416,7 @@ class ProxyMeta(Meta):
         @param proxy_attr the name of the attribute on instance that keeps the proxy instance."""
         def func(instance, *args, **kwargs):
             return getattr(getattr(instance, proxy_attr), method_name)(*args, **kwargs)
-            
+
         func.__name__ = method_name
         return func
 
@@ -419,14 +426,14 @@ class ProxyMeta(Meta):
         @note this method should implement all filtering needed, and will get all members of the 
         dict of the type we are to implement."""
         return not name.startswith('_') and isroutine(candidate)
-    
-    ## -- End Subclass Interface -- @}
-    
+
+    # -- End Subclass Interface -- @}
+
     def __new__(metacls, clsname, bases, clsdict):
         """Create a proxy-method for every method we have to re-implement if it is not overridden in the 
         derived class"""
         found = False
-        
+
         # In py3, metatypes are bases, in py2 they are sitting in a special class attribute
         if PY2:
             found |= issubclass(clsdict.get('__metaclass__', type), metacls)
@@ -437,9 +444,9 @@ class ProxyMeta(Meta):
                     break
                 # end
             # end for each base to check
-        # end 
+        # end
 
-        # If we are not creating a direct subtype of this meta-class, don't do anything as it makes no sense 
+        # If we are not creating a direct subtype of this meta-class, don't do anything as it makes no sense
         # to have a multi-proxy
         if not found:
             return super(ProxyMeta, metacls).__new__(metacls, clsname, bases, clsdict)
@@ -447,9 +454,9 @@ class ProxyMeta(Meta):
         proxy_attr = metacls._class_attribute_value(clsdict, bases, metacls.proxy_class_attr)
         assert proxy_attr, "A proxy attribute must be set in member %s" % metacls.proxy_class_attr
         rw_method_names = metacls._class_attribute_value(clsdict, bases, metacls.rw_methods_class_attr) or tuple()
-        
+
         type_to_implement = metacls._class_attribute_value(clsdict, bases, metacls.type_to_implement_attr) or \
-                            metacls.type_to_implement
+            metacls.type_to_implement
         if type_to_implement is None:
             for base in bases:
                 if not issubclass(base, Meta):
@@ -463,7 +470,7 @@ class ProxyMeta(Meta):
             msg = "Couldn't find type to implement, neither on new type '%s'" % clsname
             msg += ", nor on the meta cls, or in the new type's bases"
             raise AssertionError(msg)
-        # end 
+        # end
 
         for name, value in type_to_implement.__dict__.items():
             if not metacls._is_routine(name, value) or name in clsdict:
@@ -472,47 +479,48 @@ class ProxyMeta(Meta):
             # Could use new.code|new.function to do it dynamically, or make code to eval ... its overkill though
             clsdict[name] = metacls._create_method(name, name not in rw_method_names, proxy_attr)
         # end for each method to check for
-        
+
         return super(ProxyMeta, metacls).__new__(metacls, clsname, bases, clsdict)
 
 # end class ProxyMeta
-    
+
 # end class Meta
 
-## -- End Meta-Classes -- \}
+# -- End Meta-Classes -- \}
 
 
 # ==============================================================================
-## \name Mixins
+# \name Mixins
 # ------------------------------------------------------------------------------
 # A category of classes from which you can derive to add a certain interface
 # to your type. You might have to implement some protocol methods though,
 # depending on the actual mixin.
-## \{
+# \{
 
 
 class LazyMixin(object):
+
     """Base class providing an interface to lazily retrieve attribute values upon
     first access. This is efficient as objects can be created without causing
     overhead at creation time, delaying necessary overhead to the time the
     respective attribute is actually used.
-    
+
     If slots are used, memory will only be reserved once the attribute
     is actually accessed and retrieved the first time. All future accesses will
     return the cached value as stored in the Instance's dict or slot.
-    
+
     Here is how you implement your subtype
     @snippet bapp/tests/doc/test_examples.py LazyMixinExample Implementation
-    
+
     In code, you can use the lazy attributes natively, its entirely transparent
     to the caller.
     Ideally, this system is used for internal attributes which will be set on first
     use, maybe by reading from a file or a slow device.
-    
+
     @snippet bapp/tests/doc/test_examples.py LazyMixinExample Example
     """
     __slots__ = tuple()
-    
+
     def __getattr__(self, attr):
         """Whenever an attribute is requested that we do not know, we allow it 
         to be created and set. Next time the same attribute is requested, it is simply
@@ -526,11 +534,11 @@ class LazyMixin(object):
         It should check whether the attribute named by `attr` can be created
         and cached. Do nothing if you do not know the attribute or call your subclass'
         _set_cache_ method
-        
+
         The derived class may create as many additional attributes as it deems 
         necessary."""
         pass
-    
+
     def _clear_cache_(self, lazy_attributes):
         """Delete all of the given lazy_attributes from this instance.
         This will force the respective cache to be recreated
@@ -540,25 +548,26 @@ class LazyMixin(object):
                 del(self, attr)
             except AttributeError:
                 pass
-            #end ignore non-existing keys
-        #end for each attribute
+            # end ignore non-existing keys
+        # end for each attribute
 
-## -- End Mixins -- \}
+# -- End Mixins -- \}
 
 
 # ==============================================================================
-## \name Basic Types
+# \name Basic Types
 # ------------------------------------------------------------------------------
-# Implementations for types suitable to serve as base for derived types 
-## \{
+# Implementations for types suitable to serve as base for derived types
+# \{
 
 class Interface(with_metaclass(Meta, object)):
+
     """base class for all interfaces"""
-    
-    ## Slots help to protect against typos when assigning variables, keep instances small, and document the
-    ## types member variables
+
+    # Slots help to protect against typos when assigning variables, keep instances small, and document the
+    # types member variables
     __slots__ = tuple()
-    
+
     def supports(self, interface_type):
         """@return True if this instance supports the interface of the given type
         @param interface_type type of the interface/class you require this instance to be derived from, or a 
@@ -570,8 +579,9 @@ class Interface(with_metaclass(Meta, object)):
 
 
 class NonInstantiatable(object):
+
     """A mixin which will makes it impossible to instantiate derived types
-    
+
     @throws TypeError if someone tries to create an instance"""
     __slots__ = ()
 
@@ -582,7 +592,8 @@ class NonInstantiatable(object):
 # end class NonInstantiatable
 
 
-class Singleton(object) :
+class Singleton(object):
+
     """ Singleton classes can be derived from this class,
         you can derive from other classes as long as Singleton comes first (and class doesn't override __new__) """
     def __new__(cls, *p, **k):
@@ -597,76 +608,77 @@ class Singleton(object) :
 
 
 class GraphIterator(with_metaclass(Meta, object)):
+
     """A generic, none-recursive implementation of a graph-iterator, which is able to handle cycles.
-    
+
     Its meant to be subclassed to make the interface more approachable
     @attention this approach is only useful if you don't care about the order or of your nodes are able
     to provide all the information you like right away (like information about the parent)
     @todo add a test for this type - its not even indirectly used yet. Alternatively, remove it if its not used
     by anybody"""
     __slots__ = ()
-    
+
     # -------------------------
-    ## @name Constants
+    # @name Constants
     # @{
-    
+
     upstream = 'upstream'           # a direction towards the root
     downstream = 'downstream'       # a direction towards childdren
-    
+
     directions = [upstream, downstream]
-    
-    breadth_first = 'breadth_first' # visit every node in each level of a tree first
+
+    breadth_first = 'breadth_first'  # visit every node in each level of a tree first
     depth_first = 'depth_first'     # traverse along each branch to each leaf node, and backtrack
-    
+
     traversal_types = [breadth_first, depth_first]
-    
-    ## -- End Constants -- @}
-    
+
+    # -- End Constants -- @}
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
-    
-    ## if True, the root of the iteration will not be returned, otherwise it will.
+
+    # if True, the root of the iteration will not be returned, otherwise it will.
     skip_root_node = False
-    
-    ## visit_once if True, items will only be returned once, although they might be encountered
-    ## several times if there are loops for instance, or cross-overs. If you have self-loops, this is the only
-    ## way to prevent endless loop.
-    ## @note this costs time as a tracking set has to be kept and updated, so you should set it as required.
-    ## Its enabled by default to prevent costly bugs - turn it of if you do cycle checks yourself
+
+    # visit_once if True, items will only be returned once, although they might be encountered
+    # several times if there are loops for instance, or cross-overs. If you have self-loops, this is the only
+    # way to prevent endless loop.
+    # @note this costs time as a tracking set has to be kept and updated, so you should set it as required.
+    # Its enabled by default to prevent costly bugs - turn it of if you do cycle checks yourself
     visit_once = True
-    
-    ## max_depth define at which level the iteration should not go deeper
-    ## - if -1, there is no limit
-    ## - if 0, you would only get root_item
-    ##   + e.g. if 1, you would only get the root_item and the first level of predessessors/successors
+
+    # max_depth define at which level the iteration should not go deeper
+    # - if -1, there is no limit
+    # - if 0, you would only get root_item
+    # + e.g. if 1, you would only get the root_item and the first level of predessessors/successors
     max_depth = -1
-    
-    ## -- End Configuration -- @}
-    
+
+    # -- End Configuration -- @}
+
     # -------------------------
-    ## @name Subclass Methods
+    # @name Subclass Methods
     # These methods are to be implemented or customized by subclasses
     # @{
-    
+
     @abstractmethod
     def _successors(self, node):
         """@return an iterable of successor nodes (i.e. output nodes) of the given node"""
-        
+
     @abstractmethod
     def _predecessors(self, node):
         """@return an iterable of predecessor nodes (i.e. input nodes) of the given node"""
-        
+
     def _stop_iteration(self, node, depth):
         """
         @return True for `node` at `depth` to stop the search 
         in that direction. The respective node will not be returned either."""
         return False
-        
+
     def _prune_node(self, node, depth):
         """@return True if `node` at `depth` be pruned from result, so that it is not returned"""
         return False
-        
+
     def _iter_(self, root_node, direction, traversal_type):
         """
         @return iterator yielding tuples with (level, node), where the level indicates number of nodes between
@@ -676,96 +688,95 @@ class GraphIterator(with_metaclass(Meta, object)):
         as constants on this type.
         @param traversal_type one of the constants in `traversal_types`, either `breadth_first` or `depth_first` 
         """
-        # VERIFY INPUT 
+        # VERIFY INPUT
         assert direction in self.directions, "invalid direction: %s" % direction
         assert traversal_type in self.traversal_types, "invalid traversal type: %s" % traversal_type
-        
+
         # PREPARE ALGORITHM
         visited = set()
         stack = deque()
-    
+
         if traversal_type == self.breadth_first:
             add_to_stack = lambda nlist, depth: stack.extendleft((depth, node) for node in reversed(nlist))
-            #end addToStck brnach first
+            # end addToStck brnach first
         else:
             add_to_stack = lambda nlist, depth: stack.extend((depth, node) for node in nlist)
-        #end obtain add_to_stack function
-    
+        # end obtain add_to_stack function
+
         # adjust function to define direction
         if direction == self.downstream:
             nodes_in_direction = self._successors
         else:
             nodes_in_direction = self._predecessors
-        #end obtain direction
-        
+        # end obtain direction
+
         if self.skip_root_node:
             add_to_stack(nodes_in_direction(root_node), 1)
         else:
             stack.append((0, root_node))
-        #end skip root node from result
-        
+        # end skip root node from result
+
         stop = self._stop_iteration
         prune = self._prune_node
         visit_once = self.visit_once
         max_depth = self.max_depth
-        
+
         # NON-RECURSIVE SEARCH
         while stack:
             depth, node = stack.pop()               # depth of node, node
-    
+
             if node in visited:
                 continue
-            #end handle visit_once
-    
+            # end handle visit_once
+
             if visit_once:
                 visited.add(node)
-            #end update visited
-    
+            # end update visited
+
             if stop(node, depth):
                 continue
-            #end handle stop iteration
-    
+            # end handle stop iteration
+
             if not prune(node, depth):
                 yield node, depth
-            #end yield node
-    
+            # end yield node
+
             # only continue to next level if this is appropriate !
             new_depth = depth + 1
             if max_depth > -1 and new_depth > max_depth:
                 continue
-            #end skip node if depth level is reached
-    
+            # end skip node if depth level is reached
+
             add_to_stack(nodes_in_direction(node), new_depth)
         # END for each item on work stack
-        
-    ## -- End Subclass Methods -- @}
 
-## -- End Basic Types -- \}
+    # -- End Subclass Methods -- @}
 
+# -- End Basic Types -- \}
 
 
 # ==============================================================================
-## @name Unit Conversion Utilities
+# @name Unit Conversion Utilities
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 data_unit_multipliers = {
-                'k' : 1024,
-                'm' : 1024**2,
-                'g' : 1024**3,
-                't' : 1024**4,
-                'p' : 1024**5,
-                '%' : 1,
+    'k': 1024,
+    'm': 1024 ** 2,
+    'g': 1024 ** 3,
+    't': 1024 ** 4,
+    'p': 1024 ** 5,
+    '%': 1,
 }
 
 time_unit_multipliers = {
-        's' : 1,
-        'h' : 60**2,
-        'd' : 60**2 * 24,
-        'w' : 60**2 * 24 * 7,
-        'm' : 60**2 * 24 * 30,
-        'y' : 60**2 * 24 * 365
-    }
+    's': 1,
+    'h': 60 ** 2,
+    'd': 60 ** 2 * 24,
+    'w': 60 ** 2 * 24 * 7,
+    'm': 60 ** 2 * 24 * 30,
+    'y': 60 ** 2 * 24 * 365
+}
 
 
 def size_to_int(size):
@@ -782,29 +793,32 @@ def size_to_int(size):
         raise ValueError("Invalid unit: '%s'" % unit)
     # end handle errors gracefully
 
+
 def frequncy_to_seconds(time_string):
     """@return seconds identified by the given time-string, like 14s, or 14w
     @throw ValueError"""
     try:
         return int(time_string[:-1]) * time_unit_multipliers[time_string[-1].lower()]
     except (KeyError, ValueError):
-        raise ValueError("Could not parse '%s' - should be something like <integer><unit>, like 14s, or 12d" % time_string)
-    #end handle frequency conversion
+        raise ValueError(
+            "Could not parse '%s' - should be something like <integer><unit>, like 14s, or 12d" % time_string)
+    # end handle frequency conversion
+
 
 def int_to_size_string(size):
     """@return a string suitable for input into size_to_int(), scaling dynamically depending on the actual `size`"""
     asize = abs(size)
-    if asize < 1024**2:
+    if asize < 1024 ** 2:
         divider, unit = 1024, 'K'
-    elif asize <1024**3:
-        divider, unit = 1024**2, 'M'
-    elif asize <1024**4:
-        divider, unit = 1024**3, 'G'
-    elif asize <1024**5:
-        divider, unit = 1024**4, 'T'
+    elif asize < 1024 ** 3:
+        divider, unit = 1024 ** 2, 'M'
+    elif asize < 1024 ** 4:
+        divider, unit = 1024 ** 3, 'G'
+    elif asize < 1024 ** 5:
+        divider, unit = 1024 ** 4, 'T'
     else:
-        divider, unit = 1024**5, 'P'
+        divider, unit = 1024 ** 5, 'P'
     # end handle sizes
     return '%.2f%s' % (size / float(divider), unit)
 
-## -- End Unit Conversion Utilities -- \}
+# -- End Unit Conversion Utilities -- \}

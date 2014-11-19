@@ -29,9 +29,9 @@ import bapp
 
 
 # ==============================================================================
-## @name Decorators
+# @name Decorators
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 def preserve_application(fun):
     """A wrapper which preserves whichever value was in bapp.Application.main.
@@ -44,7 +44,7 @@ def preserve_application(fun):
         try:
             return fun(*args, **kwargs)
         finally:
-            # the default context might have been picked up by the Application fun created, and 
+            # the default context might have been picked up by the Application fun created, and
             # we need to be sure to put it back to where it was
             new_app = bapp.Application.main
             if not prev and new_app:
@@ -66,40 +66,40 @@ def preserve_application(fun):
     # end wrapper
     return wrapper
 
-## -- End Decorators -- @}
-
+# -- End Decorators -- @}
 
 
 # ==============================================================================
-## @name Types
+# @name Types
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 class ApplicationSettingsMixin(object):
+
     """A mixin to allow anyone to safely use the context of the global Context stack.
     Everyone using the global context should derive from it to facilitate context usage and to allow the 
     ContextStack to verify its data.
-    
+
     This type basically brings together a schema with another type, to make data access to any context easy
     @todo this system is for review, as there will be no 'global' state that we may know here. This would go to the bapplication interface
     """
     __slots__ = ()
 
-    ## Schema specifying how we would like to access the global context 
-    ## It must be set by subclasses if they access the context
-    ## The base implementation of schema() will just return this class-level instance, per instance 
-    ## schemas are generally possible though
-    _schema = None 
-    
+    # Schema specifying how we would like to access the global context
+    # It must be set by subclasses if they access the context
+    # The base implementation of schema() will just return this class-level instance, per instance
+    # schemas are generally possible though
+    _schema = None
+
     @classmethod
     def settings_schema(cls):
         """@return our schema instance, by default it will return the class level instance
         """
         assert isinstance(cls._schema, KeyValueStoreSchema), "Subclass must provide a schema instance"
         return cls._schema
-        
+
     @classmethod
-    def settings_value(cls, context = None, resolve=True):
+    def settings_value(cls, context=None, resolve=True):
         """@return a nested dict with getattr access as obtained from the current ContextStack's context, 
         validated against our schema.
         @param cls
@@ -113,6 +113,7 @@ class ApplicationSettingsMixin(object):
 
 
 class StackAwareHierarchicalContext(HierarchicalContext):
+
     """A context which will assure a configuration file is never loaded twice.
     This can happen if paths have common roots, which is the case almost always.
 
@@ -137,48 +138,49 @@ class StackAwareHierarchicalContext(HierarchicalContext):
                 continue
             yield ctx
         # end for each environment
-        
+
     def _filter_files(self, files):
         """@note our implementation will compare file hashes in our own hash map with ones of other
         instances of this type on the stack to assure we don't accidentally load the same file
         @note This method will update our _hash_map member"""
-        # NOTE: it's important to stay within the ascii range (thus hexdigest()), as this mep at some 
-        # point gets encoded. In py2, there's just bytes, in py3, it will be tempted to interpret these 
+        # NOTE: it's important to stay within the ascii range (thus hexdigest()), as this mep at some
+        # point gets encoded. In py2, there's just bytes, in py3, it will be tempted to interpret these
         # as strings, without having a chance to find a suitable encoding
         for config_file in files:
             self._hash_map[hashlib.md5(open(config_file, 'rb').read()).hexdigest()] = config_file
-        #end for each file
-        
+        # end for each file
+
         # subtract all existing hashes
         our_files = set(self._hash_map.keys())
         for env in self._iter_application_contexts():
             our_files -= set(env._hash_map.keys())
-        #end for each environment
-        
+        # end for each environment
+
         # return all remaining ones
         # Make sure we don't change the sorting order !
-        return list(self._hash_map[key] for key in self._hash_map if key in our_files) 
+        return list(self._hash_map[key] for key in self._hash_map if key in our_files)
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     def hash_map(self):
         """@return a dictionary of a mapping of md5 binary strings to the path of the loaded file"""
         return self._hash_map
-    
-    ## -- End Interface -- @}
+
+    # -- End Interface -- @}
 
 # end class StackAwareHierarchicalContext
 
 
 class _KVStoreLoggingVerbosity(object):
+
     """Implements a valid verbosity"""
     __slots__ = ('level')
-    
-    def __init__(self, value = 'INFO'):
+
+    def __init__(self, value='INFO'):
         if not hasattr(logging, value):
-            raise ValueError("Invalid logging verbosity: %s" % value) 
+            raise ValueError("Invalid logging verbosity: %s" % value)
         # end check if value exists
         self.level = getattr(logging, value)
 
@@ -186,28 +188,29 @@ class _KVStoreLoggingVerbosity(object):
 
 
 class LogConfigurator(ApplicationSettingsMixin):
+
     """Implements the ILog interface and allows to initialize the logging system using context configuration"""
     __slots__ = ()
-    
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
-    
-    _schema = KeyValueStoreSchema('logging', {'logdir' : Path,      
-                                                        # Directory into which to drop files. If empty, there
-                                                        # will be no file logger
-                                              'inifile' : Path,
-                                                        # Ini file to read to configure logging.
-                                              'verbosity' : _KVStoreLoggingVerbosity,
-                                                        # Disables any kind of logging configuration
-                                                        # which may be provided by the host application
-                                                        # NOTE: At some point we should control it precisely
-                                                        # enough to never use this flag
-                                              'disable' : True
-                                            })
-    
-    ## -- End Configuration -- @}
-    
+
+    _schema = KeyValueStoreSchema('logging', {'logdir': Path,
+                                              # Directory into which to drop files. If empty, there
+                                              # will be no file logger
+                                              'inifile': Path,
+                                              # Ini file to read to configure logging.
+                                              'verbosity': _KVStoreLoggingVerbosity,
+                                              # Disables any kind of logging configuration
+                                              # which may be provided by the host application
+                                              # NOTE: At some point we should control it precisely
+                                              # enough to never use this flag
+                                              'disable': True
+                                              })
+
+    # -- End Configuration -- @}
+
     @classmethod
     def initialize(cls, verbosity=None):
         """Initialize the logging system using the information provided by the context
@@ -216,21 +219,21 @@ class LogConfigurator(ApplicationSettingsMixin):
         # definition of possible overrides (i.e. which configuration file to use)
         value = cls.settings_value()
         log_config_file = value.inifile
-        
+
         # See #6239
         # NOTE: at least the environment variable can probably be removed once the actual culprit is found
         # Why does our configuration kill pythons logging entirely in case of katana at least ?
         if value.disable or 'BAPP_LOGGING_INITIALIZATION_DISABLE' in os.environ:
             return
         # end no init if disabled
-    
+
         # initialize fallback defaults if no configuration file was found
         if not log_config_file or not os.path.isfile(log_config_file):
             # Resort to standard setup if there is no further configuration
             logging.basicConfig()
         else:
             additional_exception = getattr(__builtins__, 'WindowsError', IOError)
-            
+
             # BUGFIX 2759
             # make sure the appropriate path exists and is writable, otherwise warn and use different temporary
             # directory..
@@ -240,12 +243,12 @@ class LogConfigurator(ApplicationSettingsMixin):
             except (IOError, additional_exception) as err:
                 warnings.warn("logging configuration from ini file failed with error: %s" % str(err))
                 base_setup()
-            #end handle unwritable paths
-        #end create configuration if not yet set
-    
+            # end handle unwritable paths
+        # end create configuration if not yet set
+
         log = logging.root
         log.setLevel(verbosity or value.verbosity.level)
-        
+
         # Setup logfile
         if value.logdir:
             if not value.logdir.isdir():
@@ -257,7 +260,7 @@ class LogConfigurator(ApplicationSettingsMixin):
                 except (OSError, IOError):
                     log.error("Could not create log directory at %s", value.logdir)
             # end handle logdir creation
-            
+
             if value.logdir.isdir():
                 try:
                     logfile_handler = handlers.DefaultLogFileHandler(value.logdir)
@@ -265,12 +268,12 @@ class LogConfigurator(ApplicationSettingsMixin):
                     log.addHandler(logfile_handler)
                 except (OSError, IOError):
                     log.error("Could not write log into directory '%s'", value.logdir)
-                # end handle write problems - we must never abort ... 
+                # end handle write problems - we must never abort ...
             else:
                 log.error("Log directory at %s did not exist - file logging disabled", value.logdir)
             # end handle logdir exists
         # end handle logdir exists
-        
+
 # end class LogConfigurator
 
-## -- End Types -- @}
+# -- End Types -- @}

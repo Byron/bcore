@@ -8,8 +8,8 @@
 """
 from __future__ import unicode_literals
 from butility.future import str
-__all__ = ['init_ipython_terminal', 'dylib_extension', 'login_name', 'uname', 'int_bits', 
-           'system_user_id', 'update_env_path', 'Thread', 'ConcurrentRun', 'daemonize', 
+__all__ = ['init_ipython_terminal', 'dylib_extension', 'login_name', 'uname', 'int_bits',
+           'system_user_id', 'update_env_path', 'Thread', 'ConcurrentRun', 'daemonize',
            'TerminatableThread', 'octal', 'DEFAULT_ENCODING']
 
 import sys
@@ -19,14 +19,15 @@ import platform
 import getpass
 
 
-## This is the encoding all code should use when reading and writing files (unless this is configured elsewhere)
+# This is the encoding all code should use when reading and writing files (unless this is configured elsewhere)
 DEFAULT_ENCODING = 'utf-8'
 
 # ==============================================================================
-## @name System Related Functions
+# @name System Related Functions
 # ------------------------------------------------------------------------------
 # They are platform-independent !
-## @{
+# @{
+
 
 def init_ipython_terminal():
     """Setup ipython for use in a terminal"""
@@ -37,15 +38,15 @@ def init_ipython_terminal():
     else:
         import IPython.frontend.terminal.interactiveshell
         IPython.frontend.terminal.interactiveshell.TerminalInteractiveShell().mainloop()
-    # end handle different API versions 
+    # end handle different API versions
 
 
 def dylib_extension():
     """@return extension used for dynamically loaded libraries on the current platform
     @throws EnvironmentError if platform is unknown"""
-    # Assume .so 
-    return {    'darwin' : "bundle",
-                'win32'   : "dll"}.get(sys.platform, 'so')
+    # Assume .so
+    return {'darwin': "bundle",
+            'win32': "dll"}.get(sys.platform, 'so')
 
 
 def login_name():
@@ -61,7 +62,7 @@ def login_name():
         return str(os.environ['USERNAME'])
     else:
         return str(getpass.getuser())
-    #end handle platforms
+    # end handle platforms
 
 
 def uname():
@@ -74,31 +75,34 @@ def uname():
     except IOError:
         # some host applications will have a directory as executable for some reason ... (katana)
         pterse = 'unknown'
-    #end handle very special case
+    # end handle very special case
     return tuple([pterse, platform.node(),
-                 platform.release(), platform.version(), platform.machine()])
-    
+                  platform.release(), platform.version(), platform.machine()])
+
+
 def int_bits():
     """@return integer identifying the amount of bits used to represent an integer
     @throws EnvironmentError if the platform is neither 32 nor 64 bits
     """
     try:
-        return { 9223372036854775807 : 64,
-                          2147483647 : 32 }[sys.maxsize]
+        return {9223372036854775807: 64,
+                2147483647: 32}[sys.maxsize]
     except KeyError:
         raise EnvironmentError("maxint size uknown: %i" % sys.maxsize)
-    #end convert keyerror to environmenterror
-    
+    # end convert keyerror to environmenterror
+
+
 def octal(string):
     """@return the integer value represented by the given ocal value, as string.
     @param string like '0777' or '0622'
     @note useful for python 3 compatibilty with method default values"""
     res = 0
     for i, c in enumerate(reversed(string)):
-        res += int(c)*(8**i)
-    #end for each character
+        res += int(c) * (8 ** i)
+    # end for each character
     return res
-    
+
+
 def system_user_id():
     """@return string identifying the currently active system user as name\@node
     @note user can be set with the 'USER' environment variable, usually set on windows"""
@@ -108,11 +112,12 @@ def system_user_id():
         username = login_name()
     # END get username from login
     return "%s@%s" % (username, platform.node())
-    
-def update_env_path(variable_name, path, append = False, environment = os.environ):
+
+
+def update_env_path(variable_name, path, append=False, environment=os.environ):
     """Set the given variable_name to the given path, but append or prepend the existing path
     to it using the platforms path separator.
-    
+
     @param variable_name name of the environment variable to set
     @param path to append/prepend to the variable
     @param append if True, path will be appended to existing paths, otherwise it will be prepended
@@ -129,15 +134,16 @@ def update_env_path(variable_name, path, append = False, environment = os.enviro
     # environment can only contain strings - at least if used for subprocess, which must be assumed
     environment[variable_name] = str(path)
 
+
 def daemonize(pid_file):
     """Daemonize ourselves to become independent of the caller
     @param pid_file path to file to prevent multiple daemons to run at once. Will always write it with our pid
     """
-    
+
     if sys.platform.startswith('win'):
         raise OSError("Can only work on posix platforms")
     # END handle operating system
-    
+
     try:
         # Fork a child process so the parent can exit.  This returns control to
         # the command-line or shell.    It also guarantees that the child will not
@@ -157,8 +163,8 @@ def daemonize(pid_file):
         # removed.  It's therefore recommended that child branches of a fork()
         # and the parent branch(es) of a daemon use _exit().
         os._exit(0)
-    # END exit 
-        
+    # END exit
+
     ##################
     # The first child.
     ##################
@@ -205,18 +211,18 @@ def daemonize(pid_file):
         # based systems).    This second fork guarantees that the child is no
         # longer a session leader, preventing the daemon from ever acquiring
         # a controlling terminal.
-        pid = os.fork() # Fork a second child.
+        pid = os.fork()  # Fork a second child.
     except OSError as e:
         raise Exception("%s [%d]" % (e.strerror, e.errno))
 
     if (pid != 0):
         # exit() or _exit()?     See below.
-        os._exit(0) # Exit parent (the first child) of the second child.
+        os._exit(0)  # Exit parent (the first child) of the second child.
     # END exit second child
 
     # Decouple stdin, stdout, stderr
-    fd = os.open(os.devnull, os.O_RDWR) # standard input (0)
-    
+    fd = os.open(os.devnull, os.O_RDWR)  # standard input (0)
+
     # Finally, write our PID file
     open(pid_file, 'wb').write(str(os.getpid()))
 
@@ -228,11 +234,12 @@ def daemonize(pid_file):
 
 
 # ==============================================================================
-## @name Types
+# @name Types
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 class Thread(threading.Thread):
+
     """Applies a few convenience fixes"""
     __slots__ = ()
 
@@ -241,29 +248,30 @@ class Thread(threading.Thread):
         @return self"""
         super(Thread, self).start()
         return self
-        
+
 # end class Thread
 
 
 class ConcurrentRun(Thread):
+
     """Execute a function in its own thread and provide the result.
     Note: Currently this is implemented such that each run starts its own thread, 
     which is expensive. For many concurrent operations, a thread pool should be used
-    
+
     Usage: ConcurrentRun(my_method).start().result() or
     ConcurrentRun(my_method).start() # and forget about it
 
     @note python will terminate even though a concurrent 
     """
-    
+
     __slots__ = (
-                '_result',  # result of our operation
-                '_exc',     # the exception thrown
-                '_fun',     # method to run
-                '_log',     # optional logger instance
-                )
-    
-    def __init__(self, fun, logger = None, daemon=False):
+        '_result',  # result of our operation
+        '_exc',     # the exception thrown
+        '_fun',     # method to run
+        '_log',     # optional logger instance
+    )
+
+    def __init__(self, fun, logger=None, daemon=False):
         """Initialize this instance with the function to execute
         @param fun callable to execute
         @param logger a logger instance
@@ -274,14 +282,14 @@ class ConcurrentRun(Thread):
         self._exc = None
         self._fun = fun
         self._log = logger
-        
+
     def _assure_joined(self):
         try:
             self.join()
-        except RuntimeError: # on joining before started
+        except RuntimeError:  # on joining before started
             pass
-        #END handle exception
-        
+        # END handle exception
+
     def run(self):
         try:
             self._result = self._fun()
@@ -289,69 +297,69 @@ class ConcurrentRun(Thread):
             self._exc = exc
             if self._log is not None:
                 self._log.critical("%s failed" % str(self._fun), exc_info=1)
-            #END log errors
-        #END handle exception
-        
+            # END log errors
+        # END handle exception
+
     #{ Interface
-    
+
     def result(self):
         """@return the result of the function we ran. Will block until we are done
         with our computation"""
         self._assure_joined()
         return self._result
-    
+
     def error(self):
         """@return exception thrown or None if there was no error"""
         self._assure_joined()
         return self._exc
-    
+
     #} END interface
 
 
 class TerminatableThread(Thread):
+
     """A thread able to terminate itself on behalf of the user.
-    
+
     Terminate a thread as follows:
-    
+
     t.stop_and_join()
-    
+
     Derived classes call _should_terminate() to determine whether they should 
     abort gracefully
     """
     __slots__ = '_terminate'
-    
+
     def __init__(self, *args, **kwargs):
         super(TerminatableThread, self).__init__(*args, **kwargs)
         self._terminate = False
-        
 
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # @{
-    
+
     def _should_terminate(self):
         """@return True if this thread should terminate its operation immediately"""
         return self._terminate
-        
-    ## -- End Subclass Interface -- @}
-        
+
+    # -- End Subclass Interface -- @}
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     def cancel(self):
         """Schedule this thread to be terminated as soon as possible.
         @note this method does not block."""
         self._terminate = True
-    
+
     def stop_and_join(self):
         """Ask the thread to stop its operation and wait for it to terminate
         :note: Depending on the implenetation, this might block a moment"""
         self.cancel()
         self.join()
 
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 
 # end class TerminatableThread
 
-## -- End Types -- @}
+# -- End Types -- @}

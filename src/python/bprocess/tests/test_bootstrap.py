@@ -23,11 +23,12 @@ wrapper_file = os.path.join(dirname(dirname(__file__)), 'bootstrap.py')
 bootstrap = load_file(wrapper_file, 'bootstrap')
 import bootstrap
 
-    
+
 class TestBootstrap(TestCase):
+
     """Tests for the bootstrap implementation"""
     __slots__ = ()
-    
+
     @preserve_application
     def test_base(self):
         """test fundamentals
@@ -35,7 +36,7 @@ class TestBootstrap(TestCase):
         # Should be dealing with its executable being python as well as its file
         self.failUnlessRaises(SystemExit, bootstrap.Bootstrapper().main, wrapper_file)
         self.failUnlessRaises(AssertionError, bootstrap.Bootstrapper().main, '/some/nonesense')
-        
+
         # this will actually do something (but not start a program)
         try:
             bootstrap.Bootstrapper().main(self.fixture_path('bin/foo'), '-file')
@@ -43,6 +44,6 @@ class TestBootstrap(TestCase):
             # expected, as it will complain about it not being a symlink
             pass
         # end handle exception
-    
+
 
 # end class TestWrapper

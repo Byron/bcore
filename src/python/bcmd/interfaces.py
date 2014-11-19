@@ -10,35 +10,37 @@ from __future__ import unicode_literals
 __all__ = ['ICommand', 'ISubCommand']
 
 import bapp
-from butility import ( Version,
-                       Interface,
-                       abstractmethod)
-from bkvstore import ( KeyValueStoreSchema,
-                       RootKey )
+from butility import (Version,
+                      Interface,
+                      abstractmethod)
+from bkvstore import (KeyValueStoreSchema,
+                      RootKey)
+
 
 class ICommand(Interface):
+
     """A command implementing the command pattern, specialized for use with the commandline."""
     __slots__ = ()
-    
-    info_schema = KeyValueStoreSchema(RootKey, \
-    {
-    # The name of the command
-    'name' : str,
-    # The version of the command, ideally as semantic version
-    'version' : Version('UNKNOWN'),
-    # A name that should be used as prefix in logs
-    'log_id' : str,
-    # A more detailed description about what your command does
-    'description' : str,
-    })
-    
-    ## @name Interface
+
+    info_schema = KeyValueStoreSchema(RootKey,
+                                      {
+                                          # The name of the command
+                                          'name': str,
+                                          # The version of the command, ideally as semantic version
+                                          'version': Version('UNKNOWN'),
+                                          # A name that should be used as prefix in logs
+                                          'log_id': str,
+                                          # A more detailed description about what your command does
+                                          'description': str,
+                                      })
+
+    # @name Interface
     # @{
-    
+
     @abstractmethod
     def info_data(self):
         """@return DictObject with information matching ICommand.info_schema"""
-    
+
     @abstractmethod
     def setup_argparser(self, argparser):
         """Called to add arguments to the argparser
@@ -46,11 +48,11 @@ class ICommand(Interface):
         @return self
         @note see [the argparse module](http://docs.python.org/2/library/argparse.html#module-argparse) for 
         more information on how to set it up"""
-        
+
     @abstractmethod
     def log(self):
         """@return our logging.Logger instance for general use"""
-        
+
     @abstractmethod
     def execute(self, args, remaining_args):
         """Method implementing the actual functionality of the command
@@ -62,40 +64,41 @@ class ICommand(Interface):
         on the current host application.
         @note by definition, a command is required to support multiple invocations of this method with the 
         same instance. Therefore it must manage its internal state accordingly."""
-        
-    ## -- End Interface -- @}
-        
+
+    # -- End Interface -- @}
+
 # end class ICommand
 
 
 class ISubCommand(ICommand):
+
     """Represents a particular mode for a command, e.g. 'install' for the 'yum' command.
-    
+
     A SubCommand is a command which is associated with a main command that will delegate the work to the 
     subcommand selected on the commandline.
-    
+
     Subcommands provide additional information to associate them with their respective main command. This 
     assures the right subcommands can be instantiated for a particular main command using the component framework.
     """
     __slots__ = ()
-    
+
     # Required as this only works automatically for direct decendants of SubCommand
     place_into_root_package = True
-    
+
     def __init__(self):
         """Subcommands must have a default constructor"""
         super(ISubCommand, self).__init__()
-    
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     @abstractmethod
     def is_compatible(self, command):
         """@return True if this subcommand is valid for use with the given ICommand compatible instance.
         You could use the info() method to check the program name for instance.
         """
-    
-    ## -- End Interface -- @}
+
+    # -- End Interface -- @}
 
 # end class SubCommand

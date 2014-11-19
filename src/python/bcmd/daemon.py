@@ -20,30 +20,30 @@ from .utility import CommandlineOverridesMixin
 from bapp import ApplicationSettingsMixin
 from butility import (Path,
                       daemonize)
-                    
+
 
 class DaemonCommandMixin(CommandlineOverridesMixin):
+
     """Main Daemon command without subcommands. Just starts a thread which can be an ApplicationSettingsMixin
     """
 
     # -------------------------
-    ## @name Subclass Configuration
+    # @name Subclass Configuration
     # @note all Command configuration must be provided too
     # @{
 
-    ## The kind of TerminatableThread, which must be a context client, to daemonize
+    # The kind of TerminatableThread, which must be a context client, to daemonize
     # Must be set in subclass
     ThreadType = None
-    
-    ## -- End Subclass Configuration -- @}
 
+    # -- End Subclass Configuration -- @}
 
     # -------------------------
-    ## @name Settings
+    # @name Settings
     # Allows to override names taken on the commandline
     # @{
 
-    ## we check every now and then for intterups or exceptions, and sleep in the meanwhile
+    # we check every now and then for intterups or exceptions, and sleep in the meanwhile
     check_period_s = 0.5
 
     pid_file_args = ['-d', '--pid-file']
@@ -51,10 +51,10 @@ class DaemonCommandMixin(CommandlineOverridesMixin):
     # If True, and if ThreadType has a settings schema, they can be shown and overridden
     enable_commandline_overrides = True
 
-    ## -- End Settings -- @}
+    # -- End Settings -- @}
 
     # -------------------------
-    ## @name Utilities
+    # @name Utilities
     # @{
 
     def _sighandler_term(self, signum, frame, dt):
@@ -62,10 +62,10 @@ class DaemonCommandMixin(CommandlineOverridesMixin):
         self.log().info("Process interrupted - please wait while threads are being stopped ...")
         dt.stop_and_join()
 
-    ## -- End Utilities -- @}
+    # -- End Utilities -- @}
 
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # @{
 
     def _check_thread(self, thread):
@@ -73,8 +73,8 @@ class DaemonCommandMixin(CommandlineOverridesMixin):
         You should sleep an interval (done by base) to prevent wasting cycles
         @throw an exception to interrupt the thread"""
         sleep(self.check_period_s)
-    
-    ## -- End Subclass Interface -- @}
+
+    # -- End Subclass Interface -- @}
 
     def setup_argparser(self, parser):
         super(DaemonCommandMixin, self).setup_argparser(parser)
@@ -99,7 +99,8 @@ class DaemonCommandMixin(CommandlineOverridesMixin):
         # Whatever happens, make sure we delete the pid file
         if args.pid_file is not None:
             if args.pid_file.isfile():
-                self.log().error("PID file at '%s' exists - daemon is already running. Otherwise, delete the file and retry", args.pid_file)
+                self.log().error(
+                    "PID file at '%s' exists - daemon is already running. Otherwise, delete the file and retry", args.pid_file)
                 args.pid_file = None
                 return self.ERROR
             # end handle pid file
@@ -139,18 +140,17 @@ class DaemonCommandMixin(CommandlineOverridesMixin):
             if args.pid_file and args.pid_file.isfile():
                 args.pid_file.remove()
             # end remove pid file
-        #end handle pid file
+        # end handle pid file
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     def thread(self):
         """@return our thread instance. May be None if execute didn't run yet"""
         return getattr(self, '_thread', None)
-        
-    ## -- End Interface -- @}
+
+    # -- End Interface -- @}
 
 
 # end class DaemonCommandMixin
-

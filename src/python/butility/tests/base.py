@@ -10,7 +10,7 @@ from butility.future import str
 
 from butility.future import with_metaclass
 __all__ = ['unittest', 'with_rw_directory', 'TestCase', 'TestInterface',
-            'TempRWDirProvider', 'skip_not_implemented', 'skip_on_travis_ci']
+           'TempRWDirProvider', 'skip_not_implemented', 'skip_on_travis_ci']
 
 import unittest
 import os
@@ -25,12 +25,11 @@ from butility import (Path,
                       wraps)
 
 
-
 # ==============================================================================
-## @name Decorators
+# @name Decorators
 # ------------------------------------------------------------------------------
 # Decorators to use with methods in test-cases
-## @{
+# @{
 
 def _maketemp(*args, **kwargs):
     """Wrapper around default tempfile.mktemp to fix an osx issue"""
@@ -41,19 +40,20 @@ def _maketemp(*args, **kwargs):
 
 
 class TempRWDirProvider(object):
+
     """Simple type which provides a temporary directory during its lifetime, deleting it when it is deleted"""
     __slots__ = ('_dir')
 
     def __init__(self):
         self._dir = _maketemp()
         self._dir.mkdir()
-        
+
     def __del__(self):
         shutil.rmtree(self._dir)
-        
+
     def dir(self):
         return self._dir
-    
+
 
 # end class TempRWDirProvider
 
@@ -88,16 +88,16 @@ def with_rw_directory(func):
                 return func(self, path, *args, **kwargs)
             except Exception as err:
                 print(("Test %s.%s failed with error %s: '%s', output is at %r"
-                            % (type(self).__name__, type(err), err, func.__name__, path)), file=sys.stderr)
+                       % (type(self).__name__, type(err), err, func.__name__, path)), file=sys.stderr)
                 keep = True
                 raise
-            #end be informed about failure
+            # end be informed about failure
         finally:
             if prev_val is not None:
                 os.environ['RW_DIR'] = prev_val
             # end restore state
             os.chdir(prev_cwd)
-            
+
             # Need to collect here to be sure all handles have been closed. It appears
             # a windows-only issue. In fact things should be deleted, as well as
             # memory maps closed, once objects go out of scope. For some reason
@@ -105,11 +105,12 @@ def with_rw_directory(func):
             if not keep:
                 gc.collect()
                 shutil.rmtree(path)
-            #end if not keep
-        #end handle exception
-    #end wrapper
+            # end if not keep
+        # end handle exception
+    # end wrapper
     return wrapper
-    
+
+
 def skip_not_implemented(func):
     """Convert NotImplementedError exceptions into SkipTest"""
     @wraps(func)
@@ -122,6 +123,7 @@ def skip_not_implemented(func):
         # end convert exception
     # end wrapper
     return wrapper
+
 
 def skip_on_travis_ci(func):
     """All tests decorated with this one will raise SkipTest when run on travis ci.
@@ -136,32 +138,33 @@ def skip_on_travis_ci(func):
     # end wrapper
     return wrapper
 
-## -- End Decorators -- @}
+# -- End Decorators -- @}
 
 
 # ==============================================================================
-## @name MetaClasses
+# @name MetaClasses
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 class GlobalsItemDeletorMetaCls(Meta):
+
     """Utiltiy to prevent base implementations of tests to be picked up by nose as the metacls
     will delete the given name from the globals.
-    
+
     Types using this metaclass may set the _remove_from_globals classmethod accordingly which 
     iterable of strings to remove from the globals the type was created in .
     """
-    
+
     _remove_from_globals_fun_name = '_remove_from_globals'
-    
+
     def __new__(metacls, name, bases, clsdict):
         new_type = super(GlobalsItemDeletorMetaCls, metacls).__new__(metacls, name, bases, clsdict)
-        
+
         remove_those = list()
         for typ in new_type.mro():
             remove_those += list(getattr(typ, metacls._remove_from_globals_fun_name, lambda: list())())
         # accumulate names to remove
-        
+
         if remove_those and name not in remove_those:
             mod = __import__(new_type.__module__, globals(), locals(), new_type.__module__)
             for name_string in remove_those:
@@ -173,11 +176,12 @@ class GlobalsItemDeletorMetaCls(Meta):
             # end for each name_string
         # end  handle deletion
         return new_type
-        
-        
+
+
 class TestInterfaceMetaCls(GlobalsItemDeletorMetaCls):
+
     """Adds decorators to test-cases
-    
+
     - Convert NotImplementedError exceptions to SkiptTest. 
       + Skipping tests should be something we see, usually everything should be implemented.
         If that is not possible, the interface is too specific
@@ -189,41 +193,41 @@ class TestInterfaceMetaCls(GlobalsItemDeletorMetaCls):
             # end if we have a test
         # end for each item
         return super(TestInterfaceMetaCls, metacls).__new__(metacls, name, bases, clsdict)
-        
-    
-## -- End MetaClasses -- @}
 
+
+# -- End MetaClasses -- @}
 
 
 # ==============================================================================
-## @name Base Classes
+# @name Base Classes
 # ------------------------------------------------------------------------------
 # Classes to use for all test-cases
-## @{
+# @{
 
 class TestCase(unittest.TestCase):
+
     """A base type for all test cases, providing additional utilities
     for every-day testing
 
     See the utility functions for more information
     """
     __slots__ = ()
-    
-    # -------------------------
-    ## @name Subclass Overrides
-    # Subclasses may configure this base by setting those variables
-    # @{
-    
-    ## Subdirectory to the ./fixtures root
-    fixture_subdir = ''
-    
-    ## File that this type lifes in. Useful for out-of-tree subtypes
-    fixture_root = Path(__file__).dirname()
-    
-    ## -- End Subclass Overrides -- @}
 
     # -------------------------
-    ## @name Utilities
+    # @name Subclass Overrides
+    # Subclasses may configure this base by setting those variables
+    # @{
+
+    # Subdirectory to the ./fixtures root
+    fixture_subdir = ''
+
+    # File that this type lifes in. Useful for out-of-tree subtypes
+    fixture_root = Path(__file__).dirname()
+
+    # -- End Subclass Overrides -- @}
+
+    # -------------------------
+    # @name Utilities
     # Utilities to obtain input files for test cases
     # @{
 
@@ -236,21 +240,22 @@ class TestCase(unittest.TestCase):
         @return absolute butility.path into the fixture repository
         """
         return Path(cls.fixture_root / 'fixtures' / cls.fixture_subdir / filename)
-    ## -- End Utilities -- @}
+    # -- End Utilities -- @}
 
 # end class TestCase
 
 
 class TestInterface(with_metaclass(TestInterfaceMetaCls, TestCase)):
+
     """A base implementation for generic interface tests
-    
+
     Subtypes are tests cases for specific interface, which in turn are derived from by test cases who which
     to test an actual interface implementation.
-    
+
     Interface test cases may access a fresh instance of their interface in each test.
     """
     __slots__ = ('_instance')
-    
+
     @classmethod
     def _remove_from_globals(cls):
         """@return always our typename if it is a direct decendent of this type"""
@@ -258,30 +263,28 @@ class TestInterface(with_metaclass(TestInterfaceMetaCls, TestCase)):
         if name in (base.__name__ for base in cls.__bases__) and name != cls.__name__:
             return [cls.__name__]
         return list()
-    
+
     # -------------------------
-    ## @name Subclass Configuration
+    # @name Subclass Configuration
     # @{
-    
-    ## the type implementing the IHostApplication interface
-    ## Must be set by derived class
+
+    # the type implementing the IHostApplication interface
+    # Must be set by derived class
     subclass_type = None
-    
-    ## -- End Subclass Configuration -- @}
-    
+
+    # -- End Subclass Configuration -- @}
+
     def setUp(self):
         """Assure subclasses can access a fres instance. Will skip subclasses that didn't setup their type.
         Also, make sure that registration of newly created types doesn't affect the global environment stack"""
         if self.subclass_type is None:
             import nose
             raise nose.SkipTest
-        
+
         self._instance = self.subclass_type()
-        
+
     def tearDown(self):
         del(self._instance)
         super(TestInterface, self).tearDown()
 
 # end class TestInterface
-
-

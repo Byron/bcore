@@ -8,7 +8,7 @@
 """
 from __future__ import unicode_literals
 from __future__ import division
-__all__ = [ 'OSContext', 'ApplicationContext']
+__all__ = ['OSContext', 'ApplicationContext']
 
 import sys
 import socket
@@ -26,28 +26,28 @@ from .interfaces import IPlatformService
 from butility import (OrderedDict,
                       login_name)
 from bkvstore import (YAMLKeyValueStoreModifier,
-                      KeyValueStoreSchema )
+                      KeyValueStoreSchema)
 
 from butility import Path
 
 
-
 class OSContext(Context, ApplicationSettingsMixin):
+
     """Context containing information about the operating system we're running on.
     Provides IPlatformService implementations"""
     _category = 'platform'
     _schema = platform_schema
 
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
 
-    platform_service_type = dict(   darwin = services.MacPlatformService,
-                                    win32 = services.WindowsPlatformService
-                                ).get(sys.platform, services.LinuxPlatformService)
+    platform_service_type = dict(darwin=services.MacPlatformService,
+                                 win32=services.WindowsPlatformService
+                                 ).get(sys.platform, services.LinuxPlatformService)
 
-    ## -- End Configuration -- @}
-    
+    # -- End Configuration -- @}
+
     def __init__(self, name):
         """make sure platform instances for the current OS are available"""
         super(OSContext, self).__init__(name)
@@ -70,26 +70,24 @@ class OSContext(Context, ApplicationSettingsMixin):
         # end handle platform singleton
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
+    # -- End Interface -- @}
 
-    
-    ## -- End Interface -- @}
-        
 # end class OSContext
-        
-        
+
+
 class ApplicationContext(StackAwareHierarchicalContext):
+
     """Environment containing basic information about the pipelne context
        we were started in.
        We will also load most fundamental pipeline configuration, located in directories at our location,
        moving upwards"""
     _category = 'application'
     __slots__ = ()
-    
 
-    def __init__(self, name, user_settings = True, traverse_settings_hierarchy = True):
+    def __init__(self, name, user_settings=True, traverse_settings_hierarchy=True):
         """Assure that we load all configuration at bcore and above.
            It also creates some basic services to obtain information about some paths.
            @param user_settings if True, we will load user specfic settings, by default searched in ~/etc
@@ -121,16 +119,16 @@ class ApplicationContext(StackAwareHierarchicalContext):
         therefore if we go up the directory hierarchy, we must be able to find a config dir,
         which is located in what we take to the application's assembly"""
         return Path(__file__).dirname()
-        
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     @classmethod
     def user_config_directory(cls):
         """@return the directory in which the user configuration is to be found """
         return Path('~').expanduser() / cls.config_dir_name
 
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 
 # end class ApplicationContext

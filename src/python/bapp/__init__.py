@@ -20,19 +20,19 @@ __version__ = Version('0.1.0')
 
 
 # ==============================================================================
-## \name Constants
+# \name Constants
 # ------------------------------------------------------------------------------
-## \{
+# \{
 
-## Used to set the logging up very early to see everything. Useful for debugging usually, log-levels will 
-## be set at later points as well
+# Used to set the logging up very early to see everything. Useful for debugging usually, log-levels will
+# be set at later points as well
 log_env_var = 'BAPP_STARTUP_LOG_LEVEL'
 
-## -- End Constants -- @}
+# -- End Constants -- @}
 
 
 # -------------------------
-## @name Interface
+# @name Interface
 # @{
 
 def main():
@@ -43,6 +43,7 @@ def main():
     # end assert application was setup
     return Application.main
 
+
 def plugin_type():
     """@return a PluginType which is a suitable base for your Plugin, which will be part of the 
     application context.
@@ -51,17 +52,16 @@ def plugin_type():
     is instantiated.
     """
     return Application.main and Application.main.Plugin or Application.Plugin
-    
 
-## -- End Interface -- @}
 
+# -- End Interface -- @}
 
 
 # ==============================================================================
-## @name Initialization Handlers
+# @name Initialization Handlers
 # ------------------------------------------------------------------------------
 # Specialized functions to initialize part of the bapp package
-## @{
+# @{
 
 
 def _init_pre_app_loggig():
@@ -72,19 +72,19 @@ def _init_pre_app_loggig():
         try:
             logging.root.setLevel(getattr(logging, log_level))
         except AttributeError:
-            msg = "%s needs to be set to a valid log level, like DEBUG, INFO, WARNING, got '%s'" % (log_env_var, log_level)
+            msg = "%s needs to be set to a valid log level, like DEBUG, INFO, WARNING, got '%s'" % (
+                log_env_var, log_level)
             raise AssertionError(msg)
-        #end handle early log-level setup
+        # end handle early log-level setup
     # end have env var
 
-## -- End Initialization Handlers -- @}
+# -- End Initialization Handlers -- @}
 
 
 def _initialize():
     """Initialize the bapp package."""
     _init_pre_app_loggig()
 
-    
 
 _initialize()
 
@@ -96,4 +96,3 @@ from .properties import *
 from .services import *
 from .settings import *
 from .utility import *
-

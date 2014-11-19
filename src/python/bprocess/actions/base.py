@@ -11,50 +11,51 @@ from __future__ import unicode_literals
 __all__ = ['ActionDelegateMixin', 'PackageAction']
 
 import bapp
-from btransaction import ( Transaction,
-                           Operation )
+from btransaction import (Transaction,
+                          Operation)
 
 from .schema import action_schema
 
+
 class PackageAction(Operation):
+
     """An action to perform right before the process is started.
 
     @note yet another implementation of the command pattern
     """
     __slots__ = (
-                    'package_name',
-                    'package_data',
-                    'action_data',
-                    'action_name',
-                )
+        'package_name',
+        'package_data',
+        'action_data',
+        'action_name',
+    )
 
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
 
-    ## Should be the schema matching the particular action type.
-    ## It can be used to obtain a value from a kvstore, where key is a computed value based on our name
-    ## @note To be set by subclass
+    # Should be the schema matching the particular action type.
+    # It can be used to obtain a value from a kvstore, where key is a computed value based on our name
+    # @note To be set by subclass
     action_schema = None
 
-    ## A name for the type of action. It is used as key when accessing a kvstore
+    # A name for the type of action. It is used as key when accessing a kvstore
     type_name = None
 
-    ## -- End Configuration -- @}
-
+    # -- End Configuration -- @}
 
     # -------------------------
-    ## @name Delegate Configuration
+    # @name Delegate Configuration
     # Properties read by the ProcessControllerDelegate to alter its behaviour
     # Any property can be used, effectively it depends on the delegate to try to read them depending
     # on what kind of PackageAction it sees
     # @{
 
-    ## If True or False, the delegate should use this return value when asked for whether or not to spawn
-    ## Has no effect if it is None
+    # If True or False, the delegate should use this return value when asked for whether or not to spawn
+    # Has no effect if it is None
     delegate_must_spawn = None
-    
-    ## -- End Delegate Configuration -- @}
+
+    # -- End Delegate Configuration -- @}
 
     def __init__(self, transaction, name, data, package_name, package_data):
         """Every instance of an action has information about the package that it was instantiated for,
@@ -72,7 +73,7 @@ class PackageAction(Operation):
         super(PackageAction, self).__init__(transaction)
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     @property
@@ -87,9 +88,9 @@ class PackageAction(Operation):
         @param name name of the action"""
         assert cls.type_name is not None, "'type_name' to be set in subclass"
         return action_schema.key() + '.' + cls.type_name + '.' + name
-        
+
     @classmethod
-    def data(cls, key, kvstore = None):
+    def data(cls, key, kvstore=None):
         """@return the datablock suitable for instantiating an action with, based on the action's schema
         @throw ValueError if the given data key does not exist
         @param cls
@@ -100,35 +101,36 @@ class PackageAction(Operation):
         if not kvstore.has_value(key):
             raise ValueError("Action at key '%s' doesn't exist" % key)
         return kvstore.value(key, cls.action_schema, resolve=True)
-        
-    ## -- End Interface -- @}
+
+    # -- End Interface -- @}
 
 # end class PackageAction
 
 
 class ActionDelegateMixin(object):
+
     """Adds support for a transaction to store operations in.
 
     @note it's meant to be a one-shot item
     """
     __slots__ = (
-                    '_transaction'
-                )
+        '_transaction'
+    )
 
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
 
     name = "ProcessControllerTransaction"
     TransactionType = Transaction
-    
-    ## -- End Configuration -- @}
+
+    # -- End Configuration -- @}
 
     def __init__(self):
         self._transaction = None
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
 
     def transaction(self):
@@ -155,6 +157,5 @@ class ActionDelegateMixin(object):
                 return cls
         # end for each class
         raise AssertionError("Couldn't find action of type '%s'" % type_name)
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 # end class PackageTransaction
-

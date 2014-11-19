@@ -5,7 +5,7 @@
 
 @author Sebastian Thiel
 @copyright [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl.html)
-"""# Allow better imports !
+"""  # Allow better imports !
 from __future__ import absolute_import
 from __future__ import unicode_literals
 

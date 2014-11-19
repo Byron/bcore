@@ -11,14 +11,14 @@ from __future__ import division
 
 __all__ = ['PackageMetaDataChangeTracker', 'FlatteningPackageDataIteratorMixin', 'application_context',
            'ProcessControllerPackageSpecification', 'PackageDataIteratorMixin',
-           'ExecutableContext', 'PythonPackageIterator', 'CommandlineOverridesContext', 
+           'ExecutableContext', 'PythonPackageIterator', 'CommandlineOverridesContext',
            'ControlledProcessContext', 'ControlledProcessInformation']
 
 import sys
 import os
 
-# This yaml import is save, as bkvstore will place it's own yaml module there just in case there is no 
-# installed one 
+# This yaml import is save, as bkvstore will place it's own yaml module there just in case there is no
+# installed one
 import yaml
 
 import binascii
@@ -35,24 +35,24 @@ from bkvstore import (KeyValueStoreModifier,
                       KeyValueStoreSchema,
                       NoSuchKeyError,
                       PathList)
-from butility import ( OrderedDict,
-                       StringChunker,
-                       DictObject,
-                       Path,
-                       load_files,
-                       Singleton,
-                       LazyMixin )
+from butility import (OrderedDict,
+                      StringChunker,
+                      DictObject,
+                      Path,
+                      load_files,
+                      Singleton,
+                      LazyMixin)
 
 from butility.compat import pickle
 
 from bcontext import Context
-from bapp import         ( StackAwareHierarchicalContext,
-                           ApplicationSettingsMixin )
-from .schema import ( controller_schema,
-                      package_schema,
-                      process_schema,
-                      python_package_schema,
-                      package_meta_data_schema)
+from bapp import (StackAwareHierarchicalContext,
+                  ApplicationSettingsMixin)
+from .schema import (controller_schema,
+                     package_schema,
+                     process_schema,
+                     python_package_schema,
+                     package_meta_data_schema)
 
 from .interfaces import IControlledProcessInformation
 
@@ -62,11 +62,10 @@ log = logging.getLogger('bprocess.utility')
 from bapp import StackAwareHierarchicalContext
 
 
-
 # ==============================================================================
-## @name Context Managers
+# @name Context Managers
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
 @contextmanager
 def application_context(*paths, **kwargs):
@@ -85,9 +84,9 @@ def application_context(*paths, **kwargs):
         yield bapp.main().context()
         raise StopIteration
     # end handle empty paths
-    
-    # This is potentially dangerous, but we only assume to find the pipeline base environment which is 
-    # supposed to hold the main pipeline configuration, and which must exist. We will keep this one, 
+
+    # This is potentially dangerous, but we only assume to find the pipeline base environment which is
+    # supposed to hold the main pipeline configuration, and which must exist. We will keep this one,
     # but recreate all others based on the input paths
     size = -1
     for index, env in enumerate(bapp.main().context().stack()):
@@ -97,7 +96,7 @@ def application_context(*paths, **kwargs):
         # end check for special environment
     # end for each env
     assert size > -1, "Didn't find ControlledProcessContext on stack"
-    
+
     popped_environments = list()
     try:
         while len(bapp.main().context()) > size:
@@ -112,28 +111,29 @@ def application_context(*paths, **kwargs):
         yield bapp.main().context()
     finally:
         if len(bapp.main().context()) > size:
-            bapp.main().context().pop(until_size = size)
+            bapp.main().context().pop(until_size=size)
         # end only pop if it makes sense
-        
+
         # put all environments back, after removing previous ones
         for env in reversed(popped_environments):
             bapp.main().context().push(env)
         # end for each env
 
-## -- End Context Managers -- @}
+# -- End Context Managers -- @}
 
 
 class ControlledProcessInformation(IControlledProcessInformation, Singleton, LazyMixin):
+
     """Store the entire kvstore (after cleanup) in a data string in the environment and allow to retrieve it
     @note this class uses a cache to assure we don't get data more often than necessary. It is all static and 
     will not change"""
     __slots__ = (
-                     '_data',       # all used as cache
-                     '_kvstore',     
-                     '_procdata',
-                     '_cmdline_overrides',
-                     '_hash_map',
-                )
+        '_data',       # all used as cache
+        '_kvstore',
+        '_procdata',
+        '_cmdline_overrides',
+        '_hash_map',
+    )
 
     key_sep = ','
 
@@ -170,7 +170,7 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
             return super(ControlledProcessInformation, self)._set_cache_(name)
         # end handle cached attributes
 
-    @classmethod        
+    @classmethod
     def _yaml_data(cls, evar):
         """@return object as loaded from the yaml string retrieved from the given environment variable,
         or None if it was unset
@@ -180,8 +180,8 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
             return None
         # end handle uncontrolled process
         return yaml.load(yaml_string)
-    
-    @classmethod    
+
+    @classmethod
     def _store_yaml_data(cls, evar, env, data):
         """Store the given piece of yaml data in the given environment dictionary
         @param evar environment variable
@@ -193,49 +193,48 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
     @classmethod
     def _encode(cls, data):
         """@return encoded version of data, suitable to be stored in the environment"""
-        # make sure we pickle with protocol 2, to allow running python3 for bootstrap, 
+        # make sure we pickle with protocol 2, to allow running python3 for bootstrap,
         # which launches python2
         # We also have to be sure it's a string object, in order to be working in an environment dict
         return binascii.b2a_base64(zlib.compress(pickle.dumps(data, 2), 9)).decode()
-        
+
     @classmethod
     def _decode(cls, data_string):
         """@return decoded version of the previously encoded data_string"""
-        kwargs = (sys.version_info[0] > 2) and dict(encoding = 'utf-8') or dict()
+        kwargs = (sys.version_info[0] > 2) and dict(encoding='utf-8') or dict()
         return pickle.loads(zlib.decompress(binascii.a2b_base64(data_string)), **kwargs)
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     def data(self):
         return self._data
-        
+
     @classmethod
-    def has_data(cls, environ = None):
+    def has_data(cls, environ=None):
         return cls.storage_environment_variable in (environ or os.environ)
 
     def process_data(self):
         return self._procdata
-        
+
     def commandline_overrides(self):
         return self._cmdline_overrides
 
     def config_hashmap(self):
         return self._hash_map
-        
-    ## -- End Interface -- @}
-    
-    
+
+    # -- End Interface -- @}
+
     # -------------------------
-    ## @name Custom Interface
+    # @name Custom Interface
     # @{
-    
+
     def as_kvstore(self):
         """@return a keyvalue store provider instance intialized with our data(), or None if this 
         process wasn't launched using process control"""
         return self._kvstore
-        
+
     @classmethod
     def store(cls, env, context_stack, chunk_size=1024):
         """Store the data within the given application context within the environment dict for later retrieval
@@ -250,9 +249,10 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
             keys = sc.split(source, chunk_size, env)
             env[cls.storage_environment_variable] = cls.key_sep.join(keys)
         # end handle source too big to be stored
-        
+
         # store process data as well
-        cls._store_yaml_data(cls.process_information_environment_variable, env, context_stack.settings().value_by_schema(process_schema))
+        cls._store_yaml_data(cls.process_information_environment_variable, env,
+                             context_stack.settings().value_by_schema(process_schema))
 
         # Store ConfigHierarchy hashmap for restoring it later
         # merge and store
@@ -265,7 +265,7 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
 
         # Always store it, even if empty
         env[cls.config_file_hash_map_environment_variable] = cls._encode(hash_map)
-        
+
     @classmethod
     def store_commandline_overrides(cls, env, data):
         """Store the information in the given kvstore for the process that is about to be launched. He can 
@@ -274,7 +274,7 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
         @param data a dictionary or data structure with the commandline overrides
         """
         cls._store_yaml_data(cls.commandline_overrides_environment_variable, env, data)
-        
+
     def executable(self):
         """@return executable wrapper as Path instance that was originally used to start the 
         currently running process, or None if we are not in a controlled environment"""
@@ -284,28 +284,29 @@ class ControlledProcessInformation(IControlledProcessInformation, Singleton, Laz
             return None
         # end handle uncontrolled environment
         return process_data.executable
-    
-    ## -- End Custom Interface -- @}
+
+    # -- End Custom Interface -- @}
 
 # end class ControlledProcessInformation
 
 
 class PackageDataIteratorMixin(object):
+
     """A mixin to provide functionality to iterate the process controller's package database.
-    
+
     To do that, it will just follow the 'requires' field of each package.
-    
+
     Subclasses should use its schema as a default and merge their own schema in as to allow to access
     their own data with each package data block the iterator returns.
     """
     __slots__ = ()
-    
+
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # @{
-    
+
     @classmethod
-    def new_controller_schema(cls, schema = package_schema):
+    def new_controller_schema(cls, schema=package_schema):
         """Called during type instantiation to put your own schema onto package level. This allows 
         your data to be returned upon query by placing it into a KeyValueStoreSchema whose hierarchy fits
         to the one of the package controller
@@ -314,18 +315,18 @@ class PackageDataIteratorMixin(object):
         a package. The schema must have the 'requires' key 
         @return KeyValueStoreSchema suitable for use in iteration. Assign it to your _schema class variable
         if you are an ApplicationSettingsMixin subclass"""
-        return KeyValueStoreSchema(controller_schema.key(), 
-                                            {   
-                                                package_schema.key() : schema
-                                            }
-                                            )
+        return KeyValueStoreSchema(controller_schema.key(),
+                                   {
+            package_schema.key(): schema
+        }
+        )
 
     @classmethod
     def _package_key(cls, name):
         """@return kvstore key for package with 'name'"""
         return '%s.%s' % (controller_schema.key(), name)
 
-    def _internal_iter_package_data(self, settings_value_or_kvstore, package_name, schema = None):
+    def _internal_iter_package_data(self, settings_value_or_kvstore, package_name, schema=None):
         """If schema is None, we use the settings_value mode, otherwise we access a kvstore directly"""
         if schema:
             data_by_name = lambda n: settings_value_or_kvstore.value(self._package_key(n), schema, resolve=True)
@@ -334,6 +335,7 @@ class PackageDataIteratorMixin(object):
         # end handle query function
 
         seen = set()
+
         def recurse_packages(name):
             if name in seen:
                 raise StopIteration
@@ -342,7 +344,7 @@ class PackageDataIteratorMixin(object):
                 pdata = data_by_name(name)
             except (KeyError, NoSuchKeyError):
                 raise KeyError("A package named '%s' wasn't configured. It should be located at '%s'."
-                                                    % (name, self._package_key(name)))
+                               % (name, self._package_key(name)))
             # end provide nice exceptions
             requires = pdata.requires   # cache it !
             yield pdata, name
@@ -352,7 +354,7 @@ class PackageDataIteratorMixin(object):
                     yield item
             # end for each child iterate
         # end utility
-        
+
         return recurse_packages(package_name)
 
     def _iter_package_data(self, settings_value, package_name):
@@ -366,7 +368,7 @@ class PackageDataIteratorMixin(object):
         """As _iter_package_data(), but more efficient as it will pick the packages individually. This 
         method should be preferred due to increased efficiency"""
         return self._internal_iter_package_data(kvstore, package_name, package_schema)
-        
+
     @classmethod
     def _to_package(cls, name, data):
         """@return A ProcessControllerPackageSpecification instance allowing you to query the root path of 
@@ -378,14 +380,14 @@ class PackageDataIteratorMixin(object):
         would want to read"""
         assert hasattr(data, 'trees'), "Data requrires 'trees' attribute for package to be functional"
         return ProcessControllerPackageSpecification(name, data)
-        
-        
-    ## -- End Subclass Interface -- @}
-        
+
+    # -- End Subclass Interface -- @}
+
 # end class PackageIteratorMixin
 
 
 class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
+
     """A mixin which provides additional functions to flatten the package data"""
     __slots__ = ()
 
@@ -396,72 +398,73 @@ class FlatteningPackageDataIteratorMixin(PackageDataIteratorMixin):
         tree = OrderedDict()
         sub_tree = OrderedDict()
         tree[controller_schema.key()] = sub_tree
-        
-        for data, name  in self._iter_package_data(self.settings_value(kvstore), program):
+
+        for data, name in self._iter_package_data(self.settings_value(kvstore), program):
             # We keep requires to allow iteration
             sub_tree[name] = data
-        #end for each package to query
-        return tree    
+        # end for each package to query
+        return tree
 
 # end class FlattenedPackgeTreeMixin
 
 
-class PackageMetaDataChangeTracker( PersistentApplicationSettingsMixin, 
-                                    FlatteningPackageDataIteratorMixin):
+class PackageMetaDataChangeTracker(PersistentApplicationSettingsMixin,
+                                   FlatteningPackageDataIteratorMixin):
+
     """A utility to track and query changes done to meta-data of individual packages, and to iterate 
     package information.
-    
+
     Note that initially, you will see no changes, as it will assume everything as unchanged if there was
     no previous package data.
-    
+
     To acknowledge changes or start tracking them, you must call make_package_state_current() at least once.
-    
+
     PackageData we provide includes:
-    
+
     + version
     + url
     + description
     + name (suitable for GUI purposes)
-    
+
     """
     __slots__ = ('_package_name')
-    
+
     _schema = PackageDataIteratorMixin.new_controller_schema(package_meta_data_schema)
-    
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
-    
-    ## Suffix to be prepended to our settings file
+
+    # Suffix to be prepended to our settings file
     settings_prefix = 'package_state.'
-    
-    ## -- End Configuration -- @}
-    
+
+    # -- End Configuration -- @}
+
     def __init__(self, package_name):
         """Intiailize this instnace
         @param package_name the package (and its dependent packages) that we are supposed to track"""
         self._package_name = package_name
-    
+
     def _initial_settings_value(self):
         """@return a flattened list of just the packages we are concerned with"""
         return self._flattened_package_tree(self._package_name, bapp.main().context().settings())
-    
+
     def settings_id(self):
         """@return our settings id
         @note this implementation is project-aware, which is why it is recommended to set a project 
         accordingly."""
         return self.settings_prefix + '%s.%s' % (bapp.main().new_instance(bapp.IProjectService).id(), self._package_name)
-    
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     def changes(self):
         """@return A DictObject with changed fields and their previous values in all our dependent packages, 
         which may be empty if there was no change"""
         return self.settings_kvstore().changes()
-        
-    def package_data(self, previous = False):
+
+    def package_data(self, previous=False):
         """@return data matching our schema of the state of all packages (not only the ones related to 
         our root package). It may be there is not a single package in it at all.
         @param previous if False, you will get the current state data, if True it will be the previous data
@@ -483,13 +486,13 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsMixin,
 
             if not data:
                 # kvstore raises if it doesn't even have the primary key in store
-                data = { self._schema.key() : dict() }
+                data = {self._schema.key(): dict()}
             # end handle file exists
             context = KeyValueStoreModifier(data)
         # end handle previous value
         return self.settings_value(context)
-        
-    def iter_package_data(self, previous = False):
+
+    def iter_package_data(self, previous=False):
         """@return iterator returning tuples of (data, name) package data and name items. The data matches our 
         schema, and was retrieved from the envrionments kvstore.
         @param previous if False, you will get the current state data, if True it will be the previous data
@@ -498,9 +501,9 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsMixin,
         # especially previous data might not have a change for our key
         if self._package_name not in data:
             return iter(list())
-        #end handle key is not there
+        # end handle key is not there
         return self._iter_package_data(data, self._package_name)
-        
+
     def make_package_state_current(self):
         """Remember the state of our packages, to make it the basis for a future comparison
         @note will create settings directory if required.
@@ -511,26 +514,27 @@ class PackageMetaDataChangeTracker( PersistentApplicationSettingsMixin,
         # end assure directory exists
         self.settings_kvstore().StreamSerializerType().serialize(self._initial_settings_value(), open(path, 'w'))
         return self
-        
+
     def package_name(self):
         """@return the name of our root package"""
         return self._package_name
-        
-    ## -- End Interface -- @}
-    
+
+    # -- End Interface -- @}
+
 
 # end class PackageMetaDataChangeTracker
 
 
 class ProcessControllerPackageSpecification(LazyMixin):
+
     """A utility interface to provide information about the process to be launched."""
     __slots__ = (
-                '_name', 
-                '_data',
-                '_root_path',    # cache for the root_path
-                '_quiet'         # don't warn about an invalid root-path (used internally)
-                )
-    
+        '_name',
+        '_data',
+        '_root_path',    # cache for the root_path
+        '_quiet'         # don't warn about an invalid root-path (used internally)
+    )
+
     def __init__(self, name, data, quiet=False):
         """initialize the instance from pacakge data compatible to the ProcessController schema
         @param name of package this instance represents
@@ -539,7 +543,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
         self._name = name
         self._data = data
         self._quiet = quiet
-        
+
     def _set_cache_(self, name):
         if name == '_root_path':
             try:
@@ -548,30 +552,31 @@ class ProcessControllerPackageSpecification(LazyMixin):
             except ValueError:
                 self._root_path = None          # default
                 if not self._quiet:
-                    log.warn("None of the given trees of package '%s' was accessible: [%s]", self.name(), ', '.join(self._data.trees))
+                    log.warn(
+                        "None of the given trees of package '%s' was accessible: [%s]", self.name(), ', '.join(self._data.trees))
                 # end handle warning
             # end handle inaccessible directory
         else:
             super(ProcessControllerPackageSpecification, self)._set_cache_(name)
-        #end handle cache name
-        
+        # end handle cache name
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     def name(self):
         """@return name of this package"""
         return self._name
-    
+
     def root_path(self):
         """@return butility.Path instance pointing at the *existing* root of the package
         or None if there is no such path or if the configured path doesn't exist"""
         return self._root_path
-        
+
     def data(self):
         """@return our data package"""
         return self._data
-        
+
     def to_abs_path(self, path):
         """Convert the given possibly relative path to an absolute path, if necessary
         @note it is not checked for existence
@@ -586,10 +591,11 @@ class ProcessControllerPackageSpecification(LazyMixin):
         if path.containsvars():
             return path
         if self.root_path() is None:
-            raise EnvironmentError("Cannot convert '%s' to absolute path in package '%s' without a single valid tree, tried: [%s]" % (path, self.name(), ', '.join(self._data.trees)))
+            raise EnvironmentError("Cannot convert '%s' to absolute path in package '%s' without a single valid tree, tried: [%s]" % (
+                path, self.name(), ', '.join(self._data.trees)))
         # end handle root path
         return self.root_path() / path
-        
+
     def executable(self, env):
         """@return butility.Path to executable - its not verified to be existing
         @note for now this is uncached, but its okay for our use
@@ -617,7 +623,7 @@ class ProcessControllerPackageSpecification(LazyMixin):
 
             if os.name == 'nt':
                 # We assume exe by default, and not com or bat.
-                # Even though magic isn't good, I see no point in making this configurable, people 
+                # Even though magic isn't good, I see no point in making this configurable, people
                 # can just be explicit about the extension
                 win_ext = '.exe'
                 if not executable_path.ext():
@@ -625,11 +631,11 @@ class ProcessControllerPackageSpecification(LazyMixin):
                 # handle extension
             # end handle windows
 
-            # If we have variables in the path, we can't assume anything (nor resolve) as it might be too early 
+            # If we have variables in the path, we can't assume anything (nor resolve) as it might be too early
             # for that. In that case, we assume the best. Otherwise, the executable must exist
             if not executable_path.containsvars() and not executable_path.isfile():
                 continue
-            # end 
+            # end
 
             return executable_path
         # end for each executable to try
@@ -637,33 +643,33 @@ class ProcessControllerPackageSpecification(LazyMixin):
         if error:
             raise error
         return executable_path
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 
 # end class ProcessControllerPackageSpecification
 
 
 class PythonPackageIterator(ApplicationSettingsMixin, PackageDataIteratorMixin):
+
     """A utility type allowing to deal with additional python information
-    
+
     Currently it is able to import any of the given modules, per package
     """
     __slots__ = ()
-    
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
-    
+
     _schema = PackageDataIteratorMixin.new_controller_schema(python_package_schema)
-    
-    ## -- End Configuration -- @}
 
+    # -- End Configuration -- @}
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
+
     @classmethod
-    def import_module(cls, module, force_reimport = False):
+    def import_module(cls, module, force_reimport=False):
         """Import the given module, and return its name if it was imported, or None otherwise
         @param force_reimport if True, we will not use any cached module. This can be useful if 
         plugins are to be reloaded every time, just to be sure we have the latest version.
@@ -688,7 +694,7 @@ class PythonPackageIterator(ApplicationSettingsMixin, PackageDataIteratorMixin):
             return module
         # end ignore exceptions
         return None
-    
+
     def import_modules(self, store=None, package_name=None):
         """Imports all additional modules as specified in the configuration of our loaded packages
         @param store a kvstore with package settings (and more), usually Application.context().
@@ -732,17 +738,18 @@ class PythonPackageIterator(ApplicationSettingsMixin, PackageDataIteratorMixin):
                         # we make it a configuration flag)
                         log.error("Failed to load plugin(s) at '%s' with error: %s", plugin_path, err)
                     # end don't quit on failures to load plugins
-                #end for each plugin path
+                # end for each plugin path
             # end handle plugin paths
-        #end for each package
+        # end for each package
         return imported_modules
-    
-    ## -- End Interface -- @}    
+
+    # -- End Interface -- @}
 
 # end class PythonPackageIterator
 
 
 class ExecutableContext(StackAwareHierarchicalContext):
+
     """An environment automatically adding process information if this process was launched 
     through process control
     Additionally it will load python modules as defined in the respective schema
@@ -755,14 +762,13 @@ class ExecutableContext(StackAwareHierarchicalContext):
         to the kvstore"""
         pinfo = ControlledProcessInformation()
         executable = pinfo.executable()
-        super(ExecutableContext, self).__init__(executable or "Executable Environment (uncontrolled process)", 
-                                                    load_config = executable is not None)
-        
-        
+        super(ExecutableContext, self).__init__(executable or "Executable Environment (uncontrolled process)",
+                                                load_config=executable is not None)
+
         if pinfo.has_data():
             self.settings().set_value_by_schema(process_schema, pinfo.process_data())
         else:
-            # Make sure we will never configure anything. Subclass would take the name we provide, 
+            # Make sure we will never configure anything. Subclass would take the name we provide,
             # and convert it to an absolute path based on the cwd, which would possibly pick up configuration
             # we want in other environments, and load it !
             self._config_dirs = list()
@@ -771,6 +777,7 @@ class ExecutableContext(StackAwareHierarchicalContext):
 
 
 class ControlledProcessContext(StackAwareHierarchicalContext):
+
     """An environment which may only be created in processes started by ProcessControll to restore the exact 
     environment used when the wrapper was invoked.
 
@@ -785,10 +792,10 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
         """Set ourselves to all data provided by the wrapper
         @note does nothing if we are not wrapped"""
         # Make sure the based doesn't to any work
-        super(ControlledProcessContext, self).__init__("Boot Environment", 
-                                                        load_config = False, 
-                                                        traverse_settings_hierarchy=False,
-                                                        application=application)
+        super(ControlledProcessContext, self).__init__("Boot Environment",
+                                                       load_config=False,
+                                                       traverse_settings_hierarchy=False,
+                                                       application=application)
 
         ppi = ControlledProcessInformation()
         store = ppi.as_kvstore()
@@ -811,20 +818,21 @@ class ControlledProcessContext(StackAwareHierarchicalContext):
         # end for each configuration file to obtain directory from
 
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # documentation
     # @{
-    
+
     def has_data(self):
         """@return True if we have data"""
         return ControlledProcessInformation.has_data()
 
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 
 # end class ControlledProcessContext
 
 
 class CommandlineOverridesContext(Context):
+
     """An environment to re-apply commandline overrides. It should usually be added last
     @todo this would better be part of the executable environment, just MERGING the overrides into 
     the kvstore would do just fine"""
@@ -833,7 +841,7 @@ class CommandlineOverridesContext(Context):
     def __init__(self, name='commandline overrides'):
         """Setup our commandline overrides, if there are some"""
         super(CommandlineOverridesContext, self).__init__(name)
-        
+
         overrides = ControlledProcessInformation().commandline_overrides()
         if overrides:
             self._kvstore = KeyValueStoreModifier(overrides)
@@ -841,6 +849,5 @@ class CommandlineOverridesContext(Context):
 
         # finally, import modules based on a rather complete configuration
         iterator.import_modules()
-        
-# end class CommandlineOverridesContext
 
+# end class CommandlineOverridesContext

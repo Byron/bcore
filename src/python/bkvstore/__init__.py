@@ -17,6 +17,7 @@ __version__ = Version("0.1.0")
 import sys
 import os
 
+
 def _init_yaml_persistence():
     """Assure the yaml module is setup so that it can handle ordered dicts when serializing data"""
     # for now we have a yaml dependency (json would be nicer as its supported out of the box
@@ -32,9 +33,9 @@ def _init_yaml_persistence():
             zipimport.zipimporter(yaml_archive).load_module('yaml')
         except ImportError:
             raise ImportError("Failed to import yaml, even using our own library at bkvstore.yaml")
-        #end handle yaml
+        # end handle yaml
     # end handle exception
-    
+
     # Setup persistence
     from . import persistence
     persistence.initialize_yaml_overrides()

@@ -12,7 +12,7 @@ __all__ = []
 import os
 from nose import SkipTest
 import signal
-from time import (sleep, 
+from time import (sleep,
                   time)
 
 import bapp
@@ -25,18 +25,19 @@ from bcmd import *
 
 
 class SimpleCommand(Command):
+
     """Just to run the code"""
     __slots__ = ()
-    
+
     name = 'simple'
     version = '1.0.2-beta'
     log_id = name
     description = 'The first command'
-    
+
     def setup_argparser(self, parser):
         parser.add_argument('-x', type=int, required=True)
         return self
-        
+
     def execute(self, args, remaining):
         assert not remaining
         assert isinstance(args.x, int)
@@ -46,6 +47,7 @@ class SimpleCommand(Command):
 
 
 class MainCommand(Command):
+
     """A command providing subcommands"""
     __slots__ = ()
 
@@ -53,11 +55,11 @@ class MainCommand(Command):
     version = '1.foobar'
     log_id = name
     description = 'The first command'
-    
+
     subcommands_title = 'Modes'
     subcommands_description = 'Various modes at your command'
     subcommands_help = 'Use --help after specifying a mode to get mode specific help'
-    
+
     def _find_compatible_subcommands(self):
         cmds = super(MainCommand, self)._find_compatible_subcommands()
         assert len(cmds) == 1
@@ -67,17 +69,20 @@ class MainCommand(Command):
 
 
 class SimpleSubcommand(SimpleCommand, SubCommand, bapp.plugin_type()):
+
     """A simple command to be used as subcommand"""
     __slots__ = ()
-    
+
     main_command_name = MainCommand.name
 
 # end class SimpleSubcommand
 
+
 class IncompatibleSubccommand(SimpleSubcommand):
+
     """This one shouldn't be there"""
     __slots__ = ()
-    
+
     name = 'notthisone'
     main_command_name = 'somethingelse'
 
@@ -97,6 +102,7 @@ class Nested(Command):
 
 
 class NestedCommand(SubCommand, bapp.plugin_type()):
+
     """See if it works to have multiple nesting levels"""
     __slots__ = ('_argparser_called')
 
@@ -168,11 +174,12 @@ class DaemonCommand(DaemonCommandMixin, Command, CommandlineOverridesMixin):
     def execute(self, args, remaining_args):
         self._start_time = time()
         return super(DaemonCommand, self).execute(args, remaining_args)
-        
+
 # end class DaemonCommand
 
 
 class TestCommands(TestCase):
+
     """Basic command framework tests"""
     __slots__ = ()
 
@@ -185,7 +192,7 @@ class TestCommands(TestCase):
         assert cmd.parse_and_execute(['--version']) == cmd.ARGUMENT_HANDLED, 'can show version'
         assert cmd.parse_and_execute(['-x', 'foo']) == 3, 'cannot use foo as int'
         assert cmd.parse_and_execute(['-x', '5']) == 0, 'first valid call'
-        
+
     @with_application
     def test_master_command(self):
         """Simple subcommand testing"""
@@ -207,7 +214,7 @@ class TestCommands(TestCase):
     def test_nested_command(self):
         cmd = Nested(application=bapp.main())
         assert cmd.parse_and_execute([NestedCommand.name, NestedSubCommand.name]) == NestedSubCommand.call_magic, \
-        'nesting should work just fine'
+            'nesting should work just fine'
 
 # end class TestCommands
 

@@ -17,21 +17,22 @@ from butility import Meta
 
 
 # ==============================================================================
-## @name Plugin Handling
+# @name Plugin Handling
 # ------------------------------------------------------------------------------
 # Convenience facilities to help writing plugins and interfaces for easy use the ContextStack
-## @{
+# @{
 
 
 # inherits from InterfaceMeta to support inheritance in the implements() function
 class PluginMeta(Meta):
+
     """ metaclass for Plugin, registers the Plugin subclass in the currently set
         Context. Can be used with any type, doesn't need to derive from Plugin.
         However, the Plugin implementation will register instances, which the implementor would have to 
         do by himself otherwise."""
-        
+
     def __new__(mcls, name, bases, clsdict):
-        """Registers the plugin's type to allow it to be instantiated""" 
+        """Registers the plugin's type to allow it to be instantiated"""
         new_type = super(PluginMeta, mcls).__new__(mcls, name, bases, clsdict)
         original_plugin_type = globals().get('Plugin')
 
@@ -54,31 +55,33 @@ class PluginMeta(Meta):
         # end handle Plugin instantiation
 
         return new_type
-        # end check 
-        
+        # end check
+
 # end class PluginMeta
 
 # Careful about renames: name is used verbatim in code above !
+
+
 class Plugin(with_metaclass(PluginMeta, object)):
+
     """ base class for all Plugins implementing interfaces"""
-    
+
     # -------------------------
-    ## @name Configuration
+    # @name Configuration
     # @{
 
-    ## A ContextStack instance to use to register new types and instances.
+    # A ContextStack instance to use to register new types and instances.
     # Must be set in subclass
     _stack_ = None
-    
-    ## If True, new instances will automatically register themselves with the current Context
+
+    # If True, new instances will automatically register themselves with the current Context
     _auto_register_instance_ = True
-    
-    ## If True, any subclass of this type will be registered automatically with the current Context
+
+    # If True, any subclass of this type will be registered automatically with the current Context
     _auto_register_class_ = True
-    
-    ## -- End Configuration -- @}
-    
-    
+
+    # -- End Configuration -- @}
+
     def __new__(cls, *args, **kwargs):
         """ overloaded class creator, registers the instance in the current
             Context for all our instances """
@@ -87,14 +90,14 @@ class Plugin(with_metaclass(PluginMeta, object)):
             cls._stack().register(self)
         # end handle registration
         return self
-        
+
     # -------------------------
-    ## @name Interface
+    # @name Interface
     # @{
-    
-    ## Subclasses can set this variable to easily set their plugin name, which can be used for GUI purposes
+
+    # Subclasses can set this variable to easily set their plugin name, which can be used for GUI purposes
     _plugin_name = None
-    
+
     @classmethod
     def plugin_name(cls):
         """@return the name of the Plugin
@@ -102,10 +105,10 @@ class Plugin(with_metaclass(PluginMeta, object)):
         set as member variable"""
         return cls._plugin_name or cls.__name__
 
-    ## -- End Interface -- @}
+    # -- End Interface -- @}
 
     # -------------------------
-    ## @name Subclass Interface
+    # @name Subclass Interface
     # @{
 
     @classmethod
@@ -114,10 +117,9 @@ class Plugin(with_metaclass(PluginMeta, object)):
         must not be None"""
         assert cls._stack_, "Subclass should have set _stack_ variable, or have overridden this method"
         return cls._stack_
-        
-    
-    ## -- End Subclass Interface -- @}
+
+    # -- End Subclass Interface -- @}
 
 # end class Plugin
 
-## -- End Plugin Handling -- @}
+# -- End Plugin Handling -- @}

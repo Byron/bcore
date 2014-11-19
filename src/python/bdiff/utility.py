@@ -11,11 +11,11 @@ __all__ = ['merge_data']
 
 
 # ==============================================================================
-## @name Routines
+# @name Routines
 # ------------------------------------------------------------------------------
-## @{
+# @{
 
-def merge_data(source, destination, delegate_type = None, diff_type = None):
+def merge_data(source, destination, delegate_type=None, diff_type=None):
     """A quick-and-dirty helper to more easily perform a merge operation, with all the object types involved
     @param delegate_type if None, it will default to AutoResolveAdditiveMergeDelegate
     @param diff_type if None, it defaults to TwoWayDiff
@@ -28,7 +28,5 @@ def merge_data(source, destination, delegate_type = None, diff_type = None):
     delegate = delegate_type()
     diff_type().diff(delegate, destination, source)
     return delegate.result()
-    
-## -- End Routines -- @}
 
-
+# -- End Routines -- @}

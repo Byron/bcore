@@ -17,6 +17,7 @@ from .base import TestConfiguration
 from bkvstore.persistence import OrderedDictYAMLLoader
 from butility import OrderedDict
 
+
 class TestConfigurationCore(TestConfiguration):
     __slots__ = ()
 
@@ -28,7 +29,7 @@ class TestConfigurationCore(TestConfiguration):
         data = self.config_data('basic.yaml')
         # stability of the data
         yaml_data = yaml.dump(data)
-        
+
         def verify_data(data):
             """chekc the contents of inbound data dict"""
             # verify data and order
@@ -47,12 +48,11 @@ class TestConfigurationCore(TestConfiguration):
             assert len(section) == 2
             isection = iter(section)
             assert next(isection) == 'string'
-        #end verify data
+        # end verify data
         verify_data(data)
-        
+
         # stability of the data
         yaml_data = yaml.dump(data)
-        data_duplicate = yaml.load(yaml_data, Loader = OrderedDictYAMLLoader)
+        data_duplicate = yaml.load(yaml_data, Loader=OrderedDictYAMLLoader)
         assert data_duplicate == data
         verify_data(data_duplicate)
-        
