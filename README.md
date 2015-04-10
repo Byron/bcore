@@ -32,6 +32,7 @@ Optionally, you may need the following
 
 [![Coverage Status](https://coveralls.io/repos/Byron/bcore/badge.png)](https://coveralls.io/r/Byron/bcore)
 [![Build Status](https://travis-ci.org/Byron/bcore.svg?branch=master)](https://travis-ci.org/Byron/bcore)
+[![Code Climate](https://codeclimate.com/github/Byron/bcore/badges/gpa.svg)](https://codeclimate.com/github/Byron/bcore)
 
 The code base was initiated 1.5 years ago, and was created to faciliate development in the company I was working for. Thanks to a code-buyback deal I am able to open-source it.
 
