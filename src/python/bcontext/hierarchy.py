@@ -55,6 +55,7 @@ class HierarchicalContext(Context, LazyMixin):
     # A mapping of long to short platform names
     platform_names_map = {'linux': 'lnx',
                           'linux2': 'lnx',
+                          'linux3': 'lnx',
                           'sunos5': 'sun',
                           'darwin': 'mac',
                           'freebsd10': 'bsd',
